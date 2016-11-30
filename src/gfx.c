@@ -106,14 +106,6 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
     glUseProgram(0);
 }
 
-void shiz_gfx_render_lines(SHIZVertexPositionColor const *vertices, uint const count) {
-    shiz_gfx_render(GL_LINES, vertices, count);
-}
-
-void shiz_gfx_render_triangles(SHIZVertexPositionColor const *vertices, uint const count) {
-    shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, count);
-}
-
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source) {
     GLuint const shader = glCreateShader(type);
 

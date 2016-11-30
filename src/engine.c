@@ -147,7 +147,7 @@ void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const 
         vertices[i].color = color;
     }
 
-    shiz_gfx_render_lines(vertices, count);
+    shiz_gfx_render(GL_LINES, vertices, count);
 }
 
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
@@ -169,7 +169,7 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
     vertices[2].position = SHIZPointMake(r, b);
     vertices[3].position = SHIZPointMake(r, t);
 
-    shiz_gfx_render_triangles(vertices, 4);
+    shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, 4);
 }
 
 static void _shiz_glfw_error_callback(int error, const char* description) {
