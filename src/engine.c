@@ -14,20 +14,22 @@
 #include <SHIZEN/engine.h>
 
 #include "internal.h"
+#include "gfx.h"
 
-void _shiz_glfw_error_callback(int error, const char* description);
+static void _shiz_glfw_error_callback(int error, const char* description);
 
-void _shiz_glfw_window_close_callback(GLFWwindow* window);
-void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused);
+static void _shiz_glfw_window_close_callback(GLFWwindow* window);
+static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused);
 
-SHIZGraphicsContext context;
+static SHIZGraphicsContext context;
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+    (void)window;
     (void)scancode;
     (void)mods;
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+        context.should_finish = true;
     }
 }
 
@@ -38,12 +40,14 @@ bool shiz_init() {
 
     glfwSetErrorCallback(_shiz_glfw_error_callback);
 
+    printf("GLFW: %s\n", glfwGetVersionString());
+    
     if (!glfwInit()) {
         fprintf(stderr, "glfw: failed to initialize\n");
         return false;
     }
-
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    
+    glfwWindowHint(GLFW_SAMPLES, 0);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -59,7 +63,8 @@ bool shiz_init() {
         GLFWmonitor *monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 
-        context.window = glfwCreateWindow(mode->width, mode->height, title, glfwGetPrimaryMonitor(), NULL);
+        context.window = glfwCreateWindow(mode->width, mode->height,
+                                          title, glfwGetPrimaryMonitor(), NULL);
     } else {
         context.window = glfwCreateWindow(320, 240, title, NULL, NULL);
     }
@@ -82,7 +87,13 @@ bool shiz_init() {
         return false;
     }
 
+    if (!shiz_gfx_init()) {
+        return false;
+    }
+    
     context.is_initialized = true;
+
+    glClearColor(0, 0, 0, 1);
     
     return true;
 }
@@ -91,7 +102,11 @@ bool shiz_shutdown() {
     if (!context.is_initialized) {
         return false;
     }
-    
+
+    if (!shiz_gfx_kill()) {
+        return false;
+    }
+
     glfwTerminate();
     
     context.is_initialized = false;
@@ -107,26 +122,45 @@ bool shiz_should_finish() {
     return context.should_finish;
 }
 
-void shiz_draw_begin() {
-    // not yet implemented
+void shiz_drawing_begin() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void shiz_draw_end() {
+void shiz_draw_line(SHIZPoint const from, SHIZPoint const to, SHIZColor const color) {
+    SHIZPoint points[] = {
+        from, to
+    };
+
+    shiz_draw_path(points, 2, color);
+}
+
+void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const color) {
+    SHIZVertexPositionColor vertices[count];
+
+    for (uint i = 0; i < count; i++) {
+        vertices[i].position = points[i];
+        vertices[i].color = color;
+    }
+
+    shiz_gfx_render_lines(vertices, count);
+}
+
+void shiz_drawing_end() {
     glfwSwapBuffers(context.window);
     glfwPollEvents();
 }
 
-void _shiz_glfw_error_callback(int error, const char* description) {
+static void _shiz_glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "glfw: %d %s\n", error, description);
 }
 
-void _shiz_glfw_window_close_callback(GLFWwindow* window) {
+static void _shiz_glfw_window_close_callback(GLFWwindow* window) {
     (void)window;
 
     context.should_finish = true;
 }
 
-void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused) {
+static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused) {
     (void)window;
 
     context.is_focused = focused;
