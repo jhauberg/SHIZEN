@@ -18,6 +18,8 @@
 
 #include <stdbool.h>
 
+#include "type.h"
+
 /**
  * @brief Initialize the SHIZEN engine core.
  *
@@ -31,7 +33,7 @@
  *
  * @return `true` if SHIZEN was initialized correctly, `false` otherwise
  */
-bool shiz_init();
+bool shiz_init(void);
 /**
  * @brief Shutdown the SHIZEN engine core.
  *
@@ -43,7 +45,7 @@ bool shiz_init();
  *
  * @return `true` if SHIZEN was shutdown correctly, `false` otherwise
  */
-bool shiz_shutdown();
+bool shiz_shutdown(void);
 
 /**
  * @brief Signal that SHIZEN should finish up.
@@ -53,7 +55,7 @@ bool shiz_shutdown();
  * This can be called at any time (e.g. during the rendering of a frame), to indicate that 
  * the game should shutdown when possible.
  */
-void shiz_request_finish();
+void shiz_request_finish(void);
 /**
  * @brief Determine whether SHIZEN should finish up.
  *
@@ -65,9 +67,11 @@ void shiz_request_finish();
  *
  * @return `true` if SHIZEN should finish up, `false` otherwise
  */
-bool shiz_should_finish();
+bool shiz_should_finish(void);
 
-void shiz_draw_begin();
-void shiz_draw_end();
+void shiz_drawing_begin(void);
+void shiz_draw_line(SHIZPoint const from, SHIZPoint const to, SHIZColor const color);
+void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const color);
+void shiz_drawing_end(void);
 
 #endif // engine_h
