@@ -72,6 +72,7 @@ bool shiz_should_finish(void);
 void shiz_drawing_begin(void);
 void shiz_draw_line(SHIZPoint const from, SHIZPoint const to, SHIZColor const color);
 void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const color);
+void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
 void shiz_drawing_end(void);
 
 #endif // engine_h

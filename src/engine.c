@@ -126,6 +126,11 @@ void shiz_drawing_begin() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void shiz_drawing_end() {
+    glfwSwapBuffers(context.window);
+    glfwPollEvents();
+}
+
 void shiz_draw_line(SHIZPoint const from, SHIZPoint const to, SHIZColor const color) {
     SHIZPoint points[] = {
         from, to
@@ -145,9 +150,26 @@ void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const 
     shiz_gfx_render_lines(vertices, count);
 }
 
-void shiz_drawing_end() {
-    glfwSwapBuffers(context.window);
-    glfwPollEvents();
+void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
+    uint const vertex_count = 4;
+
+    SHIZVertexPositionColor vertices[vertex_count];
+
+    for (uint i = 0; i < vertex_count; i++) {
+        vertices[i].color = color;
+    }
+
+    float const l = rect.center.x - (rect.width / 2.0f);
+    float const r = rect.center.x + (rect.width / 2.0f);
+    float const b = rect.center.y - (rect.height / 2.0f);
+    float const t = rect.center.y + (rect.height / 2.0f);
+
+    vertices[0].position = SHIZPointMake(l, b);
+    vertices[1].position = SHIZPointMake(l, t);
+    vertices[2].position = SHIZPointMake(r, b);
+    vertices[3].position = SHIZPointMake(r, t);
+
+    shiz_gfx_render_triangles(vertices, 4);
 }
 
 static void _shiz_glfw_error_callback(int error, const char* description) {
