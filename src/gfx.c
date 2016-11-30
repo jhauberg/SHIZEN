@@ -90,7 +90,7 @@ bool shiz_gfx_kill() {
     return true;
 }
 
-void shiz_gfx_render_lines(SHIZVertexPositionColor const *vertices, uint const count) {
+void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
     glUseProgram(render.program);
     glBindVertexArray(render.vao); {
         glBindBuffer(GL_ARRAY_BUFFER, render.vbo); {
@@ -98,12 +98,20 @@ void shiz_gfx_render_lines(SHIZVertexPositionColor const *vertices, uint const c
                          sizeof(SHIZVertexPositionColor) * count /* sizeof(vertices) won't work here, because the array is passed as a pointer; but we can assume the type of vertex, so we can find the size manually ("sizeof(vertices[0]) * count" would work too) */,
                          vertices,
                          GL_DYNAMIC_DRAW /* because we never know how many lines will be rendered */);
-            glDrawArrays(GL_LINES, 0, count /* count of vertices; not count of lines; i.e. 1 line = 2 vertices */);
+            glDrawArrays(mode, 0, count /* count of vertices; not count of lines; i.e. 1 line = 2 vertices */);
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     glBindVertexArray(0);
     glUseProgram(0);
+}
+
+void shiz_gfx_render_lines(SHIZVertexPositionColor const *vertices, uint const count) {
+    shiz_gfx_render(GL_LINES, vertices, count);
+}
+
+void shiz_gfx_render_triangles(SHIZVertexPositionColor const *vertices, uint const count) {
+    shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, count);
 }
 
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source) {

@@ -17,6 +17,8 @@
 bool shiz_gfx_init(void);
 bool shiz_gfx_kill(void);
 
+void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count);
 void shiz_gfx_render_lines(SHIZVertexPositionColor const *vertices, uint const count);
+void shiz_gfx_render_triangles(SHIZVertexPositionColor const *vertices, uint const count);
 
 #endif // gfx_h
