@@ -147,7 +147,7 @@ void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const 
         vertices[i].color = color;
     }
 
-    shiz_gfx_render(GL_LINES, vertices, count);
+    shiz_gfx_render(GL_LINE_STRIP, vertices, count);
 }
 
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {

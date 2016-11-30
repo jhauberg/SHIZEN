@@ -14,7 +14,7 @@
 
 #define SHIZEN_VERSION_MAJOR 0
 #define SHIZEN_VERSION_MINOR 3
-#define SHIZEN_VERSION_PATCH 0
+#define SHIZEN_VERSION_PATCH 1
 
 #include <stdbool.h>
 
@@ -31,7 +31,7 @@
  *
  * @remark This function has no effect if SHIZEN was already initialized successfully.
  *
- * @return `true` if SHIZEN was initialized correctly, `false` otherwise
+ * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
 bool shiz_init(void);
 /**
@@ -43,7 +43,7 @@ bool shiz_init(void);
  *
  * @remark This function has no effect if SHIZEN was not initialized.
  *
- * @return `true` if SHIZEN was shutdown correctly, `false` otherwise
+ * @return `true` if SHIZEN was shutdown successfully, `false` otherwise
  */
 bool shiz_shutdown(void);
 
@@ -59,7 +59,8 @@ void shiz_request_finish(void);
 /**
  * @brief Determine whether SHIZEN should finish up.
  *
- * Determine whether SHIZEN has been signaled that it should finish up and prepare to shutdown.
+ * Determine whether SHIZEN has been signaled that it
+ * should finish up and prepare to shutdown.
  *
  * This can occur in two ways: either
  *  1) the graphics context has been forced closed (e.g. by user closing the window), or
@@ -69,10 +70,32 @@ void shiz_request_finish(void);
  */
 bool shiz_should_finish(void);
 
+/**
+ * @brief Initiate a drawing/rendering context.
+ *
+ * Initiate a context for drawing and rendering to the graphics context.
+ *
+ * Additionally, clear the screen from the previous frame.
+ */
 void shiz_drawing_begin(void);
+/**
+ * @brief Draw a line.
+ */
 void shiz_draw_line(SHIZPoint const from, SHIZPoint const to, SHIZColor const color);
+/**
+ * @brief Draw a path.
+ */
 void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const color);
+/**
+ * @brief Draw a rect.
+ */
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
+/**
+ * @brief Finish a drawing/rendering context.
+ *
+ * Finish the current drawing/rendering context and
+ * present the current frame to the graphics context.
+ */
 void shiz_drawing_end(void);
 
 #endif // engine_h
