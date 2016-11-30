@@ -20,8 +20,27 @@ static const SHIZPoint SHIZPointZero = { 0, 0 };
 static const SHIZPoint SHIZPointOne = { 1, 1 };
 
 static inline SHIZPoint SHIZPointMake(float const x, float const y) {
-    SHIZPoint point = { x, y };
+    SHIZPoint point = {
+        x, y
+    };
+
     return point;
+}
+
+typedef struct {
+    SHIZPoint center;
+    float width;
+    float height;
+} SHIZRect;
+
+static const SHIZRect SHIZRectEmpty = { { 0, 0 }, 0, 0 };
+
+static inline SHIZRect SHIZRectMake(SHIZPoint center, float const width, float const height) {
+    SHIZRect rect = {
+        center, width, height
+    };
+
+    return rect;
 }
 
 typedef struct {
