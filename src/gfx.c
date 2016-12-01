@@ -17,9 +17,28 @@
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source);
 static GLuint _shiz_gfx_link_program(GLuint const vert, GLuint const frag);
 
-static SHIZRenderData render;
+static bool _shiz_gfx_init_basic(void);
+static bool _shiz_gfx_kill_basic(void);
+
+static SHIZRenderData basic_render;
 
 bool shiz_gfx_init() {
+    if (!_shiz_gfx_init_basic()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool shiz_gfx_kill() {
+    if (!_shiz_gfx_kill_basic()) {
+        return false;
+    }
+
+    return true;
+}
+
+static bool _shiz_gfx_init_basic() {
     const char *vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec2 vertex_position;\n"
@@ -29,7 +48,7 @@ bool shiz_gfx_init() {
     "    gl_Position = vec4(vertex_position, 0, 1);\n"
     "    color = vertex_color;\n"
     "}\n";
-
+    
     const char *fragment_shader =
     "#version 330 core\n"
     "in vec4 color;\n"
@@ -37,28 +56,28 @@ bool shiz_gfx_init() {
     "void main() {\n"
     "    fragment_color = color;\n"
     "}\n";
-
+    
     GLuint vs = _shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
     GLuint fs = _shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
-
+    
     if (!vs && !fs) {
         return false;
     }
-
-    render.program = _shiz_gfx_link_program(vs, fs);
-
+    
+    basic_render.program = _shiz_gfx_link_program(vs, fs);
+    
     glDeleteShader(vs);
     glDeleteShader(fs);
-
-    if (!render.program) {
+    
+    if (!basic_render.program) {
         return false;
     }
-
-    glGenBuffers(1, &render.vbo);
-    glGenVertexArrays(1, &render.vao);
-
-    glBindVertexArray(render.vao); {
-        glBindBuffer(GL_ARRAY_BUFFER, render.vbo); {
+    
+    glGenBuffers(1, &basic_render.vbo);
+    glGenVertexArrays(1, &basic_render.vao);
+    
+    glBindVertexArray(basic_render.vao); {
+        glBindBuffer(GL_ARRAY_BUFFER, basic_render.vbo); {
             glVertexAttribPointer(0 /* position location */,
                                   2 /* number of position components per vertex */,
                                   GL_FLOAT,
@@ -66,7 +85,7 @@ bool shiz_gfx_init() {
                                   sizeof(SHIZVertexPositionColor) /* offset to reach next vertex */,
                                   0 /* position component is the first, so no offset */);
             glEnableVertexAttribArray(0);
-
+            
             glVertexAttribPointer(1 /* color location */,
                                   4 /* number of color components per vertex */,
                                   GL_FLOAT,
@@ -78,24 +97,24 @@ bool shiz_gfx_init() {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     glBindVertexArray(0);
-
+    
     return true;
 }
 
-bool shiz_gfx_kill() {
-    glDeleteProgram(render.program);
-    glDeleteVertexArrays(1, &render.vao);
-    glDeleteBuffers(1, &render.vbo);
-
+static bool _shiz_gfx_kill_basic(void) {
+    glDeleteProgram(basic_render.program);
+    glDeleteVertexArrays(1, &basic_render.vao);
+    glDeleteBuffers(1, &basic_render.vbo);
+    
     return true;
 }
 
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
-    glUseProgram(render.program);
-    glBindVertexArray(render.vao); {
-        glBindBuffer(GL_ARRAY_BUFFER, render.vbo); {
+    glUseProgram(basic_render.program);
+    glBindVertexArray(basic_render.vao); {
+        glBindBuffer(GL_ARRAY_BUFFER, basic_render.vbo); {
             glBufferData(GL_ARRAY_BUFFER,
-                         sizeof(SHIZVertexPositionColor) * count /* sizeof(vertices) won't work here, because the array is passed as a pointer; but we can assume the type of vertex, so we can find the size manually ("sizeof(vertices[0]) * count" would work too) */,
+                         sizeof(SHIZVertexPositionColor) * count /* sizeof(vertices) won't work here, because the array is passed as a pointer */,
                          vertices,
                          GL_DYNAMIC_DRAW /* because we never know how many lines will be rendered */);
             glDrawArrays(mode, 0, count /* count of vertices; not count of lines; i.e. 1 line = 2 vertices */);
