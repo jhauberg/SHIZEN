@@ -15,11 +15,19 @@
 
 #include "internal.h"
 #include "gfx.h"
+#include "io.h"
+
+#define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
+#define SHIZ_MIN_OPENGL_VERSION_MINOR 3
 
 static void _shiz_glfw_error_callback(int error, const char* description);
 
 static void _shiz_glfw_window_close_callback(GLFWwindow* window);
 static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused);
+
+static void _shiz_intro(void);
+static bool _shiz_can_run(void);
+static void _shiz_process_errors(void);
 
 static SHIZGraphicsContext context;
 
@@ -37,19 +45,17 @@ bool shiz_init() {
     if (context.is_initialized) {
         return true;
     }
-
+    
     glfwSetErrorCallback(_shiz_glfw_error_callback);
-
-    printf("GLFW: %s\n", glfwGetVersionString());
     
     if (!glfwInit()) {
-        fprintf(stderr, "glfw: failed to initialize\n");
+        shiz_io_error("GLFW (%s): failed to initialize\n", glfwGetVersionString());
         return false;
     }
     
     glfwWindowHint(GLFW_SAMPLES, 0);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, SHIZ_MIN_OPENGL_VERSION_MAJOR);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, SHIZ_MIN_OPENGL_VERSION_MINOR);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -70,10 +76,10 @@ bool shiz_init() {
     }
 
     if (!context.window) {
-        fprintf(stderr, "glfw: failed to make window\n");
+        shiz_io_error("GLFW (%s): failed to create window\n", glfwGetVersionString());
         return false;
     }
-
+    
     glfwSetWindowCloseCallback(context.window, _shiz_glfw_window_close_callback);
     glfwSetWindowFocusCallback(context.window, _shiz_glfw_window_focus_callback);
     
@@ -83,13 +89,20 @@ bool shiz_init() {
     glfwSwapInterval(1);
 
     if (gl3wInit()) {
-        fprintf(stderr, "gl3w: failed to initialize\n");
+        shiz_io_error("gl3w: failed to initialize\n");
         return false;
     }
-
+    
+    if (!_shiz_can_run()) {
+        shiz_io_error("SHIZEN is not supported on this system\n");
+        return false;
+    }
+    
     if (!shiz_gfx_init()) {
         return false;
     }
+    
+    _shiz_intro();
     
     context.is_initialized = true;
 
@@ -127,6 +140,9 @@ void shiz_drawing_begin() {
 }
 
 void shiz_drawing_end() {
+#ifdef SHIZ_DEBUG
+    _shiz_process_errors();
+#endif
     glfwSwapBuffers(context.window);
     glfwPollEvents();
 }
@@ -169,11 +185,52 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
     vertices[2].position = SHIZPointMake(r, b);
     vertices[3].position = SHIZPointMake(r, t);
 
-    shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, 4);
+    shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, vertex_count);
+}
+
+static void _shiz_intro(void) {
+    printf("  __|  |  | _ _| __  /  __|   \\ |\n");
+    printf("\\__ \\  __ |   |     /   _|   .  |\n");
+    printf("____/ _| _| ___| ____| ___| _|\\_|\n\n");
+    printf("SHIZEN %d.%d.%d / %s\n",
+           SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
+           SHIZEN_VERSION_NAME);
+    printf("Copyright (c) 2016 Jacob Hauberg Hansen\n\n");
+
+    printf("> OPENGL VERSION:  %s (GLSL %s)\n",
+           glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
+    printf("> OPENGL RENDERER: %s\n",
+           glGetString(GL_RENDERER));
+    printf("> OPENGL VENDOR:   %s\n\n",
+           glGetString(GL_VENDOR));
+}
+
+static bool _shiz_can_run(void) {
+    int major;
+    int minor;
+    
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    
+    if (major < SHIZ_MIN_OPENGL_VERSION_MAJOR ||
+        (major == SHIZ_MIN_OPENGL_VERSION_MAJOR &&
+         minor < SHIZ_MIN_OPENGL_VERSION_MINOR)) {
+        return false;
+    }
+    
+    return true;
+}
+
+static void _shiz_process_errors() {
+    GLenum error;
+    
+    while ((error = glGetError()) != GL_NO_ERROR) {
+        shiz_io_error("OPENGL: %d \n", error);
+    }
 }
 
 static void _shiz_glfw_error_callback(int error, const char* description) {
-    fprintf(stderr, "glfw: %d %s\n", error, description);
+    shiz_io_error("GLFW: %d %s \n", error, description);
 }
 
 static void _shiz_glfw_window_close_callback(GLFWwindow* window) {
