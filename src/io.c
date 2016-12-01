@@ -14,15 +14,15 @@
 
 #include "io.h"
 
+static const uint buffer_capacity = 256;
+static char buffer[buffer_capacity];
+
 void shiz_io_error(const char *format, ...) {
     va_list args;
     va_start(args, format); {
-        static const uint capacity = 256;
-        char _buffer[capacity];
+        vsnprintf(buffer, buffer_capacity, format, args);
 
-        vsnprintf(_buffer, capacity, format, args);
-
-        fprintf(stderr, "*** %s ***\n", _buffer);
+        fprintf(stderr, "*** %s ***\n", buffer);
     }
     va_end(args);
 }
