@@ -49,11 +49,12 @@ bool shiz_init() {
     if (context.is_initialized) {
         return true;
     }
-    
+
     glfwSetErrorCallback(_shiz_glfw_error_callback);
     
     if (!glfwInit()) {
-        shiz_io_error("GLFW (%s): failed to initialize\n", glfwGetVersionString());
+        shiz_io_error("GLFW", "(%s) failed to initialize", glfwGetVersionString());
+
         return false;
     }
     
@@ -80,7 +81,8 @@ bool shiz_init() {
     }
 
     if (!context.window) {
-        shiz_io_error("GLFW (%s): failed to create window\n", glfwGetVersionString());
+        shiz_io_error("GLFW", "(%s) failed to create window", glfwGetVersionString());
+
         return false;
     }
     
@@ -93,12 +95,14 @@ bool shiz_init() {
     glfwSwapInterval(1);
 
     if (gl3wInit()) {
-        shiz_io_error("gl3w: failed to initialize\n");
+        shiz_io_error_context("gl3w", "failed to initialize");
+        
         return false;
     }
     
     if (!_shiz_can_run()) {
-        shiz_io_error("SHIZEN is not supported on this system\n");
+        shiz_io_error("SHIZEN is not supported on this system");
+
         return false;
     }
     
@@ -240,13 +244,13 @@ static void _shiz_process_errors() {
     GLenum error;
     
     while ((error = glGetError()) != GL_NO_ERROR) {
-        shiz_io_error("OPENGL: %d \n", error);
+        shiz_io_error_context("OPENGL", "%d", error);
     }
 }
 #endif
 
 static void _shiz_glfw_error_callback(int error, const char* description) {
-    shiz_io_error("GLFW: %d %s \n", error, description);
+    shiz_io_error_context("GLFW", "%d %s", error, description);
 }
 
 static void _shiz_glfw_window_close_callback(GLFWwindow* window) {

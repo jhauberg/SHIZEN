@@ -18,6 +18,6 @@ void shiz_debug_print_resources(void) {
 #ifdef DEBUG
     shiz_res_debug_print_resources();
 #else
-    shiz_io_error("debug function called, but DEBUG not defined; consider ifdef'ing the call away");
+    shiz_io_warning_context("DEBUG", "debug function called, but DEBUG not defined; consider ifdef'ing the call away");
 #endif
 }

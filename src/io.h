@@ -17,6 +17,10 @@
 typedef bool (*shiz_io_image_loaded_handler)(int, int, int, unsigned char*);
 
 void shiz_io_error(const char *format, ...);
+void shiz_io_error_context(const char *context, const char *format, ...);
+void shiz_io_warning(const char *format, ...);
+void shiz_io_warning_context(const char *context, const char *format, ...);
+
 bool shiz_io_load_image(const char *filename, shiz_io_image_loaded_handler handler);
 
 #endif // io_h
