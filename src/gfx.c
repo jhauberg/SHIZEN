@@ -110,6 +110,9 @@ static bool _shiz_gfx_kill_basic(void) {
 }
 
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glUseProgram(basic_render.program);
     glBindVertexArray(basic_render.vao); {
         glBindBuffer(GL_ARRAY_BUFFER, basic_render.vbo); {
@@ -123,6 +126,8 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
     }
     glBindVertexArray(0);
     glUseProgram(0);
+
+    glDisable(GL_BLEND);
 }
 
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source) {
