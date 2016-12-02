@@ -13,8 +13,8 @@
 #define engine_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 4
-#define SHIZEN_VERSION_PATCH 1
+#define SHIZEN_VERSION_MINOR 5
+#define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -71,6 +71,11 @@ void shiz_request_finish(void);
  * @return `true` if SHIZEN should finish up, `false` otherwise
  */
 bool shiz_should_finish(void);
+
+// load a resource and return its id - return invalid id (0) if loading failed
+uint shiz_load(const char *filename);
+// unload a resource - return true if unloading succeeded, false otherwise
+bool shiz_unload(uint const resource_id);
 
 /**
  * @brief Initiate a drawing/rendering context.

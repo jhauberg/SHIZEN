@@ -12,6 +12,11 @@
 #ifndef io_h
 #define io_h
 
+#include <stdbool.h>
+
+typedef bool (*shiz_io_image_loaded_handler)(int, int, int, unsigned char*);
+
 void shiz_io_error(const char *format, ...);
+bool shiz_io_load_image(const char *filename, shiz_io_image_loaded_handler handler);
 
 #endif // io_h

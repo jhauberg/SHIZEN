@@ -14,7 +14,21 @@
 
 #include "io.h"
 
-static const uint buffer_capacity = 256;
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+
+#if defined(__clang__)
+ #pragma clang diagnostic push
+ #pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
+#include <stb_image.h>
+
+#if defined(__clang__)
+ #pragma clang pop
+#endif
+
+static uint const buffer_capacity = 256;
 static char buffer[buffer_capacity];
 
 void shiz_io_error(const char *format, ...) {
@@ -25,4 +39,29 @@ void shiz_io_error(const char *format, ...) {
         fprintf(stderr, "*** %s ***\n", buffer);
     }
     va_end(args);
+}
+
+bool shiz_io_load_image(const char *filename, shiz_io_image_loaded_handler handler) {
+    int width, height;
+    int components;
+
+    unsigned char* image = stbi_load(filename, &width, &height, &components, STBI_rgb_alpha);
+
+    if (!image) {
+        shiz_io_error("failed to load image: '%s'", filename);
+
+        return false;
+    }
+
+    if (handler) {
+        if (!(*handler)(width, height, components, image)) {
+            stbi_image_free(image);
+
+            return false;
+        }
+    }
+
+    stbi_image_free(image);
+
+    return true;
 }

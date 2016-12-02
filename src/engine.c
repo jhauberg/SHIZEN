@@ -10,11 +10,13 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 
 #include <SHIZEN/engine.h>
 
 #include "internal.h"
 #include "gfx.h"
+#include "res.h"
 #include "io.h"
 
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
@@ -27,7 +29,9 @@ static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused);
 
 static void _shiz_intro(void);
 static bool _shiz_can_run(void);
+#ifdef SHIZ_DEBUG
 static void _shiz_process_errors(void);
+#endif
 
 static SHIZGraphicsContext context;
 
@@ -103,11 +107,11 @@ bool shiz_init() {
     }
     
     _shiz_intro();
-    
+
     context.is_initialized = true;
 
     glClearColor(0, 0, 0, 1);
-    
+
     return true;
 }
 
@@ -120,6 +124,8 @@ bool shiz_shutdown() {
         return false;
     }
 
+    shiz_res_unload_all();
+    
     glfwTerminate();
     
     context.is_initialized = false;
@@ -133,6 +139,14 @@ void shiz_request_finish() {
 
 bool shiz_should_finish() {
     return context.should_finish;
+}
+
+uint shiz_load(const char *filename) {
+    return shiz_res_load(shiz_res_get_type(filename), filename);
+}
+
+bool shiz_unload(uint const resource_id) {
+    return shiz_res_unload(resource_id);
 }
 
 void shiz_drawing_begin() {
@@ -192,10 +206,10 @@ static void _shiz_intro(void) {
     printf("  __|  |  | _ _| __  /  __|   \\ |\n");
     printf("\\__ \\  __ |   |     /   _|   .  |\n");
     printf("____/ _| _| ___| ____| ___| _|\\_|\n\n");
-    printf("SHIZEN %d.%d.%d / %s\n",
+    printf(" SHIZEN %d.%d.%d / %s\n",
            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
            SHIZEN_VERSION_NAME);
-    printf("Copyright (c) 2016 Jacob Hauberg Hansen\n\n");
+    printf(" Copyright (c) 2016 Jacob Hauberg Hansen\n\n");
 
     printf("> OPENGL VERSION:  %s (GLSL %s)\n",
            glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -221,6 +235,7 @@ static bool _shiz_can_run(void) {
     return true;
 }
 
+#ifdef SHIZ_DEBUG
 static void _shiz_process_errors() {
     GLenum error;
     
@@ -228,6 +243,7 @@ static void _shiz_process_errors() {
         shiz_io_error("OPENGL: %d \n", error);
     }
 }
+#endif
 
 static void _shiz_glfw_error_callback(int error, const char* description) {
     shiz_io_error("GLFW: %d %s \n", error, description);
