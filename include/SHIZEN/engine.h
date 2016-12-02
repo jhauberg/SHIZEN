@@ -14,7 +14,7 @@
 
 #define SHIZEN_VERSION_MAJOR 0
 #define SHIZEN_VERSION_MINOR 5
-#define SHIZEN_VERSION_PATCH 1
+#define SHIZEN_VERSION_PATCH 2
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -97,6 +97,7 @@ void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const 
  * @brief Draw a rect.
  */
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
+
 /**
  * @brief Finish a drawing/rendering context.
  *

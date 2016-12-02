@@ -14,32 +14,22 @@
 #include "res.h"
 #include "io.h"
 
-typedef struct {
-    uint id;
-    uint width;
-    uint height;
-    GLuint texture_id;
-    const char *filename;
-} SHIZResourceImage;
-
-typedef struct {
-    uint id;
-    const char *filename;
-} SHIZResourceSound;
-
 static bool _shiz_load_image_handler(int width, int height, int components, unsigned char* data);
 static int _shiz_load_image_index = -1; /* the temporary index of the image being loaded in the handler implementation; any better solution for providing this index? */
 
 static bool _shiz_res_is_image(uint const resource_id);
 static bool _shiz_res_is_sound(uint const resource_id);
 
+static SHIZResourceType _shiz_res_get_type_from_id(uint const resource_id);
+static const int _shiz_res_get_index_from_id(uint const resource_id, SHIZResourceType const type);
+
 static uint _shiz_res_next_id(SHIZResourceType const type, uint *index);
 static bool _shiz_res_is_index_free(uint const resource_index, SHIZResourceType const type);
 
 static const char* _shiz_res_get_filename_ext(const char *filename);
 
-static uint const max_images = 32;
-static uint const max_sounds = 16;
+static uint const max_images = 16;
+static uint const max_sounds = 8;
 
 static uint const invalid_resource_id = 0;
 
@@ -64,6 +54,34 @@ const SHIZResourceType shiz_res_get_type(const char *filename) {
     }
     
     return resource_type;
+}
+
+SHIZResourceImage shiz_res_get_image(uint const resource_id) {
+    if (resource_id > image_resource_id_max) {
+        return SHIZResourceImageEmpty;
+    }
+
+    int const index = _shiz_res_get_index_from_id(resource_id, SHIZResourceTypeImage);
+
+    if (index < 0) {
+        return SHIZResourceImageEmpty;
+    }
+
+    return images[index];
+}
+
+SHIZResourceSound shiz_res_get_sound(uint const resource_id) {
+    if (resource_id > image_resource_id_max) {
+        return SHIZResourceSoundEmpty;
+    }
+
+    int const index = _shiz_res_get_index_from_id(resource_id, SHIZResourceTypeSound);
+
+    if (index < 0) {
+        return SHIZResourceSoundEmpty;
+    }
+
+    return sounds[index];
 }
 
 uint shiz_res_load(SHIZResourceType const type, const char *filename) {
@@ -104,31 +122,57 @@ uint shiz_res_load(SHIZResourceType const type, const char *filename) {
     return resource_id;
 }
 
+static const int _shiz_res_get_index_from_id(uint const resource_id, SHIZResourceType const type) {
+    if (type == SHIZResourceTypeImage) {
+        return resource_id - image_resource_id_offset;
+    } else if (type == SHIZResourceTypeSound) {
+        return resource_id - sound_resource_id_offset;
+    }
+
+    return -1;
+}
+
+static SHIZResourceType _shiz_res_get_type_from_id(uint const resource_id) {
+    if (_shiz_res_is_image(resource_id)) {
+        return SHIZResourceTypeImage;
+    } else if (_shiz_res_is_sound(resource_id)) {
+        return SHIZResourceTypeSound;
+    }
+
+    return SHIZResourceTypeNotSupported;
+}
+
 bool shiz_res_unload(uint const resource_id) {
     if (resource_id == invalid_resource_id) {
         return false;
     }
-    
-    if (_shiz_res_is_image(resource_id)) {
-        uint const index = resource_id - image_resource_id_offset;
-        
-        glDeleteTextures(1, &images[index].texture_id);
-        
-        images[index].width = 0;
-        images[index].height = 0;
-        images[index].id = invalid_resource_id;
-        images[index].filename = NULL;
-        images[index].texture_id = 0;
-        
-        return true;
-    } else if (_shiz_res_is_sound(resource_id)) {
-        uint const index = resource_id - sound_resource_id_offset;
-        
-        // todo: actual unloading left blank for future implementation
-        
-        sounds[index].id = invalid_resource_id;
-        
-        return true;
+
+    SHIZResourceType type = _shiz_res_get_type_from_id(resource_id);
+
+    int const index = _shiz_res_get_index_from_id(resource_id, type);
+
+    if (index < 0) {
+        shiz_io_error("could not unload resource (%d); index out of bounds (%d)", resource_id, index);
+    } else {
+        if (type == SHIZResourceTypeImage) {
+            glDeleteTextures(1, &images[index].texture_id);
+            
+            images[index].width = 0;
+            images[index].height = 0;
+            images[index].id = invalid_resource_id;
+            images[index].filename = NULL;
+            images[index].texture_id = 0;
+            
+            return true;
+        } else if (type == SHIZResourceTypeSound) {
+            // todo: actual unloading left blank for future implementation
+            
+            sounds[index].id = invalid_resource_id;
+            
+            return true;
+        } else {
+            shiz_io_error("could not unload resource (%d); resource not found", resource_id);
+        }
     }
     
     return false;
@@ -143,8 +187,6 @@ bool shiz_res_unload_all() {
         if (resource_id != invalid_resource_id) {
             if (!shiz_res_unload(resource_id)) {
                 something_failed = true;
-                
-                shiz_io_error("failed unloading image resource (%d)", resource_id);
             }
         }
     }
@@ -155,8 +197,6 @@ bool shiz_res_unload_all() {
         if (resource_id != invalid_resource_id) {
             if (!shiz_res_unload(resource_id)) {
                 something_failed = true;
-                
-                shiz_io_error("failed unloading sound resource (%d)", resource_id);
             }
         }
     }
@@ -236,9 +276,11 @@ static bool _shiz_load_image_handler(int width, int height, int components, unsi
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         
         if (components == 3) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                         width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         } else if (components == 4) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                         width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         }
     }
     glBindTexture(GL_TEXTURE_2D, 0);
