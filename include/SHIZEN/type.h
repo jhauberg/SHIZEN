@@ -52,4 +52,12 @@ static const SHIZColor SHIZColorWhite = { 1, 1, 1, 1 };
 static const SHIZColor SHIZColorBlack = { 0, 0, 0, 1 };
 static const SHIZColor SHIZColorRed = { 1, 0, 0, 1 };
 
+static inline SHIZColor SHIZColorMake(float const r, float const g, float const b, float const alpha) {
+    SHIZColor color = {
+        r, g, b, alpha
+    };
+
+    return color;
+}
+
 #endif // type_h
