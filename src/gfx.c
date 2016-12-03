@@ -109,6 +109,11 @@ static bool _shiz_gfx_kill_basic(void) {
     return true;
 }
 
+void shiz_gfx_clear() {
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

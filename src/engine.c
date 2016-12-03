@@ -110,8 +110,6 @@ bool shiz_init(SHIZWindowSettings const settings) {
 
     context.is_initialized = true;
 
-    glClearColor(0, 0, 0, 1);
-
     return true;
 }
 
@@ -150,7 +148,7 @@ bool shiz_unload(uint const resource_id) {
 }
 
 void shiz_drawing_begin() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    shiz_gfx_clear();
 }
 
 void shiz_drawing_end() {

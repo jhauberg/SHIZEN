@@ -45,4 +45,6 @@ bool shiz_gfx_kill(void);
  */
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count);
 
+void shiz_gfx_clear(void);
+
 #endif // gfx_h
