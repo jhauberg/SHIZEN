@@ -13,14 +13,26 @@
 #define engine_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 5
-#define SHIZEN_VERSION_PATCH 2
+#define SHIZEN_VERSION_MINOR 6
+#define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
 #include <stdbool.h>
 
 #include "type.h"
+
+typedef struct {
+    const char *title;
+    bool fullscreen;
+    bool vsync;
+} SHIZWindowSettings;
+
+static const SHIZWindowSettings SHIZWindowSettingsDefault = {
+    "SHIZEN", /* title */
+    false,    /* fullscreen */
+    true      /* vsync */
+};
 
 /**
  * @brief Initialize the SHIZEN engine core.
@@ -30,12 +42,14 @@
  * Once initialized, SHIZEN has a graphics context and is ready to do things.
  *
  * @warning Initialization must occur before calling any other SHIZEN core functions.
- *
+ 
  * @remark This function has no effect if SHIZEN was already initialized successfully.
  *
+ * @param settings A SHIZWindowSettings object with values and flags
+ *        that controls the resulting graphics context
  * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
-bool shiz_init(void);
+bool shiz_init(SHIZWindowSettings const settings);
 /**
  * @brief Shutdown the SHIZEN engine core.
  *

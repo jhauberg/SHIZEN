@@ -45,7 +45,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     }
 }
 
-bool shiz_init() {
+bool shiz_init(SHIZWindowSettings const settings) {
     if (context.is_initialized) {
         return true;
     }
@@ -53,7 +53,7 @@ bool shiz_init() {
     glfwSetErrorCallback(_shiz_glfw_error_callback);
     
     if (!glfwInit()) {
-        shiz_io_error("GLFW", "(%s) failed to initialize", glfwGetVersionString());
+        shiz_io_error_context("GLFW", "(%s) failed to initialize", glfwGetVersionString());
 
         return false;
     }
@@ -66,22 +66,18 @@ bool shiz_init() {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 
-    const char* const title = "SHIZEN";
-    
-    bool const fullscreen = false;
-
-    if (fullscreen) {
+    if (settings.fullscreen) {
         GLFWmonitor *monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 
         context.window = glfwCreateWindow(mode->width, mode->height,
-                                          title, glfwGetPrimaryMonitor(), NULL);
+                                          settings.title, glfwGetPrimaryMonitor(), NULL);
     } else {
-        context.window = glfwCreateWindow(320, 240, title, NULL, NULL);
+        context.window = glfwCreateWindow(320, 240, settings.title, NULL, NULL);
     }
 
     if (!context.window) {
-        shiz_io_error("GLFW", "(%s) failed to create window", glfwGetVersionString());
+        shiz_io_error_context("GLFW", "(%s) failed to create window", glfwGetVersionString());
 
         return false;
     }
@@ -92,7 +88,7 @@ bool shiz_init() {
     glfwSetKeyCallback(context.window, key_callback);
 
     glfwMakeContextCurrent(context.window);
-    glfwSwapInterval(1);
+    glfwSwapInterval(settings.vsync ? 1 : 0);
 
     if (gl3wInit()) {
         shiz_io_error_context("gl3w", "failed to initialize");
