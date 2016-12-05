@@ -66,6 +66,10 @@ bool shiz_io_load_image(const char *filename, shiz_io_image_loaded_handler handl
     int width, height;
     int components;
 
+    // stbi defaults to reading the first pixel at the top-left of the image, however,
+    // opengl expects the first pixel to be at the bottom-left of the image, so we need to flip it
+    stbi_set_flip_vertically_on_load(true);
+    
     unsigned char* image = stbi_load(filename, &width, &height, &components, STBI_rgb_alpha);
 
     if (!image) {
