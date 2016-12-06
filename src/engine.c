@@ -51,7 +51,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     }
 }
 
-bool shiz_init(SHIZWindowSettings const settings) {
+bool shiz_startup(SHIZWindowSettings const settings) {
     if (context.is_initialized) {
         return true;
     }

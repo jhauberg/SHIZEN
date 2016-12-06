@@ -52,7 +52,7 @@ static const SHIZWindowSettings SHIZWindowSettingsDefault = {
  *
  * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
-bool shiz_init(SHIZWindowSettings const settings);
+bool shiz_startup(SHIZWindowSettings const settings);
 /**
  * @brief Shutdown the SHIZEN engine core.
  *
