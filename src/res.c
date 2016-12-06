@@ -271,10 +271,10 @@ static bool _shiz_load_image_handler(int width, int height, int components, unsi
     glBindTexture(GL_TEXTURE_2D, images[_shiz_load_image_index].texture_id); {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        
+
         if (components == 3) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
                          width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -300,20 +300,30 @@ static const char* _shiz_res_get_filename_ext(const char *filename) {
 
 #ifdef DEBUG
 void shiz_res_debug_print_resources() {
-    printf("\n");
     printf("  IDX  ID  RESOURCE\n");
     printf("  -----------------\n");
     for (uint image_resource_index = 0; image_resource_index < max_images; image_resource_index++) {
         uint resource_id = images[image_resource_index].id;
         
         if (resource_id != invalid_resource_id) {
-            printf("  %02d: (%02d) %s %dx%d\n",
+            printf("i %02d: [%02d] %s (%dx%d)\n",
                    image_resource_index, resource_id,
                    images[image_resource_index].filename,
                    images[image_resource_index].width,
                    images[image_resource_index].height);
         } else {
-            printf("  %02d: (%02d) ---\n", image_resource_index, resource_id);
+            printf("i %02d: [%02d] ---\n", image_resource_index, resource_id);
+        }
+    }
+    for (uint sound_resource_index = 0; sound_resource_index < max_sounds; sound_resource_index++) {
+        uint resource_id = sounds[sound_resource_index].id;
+        
+        if (resource_id != invalid_resource_id) {
+            printf("s %02d: [%02d] %s\n",
+                   sound_resource_index, resource_id,
+                   sounds[sound_resource_index].filename);
+        } else {
+            printf("s %02d: [%02d] ---\n", sound_resource_index, resource_id);
         }
     }
 }
