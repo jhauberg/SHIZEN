@@ -26,12 +26,14 @@ typedef struct {
     const char *title;
     bool fullscreen;
     bool vsync;
+    SHIZSize size;
 } SHIZWindowSettings;
 
 static const SHIZWindowSettings SHIZWindowSettingsDefault = {
-    "SHIZEN", /* title */
-    false,    /* fullscreen */
-    true      /* vsync */
+    "SHIZEN",    /* title */
+    false,       /* fullscreen */
+    true,        /* vsync */
+    { 320, 240 } /* window size */
 };
 
 /**

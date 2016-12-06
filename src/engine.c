@@ -79,7 +79,8 @@ bool shiz_init(SHIZWindowSettings const settings) {
         context.window = glfwCreateWindow(mode->width, mode->height,
                                           settings.title, glfwGetPrimaryMonitor(), NULL);
     } else {
-        context.window = glfwCreateWindow(320 * 2, 240 * 2, settings.title, NULL, NULL);
+        context.window = glfwCreateWindow(settings.size.width, settings.size.height,
+                                          settings.title, NULL, NULL);
     }
 
     if (!context.window) {
