@@ -34,9 +34,14 @@ typedef struct {
     bool is_focused;
 
     bool should_finish;
-    
+
     GLFWwindow *window;
 } SHIZGraphicsContext;
+
+typedef struct {
+    SHIZSize size;
+    float scale;
+} SHIZViewport;
 
 typedef struct {
     GLuint program;
@@ -45,8 +50,16 @@ typedef struct {
 } SHIZRenderData;
 
 typedef struct {
-    SHIZPoint position;
+    SHIZVector3 position;
     SHIZColor color;
 } SHIZVertexPositionColor;
+
+typedef struct {
+    SHIZVector3 position;
+    SHIZColor color;
+    SHIZVector2 texture_coord;
+    SHIZVector2 texture_coord_min;
+    SHIZVector2 texture_coord_max;
+} SHIZVertexPositionColorTexture;
 
 #endif // internal_h

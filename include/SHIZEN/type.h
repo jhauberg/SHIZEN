@@ -14,30 +14,58 @@
 
 typedef struct {
     float x, y;
-} SHIZPoint;
+} SHIZVector2;
 
-static const SHIZPoint SHIZPointZero = { 0, 0 };
-static const SHIZPoint SHIZPointOne = { 1, 1 };
+typedef struct {
+    float x, y, z;
+} SHIZVector3;
 
-static inline SHIZPoint SHIZPointMake(float const x, float const y) {
-    SHIZPoint point = {
+static const SHIZVector2 SHIZVector2Zero = { 0, 0 };
+static const SHIZVector2 SHIZVector2One = { 1, 1 };
+static const SHIZVector3 SHIZVector3Zero = { 0, 0, 0 };
+static const SHIZVector3 SHIZVector3One = { 1, 1, 1 };
+
+static inline SHIZVector2 SHIZVector2Make(float const x, float const y) {
+    SHIZVector2 vector = {
         x, y
     };
 
-    return point;
+    return vector;
+}
+
+static inline SHIZVector3 SHIZVector3Make(float const x, float const y, float const z) {
+    SHIZVector3 vector = {
+        x, y, z
+    };
+
+    return vector;
 }
 
 typedef struct {
-    SHIZPoint center;
     float width;
     float height;
+} SHIZSize;
+
+static const SHIZSize SHIZSizeEmpty = { 0, 0 };
+
+static inline SHIZSize SHIZSizeMake(float const width, float const height) {
+    SHIZSize size = {
+        width, height
+    };
+
+    return size;
+}
+
+typedef struct {
+    SHIZVector2 origin;
+    SHIZSize size;
 } SHIZRect;
 
-static const SHIZRect SHIZRectEmpty = { { 0, 0 }, 0, 0 };
+static const SHIZRect SHIZRectEmpty = { { 0, 0 }, { 0, 0 } };
 
-static inline SHIZRect SHIZRectMake(SHIZPoint center, float const width, float const height) {
+static inline SHIZRect SHIZRectMake(SHIZVector2 origin, SHIZSize size) {
     SHIZRect rect = {
-        center, width, height
+        origin, size
     };
 
     return rect;
@@ -51,6 +79,8 @@ typedef struct {
 static const SHIZColor SHIZColorWhite = { 1, 1, 1, 1 };
 static const SHIZColor SHIZColorBlack = { 0, 0, 0, 1 };
 static const SHIZColor SHIZColorRed = { 1, 0, 0, 1 };
+static const SHIZColor SHIZColorGreen = { 0, 1, 0, 1 };
+static const SHIZColor SHIZColorBlue = { 0, 0, 1, 1 };
 
 static inline SHIZColor SHIZColorMake(float const r, float const g, float const b, float const alpha) {
     SHIZColor color = {
@@ -59,5 +89,35 @@ static inline SHIZColor SHIZColorMake(float const r, float const g, float const 
 
     return color;
 }
+
+typedef struct {
+    uint resource_id;
+    SHIZSize size;
+    SHIZRect source;
+} SHIZSprite;
+
+static const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
+static const SHIZVector2 SHIZSpriteAnchorTop = { 0.0f, 1.0f };
+static const SHIZVector2 SHIZSpriteAnchorTopLeft = { -1.0f, 1.0f };
+static const SHIZVector2 SHIZSpriteAnchorLeft = { -1.0f, 0.0f };
+static const SHIZVector2 SHIZSpriteAnchorBottomLeft = { -1.0f, -1.0f };
+static const SHIZVector2 SHIZSpriteAnchorBottom = { 0.0f, -1.0f };
+static const SHIZVector2 SHIZSpriteAnchorTopRight = { 1.0f, 1.0f };
+static const SHIZVector2 SHIZSpriteAnchorRight = { 1.0f, 0.0f };
+static const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
+
+#define SHIZSpriteAnchorDefault SHIZSpriteAnchorCenter
+#define SHIZSpriteTintDefault SHIZColorWhite
+#define SHIZSpriteRepeatDefault false
+
+static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
+    SHIZColor default_tint = SHIZSpriteTintDefault;
+    
+    default_tint.alpha = alpha;
+    
+    return default_tint;
+}
+
+static const SHIZSprite SHIZSpriteEmpty = { 0, { 0, 0 }, { { 0, 0 }, { 0, 0 } } };
 
 #endif // type_h

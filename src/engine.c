@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include <SHIZEN/engine.h>
 
@@ -27,10 +28,15 @@ static void _shiz_glfw_error_callback(int error, const char* description);
 static void _shiz_glfw_window_close_callback(GLFWwindow* window);
 static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused);
 
+static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
+static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer_size);
+
 static void _shiz_intro(void);
 static bool _shiz_can_run(void);
+
 #ifdef SHIZ_DEBUG
-static void _shiz_process_errors(void);
+static void _shiz_debug_process_errors(void);
 #endif
 
 static SHIZGraphicsContext context;
@@ -73,7 +79,7 @@ bool shiz_init(SHIZWindowSettings const settings) {
         context.window = glfwCreateWindow(mode->width, mode->height,
                                           settings.title, glfwGetPrimaryMonitor(), NULL);
     } else {
-        context.window = glfwCreateWindow(320, 240, settings.title, NULL, NULL);
+        context.window = glfwCreateWindow(320 * 2, 240 * 2, settings.title, NULL, NULL);
     }
 
     if (!context.window) {
@@ -81,10 +87,12 @@ bool shiz_init(SHIZWindowSettings const settings) {
 
         return false;
     }
-    
+
     glfwSetWindowCloseCallback(context.window, _shiz_glfw_window_close_callback);
     glfwSetWindowFocusCallback(context.window, _shiz_glfw_window_focus_callback);
-    
+
+    glfwSetFramebufferSizeCallback(context.window, _shiz_glfw_framebuffer_size_callback);
+
     glfwSetKeyCallback(context.window, key_callback);
 
     glfwMakeContextCurrent(context.window);
@@ -101,16 +109,39 @@ bool shiz_init(SHIZWindowSettings const settings) {
 
         return false;
     }
-    
-    if (!shiz_gfx_init()) {
+
+    int framebuffer_width;
+    int framebuffer_height;
+
+    // determine pixel size of the framebuffer for the window
+    // this size is not necesarilly equal to the size of the window, as some
+    // platforms may increase the pixel count (e.g. doubling on retina screens)
+    glfwGetFramebufferSize(context.window, &framebuffer_width, &framebuffer_height);
+
+    SHIZSize const framebuffer_size = SHIZSizeMake(framebuffer_width, framebuffer_height);
+
+    if (!shiz_gfx_init(framebuffer_size, _shiz_glfw_get_pixel_scale(framebuffer_size))) {
         return false;
     }
-    
+
     _shiz_intro();
 
     context.is_initialized = true;
 
     return true;
+}
+
+static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer_size) {
+    int window_width;
+    int window_height;
+
+    glfwGetWindowSize(context.window, &window_width, &window_height);
+
+    float const pixel_scale =
+        (framebuffer_size.width + framebuffer_size.height) /
+        (window_width + window_height);
+
+    return pixel_scale;
 }
 
 bool shiz_shutdown() {
@@ -147,27 +178,56 @@ bool shiz_unload(uint const resource_id) {
     return shiz_res_unload(resource_id);
 }
 
+SHIZSprite shiz_load_sprite(uint const resource_id) {
+    SHIZResourceImage const image = shiz_res_get_image(resource_id);
+
+    SHIZRect const source = SHIZRectMake(SHIZVector2Zero,
+                                         SHIZSizeMake(image.width, image.height));
+
+    return shiz_load_sprite_sub(resource_id, source);
+}
+
+SHIZSprite shiz_load_sprite_sub(uint const resource_id, SHIZRect source) {
+    SHIZSprite sprite;
+
+    sprite.resource_id = resource_id;
+    sprite.source = source;
+    sprite.size = source.size;
+
+    return sprite;
+}
+
 void shiz_drawing_begin() {
     shiz_gfx_clear();
+    shiz_gfx_begin();
 }
 
 void shiz_drawing_end() {
+    shiz_gfx_end();
 #ifdef SHIZ_DEBUG
-    _shiz_process_errors();
+    //printf("draw calls this frame: %d\n", shiz_gfx_debug_get_draw_count());
+    _shiz_debug_process_errors();
 #endif
+
     glfwSwapBuffers(context.window);
     glfwPollEvents();
 }
 
-void shiz_draw_line(SHIZPoint const from, SHIZPoint const to, SHIZColor const color) {
-    SHIZPoint points[] = {
+void shiz_draw_line(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color) {
+    SHIZVector3 points[] = {
         from, to
     };
 
     shiz_draw_path(points, 2, color);
 }
 
-void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const color) {
+void shiz_draw_line_2d(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color) {
+    shiz_draw_line(SHIZVector3Make(from.x, from.y, 0),
+                   SHIZVector3Make(to.x, to.y, 0),
+                   color);
+}
+
+void shiz_draw_path(SHIZVector3 const points[], uint const count, SHIZColor const color) {
     SHIZVertexPositionColor vertices[count];
 
     for (uint i = 0; i < count; i++) {
@@ -176,6 +236,17 @@ void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const 
     }
 
     shiz_gfx_render(GL_LINE_STRIP, vertices, count);
+}
+
+void shiz_draw_path_2d(SHIZVector2 const points[], uint const count, SHIZColor const color) {
+    SHIZVector3 points3[count];
+
+    for (uint i = 0; i < count; i++) {
+        points3[i].x = points[i].x;
+        points3[i].y = points[i].y;
+    }
+
+    shiz_draw_path(points3, count, color);
 }
 
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
@@ -187,17 +258,113 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
         vertices[i].color = color;
     }
 
-    float const l = rect.center.x - (rect.width / 2.0f);
-    float const r = rect.center.x + (rect.width / 2.0f);
-    float const b = rect.center.y - (rect.height / 2.0f);
-    float const t = rect.center.y + (rect.height / 2.0f);
+    float const l = rect.origin.x;
+    float const r = rect.origin.x + rect.size.width;
+    float const b = rect.origin.y;
+    float const t = rect.origin.y + rect.size.height;
 
-    vertices[0].position = SHIZPointMake(l, b);
-    vertices[1].position = SHIZPointMake(l, t);
-    vertices[2].position = SHIZPointMake(r, b);
-    vertices[3].position = SHIZPointMake(r, t);
+    vertices[0].position = SHIZVector3Make(l, b, 0);
+    vertices[1].position = SHIZVector3Make(l, t, 0);
+    vertices[2].position = SHIZVector3Make(r, b, 0);
+    vertices[3].position = SHIZVector3Make(r, t, 0);
 
     shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, vertex_count);
+}
+
+void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
+    shiz_draw_sprite_ex(sprite, origin, SHIZSpriteAnchorDefault, SHIZSpriteTintDefault, SHIZSpriteRepeatDefault);
+}
+
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat) {
+    SHIZResourceImage image = shiz_res_get_image(sprite.resource_id);
+
+    if (image.id == sprite.resource_id) {
+        uint const vertex_count = 6;
+
+        SHIZVertexPositionColorTexture vertices[vertex_count];
+
+        for (uint i = 0; i < vertex_count; i++) {
+            vertices[i].color = tint;
+        }
+        
+        float const hw = sprite.size.width / 2;
+        float const hh = sprite.size.height / 2;
+        
+        // the anchor point determines what the origin means;
+        // i.e. the origin becomes the point of which the sprite is drawn
+        float const dx = hw * -anchor.x;
+        float const dy = hh * -anchor.y;
+
+        SHIZVector2 bl = SHIZVector2Make(origin.x - hw + dx, origin.y - hh + dy);
+        SHIZVector2 tl = SHIZVector2Make(origin.x - hw + dx, origin.y + hh + dy);
+        SHIZVector2 tr = SHIZVector2Make(origin.x + hw + dx, origin.y + hh + dy);
+        SHIZVector2 br = SHIZVector2Make(origin.x + hw + dx, origin.y - hh + dy);
+
+        // todo: originally intended this to be for layering purposes- but turned out
+        // that using the z-buffer like that was not as simple as expected
+        float const z = 0;
+
+        vertices[0].position = SHIZVector3Make(tl.x, tl.y, z);
+        vertices[1].position = SHIZVector3Make(br.x, br.y, z);
+        vertices[2].position = SHIZVector3Make(bl.x, bl.y, z);
+
+        vertices[3].position = SHIZVector3Make(tl.x, tl.y, z);
+        vertices[4].position = SHIZVector3Make(tr.x, tr.y, z);
+        vertices[5].position = SHIZVector3Make(br.x, br.y, z);
+
+        SHIZRect source = sprite.source;
+        
+        bool const flip_vertically = true;
+        
+        if (flip_vertically) {
+            // opengl assumes that the origin of textures is at the bottom-left of the image,
+            // however, it is common to specify top-left as origin when using e.g. sprite sheets (and we want that)
+            // so, assuming that the provided source frame expects the top-left to be the origin,
+            // we have to flip the specified coordinate so that the origin becomes bottom-left
+            source.origin.y = (image.height - source.size.height) - source.origin.y;
+        }
+        
+        SHIZVector2 const uv_min = SHIZVector2Make((source.origin.x / image.width),
+                                                   (source.origin.y / image.height));
+        SHIZVector2 const uv_max = SHIZVector2Make(((source.origin.x + source.size.width) / image.width),
+                                                   ((source.origin.y + source.size.height) / image.height));
+
+        float uv_scale_x = 1;
+        float uv_scale_y = 1;
+        
+        if (repeat) {
+            // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
+            // note that this only works if the size is in same coordinate space as the source/texture; e.g. pixels
+            // so a texture 128x128 with a sprite source 64x64, sized as 0.25x0.25 in a -1,1 projection space will not work
+            uv_scale_x = sprite.size.width / sprite.source.size.width;
+            uv_scale_y = sprite.size.height / sprite.source.size.height;
+        }
+        
+        tl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_max.y * uv_scale_y);
+        br = SHIZVector2Make(uv_max.x * uv_scale_x, uv_min.y * uv_scale_y);
+        bl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_min.y * uv_scale_y);
+        tr = SHIZVector2Make(uv_max.x * uv_scale_x, uv_max.y * uv_scale_y);
+        
+        vertices[0].texture_coord = tl;
+        vertices[1].texture_coord = br;
+        vertices[2].texture_coord = bl;
+
+        vertices[3].texture_coord = tl;
+        vertices[4].texture_coord = tr;
+        vertices[5].texture_coord = br;
+
+        for (uint i = 0; i < vertex_count; i++) {
+            // in order for repeated textures to work (without having to set wrapping modes, and with support for sub-textures)
+            // we have to specify the space that uv's are limited to (otherwise a sub-texture with a
+            // scaled uv would just end up using part of another subtexture- we don't want that)
+            // so this solution will simply "loop over" a scaled uv coordinate so that it is restricted
+            // within the dimensions of the expected texture
+            vertices[i].texture_coord_min = uv_min;
+            vertices[i].texture_coord_max = uv_max;
+        }
+
+        shiz_gfx_render_quad(vertices, image.texture_id);
+    }
 }
 
 static void _shiz_intro(void) {
@@ -234,7 +401,7 @@ static bool _shiz_can_run(void) {
 }
 
 #ifdef SHIZ_DEBUG
-static void _shiz_process_errors() {
+static void _shiz_debug_process_errors() {
     GLenum error;
     
     while ((error = glGetError()) != GL_NO_ERROR) {
@@ -257,4 +424,13 @@ static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused) {
     (void)window;
 
     context.is_focused = focused;
+}
+
+static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    (void)window;
+
+    SHIZSize const framebuffer_size = SHIZSizeMake(width, height);
+
+    shiz_gfx_set_framebuffer_size(framebuffer_size,
+                                  _shiz_glfw_get_pixel_scale(framebuffer_size));
 }

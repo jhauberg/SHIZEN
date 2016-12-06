@@ -13,8 +13,8 @@
 #define engine_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 6
-#define SHIZEN_VERSION_PATCH 1
+#define SHIZEN_VERSION_MINOR 7
+#define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -47,6 +47,7 @@ static const SHIZWindowSettings SHIZWindowSettingsDefault = {
  *
  * @param settings A SHIZWindowSettings object with values and flags
  *        that controls the resulting graphics context
+ *
  * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
 bool shiz_init(SHIZWindowSettings const settings);
@@ -91,6 +92,9 @@ uint shiz_load(const char *filename);
 // unload a resource - return true if unloading succeeded, false otherwise
 bool shiz_unload(uint const resource_id);
 
+SHIZSprite shiz_load_sprite(uint const resource_id);
+SHIZSprite shiz_load_sprite_sub(uint const resource_id, SHIZRect source);
+
 /**
  * @brief Initiate a drawing/rendering context.
  *
@@ -102,15 +106,20 @@ void shiz_drawing_begin(void);
 /**
  * @brief Draw a line.
  */
-void shiz_draw_line(SHIZPoint const from, SHIZPoint const to, SHIZColor const color);
+void shiz_draw_line(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
+void shiz_draw_line_2d(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color);
 /**
  * @brief Draw a path.
  */
-void shiz_draw_path(SHIZPoint const points[], uint const count, SHIZColor const color);
+void shiz_draw_path(SHIZVector3 const points[], uint const count, SHIZColor const color);
+void shiz_draw_path_2d(SHIZVector2 const points[], uint const count, SHIZColor const color);
 /**
  * @brief Draw a rect.
  */
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
+
+void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat);
 
 /**
  * @brief Finish a drawing/rendering context.
