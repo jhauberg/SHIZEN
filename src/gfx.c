@@ -77,9 +77,10 @@ static bool _shiz_gfx_init_basic() {
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
     "layout (location = 1) in vec4 vertex_color;\n"
+    "uniform mat4 transform_mvp;\n"
     "out vec4 color;\n"
     "void main() {\n"
-    "    gl_Position = vec4(vertex_position, 1);\n"
+    "    gl_Position = transform_mvp * vec4(vertex_position, 1);\n"
     "    color = vertex_color;\n"
     "}\n";
     
@@ -281,7 +282,7 @@ static bool _shiz_gfx_kill_batch() {
 }
 
 void shiz_gfx_clear() {
-    glClearColor(0, 0, 0, 1);
+    glClearColor(1, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -301,11 +302,31 @@ void shiz_gfx_end() {
     _shiz_gfx_batch_texture_id = 0;
 }
 
+static void mat4x4_model_view_projection(mat4x4 mvp) {
+    mat4x4 model;
+    mat4x4_identity(model);
+    mat4x4 view;
+    mat4x4_identity(view);
+    mat4x4 projection;
+    mat4x4_ortho(projection,
+                 0, viewport.size.width / viewport.scale,
+                 0, viewport.size.height / viewport.scale, -1, 1);
+
+    mat4x4 view_model;
+    mat4x4_mul(view_model, view, model);
+
+    mat4x4_mul(mvp, projection, view_model);
+}
+
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
+    mat4x4 mvp;
+    mat4x4_model_view_projection(mvp);
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glUseProgram(basic_render.program);
+    glUniformMatrix4fv(glGetUniformLocation(basic_render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
     glBindVertexArray(basic_render.vao); {
         glBindBuffer(GL_ARRAY_BUFFER, basic_render.vbo); {
             glBufferData(GL_ARRAY_BUFFER,
@@ -354,17 +375,8 @@ static void _shiz_gfx_batch_flush() {
         return;
     }
 
-    mat4x4 model;
-    mat4x4_identity(model);
-    mat4x4 view;
-    mat4x4_identity(view);
-    mat4x4 projection;
-    mat4x4_ortho(projection, 0, viewport.size.width / viewport.scale, 0, viewport.size.height / viewport.scale, -1, 1);
-
-    mat4x4 view_model;
-    mat4x4_mul(view_model, view, model);
-    mat4x4 projection_view_model;
-    mat4x4_mul(projection_view_model, projection, view_model);
+    mat4x4 mvp;
+    mat4x4_model_view_projection(mvp);
 
     glClearDepth(1.0);
 
@@ -381,7 +393,7 @@ static void _shiz_gfx_batch_flush() {
     glUseProgram(batch_render.program);
     // todo: a way to provide this flag; problem is that it affects the entire batch
     glUniform1i(glGetUniformLocation(batch_render.program, "enable_additive_tint"), false);
-    glUniformMatrix4fv(glGetUniformLocation(batch_render.program, "transform_mvp"), 1, GL_FALSE, *projection_view_model);
+    glUniformMatrix4fv(glGetUniformLocation(batch_render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _shiz_gfx_batch_texture_id); {
         glBindVertexArray(batch_render.vao); {

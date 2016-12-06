@@ -108,13 +108,11 @@ void shiz_drawing_begin(void);
 /**
  * @brief Draw a line.
  */
-void shiz_draw_line(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
-void shiz_draw_line_2d(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color);
+void shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color);
 /**
  * @brief Draw a path.
  */
-void shiz_draw_path(SHIZVector3 const points[], uint const count, SHIZColor const color);
-void shiz_draw_path_2d(SHIZVector2 const points[], uint const count, SHIZColor const color);
+void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor const color);
 /**
  * @brief Draw a rect.
  */

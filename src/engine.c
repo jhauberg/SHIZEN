@@ -214,21 +214,7 @@ void shiz_drawing_end() {
     glfwPollEvents();
 }
 
-void shiz_draw_line(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color) {
-    SHIZVector3 points[] = {
-        from, to
-    };
-
-    shiz_draw_path(points, 2, color);
-}
-
-void shiz_draw_line_2d(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color) {
-    shiz_draw_line(SHIZVector3Make(from.x, from.y, 0),
-                   SHIZVector3Make(to.x, to.y, 0),
-                   color);
-}
-
-void shiz_draw_path(SHIZVector3 const points[], uint const count, SHIZColor const color) {
+static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color) {
     SHIZVertexPositionColor vertices[count];
 
     for (uint i = 0; i < count; i++) {
@@ -239,7 +225,21 @@ void shiz_draw_path(SHIZVector3 const points[], uint const count, SHIZColor cons
     shiz_gfx_render(GL_LINE_STRIP, vertices, count);
 }
 
-void shiz_draw_path_2d(SHIZVector2 const points[], uint const count, SHIZColor const color) {
+static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color) {
+    SHIZVector3 points[] = {
+        from, to
+    };
+
+    shiz_draw_path_3d(points, 2, color);
+}
+
+void shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color) {
+    shiz_draw_line_3d(SHIZVector3Make(from.x, from.y, 0),
+                   SHIZVector3Make(to.x, to.y, 0),
+                   color);
+}
+
+void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor const color) {
     SHIZVector3 points3[count];
 
     for (uint i = 0; i < count; i++) {
@@ -247,7 +247,7 @@ void shiz_draw_path_2d(SHIZVector2 const points[], uint const count, SHIZColor c
         points3[i].y = points[i].y;
     }
 
-    shiz_draw_path(points3, count, color);
+    shiz_draw_path_3d(points3, count, color);
 }
 
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
@@ -273,7 +273,10 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
 }
 
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
-    shiz_draw_sprite_ex(sprite, origin, SHIZSpriteAnchorDefault, SHIZSpriteTintDefault, SHIZSpriteRepeatDefault);
+    shiz_draw_sprite_ex(sprite, origin,
+                        SHIZSpriteAnchorDefault,
+                        SHIZSpriteTintDefault,
+                        SHIZSpriteRepeatDefault);
 }
 
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat) {
