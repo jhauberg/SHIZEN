@@ -30,7 +30,10 @@ static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused);
 
 static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer_size);
+static SHIZSize _shiz_glfw_get_window_size(void);
+static SHIZSize _shiz_glfw_get_framebuffer_size(void);
+
+static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer, SHIZSize const window);
 
 static void _shiz_intro(void);
 static bool _shiz_can_run(void);
@@ -111,17 +114,10 @@ bool shiz_startup(SHIZWindowSettings const settings) {
         return false;
     }
 
-    int framebuffer_width;
-    int framebuffer_height;
+    SHIZSize const framebuffer_size = _shiz_glfw_get_framebuffer_size();
+    SHIZSize const window_size = _shiz_glfw_get_window_size();
 
-    // determine pixel size of the framebuffer for the window
-    // this size is not necesarilly equal to the size of the window, as some
-    // platforms may increase the pixel count (e.g. doubling on retina screens)
-    glfwGetFramebufferSize(context.window, &framebuffer_width, &framebuffer_height);
-
-    SHIZSize const framebuffer_size = SHIZSizeMake(framebuffer_width, framebuffer_height);
-
-    if (!shiz_gfx_init(framebuffer_size, _shiz_glfw_get_pixel_scale(framebuffer_size))) {
+    if (!shiz_gfx_init(framebuffer_size, _shiz_glfw_get_pixel_scale(framebuffer_size, window_size))) {
         return false;
     }
 
@@ -132,17 +128,34 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     return true;
 }
 
-static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer_size) {
+SHIZSize shiz_get_screen_size() {
+    return _shiz_glfw_get_window_size();
+}
+
+static SHIZSize _shiz_glfw_get_window_size() {
     int window_width;
     int window_height;
 
     glfwGetWindowSize(context.window, &window_width, &window_height);
 
-    float const pixel_scale =
-        (framebuffer_size.width + framebuffer_size.height) /
-        (window_width + window_height);
+    return SHIZSizeMake(window_width, window_height);
+}
 
-    return pixel_scale;
+static SHIZSize _shiz_glfw_get_framebuffer_size() {
+    int framebuffer_width;
+    int framebuffer_height;
+
+    // determine pixel size of the framebuffer for the window
+    // this size is not necesarilly equal to the size of the window, as some
+    // platforms may increase the pixel count (e.g. doubling on retina screens)
+    glfwGetFramebufferSize(context.window, &framebuffer_width, &framebuffer_height);
+
+    return SHIZSizeMake(framebuffer_width, framebuffer_height);
+}
+
+static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer, SHIZSize const window) {
+    return (framebuffer.width + framebuffer.height) /
+        (window.width + window.height);
 }
 
 bool shiz_shutdown() {
@@ -434,7 +447,7 @@ static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, 
     (void)window;
 
     SHIZSize const framebuffer_size = SHIZSizeMake(width, height);
+    SHIZSize const window_size = _shiz_glfw_get_window_size();
 
-    shiz_gfx_set_framebuffer_size(framebuffer_size,
-                                  _shiz_glfw_get_pixel_scale(framebuffer_size));
+    shiz_gfx_set_framebuffer_size(framebuffer_size, _shiz_glfw_get_pixel_scale(framebuffer_size, window_size));
 }

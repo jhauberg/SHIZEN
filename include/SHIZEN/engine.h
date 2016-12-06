@@ -97,6 +97,8 @@ bool shiz_unload(uint const resource_id);
 SHIZSprite shiz_load_sprite(uint const resource_id);
 SHIZSprite shiz_load_sprite_sub(uint const resource_id, SHIZRect source);
 
+SHIZSize shiz_get_screen_size(void);
+
 /**
  * @brief Initiate a drawing/rendering context.
  *
