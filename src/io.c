@@ -33,6 +33,9 @@ static uint const buffer_capacity = 256;
 static char buffer[buffer_capacity];
 static char buffer_format[buffer_capacity];
 
+static const char *error_context = "ERROR";
+static const char *warning_context = "WARNING";
+
 static void _shiz_io_printf(const char *format, va_list args) {
     vsnprintf(buffer, buffer_capacity, format, args);
     fprintf(stderr, "%s\n", buffer);
@@ -47,19 +50,19 @@ static void _shiz_io_printf(const char *format, va_list args) {
     va_end(args); \
 
 void shiz_io_error(const char *format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[!] %s", format) )
+    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] %s", error_context, format) )
 }
 
 void shiz_io_error_context(const char *context, const char *format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[!] [%s] %s", context, format) )
+    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] [%s] %s", error_context, context, format) )
 }
 
 void shiz_io_warning(const char *format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[?] %s", format) )
+    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] %s", warning_context, format) )
 }
 
 void shiz_io_warning_context(const char *context, const char *format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[?] [%s] %s", context, format) )
+    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] [%s] %s", warning_context, context, format) )
 }
 
 bool shiz_io_load_image(const char *filename, shiz_io_image_loaded_handler handler) {
