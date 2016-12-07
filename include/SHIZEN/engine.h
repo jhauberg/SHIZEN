@@ -13,7 +13,7 @@
 #define engine_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 7
+#define SHIZEN_VERSION_MINOR 8
 #define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
@@ -33,7 +33,7 @@ static const SHIZWindowSettings SHIZWindowSettingsDefault = {
     "SHIZEN",    /* title */
     false,       /* fullscreen */
     true,        /* vsync */
-    { 320, 240 } /* window size */
+    { 320, 240 } /* preferred screen size */
 };
 
 /**
@@ -96,8 +96,6 @@ bool shiz_unload(uint const resource_id);
 
 SHIZSprite shiz_load_sprite(uint const resource_id);
 SHIZSprite shiz_load_sprite_sub(uint const resource_id, SHIZRect source);
-
-SHIZSize shiz_get_screen_size(void);
 
 /**
  * @brief Initiate a drawing/rendering context.

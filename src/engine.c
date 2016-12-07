@@ -33,7 +33,7 @@ static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, 
 static SHIZSize _shiz_glfw_get_window_size(void);
 static SHIZSize _shiz_glfw_get_framebuffer_size(void);
 
-static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer, SHIZSize const window);
+static float _shiz_glfw_get_pixel_scale(void);
 
 static void _shiz_intro(void);
 static bool _shiz_can_run(void);
@@ -59,6 +59,8 @@ bool shiz_startup(SHIZWindowSettings const settings) {
         return true;
     }
 
+    context.preferred_screen_size = settings.size;
+    
     glfwSetErrorCallback(_shiz_glfw_error_callback);
     
     if (!glfwInit()) {
@@ -114,22 +116,21 @@ bool shiz_startup(SHIZWindowSettings const settings) {
         return false;
     }
 
-    SHIZSize const framebuffer_size = _shiz_glfw_get_framebuffer_size();
-    SHIZSize const window_size = _shiz_glfw_get_window_size();
+    _shiz_intro();
+    
+    SHIZViewport viewport;
+    
+    viewport.screen = context.preferred_screen_size;
+    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
+    viewport.scale = _shiz_glfw_get_pixel_scale();
 
-    if (!shiz_gfx_init(framebuffer_size, _shiz_glfw_get_pixel_scale(framebuffer_size, window_size))) {
+    if (!shiz_gfx_init(viewport)) {
         return false;
     }
-
-    _shiz_intro();
-
+    
     context.is_initialized = true;
 
     return true;
-}
-
-SHIZSize shiz_get_screen_size() {
-    return _shiz_glfw_get_window_size();
 }
 
 static SHIZSize _shiz_glfw_get_window_size() {
@@ -153,7 +154,10 @@ static SHIZSize _shiz_glfw_get_framebuffer_size() {
     return SHIZSizeMake(framebuffer_width, framebuffer_height);
 }
 
-static float _shiz_glfw_get_pixel_scale(SHIZSize const framebuffer, SHIZSize const window) {
+static float _shiz_glfw_get_pixel_scale() {
+    SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
+    SHIZSize const window = _shiz_glfw_get_window_size();
+    
     return (framebuffer.width + framebuffer.height) /
         (window.width + window.height);
 }
@@ -218,6 +222,7 @@ void shiz_drawing_begin() {
 
 void shiz_drawing_end() {
     shiz_gfx_end();
+
 #ifdef SHIZ_DEBUG
     //printf("draw calls this frame: %d\n", shiz_gfx_debug_get_draw_count());
     _shiz_debug_process_errors();
@@ -445,9 +450,14 @@ static void _shiz_glfw_window_focus_callback(GLFWwindow* window, int focused) {
 
 static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     (void)window;
+    (void)width;
+    (void)height;
 
-    SHIZSize const framebuffer_size = SHIZSizeMake(width, height);
-    SHIZSize const window_size = _shiz_glfw_get_window_size();
-
-    shiz_gfx_set_framebuffer_size(framebuffer_size, _shiz_glfw_get_pixel_scale(framebuffer_size, window_size));
+    SHIZViewport viewport;
+    
+    viewport.screen = context.preferred_screen_size;
+    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
+    viewport.scale = _shiz_glfw_get_pixel_scale();
+    
+    shiz_gfx_set_viewport(viewport);
 }

@@ -34,13 +34,23 @@ typedef struct {
     bool is_focused;
 
     bool should_finish;
-
+    
+    SHIZSize preferred_screen_size;
+    
     GLFWwindow *window;
 } SHIZGraphicsContext;
 
+typedef enum {
+    SHIZViewportModeNormal,
+    SHIZViewportModeLetterbox,
+    SHIZViewportModePillarbox
+} SHIZViewportMode;
+
 typedef struct {
-    SHIZSize size;
-    float scale;
+    SHIZSize framebuffer;
+    SHIZSize screen;
+    float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
+    SHIZSize aspect_ratio_offset;
 } SHIZViewport;
 
 typedef struct {

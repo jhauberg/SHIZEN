@@ -27,7 +27,7 @@
  *
  * @return `true` if the graphics module was initialized successfully, `false` otherwise
  */
-bool shiz_gfx_init(SHIZSize const framebuffer_size, float const pixel_scale);
+bool shiz_gfx_init(SHIZViewport const viewport);
 /**
  * @brief Kill any resources created by the graphics module.
  *
@@ -54,7 +54,7 @@ void shiz_gfx_clear(void);
 void shiz_gfx_begin(void);
 void shiz_gfx_end(void);
 
-void shiz_gfx_set_framebuffer_size(SHIZSize const framebuffer_size, float const pixel_scale);
+void shiz_gfx_set_viewport(SHIZViewport const viewport);
 
 #ifdef DEBUG
 uint shiz_gfx_debug_get_draw_count(void);
