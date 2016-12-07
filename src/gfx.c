@@ -293,10 +293,10 @@ void shiz_gfx_clear() {
 }
 
 void shiz_gfx_begin() {
-    glViewport(_viewport.aspect_ratio_offset.width / 2,
-               _viewport.aspect_ratio_offset.height / 2,
-               _viewport.framebuffer.width - _viewport.aspect_ratio_offset.width,
-               _viewport.framebuffer.height - _viewport.aspect_ratio_offset.height);
+    glViewport(_viewport.offset.width / 2,
+               _viewport.offset.height / 2,
+               _viewport.framebuffer.width - _viewport.offset.width,
+               _viewport.framebuffer.height - _viewport.offset.height);
     
 #ifdef DEBUG
     _shiz_gfx_debug_reset_draw_count();
@@ -450,7 +450,7 @@ static void _shiz_gfx_determine_operating_resolution() {
 }
 
 static void _shiz_gfx_apply_viewport_boxing_if_necessary() {
-    _viewport.aspect_ratio_offset = SHIZSizeEmpty;
+    _viewport.offset = SHIZSizeEmpty;
 
     if (enable_boxing_if_necessary) {
         SHIZViewportMode mode;
@@ -488,10 +488,8 @@ static void _shiz_gfx_determine_viewport_mode(SHIZViewportMode *mode) {
             *mode = SHIZViewportModePillarbox;
         }
 
-        float const offset_width = _viewport.framebuffer.width - adjusted_width;
-        float const offset_height = _viewport.framebuffer.height - adjusted_height;
-
-        _viewport.aspect_ratio_offset = SHIZSizeMake(offset_width, offset_height);
+        _viewport.offset = SHIZSizeMake(_viewport.framebuffer.width - adjusted_width,
+                                        _viewport.framebuffer.height - adjusted_height);
     }
 }
 

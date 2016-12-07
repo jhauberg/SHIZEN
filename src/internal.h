@@ -50,7 +50,7 @@ typedef struct {
     SHIZSize framebuffer;
     SHIZSize screen;
     float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
-    SHIZSize aspect_ratio_offset;
+    SHIZSize offset; // offset if letter/pillarboxing is enabled
 } SHIZViewport;
 
 typedef struct {
