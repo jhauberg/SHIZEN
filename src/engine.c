@@ -358,8 +358,12 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
             // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
             // note that this only works if the size is in same coordinate space as the source/texture; e.g. pixels
             // so a texture 128x128 with a sprite source 64x64, sized as 0.25x0.25 in a -1,1 projection space will not work
-            uv_scale_x = sprite.size.width / sprite.source.size.width;
-            uv_scale_y = sprite.size.height / sprite.source.size.height;
+            if (sprite.size.width > sprite.source.size.width &&
+                sprite.size.height > sprite.source.size.height) {
+                // repeating does not make sense when the destination is smaller than the source
+                uv_scale_x = sprite.size.width / sprite.source.size.width;
+                uv_scale_y = sprite.size.height / sprite.source.size.height;
+            }
         }
         
         tl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_max.y * uv_scale_y);
