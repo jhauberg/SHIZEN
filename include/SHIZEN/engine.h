@@ -14,7 +14,7 @@
 
 #define SHIZEN_VERSION_MAJOR 0
 #define SHIZEN_VERSION_MINOR 8
-#define SHIZEN_VERSION_PATCH 1
+#define SHIZEN_VERSION_PATCH 2
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -95,7 +95,7 @@ uint shiz_load(const char *filename);
 bool shiz_unload(uint const resource_id);
 
 SHIZSprite shiz_load_sprite(uint const resource_id);
-SHIZSprite shiz_load_sprite_sub(uint const resource_id, SHIZRect source);
+SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source);
 
 /**
  * @brief Initiate a drawing/rendering context.

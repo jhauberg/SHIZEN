@@ -202,10 +202,10 @@ SHIZSprite shiz_load_sprite(uint const resource_id) {
     SHIZRect const source = SHIZRectMake(SHIZVector2Zero,
                                          SHIZSizeMake(image.width, image.height));
 
-    return shiz_load_sprite_sub(resource_id, source);
+    return shiz_load_sprite_src(resource_id, source);
 }
 
-SHIZSprite shiz_load_sprite_sub(uint const resource_id, SHIZRect source) {
+SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source) {
     SHIZSprite sprite;
 
     sprite.resource_id = resource_id;
