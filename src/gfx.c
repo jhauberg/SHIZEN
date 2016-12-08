@@ -29,24 +29,32 @@ static void _shiz_gfx_apply_viewport_boxing_if_necessary(void);
 static void _shiz_gfx_determine_viewport_mode(SHIZViewportMode *mode);
 static void _shiz_gfx_determine_operating_resolution(void);
 
-static bool _shiz_gfx_init_basic(void);
-static bool _shiz_gfx_kill_basic(void);
+static bool _shiz_gfx_init_primitive(void);
+static bool _shiz_gfx_kill_primitive(void);
 
-static bool _shiz_gfx_init_batch(void);
-static bool _shiz_gfx_kill_batch(void);
+static bool _shiz_gfx_init_spritebatch(void);
+static bool _shiz_gfx_kill_spritebatch(void);
 
-static void _shiz_gfx_batch_flush();
-static uint _shiz_gfx_batch_count = 0;
-static GLuint _shiz_gfx_batch_texture_id = 0;
+static void _shiz_gfx_spritebatch_flush(void);
 
-static uint const max_batch = 32; /* flush when reaching this limit */
-static uint const batch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
-static uint const batch_vertex_count = max_batch * batch_vertex_count_per_quad;
+static uint const spritebatch_max_count = 32; /* flush when reaching this limit */
+static uint const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
+static uint const spritebatch_vertex_count = spritebatch_max_count * spritebatch_vertex_count_per_quad;
 
-static SHIZVertexPositionColorTexture batch_vertex_buffer[batch_vertex_count]; /* statically allocated buffer */
+typedef struct {
+    uint current_count;
+    GLuint current_texture_id;
+    
+    SHIZRenderData render;
+    SHIZVertexPositionColorTexture vertices[spritebatch_vertex_count]; /* statically allocated buffer */
+} SHIZRenderSpriteBatch;
 
-static SHIZRenderData basic_render;
-static SHIZRenderData batch_render;
+typedef struct {
+    SHIZRenderData render;
+} SHIZRenderPrimitive;
+
+static SHIZRenderSpriteBatch _spritebatch;
+static SHIZRenderPrimitive _primitive;
 
 static SHIZViewport _viewport;
 
@@ -55,11 +63,11 @@ static bool const enable_boxing_if_necessary = true; // false to let viewport fi
 bool shiz_gfx_init(SHIZViewport const viewport) {
     shiz_gfx_set_viewport(viewport);
 
-    if (!_shiz_gfx_init_basic()) {
+    if (!_shiz_gfx_init_primitive()) {
         return false;
     }
 
-    if (!_shiz_gfx_init_batch()) {
+    if (!_shiz_gfx_init_spritebatch()) {
         return false;
     }
 
@@ -67,18 +75,18 @@ bool shiz_gfx_init(SHIZViewport const viewport) {
 }
 
 bool shiz_gfx_kill() {
-    if (!_shiz_gfx_kill_basic()) {
+    if (!_shiz_gfx_kill_primitive()) {
         return false;
     }
 
-    if (!_shiz_gfx_kill_batch()) {
+    if (!_shiz_gfx_kill_spritebatch()) {
         return false;
     }
 
     return true;
 }
 
-static bool _shiz_gfx_init_basic() {
+static bool _shiz_gfx_init_primitive() {
     const char *vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
@@ -105,20 +113,20 @@ static bool _shiz_gfx_init_basic() {
         return false;
     }
     
-    basic_render.program = _shiz_gfx_link_program(vs, fs);
+    _primitive.render.program = _shiz_gfx_link_program(vs, fs);
     
     glDeleteShader(vs);
     glDeleteShader(fs);
     
-    if (!basic_render.program) {
+    if (!_primitive.render.program) {
         return false;
     }
     
-    glGenBuffers(1, &basic_render.vbo);
-    glGenVertexArrays(1, &basic_render.vao);
+    glGenBuffers(1, &_primitive.render.vbo);
+    glGenVertexArrays(1, &_primitive.render.vao);
     
-    glBindVertexArray(basic_render.vao); {
-        glBindBuffer(GL_ARRAY_BUFFER, basic_render.vbo); {
+    glBindVertexArray(_primitive.render.vao); {
+        glBindBuffer(GL_ARRAY_BUFFER, _primitive.render.vbo); {
             glVertexAttribPointer(0 /* position location */,
                                   3 /* number of position components per vertex */,
                                   GL_FLOAT,
@@ -142,15 +150,15 @@ static bool _shiz_gfx_init_basic() {
     return true;
 }
 
-static bool _shiz_gfx_kill_basic() {
-    glDeleteProgram(basic_render.program);
-    glDeleteVertexArrays(1, &basic_render.vao);
-    glDeleteBuffers(1, &basic_render.vbo);
+static bool _shiz_gfx_kill_primitive() {
+    glDeleteProgram(_primitive.render.program);
+    glDeleteVertexArrays(1, &_primitive.render.vao);
+    glDeleteBuffers(1, &_primitive.render.vbo);
     
     return true;
 }
 
-static bool _shiz_gfx_init_batch() {
+static bool _shiz_gfx_init_spritebatch() {
     const char *vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
@@ -211,24 +219,24 @@ static bool _shiz_gfx_init_batch() {
         return false;
     }
 
-    batch_render.program = _shiz_gfx_link_program(vs, fs);
+    _spritebatch.render.program = _shiz_gfx_link_program(vs, fs);
 
     glDeleteShader(vs);
     glDeleteShader(fs);
 
-    if (!batch_render.program) {
+    if (!_spritebatch.render.program) {
         return false;
     }
     
-    glGenBuffers(1, &batch_render.vbo);
-    glGenVertexArrays(1, &batch_render.vao);
+    glGenBuffers(1, &_spritebatch.render.vbo);
+    glGenVertexArrays(1, &_spritebatch.render.vao);
 
-    glBindVertexArray(batch_render.vao); {
-        glBindBuffer(GL_ARRAY_BUFFER, batch_render.vbo); {
+    glBindVertexArray(_spritebatch.render.vao); {
+        glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
             int const stride = sizeof(SHIZVertexPositionColorTexture);
 
             glBufferData(GL_ARRAY_BUFFER,
-                         batch_vertex_count * stride,
+                         spritebatch_vertex_count * stride,
                          NULL /* we're just allocating the space initially- there's no vertex data yet */,
                          GL_DYNAMIC_DRAW /* we'll be updating this buffer regularly */);
 
@@ -279,10 +287,10 @@ static bool _shiz_gfx_init_batch() {
     return true;
 }
 
-static bool _shiz_gfx_kill_batch() {
-    glDeleteProgram(batch_render.program);
-    glDeleteVertexArrays(1, &batch_render.vao);
-    glDeleteBuffers(1, &batch_render.vbo);
+static bool _shiz_gfx_kill_spritebatch() {
+    glDeleteProgram(_spritebatch.render.program);
+    glDeleteVertexArrays(1, &_spritebatch.render.vao);
+    glDeleteBuffers(1, &_spritebatch.render.vbo);
 
     return true;
 }
@@ -304,11 +312,11 @@ void shiz_gfx_begin() {
 }
 
 void shiz_gfx_end() {
-    if (_shiz_gfx_batch_count > 0) {
-        _shiz_gfx_batch_flush();
+    if (_spritebatch.current_count > 0) {
+        _shiz_gfx_spritebatch_flush();
     }
 
-    _shiz_gfx_batch_texture_id = 0;
+    _spritebatch.current_texture_id = 0;
 }
 
 static void mat4x4_model_view_projection(mat4x4 mvp) {
@@ -334,10 +342,10 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glUseProgram(basic_render.program);
-    glUniformMatrix4fv(glGetUniformLocation(basic_render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
-    glBindVertexArray(basic_render.vao); {
-        glBindBuffer(GL_ARRAY_BUFFER, basic_render.vbo); {
+    glUseProgram(_primitive.render.program);
+    glUniformMatrix4fv(glGetUniformLocation(_primitive.render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
+    glBindVertexArray(_primitive.render.vao); {
+        glBindBuffer(GL_ARRAY_BUFFER, _primitive.render.vbo); {
             glBufferData(GL_ARRAY_BUFFER,
                          sizeof(SHIZVertexPositionColor) * count /* sizeof(vertices) won't work here, because the array is passed as a pointer */,
                          vertices,
@@ -358,29 +366,29 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
 void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, GLuint texture_id) {
     // todo: any way of doing bounds checking to ensure 6 vertices are supplied?
     // todo: if calls were sorted by texture, we could optimize to fewer flushes
-    if (_shiz_gfx_batch_texture_id != 0 && /* dont flush if texture is not set yet */
-        _shiz_gfx_batch_texture_id != texture_id) {
-        _shiz_gfx_batch_flush();
+    if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
+        _spritebatch.current_texture_id != texture_id) {
+        _shiz_gfx_spritebatch_flush();
     }
 
-    _shiz_gfx_batch_texture_id = texture_id;
+    _spritebatch.current_texture_id = texture_id;
 
-    if (_shiz_gfx_batch_count + 1 > max_batch) {
-        _shiz_gfx_batch_flush();
+    if (_spritebatch.current_count + 1 > spritebatch_max_count) {
+        _shiz_gfx_spritebatch_flush();
     }
 
-    uint const offset = _shiz_gfx_batch_count * batch_vertex_count_per_quad;
+    uint const offset = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
 
     // todo: memcpy probably faster
-    for (uint i = 0; i < batch_vertex_count_per_quad; i++) {
-        batch_vertex_buffer[offset + i] = vertices[i];
+    for (uint i = 0; i < spritebatch_vertex_count_per_quad; i++) {
+        _spritebatch.vertices[offset + i] = vertices[i];
     }
 
-    _shiz_gfx_batch_count += 1;
+    _spritebatch.current_count += 1;
 }
 
-static void _shiz_gfx_batch_flush() {
-    if (_shiz_gfx_batch_count == 0) {
+static void _shiz_gfx_spritebatch_flush() {
+    if (_spritebatch.current_count == 0) {
         return;
     }
 
@@ -399,20 +407,20 @@ static void _shiz_gfx_batch_flush() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glUseProgram(batch_render.program);
+    glUseProgram(_spritebatch.render.program);
     // todo: a way to provide this flag; problem is that it affects the entire batch
-    glUniform1i(glGetUniformLocation(batch_render.program, "enable_additive_tint"), false);
-    glUniformMatrix4fv(glGetUniformLocation(batch_render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
+    glUniform1i(glGetUniformLocation(_spritebatch.render.program, "enable_additive_tint"), false);
+    glUniformMatrix4fv(glGetUniformLocation(_spritebatch.render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _shiz_gfx_batch_texture_id); {
-        glBindVertexArray(batch_render.vao); {
-            glBindBuffer(GL_ARRAY_BUFFER, batch_render.vbo); {
-                uint const index_count = _shiz_gfx_batch_count * batch_vertex_count_per_quad;
+    glBindTexture(GL_TEXTURE_2D, _spritebatch.current_texture_id); {
+        glBindVertexArray(_spritebatch.render.vao); {
+            glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
+                uint const index_count = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
                                 index_count * sizeof(SHIZVertexPositionColorTexture),
-                                batch_vertex_buffer);
+                                _spritebatch.vertices);
                 glDrawArrays(GL_TRIANGLES, 0, index_count);
 #ifdef DEBUG
                 _shiz_gfx_debug_increment_draw_count(1);
@@ -429,7 +437,7 @@ static void _shiz_gfx_batch_flush() {
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
 
-    _shiz_gfx_batch_count = 0;
+    _spritebatch.current_count = 0;
 }
 
 void shiz_gfx_set_viewport(SHIZViewport const viewport) {
