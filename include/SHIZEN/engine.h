@@ -118,8 +118,8 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
  */
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
 
-void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat);
+void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size);
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat);
 
 /**
  * @brief Finish a drawing/rendering context.

@@ -216,7 +216,6 @@ SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source) {
 
     sprite.resource_id = resource_id;
     sprite.source = source;
-    sprite.size = source.size;
 
     return sprite;
 }
@@ -296,14 +295,14 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
     shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, vertex_count);
 }
 
-void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
-    shiz_draw_sprite_ex(sprite, origin,
+void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size) {
+    shiz_draw_sprite_ex(sprite, origin, size,
                         SHIZSpriteAnchorDefault,
                         SHIZSpriteTintDefault,
                         SHIZSpriteRepeatDefault);
 }
 
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat) {
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat) {
     SHIZResourceImage image = shiz_res_get_image(sprite.resource_id);
 
     if (image.id == sprite.resource_id) {
@@ -314,9 +313,12 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         for (uint i = 0; i < vertex_count; i++) {
             vertices[i].color = tint;
         }
-        
-        float const hw = sprite.size.width / 2;
-        float const hh = sprite.size.height / 2;
+
+        SHIZSize working_size = (size.width == SHIZSpriteSizeAsSource.width &&
+                                 size.height == SHIZSpriteSizeAsSource.height) ? sprite.source.size : size;
+
+        float const hw = working_size.width / 2;
+        float const hh = working_size.height / 2;
         
         // the anchor point determines what the origin means;
         // i.e. the origin becomes the point of which the sprite is drawn
@@ -328,7 +330,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         SHIZVector2 tr = SHIZVector2Make(origin.x + hw + dx, origin.y + hh + dy);
         SHIZVector2 br = SHIZVector2Make(origin.x + hw + dx, origin.y - hh + dy);
 
-        float const z = 0;
+        float const z = SHIZSpriteLayerDefault;
 
         vertices[0].position = SHIZVector3Make(tl.x, tl.y, z);
         vertices[1].position = SHIZVector3Make(br.x, br.y, z);
@@ -360,12 +362,12 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         
         if (repeat) {
             // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
-            if (sprite.size.width > sprite.source.size.width) {
-                uv_scale_x = sprite.size.width / sprite.source.size.width;
+            if (working_size.width > sprite.source.size.width) {
+                uv_scale_x = working_size.width / sprite.source.size.width;
             }
 
-            if (sprite.size.height > sprite.source.size.height) {
-                uv_scale_y = sprite.size.height / sprite.source.size.height;
+            if (working_size.height > sprite.source.size.height) {
+                uv_scale_y = working_size.height / sprite.source.size.height;
             }
         }
         

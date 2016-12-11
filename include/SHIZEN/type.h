@@ -92,7 +92,6 @@ static inline SHIZColor SHIZColorMake(float const r, float const g, float const 
 
 typedef struct {
     uint resource_id;
-    SHIZSize size;
     SHIZRect source;
 } SHIZSprite;
 
@@ -106,9 +105,13 @@ static const SHIZVector2 SHIZSpriteAnchorTopRight = { 1.0f, 1.0f };
 static const SHIZVector2 SHIZSpriteAnchorRight = { 1.0f, 0.0f };
 static const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
 
+static const SHIZSize SHIZSpriteSizeAsSource = { -1, -1 };
+
 #define SHIZSpriteAnchorDefault SHIZSpriteAnchorCenter
 #define SHIZSpriteTintDefault SHIZColorWhite
 #define SHIZSpriteRepeatDefault false
+
+static const uint SHIZSpriteLayerDefault = 0;
 
 static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
     SHIZColor default_tint = SHIZSpriteTintDefault;
@@ -118,6 +121,6 @@ static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
     return default_tint;
 }
 
-static const SHIZSprite SHIZSpriteEmpty = { 0, { 0, 0 }, { { 0, 0 }, { 0, 0 } } };
+static const SHIZSprite SHIZSpriteEmpty = { 0, { { 0, 0 }, { 0, 0 } } };
 
 #endif // type_h
