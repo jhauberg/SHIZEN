@@ -297,9 +297,9 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
 
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size) {
     shiz_draw_sprite_ex(sprite, origin, size,
-                        SHIZSpriteAnchorDefault,
-                        SHIZSpriteTintDefault,
-                        SHIZSpriteRepeatDefault);
+                        SHIZSpriteAnchorCenter,
+                        SHIZSpriteNoTint,
+                        SHIZSpriteNoRepeat);
 }
 
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat) {

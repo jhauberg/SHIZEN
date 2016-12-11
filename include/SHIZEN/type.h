@@ -107,14 +107,15 @@ static const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
 
 static const SHIZSize SHIZSpriteSizeAsSource = { -1, -1 };
 
-#define SHIZSpriteAnchorDefault SHIZSpriteAnchorCenter
-#define SHIZSpriteTintDefault SHIZColorWhite
-#define SHIZSpriteRepeatDefault false
+#define SHIZSpriteNoTint SHIZColorWhite
+
+#define SHIZSpriteRepeat true
+#define SHIZSpriteNoRepeat false
 
 static const uint SHIZSpriteLayerDefault = 0;
 
 static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
-    SHIZColor default_tint = SHIZSpriteTintDefault;
+    SHIZColor default_tint = SHIZSpriteNoTint;
     
     default_tint.alpha = alpha;
     
