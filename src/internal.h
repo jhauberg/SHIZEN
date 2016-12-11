@@ -53,6 +53,8 @@ typedef struct {
     SHIZSize offset; // offset if letter/pillarboxing is enabled
 } SHIZViewport;
 
+static const SHIZViewport SHIZViewportDefault = { { 0, 0 }, { 0, 0 }, 1, { 0, 0 } };
+
 typedef struct {
     GLuint program;
     GLuint vbo;

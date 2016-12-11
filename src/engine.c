@@ -33,6 +33,8 @@ static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, 
 static SHIZSize _shiz_glfw_get_window_size(void);
 static SHIZSize _shiz_glfw_get_framebuffer_size(void);
 
+static SHIZViewport _shiz_get_viewport(void);
+
 static float _shiz_glfw_get_pixel_scale(void);
 
 static void _shiz_intro(void);
@@ -52,6 +54,16 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         context.should_finish = true;
     }
+}
+
+static SHIZViewport _shiz_get_viewport(void) {
+    SHIZViewport viewport = SHIZViewportDefault;
+    
+    viewport.screen = context.preferred_screen_size;
+    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
+    viewport.scale = _shiz_glfw_get_pixel_scale();
+    
+    return viewport;
 }
 
 bool shiz_startup(SHIZWindowSettings const settings) {
@@ -118,13 +130,7 @@ bool shiz_startup(SHIZWindowSettings const settings) {
 
     _shiz_intro();
     
-    SHIZViewport viewport;
-    
-    viewport.screen = context.preferred_screen_size;
-    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
-    viewport.scale = _shiz_glfw_get_pixel_scale();
-
-    if (!shiz_gfx_init(viewport)) {
+    if (!shiz_gfx_init(_shiz_get_viewport())) {
         return false;
     }
     
@@ -322,8 +328,6 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         SHIZVector2 tr = SHIZVector2Make(origin.x + hw + dx, origin.y + hh + dy);
         SHIZVector2 br = SHIZVector2Make(origin.x + hw + dx, origin.y - hh + dy);
 
-        // todo: originally intended this to be for layering purposes- but turned out
-        // that using the z-buffer like that was not as simple as expected
         float const z = 0;
 
         vertices[0].position = SHIZVector3Make(tl.x, tl.y, z);
@@ -456,11 +460,5 @@ static void _shiz_glfw_framebuffer_size_callback(GLFWwindow* window, int width, 
     (void)width;
     (void)height;
 
-    SHIZViewport viewport;
-    
-    viewport.screen = context.preferred_screen_size;
-    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
-    viewport.scale = _shiz_glfw_get_pixel_scale();
-    
-    shiz_gfx_set_viewport(viewport);
+    shiz_gfx_set_viewport(_shiz_get_viewport());
 }
