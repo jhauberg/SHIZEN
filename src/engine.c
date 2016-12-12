@@ -220,6 +220,16 @@ SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source) {
     return sprite;
 }
 
+SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character, uint const columns, uint const rows) {
+    SHIZSpriteFont spritefont;
+    
+    spritefont.sprite = sprite;
+    spritefont.character = character;
+    spritefont.table = SHIZSizeMake(columns, rows);
+    
+    return spritefont;
+}
+
 void shiz_drawing_begin() {
     shiz_gfx_clear();
     shiz_gfx_begin();
@@ -314,21 +324,22 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
             vertices[i].color = tint;
         }
 
-        SHIZSize working_size = (size.width == SHIZSpriteSizeAsSource.width &&
-                                 size.height == SHIZSpriteSizeAsSource.height) ? sprite.source.size : size;
+        SHIZSize const working_size = (size.width == SHIZSpriteSizeAsSource.width &&
+                                       size.height == SHIZSpriteSizeAsSource.height) ?
+                                        sprite.source.size : size;
 
         float const hw = working_size.width / 2;
         float const hh = working_size.height / 2;
         
         // the anchor point determines what the origin means;
-        // i.e. the origin becomes the point of which the sprite is drawn
+        // i.e. the origin becomes the point of which the sprite is drawn and rotated
         float const dx = hw * -anchor.x;
         float const dy = hh * -anchor.y;
 
-        SHIZVector2 bl = SHIZVector2Make(origin.x - hw + dx, origin.y - hh + dy);
-        SHIZVector2 tl = SHIZVector2Make(origin.x - hw + dx, origin.y + hh + dy);
-        SHIZVector2 tr = SHIZVector2Make(origin.x + hw + dx, origin.y + hh + dy);
-        SHIZVector2 br = SHIZVector2Make(origin.x + hw + dx, origin.y - hh + dy);
+        SHIZVector2 bl = SHIZVector2Make(dx - hw, dy - hh);
+        SHIZVector2 tl = SHIZVector2Make(dx - hw, dy + hh);
+        SHIZVector2 tr = SHIZVector2Make(dx + hw, dy + hh);
+        SHIZVector2 br = SHIZVector2Make(dx + hw, dy - hh);
 
         float const z = SHIZSpriteLayerDefault;
 
@@ -339,7 +350,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         vertices[3].position = SHIZVector3Make(tl.x, tl.y, z);
         vertices[4].position = SHIZVector3Make(tr.x, tr.y, z);
         vertices[5].position = SHIZVector3Make(br.x, br.y, z);
-
+        
         SHIZRect source = sprite.source;
         
         bool const flip_vertically = true;
@@ -393,8 +404,91 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
             vertices[i].texture_coord_min = uv_min;
             vertices[i].texture_coord_max = uv_max;
         }
+        
+        shiz_gfx_render_quad(vertices, SHIZVector3Make(origin.x, origin.y, 0), 0, image.texture_id);
+    }
+}
 
-        shiz_gfx_render_quad(vertices, image.texture_id);
+void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZVector2 const anchor, SHIZColor const tint) {
+    SHIZSprite character_sprite = SHIZSpriteEmpty;
+    
+    character_sprite.resource_id = font.sprite.resource_id;
+    character_sprite.source = SHIZRectMake(SHIZVector2Zero, font.character);
+    
+    SHIZVector2 character_origin = origin;
+    
+    SHIZSize const character_size = SHIZSizeMake(character_sprite.source.size.width * scale.x,
+                                                 character_sprite.source.size.height * scale.y);
+    
+    bool const max_width_enabled = size.width != SHIZSpriteFontSizeToFit.width;
+    bool const max_height_enabled = size.height != SHIZSpriteFontSizeToFit.height;
+    
+    uint const max_characters_per_line = floor(size.width / character_size.width);
+    uint const max_lines = floor(size.height / character_size.height);
+    
+    uint line_character_count = 0;
+    uint line_count = 0;
+    
+    while (*text) {
+        char const character = *text;
+        
+        // increment pointer to the string; essentially causing looping through each character
+        text += 1;
+        
+        if (character == '\n') {
+            character_origin.x = origin.x;
+            character_origin.y -= character_size.height;
+        
+            line_character_count = 0;
+            line_count += 1;
+            
+            // break early- a linebreak isn't rendered
+            continue;
+        }
+        
+        int character_index = character;
+        
+        if (character_index < 0 ||
+            character_index > font.table.width * font.table.height) {
+            character_index = -1;
+        }
+        
+        if (character_index != -1) {
+            if (max_width_enabled) {
+                if (line_character_count >= max_characters_per_line) {
+                    character_origin.x = origin.x;
+                    character_origin.y -= character_size.height;
+                    
+                    line_character_count = 0;
+                    line_count += 1;
+                }
+            }
+            
+            if (max_height_enabled) {
+                if (line_count >= max_lines) {
+                    // note that this actually adds a potentially unwanted additional line
+                    // proper truncation requires looking ahead to know whether text should be truncated
+                    shiz_draw_sprite_text(font, "...", character_origin,
+                                          SHIZSpriteFontSizeToFit, scale, anchor, tint);
+                    
+                    break;
+                }
+            }
+            
+            uint const character_row = (int)(character_index / (int)font.table.width);
+            uint const character_column = character_index % (int)font.table.width;
+            
+            character_sprite.source.origin.x = font.character.width * character_column;
+            character_sprite.source.origin.y = font.character.height * character_row;
+            
+            shiz_draw_sprite_ex(character_sprite, character_origin,
+                                character_size, anchor, tint, SHIZSpriteNoRepeat);
+            
+            line_character_count += 1;
+        }
+        
+        // leave a space even if the character was not found and drawn
+        character_origin.x += character_size.width;
     }
 }
 

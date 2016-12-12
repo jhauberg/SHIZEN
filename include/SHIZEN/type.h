@@ -95,6 +95,12 @@ typedef struct {
     SHIZRect source;
 } SHIZSprite;
 
+typedef struct {
+    SHIZSprite sprite;
+    SHIZSize character;
+    SHIZSize table;
+} SHIZSpriteFont;
+
 static const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
 static const SHIZVector2 SHIZSpriteAnchorTop = { 0.0f, 1.0f };
 static const SHIZVector2 SHIZSpriteAnchorTopLeft = { -1.0f, 1.0f };
@@ -106,6 +112,9 @@ static const SHIZVector2 SHIZSpriteAnchorRight = { 1.0f, 0.0f };
 static const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
 
 static const SHIZSize SHIZSpriteSizeAsSource = { -1, -1 };
+
+#define SHIZSpriteFontSizeToFit SHIZSpriteSizeAsSource
+#define SHIZSpriteFontScaleDefault SHIZVector2One
 
 #define SHIZSpriteNoTint SHIZColorWhite
 

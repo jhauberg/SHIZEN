@@ -363,7 +363,7 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
     glDisable(GL_BLEND);
 }
 
-void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, GLuint texture_id) {
+void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, SHIZVector3 const origin, float const angle, GLuint const texture_id) {
     // todo: any way of doing bounds checking to ensure 6 vertices are supplied?
     // todo: if calls were sorted by texture, we could optimize to fewer flushes
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
@@ -379,9 +379,34 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, GLuint
 
     uint const offset = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
 
-    // todo: memcpy probably faster
+    mat4x4 translation;
+    mat4x4_translate(translation, origin.x, origin.y, origin.z);
+
+    mat4x4 rotation;
+    mat4x4_identity(rotation);
+    mat4x4_rotate_Z(rotation, rotation, angle);
+
+    mat4x4 world;
+    mat4x4_mul(world, translation, rotation);
+
     for (uint i = 0; i < spritebatch_vertex_count_per_quad; i++) {
-        _spritebatch.vertices[offset + i] = vertices[i];
+        SHIZVertexPositionColorTexture vertex = vertices[i];
+
+        vec4 position = {
+            vertex.position.x,
+            vertex.position.y,
+            vertex.position.z,
+            1
+        };
+
+        vec4 transformed_position;
+        mat4x4_mul_vec4(transformed_position, world, position);
+        
+        vertex.position = SHIZVector3Make(transformed_position[0],
+                                          transformed_position[1],
+                                          transformed_position[2]);
+        
+        _spritebatch.vertices[offset + i] = vertex;
     }
 
     _spritebatch.current_count += 1;
