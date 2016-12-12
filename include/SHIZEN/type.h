@@ -121,6 +121,7 @@ static const SHIZSize SHIZSpriteSizeAsSource = { -1, -1 };
 #define SHIZSpriteRepeat true
 #define SHIZSpriteNoRepeat false
 
+static const float SHIZSpriteNoAngle = 0;
 static const uint SHIZSpriteLayerDefault = 0;
 
 static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {

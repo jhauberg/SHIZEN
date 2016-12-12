@@ -14,7 +14,7 @@
 
 #define SHIZEN_VERSION_MAJOR 0
 #define SHIZEN_VERSION_MINOR 9
-#define SHIZEN_VERSION_PATCH 0
+#define SHIZEN_VERSION_PATCH 1
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -121,7 +121,7 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
 
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size);
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat);
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);
 
 void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZVector2 const anchor, SHIZColor const tint);
 

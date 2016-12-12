@@ -308,11 +308,12 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size) {
     shiz_draw_sprite_ex(sprite, origin, size,
                         SHIZSpriteAnchorCenter,
+                        SHIZSpriteNoAngle,
                         SHIZSpriteNoTint,
                         SHIZSpriteNoRepeat);
 }
 
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, SHIZColor const tint, bool const repeat) {
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat) {
     SHIZResourceImage image = shiz_res_get_image(sprite.resource_id);
 
     if (image.id == sprite.resource_id) {
@@ -405,7 +406,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
             vertices[i].texture_coord_max = uv_max;
         }
         
-        shiz_gfx_render_quad(vertices, SHIZVector3Make(origin.x, origin.y, 0), 0, image.texture_id);
+        shiz_gfx_render_quad(vertices, SHIZVector3Make(origin.x, origin.y, 0), angle, image.texture_id);
     }
 }
 
@@ -482,7 +483,7 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
             character_sprite.source.origin.y = font.character.height * character_row;
             
             shiz_draw_sprite_ex(character_sprite, character_origin,
-                                character_size, anchor, tint, SHIZSpriteNoRepeat);
+                                character_size, anchor, 0, tint, SHIZSpriteNoRepeat);
             
             line_character_count += 1;
         }
