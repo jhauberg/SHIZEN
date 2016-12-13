@@ -342,15 +342,13 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         SHIZVector2 tr = SHIZVector2Make(dx + hw, dy + hh);
         SHIZVector2 br = SHIZVector2Make(dx + hw, dy - hh);
 
-        float const z = SHIZSpriteLayerDefault;
+        vertices[0].position = SHIZVector3Make(tl.x, tl.y, 0);
+        vertices[1].position = SHIZVector3Make(br.x, br.y, 0);
+        vertices[2].position = SHIZVector3Make(bl.x, bl.y, 0);
 
-        vertices[0].position = SHIZVector3Make(tl.x, tl.y, z);
-        vertices[1].position = SHIZVector3Make(br.x, br.y, z);
-        vertices[2].position = SHIZVector3Make(bl.x, bl.y, z);
-
-        vertices[3].position = SHIZVector3Make(tl.x, tl.y, z);
-        vertices[4].position = SHIZVector3Make(tr.x, tr.y, z);
-        vertices[5].position = SHIZVector3Make(br.x, br.y, z);
+        vertices[3].position = SHIZVector3Make(tl.x, tl.y, 0);
+        vertices[4].position = SHIZVector3Make(tr.x, tr.y, 0);
+        vertices[5].position = SHIZVector3Make(br.x, br.y, 0);
         
         SHIZRect source = sprite.source;
         
@@ -406,18 +404,21 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
             vertices[i].texture_coord_max = uv_max;
         }
         
-        shiz_gfx_render_quad(vertices, SHIZVector3Make(origin.x, origin.y, 0), angle, image.texture_id);
+        float const z = SHIZSpriteLayerDefault;
+        
+        shiz_gfx_render_quad(vertices, SHIZVector3Make(origin.x, origin.y, z),
+                             angle, image.texture_id);
     }
 }
 
-void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZVector2 const anchor, SHIZColor const tint) {
+void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZColor const tint) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
     
     character_sprite.resource_id = font.sprite.resource_id;
     character_sprite.source = SHIZRectMake(SHIZVector2Zero, font.character);
-    
+
     SHIZVector2 character_origin = origin;
-    
+
     SHIZSize const character_size = SHIZSizeMake(character_sprite.source.size.width * scale.x,
                                                  character_sprite.source.size.height * scale.y);
     
@@ -436,15 +437,21 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
         // increment pointer to the string; essentially causing looping through each character
         text += 1;
         
-        if (character == '\n') {
+        bool const break_line_explicit = character == '\n';
+        bool const break_line_required = (max_width_enabled &&
+                                          line_character_count >= max_characters_per_line);
+        
+        if (break_line_explicit || break_line_required) {
             character_origin.x = origin.x;
             character_origin.y -= character_size.height;
         
             line_character_count = 0;
             line_count += 1;
             
-            // break early- a linebreak isn't rendered
-            continue;
+            if (break_line_explicit) {
+                // break early- an explicit linebreak should not be rendered
+                continue;
+            }
         }
         
         int character_index = character;
@@ -455,22 +462,12 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
         }
         
         if (character_index != -1) {
-            if (max_width_enabled) {
-                if (line_character_count >= max_characters_per_line) {
-                    character_origin.x = origin.x;
-                    character_origin.y -= character_size.height;
-                    
-                    line_character_count = 0;
-                    line_count += 1;
-                }
-            }
-            
             if (max_height_enabled) {
                 if (line_count >= max_lines) {
                     // note that this actually adds a potentially unwanted additional line
                     // proper truncation requires looking ahead to know whether text should be truncated
                     shiz_draw_sprite_text(font, "...", character_origin,
-                                          SHIZSpriteFontSizeToFit, scale, anchor, tint);
+                                          SHIZSpriteFontSizeToFit, scale, tint);
                     
                     break;
                 }
@@ -482,8 +479,8 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
             character_sprite.source.origin.x = font.character.width * character_column;
             character_sprite.source.origin.y = font.character.height * character_row;
             
-            shiz_draw_sprite_ex(character_sprite, character_origin,
-                                character_size, anchor, 0, tint, SHIZSpriteNoRepeat);
+            shiz_draw_sprite_ex(character_sprite, character_origin, character_size,
+                                SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle, tint, SHIZSpriteNoRepeat);
             
             line_character_count += 1;
         }

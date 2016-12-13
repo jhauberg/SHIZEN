@@ -37,9 +37,9 @@ static const SHIZWindowSettings SHIZWindowSettingsDefault = {
 };
 
 /**
- * @brief Initialize the SHIZEN engine core.
+ * @brief Startup the SHIZEN engine core.
  *
- * Initialize and prepare the SHIZEN engine core for use.
+ * Startup and initialize the SHIZEN engine core for use.
  *
  * Once initialized, SHIZEN has a graphics context and is ready to do things.
  *
@@ -123,7 +123,7 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size);
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);
 
-void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZVector2 const anchor, SHIZColor const tint);
+void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZColor const tint);
 
 /**
  * @brief Finish a drawing/rendering context.

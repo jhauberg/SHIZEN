@@ -48,7 +48,9 @@ bool shiz_gfx_kill(void);
  * Take that into consideration before extended use.
  */
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count);
-void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, SHIZVector3 const origin, float const angle, GLuint const texture_id);
+void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices,
+                          SHIZVector3 const origin, float const angle,
+                          GLuint const texture_id);
 
 void shiz_gfx_clear(void);
 void shiz_gfx_begin(void);
