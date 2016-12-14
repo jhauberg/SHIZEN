@@ -96,9 +96,15 @@ typedef struct {
 } SHIZSprite;
 
 typedef struct {
+    uint columns;
+    uint rows;
+    uint offset;
+} SHIZASCIITable;
+
+typedef struct {
     SHIZSprite sprite;
     SHIZSize character;
-    SHIZSize table;
+    SHIZASCIITable table;
 } SHIZSpriteFont;
 
 static const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };

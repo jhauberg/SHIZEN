@@ -220,12 +220,12 @@ SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source) {
     return sprite;
 }
 
-SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character, uint const columns, uint const rows) {
+SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table) {
     SHIZSpriteFont spritefont;
     
     spritefont.sprite = sprite;
     spritefont.character = character;
-    spritefont.table = SHIZSizeMake(columns, rows);
+    spritefont.table = table;
     
     return spritefont;
 }
@@ -413,7 +413,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
 
 void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZColor const tint) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
-    
+
     character_sprite.resource_id = font.sprite.resource_id;
     character_sprite.source = SHIZRectMake(SHIZVector2Zero, font.character);
 
@@ -454,10 +454,10 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
             }
         }
         
-        int character_index = character;
+        int character_index = character - font.table.offset;
         
         if (character_index < 0 ||
-            character_index > font.table.width * font.table.height) {
+            character_index > font.table.columns * font.table.rows) {
             character_index = -1;
         }
         
@@ -473,8 +473,8 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
                 }
             }
             
-            uint const character_row = (int)(character_index / (int)font.table.width);
-            uint const character_column = character_index % (int)font.table.width;
+            uint const character_row = (int)(character_index / (int)font.table.columns);
+            uint const character_column = character_index % (int)font.table.columns;
             
             character_sprite.source.origin.x = font.character.width * character_column;
             character_sprite.source.origin.y = font.character.height * character_row;

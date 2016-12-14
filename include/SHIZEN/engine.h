@@ -97,7 +97,7 @@ bool shiz_unload(uint const resource_id);
 SHIZSprite shiz_load_sprite(uint const resource_id);
 SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source);
 
-SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character, uint const columns, uint const rows);
+SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table);
 
 /**
  * @brief Initiate a drawing/rendering context.
