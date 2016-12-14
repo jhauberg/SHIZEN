@@ -415,7 +415,7 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;
-    character_sprite.source = SHIZRectMake(SHIZVector2Zero, font.character);
+    character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
 
     SHIZVector2 character_origin = origin;
 
@@ -476,8 +476,8 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
             uint const character_row = (int)(character_index / (int)font.table.columns);
             uint const character_column = character_index % (int)font.table.columns;
             
-            character_sprite.source.origin.x = font.character.width * character_column;
-            character_sprite.source.origin.y = font.character.height * character_row;
+            character_sprite.source.origin.x = font.sprite.source.origin.x + (font.character.width * character_column);
+            character_sprite.source.origin.y = font.sprite.source.origin.y + (font.character.height * character_row);
             
             shiz_draw_sprite_ex(character_sprite, character_origin, character_size,
                                 SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle, tint, SHIZSpriteNoRepeat);
