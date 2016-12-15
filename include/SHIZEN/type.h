@@ -121,6 +121,9 @@ static const SHIZSize SHIZSpriteSizeAsSource = { -1, -1 };
 
 #define SHIZSpriteFontSizeToFit SHIZSpriteSizeAsSource
 #define SHIZSpriteFontScaleDefault SHIZVector2One
+#define SHIZSpriteFontSpreadNormal 1.0
+#define SHIZSpriteFontSpreadTight 0.9
+#define SHIZSpriteFontSpreadLoose 1.1
 
 #define SHIZSpriteNoTint SHIZColorWhite
 

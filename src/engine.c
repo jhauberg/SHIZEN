@@ -305,8 +305,9 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
     shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, vertex_count);
 }
 
-void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size) {
-    shiz_draw_sprite_ex(sprite, origin, size,
+void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
+    shiz_draw_sprite_ex(sprite, origin,
+                        SHIZSpriteSizeAsSource,
                         SHIZSpriteAnchorCenter,
                         SHIZSpriteNoAngle,
                         SHIZSpriteNoTint,
@@ -411,7 +412,15 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
     }
 }
 
-void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZColor const tint) {
+void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin) {
+    shiz_draw_sprite_text_ex(font, text, origin,
+                             SHIZSpriteFontSizeToFit,
+                             SHIZSpriteFontScaleDefault,
+                             SHIZSpriteNoTint,
+                             SHIZSpriteFontSpreadNormal);
+}
+
+void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZColor const tint, float const spread) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;
@@ -421,11 +430,13 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
 
     SHIZSize const character_size = SHIZSizeMake(character_sprite.source.size.width * scale.x,
                                                  character_sprite.source.size.height * scale.y);
-    
+
+    float const perceived_character_width = character_size.width * spread;
+
     bool const max_width_enabled = size.width != SHIZSpriteFontSizeToFit.width;
     bool const max_height_enabled = size.height != SHIZSpriteFontSizeToFit.height;
     
-    uint const max_characters_per_line = floor(size.width / character_size.width);
+    uint const max_characters_per_line = floor(size.width / perceived_character_width);
     uint const max_lines = floor(size.height / character_size.height);
     
     uint line_character_count = 0;
@@ -466,8 +477,9 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
                 if (line_count >= max_lines) {
                     // note that this actually adds a potentially unwanted additional line
                     // proper truncation requires looking ahead to know whether text should be truncated
-                    shiz_draw_sprite_text(font, "...", character_origin,
-                                          SHIZSpriteFontSizeToFit, scale, tint);
+                    shiz_draw_sprite_text_ex(font, "...", character_origin,
+                                             SHIZSpriteFontSizeToFit,
+                                             scale, tint, spread);
                     
                     break;
                 }
@@ -486,7 +498,7 @@ void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVect
         }
         
         // leave a space even if the character was not found and drawn
-        character_origin.x += character_size.width;
+        character_origin.x += perceived_character_width;
     }
 }
 
