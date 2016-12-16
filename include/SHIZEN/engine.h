@@ -119,6 +119,7 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
  * @brief Draw a rect.
  */
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
+void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color);
 
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);

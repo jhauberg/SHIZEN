@@ -40,6 +40,8 @@ static float _shiz_glfw_get_pixel_scale(void);
 static void _shiz_intro(void);
 static bool _shiz_can_run(void);
 
+static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill);
+
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_process_errors(void);
 #endif
@@ -54,16 +56,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         context.should_finish = true;
     }
-}
-
-static SHIZViewport _shiz_get_viewport(void) {
-    SHIZViewport viewport = SHIZViewportDefault;
-    
-    viewport.screen = context.preferred_screen_size;
-    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
-    viewport.scale = _shiz_glfw_get_pixel_scale();
-    
-    return viewport;
 }
 
 bool shiz_startup(SHIZWindowSettings const settings) {
@@ -137,35 +129,6 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     context.is_initialized = true;
 
     return true;
-}
-
-static SHIZSize _shiz_glfw_get_window_size() {
-    int window_width;
-    int window_height;
-
-    glfwGetWindowSize(context.window, &window_width, &window_height);
-
-    return SHIZSizeMake(window_width, window_height);
-}
-
-static SHIZSize _shiz_glfw_get_framebuffer_size() {
-    int framebuffer_width;
-    int framebuffer_height;
-
-    // determine pixel size of the framebuffer for the window
-    // this size is not necesarilly equal to the size of the window, as some
-    // platforms may increase the pixel count (e.g. doubling on retina screens)
-    glfwGetFramebufferSize(context.window, &framebuffer_width, &framebuffer_height);
-
-    return SHIZSizeMake(framebuffer_width, framebuffer_height);
-}
-
-static float _shiz_glfw_get_pixel_scale() {
-    SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
-    SHIZSize const window = _shiz_glfw_get_window_size();
-    
-    return (framebuffer.width + framebuffer.height) /
-        (window.width + window.height);
 }
 
 bool shiz_shutdown() {
@@ -283,26 +246,46 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
     shiz_draw_path_3d(points3, count, color);
 }
 
-void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
-    uint const vertex_count = 4;
-
+static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill) {
+    uint const vertex_count = fill ? 4 : 5; // only drawing the shape requires an additional vertex
+    
     SHIZVertexPositionColor vertices[vertex_count];
-
+    
     for (uint i = 0; i < vertex_count; i++) {
         vertices[i].color = color;
     }
-
+    
     float const l = rect.origin.x;
     float const r = rect.origin.x + rect.size.width;
     float const b = rect.origin.y;
     float const t = rect.origin.y + rect.size.height;
+    
+    if (!fill) {
+        vertices[0].position = SHIZVector3Make(l, b, 0);
+        vertices[1].position = SHIZVector3Make(l, t, 0);
+        // note that the order of the vertices differ from the filled shape
+        vertices[2].position = SHIZVector3Make(r, t, 0);
+        vertices[3].position = SHIZVector3Make(r, b, 0);
+        // the additional vertex connects to the beginning, to complete the shape
+        vertices[4].position = vertices[0].position;
+        
+        shiz_gfx_render(GL_LINE_STRIP, vertices, vertex_count);
+    } else {
+        vertices[0].position = SHIZVector3Make(l, b, 0);
+        vertices[1].position = SHIZVector3Make(l, t, 0);
+        vertices[2].position = SHIZVector3Make(r, b, 0);
+        vertices[3].position = SHIZVector3Make(r, t, 0);
+        
+        shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, vertex_count);
+    }
+}
 
-    vertices[0].position = SHIZVector3Make(l, b, 0);
-    vertices[1].position = SHIZVector3Make(l, t, 0);
-    vertices[2].position = SHIZVector3Make(r, b, 0);
-    vertices[3].position = SHIZVector3Make(r, t, 0);
+void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
+    _shiz_draw_rect(rect, color, true);
+}
 
-    shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, vertex_count);
+void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color) {
+    _shiz_draw_rect(rect, color, false);
 }
 
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
@@ -500,6 +483,45 @@ void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZV
         // leave a space even if the character was not found and drawn
         character_origin.x += perceived_character_width;
     }
+}
+
+static SHIZViewport _shiz_get_viewport(void) {
+    SHIZViewport viewport = SHIZViewportDefault;
+    
+    viewport.screen = context.preferred_screen_size;
+    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
+    viewport.scale = _shiz_glfw_get_pixel_scale();
+    
+    return viewport;
+}
+
+static SHIZSize _shiz_glfw_get_window_size() {
+    int window_width;
+    int window_height;
+    
+    glfwGetWindowSize(context.window, &window_width, &window_height);
+    
+    return SHIZSizeMake(window_width, window_height);
+}
+
+static SHIZSize _shiz_glfw_get_framebuffer_size() {
+    int framebuffer_width;
+    int framebuffer_height;
+    
+    // determine pixel size of the framebuffer for the window
+    // this size is not necesarilly equal to the size of the window, as some
+    // platforms may increase the pixel count (e.g. doubling on retina screens)
+    glfwGetFramebufferSize(context.window, &framebuffer_width, &framebuffer_height);
+    
+    return SHIZSizeMake(framebuffer_width, framebuffer_height);
+}
+
+static float _shiz_glfw_get_pixel_scale() {
+    SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
+    SHIZSize const window = _shiz_glfw_get_window_size();
+    
+    return (framebuffer.width + framebuffer.height) /
+    (window.width + window.height);
 }
 
 static void _shiz_intro(void) {
