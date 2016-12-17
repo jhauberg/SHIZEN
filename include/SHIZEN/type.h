@@ -117,9 +117,9 @@ static const SHIZVector2 SHIZSpriteAnchorTopRight = { 1.0f, 1.0f };
 static const SHIZVector2 SHIZSpriteAnchorRight = { 1.0f, 0.0f };
 static const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
 
-static const SHIZSize SHIZSpriteSizeAsSource = { -1, -1 };
+static const SHIZSize SHIZSpriteSizeIntrinsic = { -1, -1 };
 
-#define SHIZSpriteFontSizeToFit SHIZSpriteSizeAsSource
+#define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
 #define SHIZSpriteFontScaleDefault SHIZVector2One
 #define SHIZSpriteFontSpreadNormal 1.0
 #define SHIZSpriteFontSpreadTight 0.9

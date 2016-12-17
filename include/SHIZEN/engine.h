@@ -116,12 +116,37 @@ void shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor cons
  */
 void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor const color);
 /**
- * @brief Draw a rect.
+ * @brief Draw a filled rectangle.
  */
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
+/**
+ * @brief Draw a rectangle.
+ */
 void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color);
 
+/**
+ * @brief Draw a sprite.
+ *
+ * @param origin The location from which the sprite will be drawn.
+ */
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
+/**
+ * @brief Draw a sprite.
+ *
+ * @param origin The location from which the sprite will be drawn
+ * @param size The size to draw the sprite with (unless `repeat` is true, the sprite is scaled to fit).
+ *             Use `SHIZSpriteSizeIntrinsic` to automatically set the size intrinsic to the sprite.
+ * @param anchor Sets an anchor that defines where on the sprite the origin is.
+ *               The anchor also defines the pivot point for any applied rotation.
+ *               The anchor is relative to the entire sprite; e.g. { -1, 0 } defines a pivot at the
+ *               left-middle side of the sprite, and { 1, 0 } defines a pivot at the right-middle.
+ *               Similarly, { 1, 1 } would define a pivot at the top-right, and { -1, 1 } at the top-left
+ * @param angle The angle in radians to rotate the sprite by (rotation is applied on
+ *              the pivot point specified by the `anchor` parameter)
+ * @param tint The color to tint the sprite with (default blending mode is multiplicative)
+ * @param repeat Specify whether the sprite should repeat (only applies if the `size` parameter
+ *               sets a size larger than the intrinsic size of the sprite)
+ */
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);
 
 void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin);

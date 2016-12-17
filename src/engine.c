@@ -290,7 +290,7 @@ void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color) {
 
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
     shiz_draw_sprite_ex(sprite, origin,
-                        SHIZSpriteSizeAsSource,
+                        SHIZSpriteSizeIntrinsic,
                         SHIZSpriteAnchorCenter,
                         SHIZSpriteNoAngle,
                         SHIZSpriteNoTint,
@@ -309,8 +309,8 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
             vertices[i].color = tint;
         }
 
-        SHIZSize const working_size = (size.width == SHIZSpriteSizeAsSource.width &&
-                                       size.height == SHIZSpriteSizeAsSource.height) ?
+        SHIZSize const working_size = (size.width == SHIZSpriteSizeIntrinsic.width &&
+                                       size.height == SHIZSpriteSizeIntrinsic.height) ?
                                         sprite.source.size : size;
 
         float const hw = working_size.width / 2;
