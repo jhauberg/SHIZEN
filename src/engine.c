@@ -411,16 +411,16 @@ void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZV
 
     SHIZVector2 character_origin = origin;
 
-    SHIZSize const character_size = SHIZSizeMake(character_sprite.source.size.width * scale.x,
-                                                 character_sprite.source.size.height * scale.y);
+    SHIZSize const character_size_scaled = SHIZSizeMake(character_sprite.source.size.width * scale.x,
+                                                        character_sprite.source.size.height * scale.y);
 
-    float const perceived_character_width = character_size.width * spread;
+    float const perceived_character_width = character_size_scaled.width * spread;
 
     bool const max_width_enabled = size.width != SHIZSpriteFontSizeToFit.width;
     bool const max_height_enabled = size.height != SHIZSpriteFontSizeToFit.height;
     
     uint const max_characters_per_line = floor(size.width / perceived_character_width);
-    uint const max_lines = floor(size.height / character_size.height);
+    uint const max_lines = floor(size.height / character_size_scaled.height);
     
     uint line_character_count = 0;
     uint line_count = 0;
@@ -437,7 +437,7 @@ void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZV
         
         if (break_line_explicit || break_line_required) {
             character_origin.x = origin.x;
-            character_origin.y -= character_size.height;
+            character_origin.y -= character_size_scaled.height;
         
             line_character_count = 0;
             line_count += 1;
@@ -471,10 +471,11 @@ void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZV
             uint const character_row = (int)(character_index / (int)font.table.columns);
             uint const character_column = character_index % (int)font.table.columns;
             
+            // note that scale should not affect the source size
             character_sprite.source.origin.x = font.sprite.source.origin.x + (font.character.width * character_column);
             character_sprite.source.origin.y = font.sprite.source.origin.y + (font.character.height * character_row);
             
-            shiz_draw_sprite_ex(character_sprite, character_origin, character_size,
+            shiz_draw_sprite_ex(character_sprite, character_origin, character_size_scaled,
                                 SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle, tint, SHIZSpriteNoRepeat);
             
             line_character_count += 1;

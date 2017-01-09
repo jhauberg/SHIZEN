@@ -189,19 +189,20 @@ static bool _shiz_gfx_init_spritebatch() {
     "uniform sampler2D sampler;\n"
     "layout (location = 0) out vec4 fragment_color;\n"
     "void main() {\n"
+    "    float threshold = 0.0001;\n"
     "    float s = texture_coord.s;\n"
     "    if (texture_coord_min.x > 0 && texture_coord_max.x > 0) {\n"
-    "        s = mod(mod(s, texture_coord_min.x), "
-    "                       texture_coord_max.x) + texture_coord_min.x;\n"
+    "        s = mod(mod(s, texture_coord_min.x + threshold), "
+    "                       texture_coord_max.x - threshold) + texture_coord_min.x;\n"
     "    } else if (texture_coord_max.x > 0) {\n"
-    "        s = mod(s, texture_coord_max.x) + texture_coord_min.x;\n"
+    "        s = mod(s, texture_coord_max.x - threshold) + texture_coord_min.x;\n"
     "    }\n"
     "    float t = texture_coord.t;\n"
     "    if (texture_coord_min.y > 0 && texture_coord_max.y > 0) {\n"
-    "        t = mod(mod(t, texture_coord_min.y),"
-    "                       texture_coord_max.y) + texture_coord_min.y;\n"
+    "        t = mod(mod(t, texture_coord_min.y + threshold),"
+    "                       texture_coord_max.y - threshold) + texture_coord_min.y;\n"
     "    } else if (texture_coord_max.y > 0) {\n"
-    "        t = mod(t, texture_coord_max.y) + texture_coord_min.y;\n"
+    "        t = mod(t, texture_coord_max.y - threshold) + texture_coord_min.y;\n"
     "    }\n"
     "    vec2 repeated_texture_coord = vec2(s, t);\n"
     "    vec4 sampled_color = texture(sampler, repeated_texture_coord.st);\n"
@@ -364,7 +365,6 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
 }
 
 void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, SHIZVector3 const origin, float const angle, GLuint const texture_id) {
-    // todo: any way of doing bounds checking to ensure 6 vertices are supplied?
     // todo: if calls were sorted by texture, we could optimize to fewer flushes
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
@@ -395,8 +395,7 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, SHIZVe
         vec4 position = {
             vertex.position.x,
             vertex.position.y,
-            vertex.position.z,
-            1
+            vertex.position.z, 1
         };
 
         vec4 transformed_position;
