@@ -61,7 +61,9 @@ typedef struct {
     SHIZSize size;
 } SHIZRect;
 
-static const SHIZRect SHIZRectEmpty = { { 0, 0 }, { 0, 0 } };
+static const SHIZRect SHIZRectEmpty = {
+    { 0, 0 }, { 0, 0 }
+};
 
 static inline SHIZRect SHIZRectMake(SHIZVector2 origin, SHIZSize size) {
     SHIZRect rect = {
@@ -107,6 +109,11 @@ typedef struct {
     SHIZASCIITable table;
 } SHIZSpriteFont;
 
+typedef struct {
+    SHIZVector2 scale;
+    float spread;
+} SHIZSpriteFontAttributes;
+
 static const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
 static const SHIZVector2 SHIZSpriteAnchorTop = { 0.0f, 1.0f };
 static const SHIZVector2 SHIZSpriteAnchorTopLeft = { -1.0f, 1.0f };
@@ -129,10 +136,13 @@ typedef enum {
 } SHIZSpriteFontAlignment;
 
 #define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
-#define SHIZSpriteFontScaleDefault SHIZVector2One
 #define SHIZSpriteFontSpreadNormal 1.0
 #define SHIZSpriteFontSpreadTight 0.9
 #define SHIZSpriteFontSpreadLoose 1.1
+
+static const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault = {
+    { 1, 1 }, SHIZSpriteFontSpreadNormal
+};
 
 #define SHIZSpriteNoTint SHIZColorWhite
 
@@ -150,6 +160,8 @@ static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
     return default_tint;
 }
 
-static const SHIZSprite SHIZSpriteEmpty = { 0, { { 0, 0 }, { 0, 0 } } };
+static const SHIZSprite SHIZSpriteEmpty = {
+    0, { { 0, 0 }, { 0, 0 } }
+};
 
 #endif // type_h

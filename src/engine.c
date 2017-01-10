@@ -42,7 +42,7 @@ static bool _shiz_can_run(void);
 
 static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill);
 
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZVector2 const scale, float const spread);
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
 
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_process_errors(void);
@@ -407,13 +407,13 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
     }
 }
 
-SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZVector2 const scale, float const spread) {
-    SHIZSpriteFontMeasurement measurement = _shiz_measure_sprite_text(font, text, bounds, scale, spread);
+SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
+    SHIZSpriteFontMeasurement measurement = _shiz_measure_sprite_text(font, text, bounds, attributes);
 
     return measurement.size;
 }
 
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZVector2 const scale, float const spread) {
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
     SHIZSpriteFontMeasurement measurement;
 
     measurement.constrain_index = -1; // no truncation
@@ -426,10 +426,10 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     SHIZVector2 origin = SHIZVector2Zero;
     SHIZVector2 character_origin = origin;
 
-    measurement.character_size = SHIZSizeMake(character_sprite.source.size.width * scale.x,
-                                              character_sprite.source.size.height * scale.y);
+    measurement.character_size = SHIZSizeMake(character_sprite.source.size.width * attributes.scale.x,
+                                              character_sprite.source.size.height * attributes.scale.y);
 
-    measurement.perceived_character_size = SHIZSizeMake(measurement.character_size.width * spread,
+    measurement.perceived_character_size = SHIZSizeMake(measurement.character_size.width * attributes.spread,
                                                         measurement.character_size.height);
 
     measurement.constrain_horizontally = bounds.width != SHIZSpriteFontSizeToFit.width;
@@ -516,18 +516,17 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
 SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment) {
     return shiz_draw_sprite_text_ex(font, text, origin, alignment,
                                     SHIZSpriteFontSizeToFit,
-                                    SHIZSpriteFontScaleDefault,
                                     SHIZSpriteNoTint,
-                                    SHIZSpriteFontSpreadNormal);
+                                    SHIZSpriteFontAttributesDefault);
 }
 
-SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZVector2 const scale, SHIZColor const tint, float const spread) {
+SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;
     character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
 
-    SHIZSpriteFontMeasurement const measurement = _shiz_measure_sprite_text(font, text, bounds, scale, spread);
+    SHIZSpriteFontMeasurement const measurement = _shiz_measure_sprite_text(font, text, bounds, attributes);
 
     uint text_index = 0;
     uint line_index = 0;
