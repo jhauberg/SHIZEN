@@ -74,4 +74,39 @@ typedef struct {
     SHIZVector2 texture_coord_max;
 } SHIZVertexPositionColorTexture;
 
+static uint const SHIZSpriteFontMaxLines = 16;
+
+typedef struct {
+    SHIZSize size; /* measured size of the entire text as a whole */
+    SHIZSize line_size[SHIZSpriteFontMaxLines]; /* buffer holding the measured size of each drawn line */
+    SHIZSize character_size; /* actual destination size of a character sprite (may be scaled size) */
+    SHIZSize perceived_character_size; /* size of a character sprite as perceived (may be sized with character offsets, so not suitable for drawing uses) */
+    uint line_count; /* number of lines drawn */
+    uint max_characters_per_line; /* max characters per line before linebreak is forced */
+    uint max_lines_in_bounds; /* max number of lines that can fit within specified bounds, if any */
+    bool constrain_horizontally; /* keep text within horizontal bounds */
+    bool constrain_vertically; /* keep text within vertical bounds, forcing linebreaks if possible; truncates otherwise */
+    int constrain_index; /* index of the last character that can fit within specified bounds, if any; -1 otherwise */
+} SHIZSpriteFontMeasurement;
+
+static inline uint const _shiz_get_char_size(char const character) {
+    int bits = 7;
+    uint size = 0;
+    
+    while (bits >= 0) {
+        if (!((character >> bits) & 1)) {
+            break;
+        }
+        
+        size += 1;
+        bits -= 1;
+    }
+    
+    if (size == 0) {
+        size = sizeof(char);
+    }
+    
+    return size; // in bytes
+}
+
 #endif // internal_h

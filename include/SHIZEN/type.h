@@ -119,6 +119,15 @@ static const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
 
 static const SHIZSize SHIZSpriteSizeIntrinsic = { -1, -1 };
 
+typedef enum {
+    SHIZSpriteFontAlignmentTop = 1,
+    SHIZSpriteFontAlignmentLeft = 2,
+    SHIZSpriteFontAlignmentRight = 4,
+    SHIZSpriteFontAlignmentCenter = 8,
+    SHIZSpriteFontAlignmentMiddle = 16,
+    SHIZSpriteFontAlignmentBottom = 32
+} SHIZSpriteFontAlignment;
+
 #define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
 #define SHIZSpriteFontScaleDefault SHIZVector2One
 #define SHIZSpriteFontSpreadNormal 1.0

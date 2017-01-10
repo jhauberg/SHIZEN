@@ -13,8 +13,8 @@
 #define engine_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 9
-#define SHIZEN_VERSION_PATCH 4
+#define SHIZEN_VERSION_MINOR 10
+#define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -149,8 +149,10 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  */
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);
 
-void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin);
-void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZColor const tint, float const spread);
+SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZVector2 const scale, float const spread);
+
+SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment);
+SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZVector2 const scale, SHIZColor const tint, float const spread);
 
 /**
  * @brief Finish a drawing/rendering context.

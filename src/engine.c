@@ -42,6 +42,8 @@ static bool _shiz_can_run(void);
 
 static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill);
 
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZVector2 const scale, float const spread);
+
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_process_errors(void);
 #endif
@@ -395,52 +397,185 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
     }
 }
 
-void shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin) {
-    shiz_draw_sprite_text_ex(font, text, origin,
-                             SHIZSpriteFontSizeToFit,
-                             SHIZSpriteFontScaleDefault,
-                             SHIZSpriteNoTint,
-                             SHIZSpriteFontSpreadNormal);
+SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZVector2 const scale, float const spread) {
+    SHIZSpriteFontMeasurement measurement = _shiz_measure_sprite_text(font, text, bounds, scale, spread);
+
+    return measurement.size;
 }
 
-void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const scale, SHIZColor const tint, float const spread) {
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZVector2 const scale, float const spread) {
+    SHIZSpriteFontMeasurement measurement;
+
+    measurement.constrain_index = -1; // no truncation
+
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;
     character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
 
+    SHIZVector2 origin = SHIZVector2Zero;
     SHIZVector2 character_origin = origin;
 
-    SHIZSize const character_size_scaled = SHIZSizeMake(character_sprite.source.size.width * scale.x,
-                                                        character_sprite.source.size.height * scale.y);
+    measurement.character_size = SHIZSizeMake(character_sprite.source.size.width * scale.x,
+                                              character_sprite.source.size.height * scale.y);
 
-    float const perceived_character_width = character_size_scaled.width * spread;
+    measurement.perceived_character_size = SHIZSizeMake(measurement.character_size.width * spread,
+                                                        measurement.character_size.height);
 
-    bool const max_width_enabled = size.width != SHIZSpriteFontSizeToFit.width;
-    bool const max_height_enabled = size.height != SHIZSpriteFontSizeToFit.height;
+    measurement.constrain_horizontally = bounds.width != SHIZSpriteFontSizeToFit.width;
+    measurement.constrain_vertically = bounds.height != SHIZSpriteFontSizeToFit.height;
+
+    measurement.max_characters_per_line = floor(bounds.width / measurement.perceived_character_size.width);
+    measurement.max_lines_in_bounds = floor(bounds.height / measurement.perceived_character_size.height);
+
+    float const line_height = measurement.perceived_character_size.height;
     
-    uint const max_characters_per_line = floor(size.width / perceived_character_width);
-    uint const max_lines = floor(size.height / character_size_scaled.height);
-    
+    uint text_index = 0;
     uint line_character_count = 0;
-    uint line_count = 0;
+    uint line_index = 0;
     
     while (*text) {
         char const character = *text;
-        
-        // increment pointer to the string; essentially causing looping through each character
-        text += 1;
+
+        text += _shiz_get_char_size(character);
         
         bool const break_line_explicit = character == '\n';
-        bool const break_line_required = (max_width_enabled &&
-                                          line_character_count >= max_characters_per_line);
+        bool const break_line_required = (measurement.constrain_horizontally &&
+                                          line_character_count >= measurement.max_characters_per_line);
+
+        if (break_line_explicit || break_line_required) {
+            line_character_count = 0;
+            line_index += 1;
+
+            measurement.line_size[line_index].width = character_origin.x;
+            measurement.line_size[line_index].height = line_height;
+            
+            character_origin.x = origin.x;
+            character_origin.y -= measurement.perceived_character_size.height;
+            
+            if (line_index > SHIZSpriteFontMaxLines) {
+                // this is bad
+                break;
+            }
+            
+            if (break_line_explicit) {
+                // break early- an explicit linebreak should not be rendered
+                continue;
+            }
+        }
+
+        int character_index = character - font.table.offset;
+
+        if (character_index < 0 ||
+            character_index > font.table.columns * font.table.rows) {
+            character_index = -1;
+        }
+
+        if (character_index != -1) {
+            if (measurement.constrain_vertically) {
+                if (line_index + 1 > measurement.max_lines_in_bounds) {
+                    measurement.constrain_index = text_index - 1; // it was actually the previous character that caused a linebreak
+
+                    break;
+                }
+            }
+        }
+        
+        // leave a space even if the character was not found
+        line_character_count += 1;
+        
+        character_origin.x += measurement.perceived_character_size.width;
+
+        measurement.line_size[line_index].width = character_origin.x;
+        measurement.line_size[line_index].height = line_height;
+        
+        if (character_origin.x > measurement.size.width) {
+            // use the widest occurring width
+            measurement.size.width = character_origin.x;
+        }
+        
+        text_index += 1;
+    }
+    
+    measurement.line_count = line_index + 1;
+    measurement.size.height = measurement.line_count * line_height;
+
+    return measurement;
+}
+
+SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment) {
+    return shiz_draw_sprite_text_ex(font, text, origin, alignment,
+                                    SHIZSpriteFontSizeToFit,
+                                    SHIZSpriteFontScaleDefault,
+                                    SHIZSpriteNoTint,
+                                    SHIZSpriteFontSpreadNormal);
+}
+
+SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZVector2 const scale, SHIZColor const tint, float const spread) {
+    SHIZSprite character_sprite = SHIZSpriteEmpty;
+
+    character_sprite.resource_id = font.sprite.resource_id;
+    character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
+
+    SHIZSpriteFontMeasurement const measurement = _shiz_measure_sprite_text(font, text, bounds, scale, spread);
+
+    uint text_index = 0;
+    uint line_index = 0;
+    uint line_character_count = 0;
+
+    uint const truncation_length = 3;
+    char const truncation_character = '.';
+    
+    SHIZVector2 character_origin = origin;
+    
+    if ((alignment & SHIZSpriteFontAlignmentLeft) == SHIZSpriteFontAlignmentLeft) {
+        // intenionally left blank; no operation necessary
+    } else if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
+        character_origin.x -= measurement.line_size[line_index].width / 2;
+    } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
+        character_origin.x -= measurement.line_size[line_index].width;
+    }
+    
+    if ((alignment & SHIZSpriteFontAlignmentTop) == SHIZSpriteFontAlignmentTop) {
+        // intenionally left blank; no operation necessary
+    } else if ((alignment & SHIZSpriteFontAlignmentMiddle) == SHIZSpriteFontAlignmentMiddle) {
+        character_origin.y += measurement.size.height / 2;
+    } else if ((alignment & SHIZSpriteFontAlignmentBottom) == SHIZSpriteFontAlignmentBottom) {
+        character_origin.y += measurement.size.height;
+    }
+    
+    while (*text) {
+        // tail truncation
+        bool const should_truncate = measurement.constrain_index != -1 && (text_index > measurement.constrain_index - truncation_length);
+        bool const should_break_from_truncation = measurement.constrain_index == text_index;
+
+        char const character = should_truncate ? truncation_character : *text;
+        
+        text += _shiz_get_char_size(character);
+        
+        bool const break_line_explicit = character == '\n';
+        bool const break_line_required = (measurement.constrain_horizontally &&
+                                          line_character_count >= measurement.max_characters_per_line);
         
         if (break_line_explicit || break_line_required) {
-            character_origin.x = origin.x;
-            character_origin.y -= character_size_scaled.height;
-        
+            line_index += 1;
             line_character_count = 0;
-            line_count += 1;
+            
+            SHIZSize const line_size = measurement.line_size[line_index];
+            
+            character_origin.x = origin.x;
+            character_origin.y -= line_size.height;
+            
+            if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
+                character_origin.x -= line_size.width / 2;
+            } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
+                character_origin.x -= line_size.width;
+            }
+            
+            if (line_index > SHIZSpriteFontMaxLines) {
+                // this is bad
+                break;
+            }
             
             if (break_line_explicit) {
                 // break early- an explicit linebreak should not be rendered
@@ -456,34 +591,29 @@ void shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZV
         }
         
         if (character_index != -1) {
-            if (max_height_enabled) {
-                if (line_count >= max_lines) {
-                    // note that this actually adds a potentially unwanted additional line
-                    // proper truncation requires looking ahead to know whether text should be truncated
-                    shiz_draw_sprite_text_ex(font, "...", character_origin,
-                                             SHIZSpriteFontSizeToFit,
-                                             scale, tint, spread);
-                    
-                    break;
-                }
-            }
-            
             uint const character_row = (int)(character_index / (int)font.table.columns);
             uint const character_column = character_index % (int)font.table.columns;
-            
-            // note that scale should not affect the source size
+
             character_sprite.source.origin.x = font.sprite.source.origin.x + (font.character.width * character_column);
             character_sprite.source.origin.y = font.sprite.source.origin.y + (font.character.height * character_row);
-            
-            shiz_draw_sprite_ex(character_sprite, character_origin, character_size_scaled,
+
+            shiz_draw_sprite_ex(character_sprite, character_origin, measurement.character_size,
                                 SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle, tint, SHIZSpriteNoRepeat);
-            
-            line_character_count += 1;
         }
         
         // leave a space even if the character was not found and drawn
-        character_origin.x += perceived_character_width;
+        line_character_count += 1;
+        
+        character_origin.x += measurement.perceived_character_size.width;
+
+        if (should_break_from_truncation) {
+            break;
+        }
+        
+        text_index += 1;
     }
+
+    return measurement.size;
 }
 
 static SHIZViewport _shiz_get_viewport(void) {
