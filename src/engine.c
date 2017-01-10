@@ -562,7 +562,7 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, S
         char const character = should_truncate ? truncation_character : *text;
         
         text += _shiz_get_char_size(character);
-        
+
         bool const break_line_explicit = character == '\n';
         bool const break_line_required = (measurement.constrain_horizontally &&
                                           line_character_count >= measurement.max_characters_per_line);
@@ -600,7 +600,7 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, S
             character_index = -1;
         }
         
-        if (character_index != -1) {
+        if (character_index != -1 && character != ' ') {
             uint const character_row = (int)(character_index / (int)font.table.columns);
             uint const character_column = character_index % (int)font.table.columns;
 
