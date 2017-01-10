@@ -110,8 +110,10 @@ typedef struct {
 } SHIZSpriteFont;
 
 typedef struct {
-    SHIZVector2 scale;
-    float spread;
+    SHIZVector2 scale; /* a scale defining the final size of the text */
+    float character_spread; /* a scale defining how "tight" characters are drawn */
+    float character_padding; /* a value that adds padding to each character */
+    float line_padding; /* a value that adds padding to each line */
 } SHIZSpriteFontAttributes;
 
 static const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
@@ -140,8 +142,10 @@ typedef enum {
 #define SHIZSpriteFontSpreadTight 0.9
 #define SHIZSpriteFontSpreadLoose 1.1
 
+#define SHIZSpriteFontNoPadding 0
+
 static const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault = {
-    { 1, 1 }, SHIZSpriteFontSpreadNormal
+    { 1, 1 }, SHIZSpriteFontSpreadNormal, SHIZSpriteFontNoPadding, SHIZSpriteFontNoPadding
 };
 
 #define SHIZSpriteNoTint SHIZColorWhite

@@ -429,7 +429,7 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     measurement.character_size = SHIZSizeMake(character_sprite.source.size.width * attributes.scale.x,
                                               character_sprite.source.size.height * attributes.scale.y);
 
-    measurement.perceived_character_size = SHIZSizeMake(measurement.character_size.width * attributes.spread,
+    measurement.perceived_character_size = SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
                                                         measurement.character_size.height);
 
     measurement.constrain_horizontally = bounds.width != SHIZSpriteFontSizeToFit.width;
@@ -438,7 +438,7 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     measurement.max_characters_per_line = floor(bounds.width / measurement.perceived_character_size.width);
     measurement.max_lines_in_bounds = floor(bounds.height / measurement.perceived_character_size.height);
 
-    float const line_height = measurement.perceived_character_size.height;
+    float const line_height = measurement.perceived_character_size.height + attributes.line_padding;
     
     uint text_index = 0;
     uint line_character_count = 0;
