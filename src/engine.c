@@ -185,7 +185,17 @@ SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source) {
     return sprite;
 }
 
-SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table) {
+SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character) {
+    SHIZASCIITable table;
+
+    table.columns = sprite.source.size.width / character.width;
+    table.rows = sprite.source.size.height / character.height;
+    table.offset = 0;
+
+    return shiz_load_sprite_font_ex(sprite, character, table);
+}
+
+SHIZSpriteFont shiz_load_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table) {
     SHIZSpriteFont spritefont;
     
     spritefont.sprite = sprite;
