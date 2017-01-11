@@ -97,25 +97,9 @@ typedef struct {
     SHIZRect source;
 } SHIZSprite;
 
-typedef struct {
-    uint columns;
-    uint rows;
-    uint offset;
-} SHIZASCIITable;
-
-typedef struct {
-    SHIZSprite sprite;
-    SHIZSize character;
-    SHIZASCIITable table;
-    bool includes_whitespace;
-} SHIZSpriteFont;
-
-typedef struct {
-    SHIZVector2 scale; /* a scale defining the final size of the text */
-    float character_spread; /* a scale defining how "tight" characters are drawn */
-    float character_padding; /* a value that adds padding to each character */
-    float line_padding; /* a value that adds padding to each line */
-} SHIZSpriteFontAttributes;
+static const SHIZSprite SHIZSpriteEmpty = {
+    0, { { 0, 0 }, { 0, 0 } }
+};
 
 static const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
 static const SHIZVector2 SHIZSpriteAnchorTop = { 0.0f, 1.0f };
@@ -128,26 +112,6 @@ static const SHIZVector2 SHIZSpriteAnchorRight = { 1.0f, 0.0f };
 static const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
 
 static const SHIZSize SHIZSpriteSizeIntrinsic = { -1, -1 };
-
-typedef enum {
-    SHIZSpriteFontAlignmentTop = 1,
-    SHIZSpriteFontAlignmentLeft = 2,
-    SHIZSpriteFontAlignmentRight = 4,
-    SHIZSpriteFontAlignmentCenter = 8,
-    SHIZSpriteFontAlignmentMiddle = 16,
-    SHIZSpriteFontAlignmentBottom = 32
-} SHIZSpriteFontAlignment;
-
-#define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
-#define SHIZSpriteFontSpreadNormal 1.0
-#define SHIZSpriteFontSpreadTight 0.9
-#define SHIZSpriteFontSpreadLoose 1.1
-
-#define SHIZSpriteFontNoPadding 0
-
-static const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault = {
-    { 1, 1 }, SHIZSpriteFontSpreadNormal, SHIZSpriteFontNoPadding, SHIZSpriteFontNoPadding
-};
 
 #define SHIZSpriteNoTint SHIZColorWhite
 
@@ -165,8 +129,50 @@ static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
     return default_tint;
 }
 
-static const SHIZSprite SHIZSpriteEmpty = {
-    0, { { 0, 0 }, { 0, 0 } }
+typedef struct {
+    uint columns;
+    uint rows;
+    uint offset;
+} SHIZASCIITable;
+
+typedef struct {
+    SHIZSprite sprite;
+    SHIZSize character;
+    SHIZASCIITable table;
+    bool includes_whitespace;
+} SHIZSpriteFont;
+
+typedef enum {
+    SHIZSpriteFontAlignmentTop = 1,
+    SHIZSpriteFontAlignmentLeft = 2,
+    SHIZSpriteFontAlignmentRight = 4,
+    SHIZSpriteFontAlignmentCenter = 8,
+    SHIZSpriteFontAlignmentMiddle = 16,
+    SHIZSpriteFontAlignmentBottom = 32
+} SHIZSpriteFontAlignment;
+
+typedef enum {
+    SHIZSpriteFontWrapModeCharacter,
+    SHIZSpriteFontWrapModeWord
+} SHIZSpriteFontWrapMode;
+
+typedef struct {
+    SHIZSpriteFontWrapMode wrap;
+    SHIZVector2 scale; /* a scale defining the final size of the text */
+    float character_spread; /* a scale defining how "tight" characters are drawn */
+    float character_padding; /* a value that adds padding to each character */
+    float line_padding; /* a value that adds padding to each line */
+} SHIZSpriteFontAttributes;
+
+#define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
+#define SHIZSpriteFontSpreadNormal 1.0
+#define SHIZSpriteFontSpreadTight 0.9
+#define SHIZSpriteFontSpreadLoose 1.1
+
+#define SHIZSpriteFontNoPadding 0
+
+static const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault = {
+    SHIZSpriteFontWrapModeWord, { 1, 1 }, SHIZSpriteFontSpreadNormal, SHIZSpriteFontNoPadding, SHIZSpriteFontNoPadding
 };
 
 #endif // type_h
