@@ -165,6 +165,8 @@ typedef struct {
 } SHIZSpriteFontAttributes;
 
 #define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
+#define SHIZSpriteFontSizeToFitHorizontally SHIZSpriteFontSizeToFit.width
+#define SHIZSpriteFontSizeToFitVertically SHIZSpriteFontSizeToFit.height
 #define SHIZSpriteFontSpreadNormal 1.0
 #define SHIZSpriteFontSpreadTight 0.9
 #define SHIZSpriteFontSpreadLoose 1.1
