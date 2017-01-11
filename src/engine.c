@@ -201,6 +201,7 @@ SHIZSpriteFont shiz_load_sprite_font_ex(SHIZSprite const sprite, SHIZSize const 
     spritefont.sprite = sprite;
     spritefont.character = character;
     spritefont.table = table;
+    spritefont.includes_whitespace = false;
     
     return spritefont;
 }
@@ -599,15 +600,17 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, S
             character_index = -1;
         }
         
-        if (character_index != -1 && character != ' ') {
-            uint const character_row = (int)(character_index / (int)font.table.columns);
-            uint const character_column = character_index % (int)font.table.columns;
+        if (character_index != -1) {
+            if (character != ' ' || font.includes_whitespace) {
+                uint const character_row = (int)(character_index / (int)font.table.columns);
+                uint const character_column = character_index % (int)font.table.columns;
 
-            character_sprite.source.origin.x = font.sprite.source.origin.x + (font.character.width * character_column);
-            character_sprite.source.origin.y = font.sprite.source.origin.y + (font.character.height * character_row);
+                character_sprite.source.origin.x = font.sprite.source.origin.x + (font.character.width * character_column);
+                character_sprite.source.origin.y = font.sprite.source.origin.y + (font.character.height * character_row);
 
-            shiz_draw_sprite_ex(character_sprite, character_origin, measurement.character_size,
-                                SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle, tint, SHIZSpriteNoRepeat);
+                shiz_draw_sprite_ex(character_sprite, character_origin, measurement.character_size,
+                                    SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle, tint, SHIZSpriteNoRepeat);
+            }
         }
         
         // leave a space even if the character was not found and drawn

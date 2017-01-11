@@ -107,6 +107,7 @@ typedef struct {
     SHIZSprite sprite;
     SHIZSize character;
     SHIZASCIITable table;
+    bool includes_whitespace;
 } SHIZSpriteFont;
 
 typedef struct {
