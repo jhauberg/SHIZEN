@@ -128,13 +128,13 @@ void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color);
 /**
  * @brief Draw a sprite.
  *
- * @param origin The location from which the sprite will be drawn.
+ * @param origin The location where the sprite will be drawn.
  */
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
 /**
  * @brief Draw a sprite.
  *
- * @param origin The location from which the sprite will be drawn
+ * @param origin The location where the sprite will be drawn
  * @param size The size to draw the sprite with (unless `repeat` is true, the sprite is scaled to fit).
  *             Use `SHIZSpriteSizeIntrinsic` to automatically set the size intrinsic to the sprite.
  * @param anchor Sets an anchor that defines where on the sprite the origin is.
@@ -150,16 +150,66 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  */
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);
 
+/**
+ * @brief Measure the size of a text.
+ *
+ * Measure the bounding width and height of a text.
+ *
+ * @param font a SHIZSpriteFont defining the resource that would be used to draw the text with
+ * @param text the string of text to measure
+ * @param bounds a SHIZSize with bounds that the text must not exceed; text that would exceed these
+ *               bounds will be truncated instead (use `SHIZSpriteFontSizeToFit` to disable bounds
+ *               entirely, or e.g. `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only
+ *               apply horizontal bounds- or vice versa)
+ * @param attributes a SHIZSpriteFontAttributes containing any additional attributes that would
+ *                   be used when drawing the text
+ *
+ * @return a SHIZSize with the bounding width and height
+ */
 SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
 
+/**
+ * @brief Draw a text.
+ *
+ * Draw a text at a location.
+ *
+ * @param font a SHIZSpriteFont defining the resource containing character sprites.
+ * @param text the string of text to draw
+ * @param origin the location where the text will be drawn
+ * @param alignment a SHIZSpriteFontAlignment defining the orientation of the text
+ *                  (defaults to `SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft`)
+ *
+ * @return a SHIZSize with the bounding width and height of the drawn text
+ */
 SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment);
+/**
+ * @brief Draw a text.
+ *
+ * Draw a text at a location.
+ *
+ * @param font a SHIZSpriteFont defining the resource containing character sprites.
+ * @param text the string of text to draw
+ * @param origin the location where the text will be drawn
+ * @param alignment a SHIZSpriteFontAlignment defining the orientation of the text
+ *                  (defaults to `SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft`)
+ * @param bounds a SHIZSize with bounds that the text must not exceed; text that would exceed these
+ *               bounds will be truncated instead (set `SHIZSpriteFontSizeToFit` to disable bounds
+ *               entirely, or e.g. `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only
+ *               apply horizontal bounds- or vice versa)
+ * @param tint a SHIZColor that is applied on each drawn character sprite
+ *             (specify `SHIZSpriteNoTint` to disable tinting)
+ * @param attributes a SHIZSpriteFontAttributes containing any additional attributes to draw the text
+ *                   (use `SHIZSpriteFontAttributesDefault` to apply default attributes)
+ *
+ * @return a SHIZSize with the bounding width and height of the drawn text
+ */
 SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes);
 
 /**
  * @brief Finish a drawing/rendering context.
  *
- * Finish the current drawing/rendering context and
- * present the current frame to the graphics context.
+ * Finish the current drawing/rendering context and present the
+ * current frame to the graphics context.
  */
 void shiz_drawing_end(void);
 
