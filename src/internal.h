@@ -77,16 +77,27 @@ typedef struct {
 static uint const SHIZSpriteFontMaxLines = 16;
 
 typedef struct {
-    SHIZSize size; /* measured size of the entire text as a whole */
-    SHIZSize line_size[SHIZSpriteFontMaxLines]; /* buffer holding the measured size of each drawn line */
-    SHIZSize character_size; /* actual destination size of a character sprite (may be scaled size) */
-    SHIZSize perceived_character_size; /* size of a character sprite as perceived (may be sized with character offsets, so not suitable for drawing uses) */
-    uint line_count; /* number of lines drawn */
-    uint max_characters_per_line; /* max characters per line before linebreak is forced */
-    uint max_lines_in_bounds; /* max number of lines that can fit within specified bounds, if any */
-    bool constrain_horizontally; /* keep text within horizontal bounds */
-    bool constrain_vertically; /* keep text within vertical bounds, forcing linebreaks if possible; truncates otherwise */
-    int constrain_index; /* index of the last character that can fit within specified bounds, if any; -1 otherwise */
+    /** The measured size of the entire text as a whole */
+    SHIZSize size;
+    /** A buffer holding the measured size of each line */
+    SHIZSize line_size[SHIZSpriteFontMaxLines];
+    /** The size of a character sprite as it should appear when drawn (may be scaled) */
+    SHIZSize character_size;
+    /** The size of a character sprite after applying any size-altering attributes (may be sized with
+        offsets/padding, so these values are not suitable for drawing; use `character_size` instead) */
+    SHIZSize character_size_perceived;
+    /** The number of lines */
+    uint line_count;
+    /** The max number of characters per line before a linebreak is forced */
+    uint max_characters_per_line;
+    /** The max number of lines that can fit within specified bounds, if any */
+    uint max_lines_in_bounds;
+    /** Determines whether to keep text within horizontal bounds */
+    bool constrain_horizontally;
+    /** Determines whether to keep text within vertical bounds, forcing linebreaks if possible; truncates otherwise */
+    bool constrain_vertically;
+    /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
+    int constrain_index;
 } SHIZSpriteFontMeasurement;
 
 static inline uint const _shiz_get_char_size(char const character) {

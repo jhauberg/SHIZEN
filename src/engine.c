@@ -167,16 +167,28 @@ bool shiz_unload(uint const resource_id) {
     return shiz_res_unload(resource_id);
 }
 
-SHIZSprite shiz_load_sprite(uint const resource_id) {
+SHIZSprite shiz_load_sprite(const char *filename) {
+    uint const resource_id = shiz_load(filename);
+    
+    return shiz_get_sprite(resource_id);
+}
+
+SHIZSprite shiz_load_sprite_src(const char *filename, SHIZRect source) {
+    SHIZSprite sprite = shiz_load_sprite(filename);
+    
+    return shiz_get_sprite_src(sprite.resource_id, source);
+}
+
+SHIZSprite shiz_get_sprite(uint const resource_id) {
     SHIZResourceImage const image = shiz_res_get_image(resource_id);
 
     SHIZRect const source = SHIZRectMake(SHIZVector2Zero,
                                          SHIZSizeMake(image.width, image.height));
 
-    return shiz_load_sprite_src(resource_id, source);
+    return shiz_get_sprite_src(resource_id, source);
 }
 
-SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source) {
+SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect source) {
     SHIZSprite sprite;
 
     sprite.resource_id = resource_id;
@@ -185,23 +197,35 @@ SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source) {
     return sprite;
 }
 
-SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character) {
+SHIZSpriteFont shiz_load_sprite_font(const char *filename, SHIZSize const character) {
+    SHIZSprite const sprite = shiz_load_sprite(filename);
+    
+    return shiz_get_sprite_font(sprite, character);
+}
+
+SHIZSpriteFont shiz_load_sprite_font_ex(const char *filename, SHIZSize const character, SHIZASCIITable const table) {
+    SHIZSpriteFont const spritefont = shiz_load_sprite_font(filename, character);
+    
+    return shiz_get_sprite_font_ex(spritefont.sprite, spritefont.character, table);
+}
+
+SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character) {
     SHIZASCIITable table;
 
     table.columns = sprite.source.size.width / character.width;
     table.rows = sprite.source.size.height / character.height;
     table.offset = 0;
 
-    return shiz_load_sprite_font_ex(sprite, character, table);
+    return shiz_get_sprite_font_ex(sprite, character, table);
 }
 
-SHIZSpriteFont shiz_load_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table) {
+SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table) {
     SHIZSpriteFont spritefont;
     
     spritefont.sprite = sprite;
     spritefont.character = character;
     spritefont.table = table;
-    spritefont.includes_whitespace = false;
+    spritefont.includes_whitespace = false; // default to skip whitespaces; this will reduce the number of sprites drawn
     
     return spritefont;
 }
@@ -427,16 +451,16 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     measurement.character_size = SHIZSizeMake(character_sprite.source.size.width * attributes.scale.x,
                                               character_sprite.source.size.height * attributes.scale.y);
 
-    measurement.perceived_character_size = SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
+    measurement.character_size_perceived = SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
                                                         measurement.character_size.height);
 
     measurement.constrain_horizontally = bounds.width != SHIZSpriteFontSizeToFit.width;
     measurement.constrain_vertically = bounds.height != SHIZSpriteFontSizeToFit.height;
 
-    measurement.max_characters_per_line = floor(bounds.width / measurement.perceived_character_size.width);
-    measurement.max_lines_in_bounds = floor(bounds.height / measurement.perceived_character_size.height);
+    measurement.max_characters_per_line = floor(bounds.width / measurement.character_size_perceived.width);
+    measurement.max_lines_in_bounds = floor(bounds.height / measurement.character_size_perceived.height);
 
-    float const line_height = measurement.perceived_character_size.height + attributes.line_padding;
+    float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
     
     uint text_index = 0;
     uint line_index = 0;
@@ -471,7 +495,7 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
                 }
             }
             
-            measurement.line_size[line_index].width = line_character_count * measurement.perceived_character_size.width;
+            measurement.line_size[line_index].width = line_character_count * measurement.character_size_perceived.width;
             measurement.line_size[line_index].height = line_height;
             
             line_character_count = 0;
@@ -496,7 +520,7 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
         // leave a space even if the character was not found
         line_character_count += 1;
         
-        measurement.line_size[line_index].width = line_character_count * measurement.perceived_character_size.width;
+        measurement.line_size[line_index].width = line_character_count * measurement.character_size_perceived.width;
         measurement.line_size[line_index].height = line_height;
         
         text_index += 1;
@@ -551,7 +575,7 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, S
     
     for (uint line_index = 0; line_index < measurement.line_count; line_index++) {
         SHIZSize line_size = measurement.line_size[line_index];
-        uint line_character_count = line_size.width / measurement.perceived_character_size.width;
+        uint line_character_count = line_size.width / measurement.character_size_perceived.width;
         
         if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
             character_origin.x -= line_size.width / 2;
@@ -603,7 +627,7 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, S
             }
             
             if (character_takes_space) {
-                character_origin.x += measurement.perceived_character_size.width;
+                character_origin.x += measurement.character_size_perceived.width;
             }
             
             if (should_break_from_truncation) {

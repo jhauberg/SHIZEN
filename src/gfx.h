@@ -21,9 +21,8 @@
  *
  * @warning Initialization must occur before calling any other graphics functions.
  *
- * @param framebuffer_size The size (in pixels) of the backbuffer (note that this is not
- *                         necesarilly the same size as the actual window)
- * @param pixel_scale The ratio between the size of the framebuffer and the window
+ * @param viewport
+ *        The viewport that will be rendered into
  *
  * @return `true` if the graphics module was initialized successfully, `false` otherwise
  */

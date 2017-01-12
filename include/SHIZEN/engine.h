@@ -14,7 +14,7 @@
 
 #define SHIZEN_VERSION_MAJOR 0
 #define SHIZEN_VERSION_MINOR 10
-#define SHIZEN_VERSION_PATCH 2
+#define SHIZEN_VERSION_PATCH 3
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -47,8 +47,8 @@ static const SHIZWindowSettings SHIZWindowSettingsDefault = {
  
  * @remark This function has no effect if SHIZEN was already initialized successfully.
  *
- * @param settings A SHIZWindowSettings object with values and flags
- *        that controls the resulting graphics context
+ * @param settings 
+ *        A SHIZWindowSettings object with values and flags that controls the resulting graphics context
  *
  * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
@@ -94,11 +94,17 @@ uint shiz_load(const char *filename);
 // unload a resource - return true if unloading succeeded, false otherwise
 bool shiz_unload(uint const resource_id);
 
-SHIZSprite shiz_load_sprite(uint const resource_id);
-SHIZSprite shiz_load_sprite_src(uint const resource_id, SHIZRect source);
+SHIZSprite shiz_load_sprite(const char *filename);
+SHIZSprite shiz_load_sprite_src(const char *filename, SHIZRect source);
 
-SHIZSpriteFont shiz_load_sprite_font(SHIZSprite const sprite, SHIZSize const character);
-SHIZSpriteFont shiz_load_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table);
+SHIZSprite shiz_get_sprite(uint const resource_id);
+SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect source);
+
+SHIZSpriteFont shiz_load_sprite_font(const char *filename, SHIZSize const character);
+SHIZSpriteFont shiz_load_sprite_font_ex(const char *filename, SHIZSize const character, SHIZASCIITable const table);
+
+SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character);
+SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table);
 
 /**
  * @brief Initiate a drawing/rendering context.
@@ -128,25 +134,32 @@ void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color);
 /**
  * @brief Draw a sprite.
  *
- * @param origin The location where the sprite will be drawn.
+ * @param origin 
+ *        The location where the sprite will be drawn.
  */
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
 /**
  * @brief Draw a sprite.
  *
- * @param origin The location where the sprite will be drawn
- * @param size The size to draw the sprite with (unless `repeat` is true, the sprite is scaled to fit).
- *             Use `SHIZSpriteSizeIntrinsic` to automatically set the size intrinsic to the sprite.
- * @param anchor Sets an anchor that defines where on the sprite the origin is.
- *               The anchor also defines the pivot point for any applied rotation.
- *               The anchor is relative to the entire sprite; e.g. { -1, 0 } defines a pivot at the
- *               left-middle side of the sprite, and { 1, 0 } defines a pivot at the right-middle.
- *               Similarly, { 1, 1 } would define a pivot at the top-right, and { -1, 1 } at the top-left
- * @param angle The angle in radians to rotate the sprite by (rotation is applied on
- *              the pivot point specified by the `anchor` parameter)
- * @param tint The color to tint the sprite with (default blending mode is multiplicative)
- * @param repeat Specify whether the sprite should repeat (only applies if the `size` parameter
- *               sets a size larger than the intrinsic size of the sprite)
+ * @param origin 
+ *        The location where the sprite will be drawn
+ * @param size 
+ *        The size to draw the sprite with (unless `repeat` is true, the sprite is scaled to fit).
+ *        Use `SHIZSpriteSizeIntrinsic` to automatically set the size intrinsic to the sprite.
+ * @param anchor 
+ *        Sets an anchor that defines where on the sprite the origin is.
+ *        The anchor also defines the pivot point for any applied rotation.
+ *        The anchor is relative to the entire sprite; e.g. { 0, 0 } defines a pivot at the center, { -1, 0 } at the
+ *        middle-left of the sprite, and { 1, 0 } defines a pivot at the middle-right.
+ *        Similarly, { 1, 1 } defines a pivot at the top-right, and { -1, 1 } at the top-left
+ * @param angle 
+ *        The angle in radians to rotate the sprite by (rotation is applied on
+ *        the pivot point specified by the `anchor` parameter)
+ * @param tint 
+ *        The color to tint the sprite with (default blending mode is multiplicative)
+ * @param repeat 
+ *        Specify whether the sprite should repeat (only applies if the `size` parameter
+ *        sets a size larger than the intrinsic size of the sprite)
  */
 void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);
 
@@ -155,51 +168,68 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
  *
  * Measure the bounding width and height of a text.
  *
- * @param font a SHIZSpriteFont defining the resource that would be used to draw the text with
- * @param text the string of text to measure
- * @param bounds a SHIZSize with bounds that the text must not exceed; text that would exceed these
- *               bounds will be truncated instead (use `SHIZSpriteFontSizeToFit` to disable bounds
- *               entirely, or e.g. `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only
- *               apply horizontal bounds- or vice versa)
- * @param attributes a SHIZSpriteFontAttributes containing any additional attributes that would
- *                   be used when drawing the text
+ * @param font 
+ *        A SHIZSpriteFont defining the resource that would be used to draw the text with
+ * @param text 
+ *        The string of text to measure
+ * @param bounds 
+ *        A SHIZSize with bounds that the text must not exceed; text that would exceed these
+ *        bounds will be truncated instead (use `SHIZSpriteFontSizeToFit` to disable bounds
+ *        entirely, or e.g. `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only
+ *        apply horizontal bounds- or vice versa)
+ * @param attributes 
+ *        A SHIZSpriteFontAttributes containing any additional attributes that would
+ *        be used when drawing the text
  *
  * @return a SHIZSize with the bounding width and height
  */
 SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
 
 /**
- * @brief Draw a text.
+ * @brief Draw a text at a location.
  *
- * Draw a text at a location.
+ * Draw a text at a location, aligned as specified.
  *
- * @param font a SHIZSpriteFont defining the resource containing character sprites.
- * @param text the string of text to draw
- * @param origin the location where the text will be drawn
- * @param alignment a SHIZSpriteFontAlignment defining the orientation of the text
- *                  (defaults to `SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft`)
+ * @param font 
+ *        A SHIZSpriteFont defining the resource containing character sprites.
+ * @param text 
+ *        The string of text to draw
+ * @param origin 
+ *        The location where the text will be drawn
+ * @param alignment 
+ *        A SHIZSpriteFontAlignment defining the orientation of the text
+ *        (defaults to `SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft`)
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
 SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment);
 /**
- * @brief Draw a text.
+ * @brief Draw a text at a location.
  *
- * Draw a text at a location.
+ * Draw a text at a location, aligned and attributed as specified.
  *
- * @param font a SHIZSpriteFont defining the resource containing character sprites.
- * @param text the string of text to draw
- * @param origin the location where the text will be drawn
- * @param alignment a SHIZSpriteFontAlignment defining the orientation of the text
- *                  (defaults to `SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft`)
- * @param bounds a SHIZSize with bounds that the text must not exceed; text that would exceed these
- *               bounds will be truncated instead (set `SHIZSpriteFontSizeToFit` to disable bounds
- *               entirely, or e.g. `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only
- *               apply horizontal bounds- or vice versa)
- * @param tint a SHIZColor that is applied on each drawn character sprite
- *             (specify `SHIZSpriteNoTint` to disable tinting)
- * @param attributes a SHIZSpriteFontAttributes containing any additional attributes to draw the text
- *                   (use `SHIZSpriteFontAttributesDefault` to apply default attributes)
+ * @remark Applying vertical bounds can cause the text to be truncated if it exceeds the bounds.
+ *
+ * @param font 
+ *        A SHIZSpriteFont defining the resource containing character sprites.
+ * @param text 
+ *        The string of text to draw
+ * @param origin 
+ *        The location where the text will be drawn
+ * @param alignment 
+ *        A SHIZSpriteFontAlignment defining the orientation of the text
+ *        (defaults to `SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft`)
+ * @param bounds 
+ *        A SHIZSize with bounds that the text must not exceed; text that would exceed these
+ *        bounds will be truncated instead (set `SHIZSpriteFontSizeToFit` to disable bounds
+ *        entirely, or e.g. `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only
+ *        apply horizontal bounds- or vice versa)
+ * @param tint 
+ *        A SHIZColor that is applied on each drawn character sprite
+ *        (specify `SHIZSpriteNoTint` to disable tinting)
+ * @param attributes 
+ *        A SHIZSpriteFontAttributes containing any additional attributes to draw the text
+ *        (use `SHIZSpriteFontAttributesDefault` to apply default attributes)
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */

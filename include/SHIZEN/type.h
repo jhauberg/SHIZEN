@@ -92,11 +92,20 @@ static inline SHIZColor SHIZColorMake(float const r, float const g, float const 
     return color;
 }
 
+/**
+ * Represents a 2-dimensional frame of an image resource.
+ * The source frame can either be a subset of, or span the entire image.
+ */
 typedef struct {
+    /** The image resource */
     uint resource_id;
+    /* The frame that specifies which part of the image to draw */
     SHIZRect source;
 } SHIZSprite;
 
+/** 
+ * @brief An empty sprite. This sprite cannot be drawn.
+ */
 static const SHIZSprite SHIZSpriteEmpty = {
     0, { { 0, 0 }, { 0, 0 } }
 };
@@ -132,13 +141,21 @@ static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
 typedef struct {
     uint columns;
     uint rows;
+    /** An offset to align the table with the standard ASCII table */
     uint offset;
 } SHIZASCIITable;
 
+/**
+ * Represents a set of sprite characters aligned to an ASCII table.
+ */
 typedef struct {
+    /** A sprite that defines the font resource */
     SHIZSprite sprite;
+    /** The size of each sprite character */
     SHIZSize character;
+    /** The ASCII table that aligns with the font sprite */
     SHIZASCIITable table;
+    /** Determines whether the font resource includes a sprite for the whitespace character */
     bool includes_whitespace;
 } SHIZSpriteFont;
 
@@ -156,12 +173,20 @@ typedef enum {
     SHIZSpriteFontWrapModeWord
 } SHIZSpriteFontWrapMode;
 
+/**
+ * Represents a set of attributes that specify how text should be drawn.
+ */
 typedef struct {
+    /** The word-wrapping mode */
     SHIZSpriteFontWrapMode wrap;
-    SHIZVector2 scale; /* a scale defining the final size of the text */
-    float character_spread; /* a scale defining how "tight" characters are drawn */
-    float character_padding; /* a value that adds padding to each character */
-    float line_padding; /* a value that adds padding to each line */
+    /** A scale defining the final size of the text */
+    SHIZVector2 scale;
+    /** A scale defining how "tight" characters are drawn */
+    float character_spread;
+    /** A value that adds padding to each character */
+    float character_padding;
+    /** A value that adds padding to each line */
+    float line_padding;
 } SHIZSpriteFontAttributes;
 
 #define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
