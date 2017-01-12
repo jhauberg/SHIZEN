@@ -29,7 +29,16 @@
 
 #include "type.h"
 
-typedef struct {
+typedef struct SHIZGraphicsContext SHIZGraphicsContext;
+typedef struct SHIZViewport SHIZViewport;
+typedef struct SHIZVertexPositionColor SHIZVertexPositionColor;
+typedef struct SHIZVertexPositionColorTexture SHIZVertexPositionColorTexture;
+typedef struct SHIZSpriteFontMeasurement SHIZSpriteFontMeasurement;
+typedef struct SHIZRenderData SHIZRenderData;
+
+typedef enum SHIZViewportMode SHIZViewportMode;
+
+struct SHIZGraphicsContext {
     bool is_initialized;
     bool is_focused;
 
@@ -38,45 +47,43 @@ typedef struct {
     SHIZSize preferred_screen_size;
     
     GLFWwindow *window;
-} SHIZGraphicsContext;
+};
 
-typedef enum {
+enum SHIZViewportMode {
     SHIZViewportModeNormal,
     SHIZViewportModeLetterbox,
     SHIZViewportModePillarbox
-} SHIZViewportMode;
+};
 
-typedef struct {
+struct SHIZViewport {
     SHIZSize framebuffer;
     SHIZSize screen;
     float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
     SHIZSize offset; // offset if letter/pillarboxing is enabled
-} SHIZViewport;
+};
 
-static const SHIZViewport SHIZViewportDefault = { { 0, 0 }, { 0, 0 }, 1, { 0, 0 } };
-
-typedef struct {
+struct SHIZRenderData {
     GLuint program;
     GLuint vbo;
     GLuint vao;
-} SHIZRenderData;
+};
 
-typedef struct {
+struct SHIZVertexPositionColor {
     SHIZVector3 position;
     SHIZColor color;
-} SHIZVertexPositionColor;
+};
 
-typedef struct {
+struct SHIZVertexPositionColorTexture {
     SHIZVector3 position;
     SHIZColor color;
     SHIZVector2 texture_coord;
     SHIZVector2 texture_coord_min;
     SHIZVector2 texture_coord_max;
-} SHIZVertexPositionColorTexture;
+};
 
 static uint const SHIZSpriteFontMaxLines = 16;
 
-typedef struct {
+struct SHIZSpriteFontMeasurement {
     /** The measured size of the entire text as a whole */
     SHIZSize size;
     /** A buffer holding the measured size of each line */
@@ -98,7 +105,11 @@ typedef struct {
     bool constrain_vertically;
     /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
     int constrain_index;
-} SHIZSpriteFontMeasurement;
+};
+
+static const SHIZViewport SHIZViewportDefault = {
+    { 0, 0 }, { 0, 0 }, 1, { 0, 0 }
+};
 
 static inline uint const _shiz_get_char_size(char const character) {
     int bits = 7;

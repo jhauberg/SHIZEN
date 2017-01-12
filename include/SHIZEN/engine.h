@@ -22,19 +22,16 @@
 
 #include "type.h"
 
-typedef struct {
+typedef struct SHIZWindowSettings SHIZWindowSettings;
+
+struct SHIZWindowSettings {
     const char *title;
     bool fullscreen;
     bool vsync;
     SHIZSize size;
-} SHIZWindowSettings;
-
-static const SHIZWindowSettings SHIZWindowSettingsDefault = {
-    "SHIZEN",    /* title */
-    false,       /* fullscreen */
-    true,        /* vsync */
-    { 320, 240 } /* preferred screen size */
 };
+
+extern const SHIZWindowSettings SHIZWindowSettingsDefault;
 
 /**
  * @brief Startup the SHIZEN engine core.
@@ -101,10 +98,10 @@ SHIZSprite shiz_get_sprite(uint const resource_id);
 SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect source);
 
 SHIZSpriteFont shiz_load_sprite_font(const char *filename, SHIZSize const character);
-SHIZSpriteFont shiz_load_sprite_font_ex(const char *filename, SHIZSize const character, SHIZASCIITable const table);
+SHIZSpriteFont shiz_load_sprite_font_ex(const char *filename, SHIZSize const character, SHIZSpriteFontTable const table);
 
 SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character);
-SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table);
+SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZSpriteFontTable const table);
 
 /**
  * @brief Initiate a drawing/rendering context.

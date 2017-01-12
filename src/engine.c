@@ -23,6 +23,13 @@
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
 #define SHIZ_MIN_OPENGL_VERSION_MINOR 3
 
+const SHIZWindowSettings SHIZWindowSettingsDefault = {
+    "SHIZEN",    /* title */
+    false,       /* fullscreen */
+    true,        /* vsync */
+    { 320, 240 } /* preferred screen size */
+};
+
 static void _shiz_glfw_error_callback(int error, const char* description);
 
 static void _shiz_glfw_window_close_callback(GLFWwindow* window);
@@ -203,14 +210,14 @@ SHIZSpriteFont shiz_load_sprite_font(const char *filename, SHIZSize const charac
     return shiz_get_sprite_font(sprite, character);
 }
 
-SHIZSpriteFont shiz_load_sprite_font_ex(const char *filename, SHIZSize const character, SHIZASCIITable const table) {
+SHIZSpriteFont shiz_load_sprite_font_ex(const char *filename, SHIZSize const character, SHIZSpriteFontTable const table) {
     SHIZSpriteFont const spritefont = shiz_load_sprite_font(filename, character);
     
     return shiz_get_sprite_font_ex(spritefont.sprite, spritefont.character, table);
 }
 
 SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character) {
-    SHIZASCIITable table;
+    SHIZSpriteFontTable table;
 
     table.columns = sprite.source.size.width / character.width;
     table.rows = sprite.source.size.height / character.height;
@@ -219,7 +226,7 @@ SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const char
     return shiz_get_sprite_font_ex(sprite, character, table);
 }
 
-SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZASCIITable const table) {
+SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZSpriteFontTable const table) {
     SHIZSpriteFont spritefont;
     
     spritefont.sprite = sprite;
@@ -653,14 +660,14 @@ static SHIZViewport _shiz_get_viewport(void) {
     viewport.screen = context.preferred_screen_size;
     viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
     viewport.scale = _shiz_glfw_get_pixel_scale();
-    
+
     return viewport;
 }
 
 static SHIZSize _shiz_glfw_get_window_size() {
     int window_width;
     int window_height;
-    
+
     glfwGetWindowSize(context.window, &window_width, &window_height);
     
     return SHIZSizeMake(window_width, window_height);
