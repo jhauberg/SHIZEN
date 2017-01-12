@@ -24,13 +24,25 @@
 
 typedef struct SHIZWindowSettings SHIZWindowSettings;
 
+/**
+ * Provides settings and flags for the creation of the window.
+ */
 struct SHIZWindowSettings {
+    /** The name of the window */
     const char *title;
+    /** Determines whether the window should be fullscreen */
     bool fullscreen;
+    /** Determines whether v-sync should be enabled */
     bool vsync;
+    /** The size of the window */
     SHIZSize size;
 };
 
+/**
+ * @brief Default window settings.
+ *
+ * Default window settings provides a 320x240 non-fullscreen window with v-sync enabled.
+ */
 extern const SHIZWindowSettings SHIZWindowSettingsDefault;
 
 /**
@@ -86,9 +98,17 @@ void shiz_request_finish(void);
  */
 bool shiz_should_finish(void);
 
-// load a resource and return its id - return invalid id (0) if loading failed
+/**
+ * @brief Load a resource.
+ *
+ * @return A resource id if the resource was loaded successfully, `0` otherwise
+ */
 uint shiz_load(const char *filename);
-// unload a resource - return true if unloading succeeded, false otherwise
+/**
+ * @brief Unload a resource.
+ *
+ * @return `true` if the resource was unloaded successfully, `false` otherwise
+ */
 bool shiz_unload(uint const resource_id);
 
 SHIZSprite shiz_load_sprite(const char *filename);

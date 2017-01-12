@@ -39,13 +39,15 @@ typedef struct SHIZRenderData SHIZRenderData;
 typedef enum SHIZViewportMode SHIZViewportMode;
 
 struct SHIZGraphicsContext {
+    /** Determines whether the context has been initialized */
     bool is_initialized;
+    /** Determines whether the context has focus */
     bool is_focused;
-
+    /** Determines whether a shutdown should be initiated */
     bool should_finish;
-    
+    /** The preferred screen size; the display may be boxed if necessary */
     SHIZSize preferred_screen_size;
-    
+    /** A reference to the current window */
     GLFWwindow *window;
 };
 
@@ -81,7 +83,7 @@ struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord_max;
 };
 
-static uint const SHIZSpriteFontMaxLines = 16;
+#define SHIZSpriteFontMaxLines 16
 
 struct SHIZSpriteFontMeasurement {
     /** The measured size of the entire text as a whole */

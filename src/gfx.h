@@ -39,14 +39,22 @@ bool shiz_gfx_kill(void);
 /**
  * @brief Render vertex data.
  *
- * Render vertex data by first allocating a buffer on the GPU, then uploading vertex data to it
- * and finally drawing primitives of the specified type.
+ * Render pre-transformed vertex data by first allocating a buffer on the GPU, 
+ * then uploading vertex data to it and finally drawing primitives of the specified type.
  *
  * @remark This function does not batch vertex data. Every call will result in an 
  * additional buffer allocation and a draw call, and so it is not very efficient. 
  * Take that into consideration before extended use.
  */
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count);
+/**
+ * @brief Render a textured quad.
+ * 
+ * Render a textured quad at a location, optionally rotated at an angle.
+ *
+ * @remark This function batches vertex data, and is only flushed when necessary (but at least
+ *         once per frame).
+ */
 void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices,
                           SHIZVector3 const origin, float const angle,
                           GLuint const texture_id);

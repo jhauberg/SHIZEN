@@ -113,6 +113,11 @@ struct SHIZSpriteFont {
     bool includes_whitespace;
 };
 
+/**
+ * @brief Default font attributes.
+ * 
+ * Default font attributes apply scaling at 1:1 and enables word-wrapping.
+ */
 extern const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault;
 
 extern const SHIZVector2 SHIZVector2Zero;
@@ -134,9 +139,18 @@ extern const SHIZRect SHIZRectEmpty;
  */
 extern const SHIZSprite SHIZSpriteEmpty;
 
+/**
+ * @brief Size a sprite to its intrinsic (or natural) size.
+ */
 extern const SHIZSize SHIZSpriteSizeIntrinsic;
 
+/**
+ * @brief Do not apply rotation.
+ */
 extern const float SHIZSpriteNoAngle;
+/**
+ * @brief Default sprite layer.
+ */
 extern const uint SHIZSpriteLayerDefault;
 
 extern const SHIZVector2 SHIZSpriteAnchorCenter;
@@ -149,16 +163,46 @@ extern const SHIZVector2 SHIZSpriteAnchorTopRight;
 extern const SHIZVector2 SHIZSpriteAnchorRight;
 extern const SHIZVector2 SHIZSpriteAnchorBottomRight;
 
+/**
+ * @brief Do not apply a tint.
+ */
 #define SHIZSpriteNoTint SHIZColorWhite
+/**
+ * @brief Repeat the sprite.
+ */
 #define SHIZSpriteRepeat true
+/**
+ * @brief Do not repeat the sprite.
+ */
 #define SHIZSpriteNoRepeat false
 
+/**
+ * @brief Do not constrain text to bounds.
+ */
 #define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
+/**
+ * @brief Do not constrain text to horizontal bounds.
+ */
 #define SHIZSpriteFontSizeToFitHorizontally SHIZSpriteFontSizeToFit.width
+/**
+ * @brief Do not constrain text to vertical bounds.
+ */
 #define SHIZSpriteFontSizeToFitVertically SHIZSpriteFontSizeToFit.height
+/**
+ * @brief Apply normal font spread; characters will be spaced normally.
+ */
 #define SHIZSpriteFontSpreadNormal 1.0
+/**
+ * @brief Apply tight font spread; characters will be spaced with smaller gaps.
+ */
 #define SHIZSpriteFontSpreadTight 0.9
+/**
+ * @brief Apply loose font spread; characters will be spaced with larger gaps.
+ */
 #define SHIZSpriteFontSpreadLoose 1.1
+/**
+ * @brief Do not apply.
+ */
 #define SHIZSpriteFontNoPadding 0
 
 static inline SHIZVector2 SHIZVector2Make(float const x, float const y) {
