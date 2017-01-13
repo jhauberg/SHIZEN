@@ -13,8 +13,8 @@
 #define engine_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 10
-#define SHIZEN_VERSION_PATCH 3
+#define SHIZEN_VERSION_MINOR 11
+#define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -98,6 +98,12 @@ void shiz_request_finish(void);
  */
 bool shiz_should_finish(void);
 
+void shiz_ticking_begin(void);
+bool shiz_tick(uint const frequency);
+float shiz_ticking_end(void);
+
+double shiz_get_tick_rate(void);
+
 /**
  * @brief Load a resource.
  *
@@ -131,6 +137,14 @@ SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const c
  * Additionally, clear the screen from the previous frame.
  */
 void shiz_drawing_begin(void);
+/**
+ * @brief Finish a drawing/rendering context.
+ *
+ * Finish the current drawing/rendering context and present the
+ * current frame to the graphics context.
+ */
+void shiz_drawing_end(void);
+
 /**
  * @brief Draw a line.
  */
@@ -251,13 +265,5 @@ SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZ
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
 SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes);
-
-/**
- * @brief Finish a drawing/rendering context.
- *
- * Finish the current drawing/rendering context and present the
- * current frame to the graphics context.
- */
-void shiz_drawing_end(void);
 
 #endif // engine_h

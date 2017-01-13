@@ -30,6 +30,7 @@
 #include "type.h"
 
 typedef struct SHIZGraphicsContext SHIZGraphicsContext;
+typedef struct SHIZTimeLine SHIZTimeLine;
 typedef struct SHIZViewport SHIZViewport;
 typedef struct SHIZVertexPositionColor SHIZVertexPositionColor;
 typedef struct SHIZVertexPositionColorTexture SHIZVertexPositionColorTexture;
@@ -49,6 +50,12 @@ struct SHIZGraphicsContext {
     SHIZSize preferred_screen_size;
     /** A reference to the current window */
     GLFWwindow *window;
+};
+
+struct SHIZTimeLine {
+    double time;
+    double time_step;
+    float scale;
 };
 
 enum SHIZViewportMode {

@@ -56,6 +56,12 @@ static void _shiz_debug_process_errors(void);
 #endif
 
 static SHIZGraphicsContext context;
+static SHIZTimeLine timeline;
+
+static double const maximum_frame_time = 1.0 / 4; // 4 frames per second
+
+static double time_previous = 0;
+static double time_lag = 0;
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     (void)window;
@@ -137,6 +143,12 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     
     context.is_initialized = true;
 
+    timeline.time = 0;
+    timeline.time_step = 0;
+    timeline.scale = 1;
+    
+    time_previous = glfwGetTime();
+    
     return true;
 }
 
@@ -164,6 +176,40 @@ void shiz_request_finish() {
 
 bool shiz_should_finish() {
     return context.should_finish;
+}
+
+void shiz_ticking_begin(void) {
+    double const time = glfwGetTime();
+    double time_elapsed = time - time_previous;
+    
+    if (time_elapsed > maximum_frame_time) {
+        time_elapsed = maximum_frame_time;
+    }
+    
+    time_lag += time_elapsed * timeline.scale;
+    time_previous = time;
+}
+
+float shiz_ticking_end(void) {
+    return time_lag / timeline.time_step;
+}
+
+bool shiz_tick(uint const frequency) {
+    timeline.time_step = 1.0 / frequency;
+    
+    if (time_lag >= timeline.time_step) {
+        time_lag -= timeline.time_step;
+
+        timeline.time += timeline.time_step;
+        
+        return true;
+    }
+    
+    return false;
+}
+
+double shiz_get_tick_rate(void) {
+    return timeline.time_step;
 }
 
 uint shiz_load(const char *filename) {
@@ -246,7 +292,6 @@ void shiz_drawing_end() {
     shiz_gfx_end();
 
 #ifdef SHIZ_DEBUG
-    //printf("draw calls this frame: %d\n", shiz_gfx_debug_get_draw_count());
     _shiz_debug_process_errors();
 #endif
 
