@@ -11,6 +11,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include <linmath.h>
 
@@ -20,6 +21,8 @@
 #ifdef DEBUG
 static void _shiz_gfx_debug_reset_draw_count(void);
 static void _shiz_gfx_debug_increment_draw_count(uint amount);
+static void _shiz_gfx_debug_increment_frame_count(uint amount);
+static void _shiz_gfx_debug_update_frames_per_second(void);
 #endif
 
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source);
@@ -308,6 +311,8 @@ void shiz_gfx_begin() {
                _viewport.framebuffer.height - _viewport.offset.height);
     
 #ifdef DEBUG
+    _shiz_gfx_debug_increment_frame_count(1);
+    _shiz_gfx_debug_update_frames_per_second();
     _shiz_gfx_debug_reset_draw_count();
 #endif
 }
@@ -587,4 +592,67 @@ uint shiz_gfx_debug_get_draw_count() {
 static void _shiz_gfx_debug_increment_draw_count(uint amount) {
     _shiz_gfx_debug_draw_count += amount;
 }
+
+static uint const _shiz_gfx_debug_max_frame_samples = 16;
+
+static uint _shiz_gfx_debug_frame_samples; // sample frames to calculate average
+static uint _shiz_gfx_debug_frame_sample_count = 0;
+
+static uint _shiz_gfx_debug_frame_count = 0;
+static uint _shiz_gfx_debug_frames_per_second = 0;
+static uint _shiz_gfx_debug_frames_per_second_min = UINT_MAX;
+static uint _shiz_gfx_debug_frames_per_second_max = 0;
+static uint _shiz_gfx_debug_frames_per_second_avg = 0;
+
+static double _shiz_gfx_debug_last_frame_time = 0;
+
+uint shiz_gfx_debug_get_frames_per_second() {
+    return _shiz_gfx_debug_frames_per_second;
+}
+
+uint shiz_gfx_debug_get_frames_per_second_max() {
+    return _shiz_gfx_debug_frames_per_second_max;
+}
+
+uint shiz_gfx_debug_get_frames_per_second_min() {
+    return _shiz_gfx_debug_frames_per_second_min;
+}
+
+uint shiz_gfx_debug_get_frames_per_second_avg() {
+    return _shiz_gfx_debug_frames_per_second_avg;
+}
+
+static void _shiz_gfx_debug_increment_frame_count(uint amount) {
+    _shiz_gfx_debug_frame_count += amount;
+}
+
+static void _shiz_gfx_debug_update_frames_per_second(void) {
+    double const time = glfwGetTime();
+    double const time_since_last_frame = time - _shiz_gfx_debug_last_frame_time;
+    
+    if (time_since_last_frame > 1) {
+        _shiz_gfx_debug_frames_per_second = _shiz_gfx_debug_frame_count / time_since_last_frame;
+        _shiz_gfx_debug_frame_count = 0;
+        _shiz_gfx_debug_last_frame_time = time;
+        
+        if (_shiz_gfx_debug_frames_per_second < _shiz_gfx_debug_frames_per_second_min) {
+            _shiz_gfx_debug_frames_per_second_min = _shiz_gfx_debug_frames_per_second;
+        }
+        
+        if (_shiz_gfx_debug_frames_per_second > _shiz_gfx_debug_frames_per_second_max) {
+            _shiz_gfx_debug_frames_per_second_max = _shiz_gfx_debug_frames_per_second;
+        }
+        
+        _shiz_gfx_debug_frame_samples += _shiz_gfx_debug_frames_per_second;
+        _shiz_gfx_debug_frame_sample_count++;
+        
+        _shiz_gfx_debug_frames_per_second_avg = _shiz_gfx_debug_frame_samples / _shiz_gfx_debug_frame_sample_count;
+        
+        if (_shiz_gfx_debug_frame_sample_count > _shiz_gfx_debug_max_frame_samples) {
+            _shiz_gfx_debug_frame_sample_count = 0;
+            _shiz_gfx_debug_frame_samples = 0;
+        }
+    }
+}
+
 #endif
