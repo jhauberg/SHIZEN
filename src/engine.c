@@ -221,7 +221,11 @@ bool shiz_tick(uint const frequency) {
     return false;
 }
 
-double shiz_get_tick_rate(void) {
+double shiz_get_time() {
+    return timeline.time;
+}
+
+double shiz_get_tick_rate() {
     return timeline.time_step;
 }
 

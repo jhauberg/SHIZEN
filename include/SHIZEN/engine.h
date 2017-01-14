@@ -102,6 +102,7 @@ void shiz_ticking_begin(void);
 bool shiz_tick(uint const frequency);
 float shiz_ticking_end(void);
 
+double shiz_get_time(void);
 double shiz_get_tick_rate(void);
 
 /**
