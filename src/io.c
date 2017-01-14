@@ -28,6 +28,8 @@
  #pragma clang pop
 #endif
 
+static bool _shiz_io_handle_image(unsigned char* image, int width, int height, int components, shiz_io_image_loaded_handler handler);
+
 static uint const buffer_capacity = 256;
 
 static char buffer[buffer_capacity];
@@ -65,6 +67,24 @@ void shiz_io_warning_context(const char *context, const char *format, ...) {
     SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] [%s] %s", warning_context, context, format) )
 }
 
+static bool _shiz_io_handle_image(unsigned char* image, int width, int height, int components, shiz_io_image_loaded_handler handler) {
+    if (!image) {
+        return false;
+    }
+
+    if (handler) {
+        if (!(*handler)(width, height, components, image)) {
+            stbi_image_free(image);
+
+            return false;
+        }
+    }
+
+    stbi_image_free(image);
+    
+    return true;
+}
+
 bool shiz_io_load_image(const char *filename, shiz_io_image_loaded_handler handler) {
     int width, height;
     int components;
@@ -81,15 +101,16 @@ bool shiz_io_load_image(const char *filename, shiz_io_image_loaded_handler handl
         return false;
     }
 
-    if (handler) {
-        if (!(*handler)(width, height, components, image)) {
-            stbi_image_free(image);
+    return _shiz_io_handle_image(image, width, height, components, handler);
+}
 
-            return false;
-        }
-    }
+bool shiz_io_load_image_data(const unsigned char *buffer, uint const length, shiz_io_image_loaded_handler handler) {
+    int width, height;
+    int components;
 
-    stbi_image_free(image);
+    stbi_set_flip_vertically_on_load(true);
 
-    return true;
+    unsigned char* image = stbi_load_from_memory(buffer, length, &width, &height, &components, STBI_rgb_alpha);
+
+    return _shiz_io_handle_image(image, width, height, components, handler);
 }
