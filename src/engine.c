@@ -53,6 +53,9 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
 
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_process_errors(void);
+
+static SHIZSpriteFont _shiz_debug_font;
+static char _shiz_debug_font_buffer[128];
 #endif
 
 static SHIZGraphicsContext context;
@@ -148,6 +151,16 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     timeline.scale = 1;
     
     time_previous = glfwGetTime();
+
+#ifdef SHIZ_DEBUG
+    if (shiz_res_debug_load_font()) {
+        SHIZSprite sprite = shiz_get_sprite(shiz_res_debug_get_font());
+        SHIZSpriteFont spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(8, 8));
+
+        _shiz_debug_font = spritefont;
+        _shiz_debug_font.table.offset = 32;
+    }
+#endif
     
     return true;
 }
@@ -292,6 +305,22 @@ void shiz_drawing_end() {
     shiz_gfx_end();
 
 #ifdef SHIZ_DEBUG
+    sprintf(_shiz_debug_font_buffer,
+            "FPS:   %d (%d / %d / %d)\n"
+            "DRAWS: %d",
+            shiz_gfx_debug_get_frames_per_second(),
+            shiz_gfx_debug_get_frames_per_second_min(),
+            shiz_gfx_debug_get_frames_per_second_avg(),
+            shiz_gfx_debug_get_frames_per_second_max(),
+            shiz_gfx_debug_get_draw_count());
+
+    uint const margin = 4;
+
+    shiz_draw_sprite_text(_shiz_debug_font,
+                          _shiz_debug_font_buffer,
+                          SHIZVector2Make(margin, context.preferred_screen_size.height - margin),
+                          SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft);
+
     _shiz_debug_process_errors();
 #endif
 
@@ -523,7 +552,7 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     
     while (*text) {
         char character = *text;
-        
+
         text += _shiz_get_char_size(character);
         
         bool const break_line_explicit = character == newline_character;
@@ -581,7 +610,7 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     measurement.line_count = line_index + 1;
     measurement.size.height = measurement.line_count * line_height;
 
-    for (uint i = 0; i < line_index; i++) {
+    for (uint i = 0; i < measurement.line_count; i++) {
         if (measurement.line_size[i].width > measurement.size.width) {
             // use the widest occurring line width
             measurement.size.width = measurement.line_size[i].width;
