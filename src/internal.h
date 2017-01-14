@@ -69,6 +69,7 @@ struct SHIZViewport {
     SHIZSize screen;
     float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
     SHIZSize offset; // offset if letter/pillarboxing is enabled
+    bool is_fullscreen;
 };
 
 struct SHIZRenderData {
@@ -117,7 +118,7 @@ struct SHIZSpriteFontMeasurement {
 };
 
 static const SHIZViewport SHIZViewportDefault = {
-    { 0, 0 }, { 0, 0 }, 1, { 0, 0 }
+    { 0, 0 }, { 0, 0 }, 1, { 0, 0 }, false
 };
 
 static inline uint const _shiz_get_char_size(char const character) {

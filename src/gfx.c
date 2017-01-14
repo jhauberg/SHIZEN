@@ -473,6 +473,11 @@ static void _shiz_gfx_spritebatch_flush() {
 }
 
 void shiz_gfx_set_viewport(SHIZViewport const viewport) {
+    if (viewport.framebuffer.width == _viewport.framebuffer.width ||
+        viewport.framebuffer.height == _viewport.framebuffer.height) {
+        return;
+    }
+
     _viewport = viewport;
 
     _shiz_gfx_determine_operating_resolution();
@@ -482,10 +487,11 @@ void shiz_gfx_set_viewport(SHIZViewport const viewport) {
 static void _shiz_gfx_determine_operating_resolution() {
     if ((_viewport.screen.width < _viewport.framebuffer.width || _viewport.screen.width > _viewport.framebuffer.width) ||
         (_viewport.screen.height < _viewport.framebuffer.height || _viewport.screen.height > _viewport.framebuffer.height)) {
-        shiz_io_warning_context("GFX", "Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx",
+        shiz_io_warning_context("GFX", "Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx (%s)",
                                 _viewport.screen.width, _viewport.screen.height,
                                 _viewport.framebuffer.width, _viewport.framebuffer.height,
-                                _viewport.scale);
+                                _viewport.scale,
+                                _viewport.is_fullscreen ? "fullscreen" : "windowed");
     }
 }
 
