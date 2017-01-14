@@ -18,7 +18,7 @@
 #include "gfx.h"
 #include "io.h"
 
-#ifdef DEBUG
+#ifdef SHIZ_DEBUG
 static void _shiz_gfx_debug_reset_draw_count(void);
 static void _shiz_gfx_debug_increment_draw_count(uint amount);
 static void _shiz_gfx_debug_increment_frame_count(uint amount);
@@ -310,9 +310,7 @@ void shiz_gfx_begin() {
                _viewport.framebuffer.width - _viewport.offset.width,
                _viewport.framebuffer.height - _viewport.offset.height);
     
-#ifdef DEBUG
-    _shiz_gfx_debug_increment_frame_count(1);
-    _shiz_gfx_debug_update_frames_per_second();
+#ifdef SHIZ_DEBUG
     _shiz_gfx_debug_reset_draw_count();
 #endif
 }
@@ -323,6 +321,11 @@ void shiz_gfx_end() {
     }
 
     _spritebatch.current_texture_id = 0;
+
+#ifdef SHIZ_DEBUG
+    _shiz_gfx_debug_increment_frame_count(1);
+    _shiz_gfx_debug_update_frames_per_second();
+#endif
 }
 
 static void mat4x4_model_view_projection(mat4x4 mvp) {
@@ -357,7 +360,7 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
                          vertices,
                          GL_DYNAMIC_DRAW);
             glDrawArrays(mode, 0, count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
-#ifdef DEBUG
+#ifdef SHIZ_DEBUG
             _shiz_gfx_debug_increment_draw_count(1);
 #endif
         }
@@ -451,7 +454,7 @@ static void _shiz_gfx_spritebatch_flush() {
                                 index_count * sizeof(SHIZVertexPositionColorTexture),
                                 _spritebatch.vertices);
                 glDrawArrays(GL_TRIANGLES, 0, index_count);
-#ifdef DEBUG
+#ifdef SHIZ_DEBUG
                 _shiz_gfx_debug_increment_draw_count(1);
 #endif
             }
@@ -578,7 +581,7 @@ static GLuint _shiz_gfx_link_program(GLuint const vs, GLuint const fs) {
     return program;
 }
 
-#ifdef DEBUG
+#ifdef SHIZ_DEBUG
 static uint _shiz_gfx_debug_draw_count = 0;
 
 static void _shiz_gfx_debug_reset_draw_count() {
