@@ -40,7 +40,7 @@ static bool _shiz_gfx_kill_spritebatch(void);
 
 static void _shiz_gfx_spritebatch_flush(void);
 
-static uint const spritebatch_max_count = 32; /* flush when reaching this limit */
+static uint const spritebatch_max_count = 64; /* flush when reaching this limit */
 static uint const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
 static uint const spritebatch_vertex_count = spritebatch_max_count * spritebatch_vertex_count_per_quad;
 
@@ -472,6 +472,10 @@ static void _shiz_gfx_spritebatch_flush() {
     _spritebatch.current_count = 0;
 }
 
+SHIZViewport shiz_gfx_get_viewport() {
+    return _viewport;
+}
+
 void shiz_gfx_set_viewport(SHIZViewport const viewport) {
     if (viewport.framebuffer.width == _viewport.framebuffer.width ||
         viewport.framebuffer.height == _viewport.framebuffer.height) {
@@ -602,9 +606,10 @@ static void _shiz_gfx_debug_increment_draw_count(uint amount) {
     _shiz_gfx_debug_draw_count += amount;
 }
 
-static uint const _shiz_gfx_debug_max_frame_samples = 16;
+static double const _shiz_gfx_debug_frame_average_interval = 1; // in seconds
+static double _shiz_gfx_debug_last_frame_average_time = 0;
 
-static uint _shiz_gfx_debug_frame_samples; // sample frames to calculate average
+static uint _shiz_gfx_debug_frame_samples = 0; // sample frames to calculate average
 static uint _shiz_gfx_debug_frame_sample_count = 0;
 
 static uint _shiz_gfx_debug_frame_count = 0;
@@ -613,7 +618,12 @@ static uint _shiz_gfx_debug_frames_per_second_min = UINT_MAX;
 static uint _shiz_gfx_debug_frames_per_second_max = 0;
 static uint _shiz_gfx_debug_frames_per_second_avg = 0;
 
+static double _shiz_gfx_debug_frame_time = 0;
 static double _shiz_gfx_debug_last_frame_time = 0;
+
+double shiz_gfx_debug_get_frame_time() {
+    return _shiz_gfx_debug_frame_time * 1000;
+}
 
 uint shiz_gfx_debug_get_frames_per_second() {
     return _shiz_gfx_debug_frames_per_second;
@@ -635,32 +645,37 @@ static void _shiz_gfx_debug_increment_frame_count(uint amount) {
     _shiz_gfx_debug_frame_count += amount;
 }
 
-static void _shiz_gfx_debug_update_frames_per_second(void) {
+static void _shiz_gfx_debug_update_frames_per_second() {
     double const time = glfwGetTime();
     double const time_since_last_frame = time - _shiz_gfx_debug_last_frame_time;
-    
-    if (time_since_last_frame > 1) {
-        _shiz_gfx_debug_frames_per_second = _shiz_gfx_debug_frame_count / time_since_last_frame;
-        _shiz_gfx_debug_frame_count = 0;
-        _shiz_gfx_debug_last_frame_time = time;
-        
-        if (_shiz_gfx_debug_frames_per_second < _shiz_gfx_debug_frames_per_second_min) {
-            _shiz_gfx_debug_frames_per_second_min = _shiz_gfx_debug_frames_per_second;
-        }
-        
-        if (_shiz_gfx_debug_frames_per_second > _shiz_gfx_debug_frames_per_second_max) {
-            _shiz_gfx_debug_frames_per_second_max = _shiz_gfx_debug_frames_per_second;
-        }
-        
-        _shiz_gfx_debug_frame_samples += _shiz_gfx_debug_frames_per_second;
-        _shiz_gfx_debug_frame_sample_count++;
-        
+
+    _shiz_gfx_debug_frames_per_second = _shiz_gfx_debug_frame_count / time_since_last_frame;
+    _shiz_gfx_debug_frame_count = 0;
+    _shiz_gfx_debug_last_frame_time = time;
+    _shiz_gfx_debug_frame_time = time_since_last_frame;
+
+    if (_shiz_gfx_debug_frames_per_second < _shiz_gfx_debug_frames_per_second_min) {
+        _shiz_gfx_debug_frames_per_second_min = _shiz_gfx_debug_frames_per_second;
+    }
+
+    if (_shiz_gfx_debug_frames_per_second > _shiz_gfx_debug_frames_per_second_max) {
+        _shiz_gfx_debug_frames_per_second_max = _shiz_gfx_debug_frames_per_second;
+    }
+
+    _shiz_gfx_debug_frame_samples += _shiz_gfx_debug_frames_per_second;
+    _shiz_gfx_debug_frame_sample_count++;
+
+    double const time_since_last_frame_average = time - _shiz_gfx_debug_last_frame_average_time;
+
+    if (time_since_last_frame_average >= _shiz_gfx_debug_frame_average_interval) {
+        _shiz_gfx_debug_last_frame_average_time = time;
+
         _shiz_gfx_debug_frames_per_second_avg = _shiz_gfx_debug_frame_samples / _shiz_gfx_debug_frame_sample_count;
-        
-        if (_shiz_gfx_debug_frame_sample_count > _shiz_gfx_debug_max_frame_samples) {
-            _shiz_gfx_debug_frame_sample_count = 0;
-            _shiz_gfx_debug_frame_samples = 0;
-        }
+        _shiz_gfx_debug_frame_sample_count = 0;
+        _shiz_gfx_debug_frame_samples = 0;
+
+        _shiz_gfx_debug_frames_per_second_min = UINT_MAX;
+        _shiz_gfx_debug_frames_per_second_max = 0;
     }
 }
 

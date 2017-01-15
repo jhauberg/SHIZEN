@@ -63,6 +63,7 @@ void shiz_gfx_clear(void);
 void shiz_gfx_begin(void);
 void shiz_gfx_end(void);
 
+SHIZViewport shiz_gfx_get_viewport(void);
 void shiz_gfx_set_viewport(SHIZViewport const viewport);
 
 #ifdef DEBUG
@@ -71,6 +72,7 @@ uint shiz_gfx_debug_get_frames_per_second(void);
 uint shiz_gfx_debug_get_frames_per_second_min(void);
 uint shiz_gfx_debug_get_frames_per_second_max(void);
 uint shiz_gfx_debug_get_frames_per_second_avg(void);
+double shiz_gfx_debug_get_frame_time(void);
 #endif
 
 #endif // gfx_h
