@@ -324,26 +324,38 @@ void shiz_drawing_begin() {
 }
 
 void shiz_drawing_end() {
-    shiz_gfx_end();
-
 #ifdef SHIZ_DEBUG
-    sprintf(_shiz_debug_font_buffer,
-            "FPS:   %d (%d / %d / %d)\n"
-            "DRAWS: %d",
-            shiz_gfx_debug_get_frames_per_second(),
-            shiz_gfx_debug_get_frames_per_second_min(),
-            shiz_gfx_debug_get_frames_per_second_avg(),
-            shiz_gfx_debug_get_frames_per_second_max(),
-            shiz_gfx_debug_get_draw_count());
-
     uint const margin = 4;
 
+    // drawing debug text prior to ending the frame context will make sure everything is
+    // flushed and rendered during *this* frame-
     shiz_draw_sprite_text(_shiz_debug_font,
                           _shiz_debug_font_buffer,
                           SHIZVector2Make(margin, context.preferred_screen_size.height - margin),
                           SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft);
+#endif
 
+    shiz_gfx_end();
+
+#ifdef SHIZ_DEBUG
     _shiz_debug_process_errors();
+
+    SHIZViewport const viewport = shiz_gfx_get_viewport();
+
+    sprintf(_shiz_debug_font_buffer,
+            "SPEED: %0.1fms/frame\n"
+            "       %d (%d / %d / %d)\n"
+            "DRAW:  %d (%.0fx%.0f @ %.0fx%.0f)",
+            shiz_gfx_debug_get_frame_time(),
+            shiz_gfx_debug_get_frames_per_second(),
+            shiz_gfx_debug_get_frames_per_second_min(),
+            shiz_gfx_debug_get_frames_per_second_avg(),
+            shiz_gfx_debug_get_frames_per_second_max(),
+            // note that draw count will also include the debug stuff, so in production
+            // this count may actually be smaller (likely not significantly smaller, though)
+            shiz_gfx_debug_get_draw_count(),
+            viewport.screen.width, viewport.screen.height,
+            viewport.framebuffer.width, viewport.framebuffer.height);
 #endif
 
     glfwSwapBuffers(context.window);
@@ -692,7 +704,7 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, S
             should_break_from_truncation = measurement.constrain_index == text_index;
             
             char character = should_truncate ? truncation_character : text[text_index];
-            	
+
             text_index += 1;
             
             if (character == newline_character) {
@@ -712,7 +724,23 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, S
             bool const should_skip_leading_whitespace = !font.includes_whitespace && attributes.wrap == SHIZSpriteFontWrapModeWord;
             bool const is_leading_whitespace = character_index == 0 && character == whitespace_character;
             
-            bool character_takes_space = !(is_leading_whitespace && should_skip_leading_whitespace);
+            bool character_takes_space = true;
+
+            if (is_leading_whitespace && should_skip_leading_whitespace) {
+                character_takes_space = false;
+
+                // the index has already been incremented once, so we have to step back by 2
+                int const previous_text_index = text_index - 2;
+
+                if (previous_text_index >= 0) {
+                    char const previous_character = text[previous_text_index];
+
+                    if (previous_character == newline_character) {
+                        // this was an explicit line-break, so the leading whitespace is probably intentional
+                        character_takes_space = true;
+                    }
+                }
+            }
       
             if (character_table_index != -1) {
                 bool can_draw_character = character != whitespace_character || font.includes_whitespace;
@@ -789,8 +817,7 @@ static float _shiz_glfw_get_pixel_scale() {
     SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
     SHIZSize const window = _shiz_glfw_get_window_size();
     
-    return (framebuffer.width + framebuffer.height) /
-    (window.width + window.height);
+    return (framebuffer.width + framebuffer.height) / (window.width + window.height);
 }
 
 static void _shiz_intro(void) {
