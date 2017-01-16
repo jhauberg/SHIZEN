@@ -39,7 +39,9 @@ static uint const sound_resource_id_offset = image_resource_id_max;
 static uint const sound_resource_id_max = max_sounds + sound_resource_id_offset;
 
 static uint const resource_id_invalid = 0;
+#ifdef SHIZ_DEBUG
 static uint const resource_id_max = sound_resource_id_max;
+#endif
 
 static SHIZResourceImage images[max_images];
 static SHIZResourceSound sounds[max_sounds];
