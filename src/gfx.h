@@ -73,6 +73,7 @@ uint shiz_gfx_debug_get_frames_per_second_min(void);
 uint shiz_gfx_debug_get_frames_per_second_max(void);
 uint shiz_gfx_debug_get_frames_per_second_avg(void);
 double shiz_gfx_debug_get_frame_time(void);
+double shiz_gfx_debug_get_frame_time_avg(void);
 #endif
 
 #endif // gfx_h
