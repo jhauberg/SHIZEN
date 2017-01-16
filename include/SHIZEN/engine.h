@@ -266,5 +266,6 @@ SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZ
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
 SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes);
+SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes, SHIZColor *highlight_colors, uint const highlight_color_count);
 
 #endif // engine_h
