@@ -56,6 +56,8 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
 
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_process_errors(void);
+static void _shiz_debug_build_stats(void);
+static void _shiz_debug_display_stats(void);
 
 static SHIZSpriteFont _shiz_debug_font;
 static char _shiz_debug_font_buffer[128];
@@ -325,45 +327,13 @@ void shiz_drawing_begin() {
 
 void shiz_drawing_end() {
 #ifdef SHIZ_DEBUG
-    uint const margin = 4;
-
-    SHIZColor highlight_colors[] = {
-        SHIZColorMake(229 / 255.0f, 21 / 255.0f, 45 / 255.0f, 1),
-        SHIZColorFromHex(0x36cd33),
-        SHIZColorMake(32 / 255.0f, 177 / 255.0f, 252 / 255.0f, 1)
-    };
-    
-    // drawing debug text prior to ending the frame context will make sure everything is
-    // flushed and rendered during *this* frame-
-    shiz_draw_sprite_text_ex_colored(_shiz_debug_font,
-                                     _shiz_debug_font_buffer,
-                                     SHIZVector2Make(margin, context.preferred_screen_size.height - margin),
-                                     SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentLeft,
-                                     SHIZSpriteFontSizeToFit, SHIZSpriteNoTint, SHIZSpriteFontAttributesDefault,
-                                     highlight_colors, 3);
+    _shiz_debug_display_stats();
 #endif
 
     shiz_gfx_end();
 
 #ifdef SHIZ_DEBUG
-    SHIZViewport const viewport = shiz_gfx_get_viewport();
-    
-    sprintf(_shiz_debug_font_buffer,
-            "SPEED: %0.2fms/frame (\3%0.2fms\1)\n"
-            "       %d (\2%d\1|\3%d\1|\4%d\1)\n"
-            "DRAW:  %d (%.0fx%.0f @ %.0fx%.0f)",
-            shiz_gfx_debug_get_frame_time(),
-            shiz_gfx_debug_get_frame_time_avg(),
-            shiz_gfx_debug_get_frames_per_second(),
-            shiz_gfx_debug_get_frames_per_second_min(),
-            shiz_gfx_debug_get_frames_per_second_avg(),
-            shiz_gfx_debug_get_frames_per_second_max(),
-            // note that draw count will also include the debug stuff, so in production
-            // this count may actually be smaller (likely not significantly smaller, though)
-            shiz_gfx_debug_get_draw_count(),
-            viewport.screen.width, viewport.screen.height,
-            viewport.framebuffer.width, viewport.framebuffer.height);
-    
+    _shiz_debug_build_stats();
     _shiz_debug_process_errors();
 #endif
 
@@ -589,13 +559,14 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     uint text_index = 0;
     uint line_index = 0;
     uint line_character_count = 0;
+    uint line_character_ignored_count = 0;
     
     char const whitespace_character = ' ';
     char const newline_character = '\n';
     
     while (*text) {
         char character = *text;
-
+        
         text += _shiz_get_char_size(character);
 
         bool const break_line_explicit = character == newline_character;
@@ -619,9 +590,11 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
                 }
             }
             
-            measurement.line_size[line_index].width = line_character_count * measurement.character_size_perceived.width;
-            measurement.line_size[line_index].height = line_height;
+            measurement.lines[line_index].size.width = line_character_count * measurement.character_size_perceived.width;
+            measurement.lines[line_index].size.height = line_height;
+            measurement.lines[line_index].ignored_character_count = line_character_ignored_count;
             
+            line_character_ignored_count = 0;
             line_character_count = 0;
             line_index += 1;
             
@@ -632,7 +605,7 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
             
             continue;
         }
-
+        
         if (measurement.constrain_vertically) {
             if (line_index + 1 > measurement.max_lines_in_bounds) {
                 measurement.constrain_index = text_index - 1; // it was actually the previous character that caused a linebreak
@@ -641,25 +614,31 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
             }
         }
         
+        if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
+            character == '\5' || character == '\6' || character == '\7') {
+            // increment ignored characters, but otherwise proceed as usual
+            line_character_ignored_count += 1;
+        }
+        
         // leave a space even if the character was not found
         line_character_count += 1;
         
-        measurement.line_size[line_index].width = line_character_count * measurement.character_size_perceived.width;
-        measurement.line_size[line_index].height = line_height;
+        measurement.lines[line_index].size.width = line_character_count * measurement.character_size_perceived.width;
+        measurement.lines[line_index].size.height = line_height;
+        measurement.lines[line_index].ignored_character_count = line_character_ignored_count;
         
         text_index += 1;
     }
     
     measurement.line_count = line_index + 1;
-    measurement.size.width = 0;
     measurement.size.height = measurement.line_count * line_height;
 
     for (line_index = 0; line_index < measurement.line_count; line_index++) {
-        SHIZSize const line_size = measurement.line_size[line_index];
+        SHIZSpriteFontLine const line = measurement.lines[line_index];
         
-        if (line_size.width > measurement.size.width) {
+        if (line.size.width > measurement.size.width) {
             // use the widest occurring line width
-            measurement.size.width = line_size.width;
+            measurement.size.width = line.size.width;
         }
     }
     
@@ -707,14 +686,17 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char*
     SHIZColor highlight_color = tint;
     
     for (uint line_index = 0; line_index < measurement.line_count; line_index++) {
-        SHIZSize line_size = measurement.line_size[line_index];
-        uint line_character_count = line_size.width / measurement.character_size_perceived.width;
+        SHIZSpriteFontLine const line = measurement.lines[line_index];
+        
+        float const line_width_perceived = line.size.width - (line.ignored_character_count * measurement.character_size_perceived.width);
         
         if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
-            character_origin.x -= line_size.width / 2;
+            character_origin.x -= line_width_perceived / 2;
         } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
-            character_origin.x -= line_size.width;
+            character_origin.x -= line_width_perceived;
         }
+        
+        uint const line_character_count = line.size.width / measurement.character_size_perceived.width;
         
         for (uint character_index = 0; character_index < line_character_count; character_index++) {
             bool const should_truncate = measurement.constrain_index != -1 && (text_index > measurement.constrain_index - truncation_length);
@@ -725,9 +707,10 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char*
             
             text_index += 1;
             
-            if (highlight_colors && highlight_color_count > 0) {
-                if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
-                    character == '\5' || character == '\6' || character == '\7') {
+            if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
+                character == '\5' || character == '\6' || character == '\7') {
+                // these characters are only used for tinting purposes and will be ignored/skipped otherwise
+                if (highlight_colors && highlight_color_count > 0) {
                     int const highlight_color_index = character - 2;
                     
                     if (highlight_color_index < 0) {
@@ -737,9 +720,9 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char*
                             highlight_color = highlight_colors[highlight_color_index];
                         }
                     }
-                    
-                    continue;
                 }
+                
+                continue;
             }
             
             if (character == newline_character) {
@@ -805,7 +788,7 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char*
         }
         
         character_origin.x = origin.x;
-        character_origin.y -= line_size.height;
+        character_origin.y -= line.size.height;
         
         if (should_break_from_truncation) {
             break;
@@ -891,6 +874,47 @@ static bool _shiz_can_run(void) {
 }
 
 #ifdef SHIZ_DEBUG
+static void _shiz_debug_build_stats() {
+    SHIZViewport const viewport = shiz_gfx_get_viewport();
+    
+    sprintf(_shiz_debug_font_buffer,
+            "SPEED: \2%0.2fms/frame\1 (\4%0.2fms\1)\n"
+            "       \2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
+            "DRAWS: \2%d\1 (\4%.0fx%.0f\1@\5%.0fx%.0f\1)",
+            shiz_gfx_debug_get_frame_time(),
+            shiz_gfx_debug_get_frame_time_avg(),
+            shiz_gfx_debug_get_frames_per_second(),
+            shiz_gfx_debug_get_frames_per_second_min(),
+            shiz_gfx_debug_get_frames_per_second_avg(),
+            shiz_gfx_debug_get_frames_per_second_max(),
+            // note that draw count will also include the debug stuff, so in production
+            // this count may actually be smaller (likely not significantly smaller, though)
+            shiz_gfx_debug_get_draw_count(),
+            viewport.screen.width, viewport.screen.height,
+            viewport.framebuffer.width, viewport.framebuffer.height);
+}
+
+static void _shiz_debug_display_stats() {
+    uint const margin = 4;
+    
+    SHIZColor highlight_colors[] = {
+        SHIZColorFromHex(0xefec0d), // yellow
+        SHIZColorFromHex(0xe5152d), // red
+        SHIZColorFromHex(0x36cd33), // green
+        SHIZColorFromHex(0x20b1fc) // blue
+    };
+    
+    // drawing debug text prior to ending the frame context will make sure everything is
+    // flushed and rendered during *this* frame-
+    shiz_draw_sprite_text_ex_colored(_shiz_debug_font,
+                                     _shiz_debug_font_buffer,
+                                     // todo: back to left aligned, but fix issue where tint escapes count as character width
+                                     SHIZVector2Make(context.preferred_screen_size.width - margin, context.preferred_screen_size.height - margin),
+                                     SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
+                                     SHIZSpriteFontSizeToFit, SHIZSpriteNoTint, SHIZSpriteFontAttributesDefault,
+                                     highlight_colors, 4);
+}
+
 static void _shiz_debug_process_errors() {
     GLenum error;
     

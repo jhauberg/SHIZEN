@@ -34,6 +34,7 @@ typedef struct SHIZTimeLine SHIZTimeLine;
 typedef struct SHIZViewport SHIZViewport;
 typedef struct SHIZVertexPositionColor SHIZVertexPositionColor;
 typedef struct SHIZVertexPositionColorTexture SHIZVertexPositionColorTexture;
+typedef struct SHIZSpriteFontLine SHIZSpriteFontLine;
 typedef struct SHIZSpriteFontMeasurement SHIZSpriteFontMeasurement;
 typedef struct SHIZRenderData SHIZRenderData;
 
@@ -91,13 +92,18 @@ struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord_max;
 };
 
+struct SHIZSpriteFontLine {
+    SHIZSize size;
+    uint ignored_character_count;
+};
+
 #define SHIZSpriteFontMaxLines 16
 
 struct SHIZSpriteFontMeasurement {
     /** The measured size of the entire text as a whole */
     SHIZSize size;
     /** A buffer holding the measured size of each line */
-    SHIZSize line_size[SHIZSpriteFontMaxLines];
+    SHIZSpriteFontLine lines[SHIZSpriteFontMaxLines];
     /** The size of a character sprite as it should appear when drawn (may be scaled) */
     SHIZSize character_size;
     /** The size of a character sprite after applying any size-altering attributes (may be sized with
@@ -115,6 +121,7 @@ struct SHIZSpriteFontMeasurement {
     bool constrain_vertically;
     /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
     int constrain_index;
+    uint ignored_characters_count;
 };
 
 static const SHIZViewport SHIZViewportDefault = {

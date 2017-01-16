@@ -40,7 +40,7 @@ static bool _shiz_gfx_kill_spritebatch(void);
 
 static void _shiz_gfx_spritebatch_flush(void);
 
-static uint const spritebatch_max_count = 64; /* flush when reaching this limit */
+static uint const spritebatch_max_count = 128; /* flush when reaching this limit */
 static uint const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
 static uint const spritebatch_vertex_count = spritebatch_max_count * spritebatch_vertex_count_per_quad;
 
@@ -305,14 +305,14 @@ void shiz_gfx_clear() {
 }
 
 void shiz_gfx_begin() {
+#ifdef SHIZ_DEBUG
+    _shiz_gfx_debug_reset_draw_count();
+#endif
+    
     glViewport(_viewport.offset.width / 2,
                _viewport.offset.height / 2,
                _viewport.framebuffer.width - _viewport.offset.width,
                _viewport.framebuffer.height - _viewport.offset.height);
-    
-#ifdef SHIZ_DEBUG
-    _shiz_gfx_debug_reset_draw_count();
-#endif
 }
 
 void shiz_gfx_end() {
