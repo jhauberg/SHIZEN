@@ -45,6 +45,9 @@ struct SHIZGraphicsContext {
     bool is_initialized;
     /** Determines whether the context has focus */
     bool is_focused;
+#ifdef SHIZ_DEBUG
+    bool is_debug_enabled;
+#endif
     /** Determines whether a shutdown should be initiated */
     bool should_finish;
     /** The preferred screen size; the display may be boxed if necessary */

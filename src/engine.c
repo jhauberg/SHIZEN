@@ -80,6 +80,10 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         context.should_finish = true;
     } else if ((key == GLFW_KEY_ENTER && mods == GLFW_MOD_ALT) && action == GLFW_RELEASE) {
         _shiz_glfw_toggle_windowed(window);
+    } else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
+#ifdef SHIZ_DEBUG
+        context.is_debug_enabled = !context.is_debug_enabled;
+#endif
     }
 }
 
@@ -122,8 +126,6 @@ static bool _shiz_glfw_create_window(SHIZWindowSettings const settings) {
 
     return true;
 }
-
-
 
 bool shiz_startup(SHIZWindowSettings const settings) {
     if (context.is_initialized) {
@@ -173,6 +175,8 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     time_previous = glfwGetTime();
 
 #ifdef SHIZ_DEBUG
+    context.is_debug_enabled = true;
+
     if (shiz_res_debug_load_font()) {
         SHIZSprite sprite = shiz_get_sprite(shiz_res_debug_get_font());
         SHIZSpriteFont spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(8, 8));
@@ -327,7 +331,9 @@ void shiz_drawing_begin() {
 
 void shiz_drawing_end() {
 #ifdef SHIZ_DEBUG
-    _shiz_debug_display_stats();
+    if (context.is_debug_enabled) {
+        _shiz_debug_display_stats();
+    }
 #endif
 
     shiz_gfx_end();
@@ -847,13 +853,13 @@ static void _shiz_intro(void) {
     printf(" SHIZEN %d.%d.%d / %s\n",
            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
            SHIZEN_VERSION_NAME);
-    printf(" Copyright (c) 2016 Jacob Hauberg Hansen\n\n");
+    printf(" Copyright (c) 2017 Jacob Hauberg Hansen\n\n");
 
-    printf("> OPENGL VERSION:  %s (GLSL %s)\n",
+    printf(" OPENGL VERSION:  %s (GLSL %s)\n",
            glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
-    printf("> OPENGL RENDERER: %s\n",
+    printf(" OPENGL RENDERER: %s\n",
            glGetString(GL_RENDERER));
-    printf("> OPENGL VENDOR:   %s\n\n",
+    printf(" OPENGL VENDOR:   %s\n\n",
            glGetString(GL_VENDOR));
 }
 
@@ -878,9 +884,12 @@ static void _shiz_debug_build_stats() {
     SHIZViewport const viewport = shiz_gfx_get_viewport();
     
     sprintf(_shiz_debug_font_buffer,
-            "SPEED: \2%0.2fms/frame\1 (\4%0.2fms\1)\n"
-            "       \2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
-            "DRAWS: \2%d\1 (\4%.0fx%.0f\1@\5%.0fx%.0f\1)",
+            "\4%.0fx%.0f\1@\5%.0fx%.0f\1\n\n"
+            "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
+            "\2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
+            "\2%d draws/frame\1",
+            viewport.screen.width, viewport.screen.height,
+            viewport.framebuffer.width, viewport.framebuffer.height,
             shiz_gfx_debug_get_frame_time(),
             shiz_gfx_debug_get_frame_time_avg(),
             shiz_gfx_debug_get_frames_per_second(),
@@ -889,9 +898,7 @@ static void _shiz_debug_build_stats() {
             shiz_gfx_debug_get_frames_per_second_max(),
             // note that draw count will also include the debug stuff, so in production
             // this count may actually be smaller (likely not significantly smaller, though)
-            shiz_gfx_debug_get_draw_count(),
-            viewport.screen.width, viewport.screen.height,
-            viewport.framebuffer.width, viewport.framebuffer.height);
+            shiz_gfx_debug_get_draw_count());
 }
 
 static void _shiz_debug_display_stats() {
