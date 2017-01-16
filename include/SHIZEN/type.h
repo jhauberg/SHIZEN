@@ -245,6 +245,14 @@ static inline SHIZColor SHIZColorMake(float const r, float const g, float const 
     return color;
 }
 
+static inline SHIZColor SHIZColorFromHex(int const value) {
+    SHIZColor color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
+                                    ((value >> 8) & 0xFF) / 255.0f,
+                                    ((value >> 0) & 0xFF) / 255.0f, 1);
+    
+    return color;
+}
+
 static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
     SHIZColor default_tint = SHIZSpriteNoTint;
 
