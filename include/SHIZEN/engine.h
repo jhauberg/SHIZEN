@@ -13,7 +13,7 @@
 #define engine_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 12
+#define SHIZEN_VERSION_MINOR 13
 #define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
@@ -193,7 +193,7 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  *        Specify whether the sprite should repeat (only applies if the `size` parameter
  *        sets a size larger than the intrinsic size of the sprite)
  */
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat);
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat, uint const layer);
 
 /**
  * @brief Measure the size of a text.

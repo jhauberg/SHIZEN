@@ -38,6 +38,9 @@ typedef struct SHIZSpriteFontLine SHIZSpriteFontLine;
 typedef struct SHIZSpriteFontMeasurement SHIZSpriteFontMeasurement;
 typedef struct SHIZRenderData SHIZRenderData;
 
+typedef struct SHIZSpriteInternal SHIZSpriteInternal;
+typedef struct SHIZSpriteInternalKey SHIZSpriteInternalKey;
+
 typedef enum SHIZViewportMode SHIZViewportMode;
 
 struct SHIZGraphicsContext {
@@ -93,6 +96,23 @@ struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord;
     SHIZVector2 texture_coord_min;
     SHIZVector2 texture_coord_max;
+};
+
+// essentially an unsigned long for easy sorting
+struct SHIZSpriteInternalKey {
+    unsigned int layer_depth: 16;
+    unsigned int layer: 7; // max 128
+    unsigned int texture_id: 8; // max 256
+    unsigned int is_opaque: 1;
+};
+
+#define SHIZSpriteInternalMax 2048
+
+struct SHIZSpriteInternal {
+    unsigned long key;
+    SHIZVertexPositionColorTexture vertices[6];
+    SHIZVector3 origin;
+    float angle;
 };
 
 struct SHIZSpriteFontLine {

@@ -10,6 +10,7 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -66,6 +67,16 @@ static char _shiz_debug_font_buffer[128];
 static SHIZGraphicsContext context;
 static SHIZTimeLine timeline;
 
+static uint _shiz_sprites_count = 0;
+
+static SHIZSpriteInternal _shiz_sprites[SHIZSpriteInternalMax];
+
+static uint const _shiz_sprite_layer_min = 0;
+static uint const _shiz_sprite_layer_max = 128;
+
+static int _shiz_compare_sprites(const void *a, const void *b);
+static void _shiz_flush_sprites(void);
+
 static double const maximum_frame_time = 1.0 / 4; // 4 frames per second
 
 static double time_previous = 0;
@@ -75,7 +86,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     (void)window;
     (void)scancode;
     (void)mods;
-
+    
     if ((key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS) {
         context.should_finish = true;
     } else if ((key == GLFW_KEY_ENTER && mods == GLFW_MOD_ALT) && action == GLFW_RELEASE) {
@@ -199,7 +210,7 @@ bool shiz_shutdown() {
     }
 
     shiz_res_unload_all();
-    
+
     glfwTerminate();
     
     context.is_initialized = false;
@@ -335,6 +346,8 @@ void shiz_drawing_end() {
         _shiz_debug_display_stats();
     }
 #endif
+    
+    _shiz_flush_sprites();
 
     shiz_gfx_end();
 
@@ -431,10 +444,11 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
                         SHIZSpriteAnchorCenter,
                         SHIZSpriteNoAngle,
                         SHIZSpriteNoTint,
-                        SHIZSpriteNoRepeat);
+                        SHIZSpriteNoRepeat,
+                        SHIZSpriteLayerDefault);
 }
 
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat) {
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat, uint const layer) {
     SHIZResourceImage image = shiz_res_get_image(sprite.resource_id);
 
     if (image.id == sprite.resource_id) {
@@ -524,12 +538,69 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
             vertices[i].texture_coord_min = uv_min;
             vertices[i].texture_coord_max = uv_max;
         }
+
+        // range within [-1;0], where -1 is nearest (so layer 128 should be z = -1)
+        float const z = -((layer - _shiz_sprite_layer_min) / (_shiz_sprite_layer_max - _shiz_sprite_layer_min));
         
-        float const z = SHIZSpriteLayerDefault;
+        unsigned long key = 0;
+
+        SHIZSpriteInternalKey *sprite_key = (SHIZSpriteInternalKey *)&key;
         
-        shiz_gfx_render_quad(vertices, SHIZVector3Make(origin.x, origin.y, z),
-                             angle, image.texture_id);
+        sprite_key->layer = layer;
+        sprite_key->layer_depth = 0; // sub-layer; not used for now
+        sprite_key->texture_id = image.texture_id;
+        sprite_key->is_opaque = false;
+
+        SHIZSpriteInternal *sprite_internal = &_shiz_sprites[_shiz_sprites_count];
+
+        sprite_internal->key = key;
+        sprite_internal->angle = angle;
+        sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
+
+        for (uint i = 0; i < vertex_count; i++) {
+            sprite_internal->vertices[i].position = vertices[i].position;
+            sprite_internal->vertices[i].texture_coord = vertices[i].texture_coord;
+            sprite_internal->vertices[i].texture_coord_max = vertices[i].texture_coord_max;
+            sprite_internal->vertices[i].texture_coord_min = vertices[i].texture_coord_min;
+            sprite_internal->vertices[i].color = vertices[i].color;
+        }
+
+        _shiz_sprites_count++;
+
+        if (_shiz_sprites_count > SHIZSpriteInternalMax) {
+            shiz_io_warning("sprite limit reached (%d); sprites may not draw as expected", SHIZSpriteInternalMax);
+
+            _shiz_flush_sprites();
+        }
     }
+}
+
+static int _shiz_compare_sprites(const void *a, const void *b) {
+    SHIZSpriteInternal const *lhs = (SHIZSpriteInternal*)a;
+    SHIZSpriteInternal const *rhs = (SHIZSpriteInternal*)b;
+
+    if (lhs->key < rhs->key) {
+        return -1;
+    } else if (lhs->key > rhs->key) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static void _shiz_flush_sprites() {
+    qsort(_shiz_sprites, _shiz_sprites_count, sizeof(SHIZSpriteInternal),
+          _shiz_compare_sprites);
+
+    for (uint sprite_index = 0; sprite_index < _shiz_sprites_count; sprite_index++) {
+        SHIZSpriteInternal const sprite = _shiz_sprites[sprite_index];
+        SHIZSpriteInternalKey* const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
+        
+        shiz_gfx_render_quad(sprite.vertices, sprite.origin,
+                             sprite.angle, sprite_key->texture_id);
+    }
+
+    _shiz_sprites_count = 0;
 }
 
 SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
@@ -779,7 +850,7 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char*
                     shiz_draw_sprite_ex(character_sprite, character_origin,
                                         measurement.character_size,
                                         SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle,
-                                        highlight_color, SHIZSpriteNoRepeat);
+                                        highlight_color, SHIZSpriteNoRepeat, SHIZSpriteLayerDefault);
                 }
             }
             

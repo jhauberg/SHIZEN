@@ -335,7 +335,8 @@ static void mat4x4_model_view_projection(mat4x4 mvp) {
     mat4x4 projection;
     mat4x4_ortho(projection,
                  0, _viewport.screen.width,
-                 0, _viewport.screen.height, -1, 1);
+                 0, _viewport.screen.height,
+                 -1 /* near */, 1 /* far */);
 
     mat4x4 view_model;
     mat4x4_mul(view_model, view, model);
@@ -428,9 +429,9 @@ static void _shiz_gfx_spritebatch_flush() {
 
     glClearDepth(1.0);
 
-    glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
-
+    glDepthFunc(GL_LEQUAL);
+    
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CW);
