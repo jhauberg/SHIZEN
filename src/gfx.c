@@ -35,8 +35,12 @@ static void _shiz_gfx_determine_operating_resolution(void);
 static bool _shiz_gfx_init_primitive(void);
 static bool _shiz_gfx_kill_primitive(void);
 
+static void _shiz_gfx_primitive_state(bool const enable);
+
 static bool _shiz_gfx_init_spritebatch(void);
 static bool _shiz_gfx_kill_spritebatch(void);
+
+static void _shiz_gfx_spritebatch_state(bool const enable);
 
 static void _shiz_gfx_spritebatch_flush(void);
 
@@ -301,6 +305,7 @@ static bool _shiz_gfx_kill_spritebatch() {
 
 void shiz_gfx_clear() {
     glClearColor(0, 0, 0, 1);
+    glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -344,13 +349,25 @@ static void mat4x4_model_view_projection(mat4x4 mvp) {
     mat4x4_mul(mvp, projection, view_model);
 }
 
+static void _shiz_gfx_primitive_state(bool const enable) {
+    if (enable) {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
+    }
+}
+
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
     mat4x4 mvp;
     mat4x4_model_view_projection(mvp);
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    _shiz_gfx_primitive_state(true);
+    
     glUseProgram(_primitive.render.program);
     glUniformMatrix4fv(glGetUniformLocation(_primitive.render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
     glBindVertexArray(_primitive.render.vao); {
@@ -369,11 +386,10 @@ void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices,
     glBindVertexArray(0);
     glUseProgram(0);
 
-    glDisable(GL_BLEND);
+    _shiz_gfx_primitive_state(false);
 }
 
 void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, SHIZVector3 const origin, float const angle, GLuint const texture_id) {
-    // todo: if calls were sorted by texture, we could optimize to fewer flushes
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
         _shiz_gfx_spritebatch_flush();
@@ -419,6 +435,24 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, SHIZVe
     _spritebatch.current_count += 1;
 }
 
+static void _shiz_gfx_spritebatch_state(bool const enable) {
+    if (enable) {
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CW);
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+    }
+}
+
 static void _shiz_gfx_spritebatch_flush() {
     if (_spritebatch.current_count == 0) {
         return;
@@ -427,17 +461,7 @@ static void _shiz_gfx_spritebatch_flush() {
     mat4x4 mvp;
     mat4x4_model_view_projection(mvp);
 
-    glClearDepth(1.0);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    _shiz_gfx_spritebatch_state(true);
 
     glUseProgram(_spritebatch.render.program);
     // todo: a way to provide this flag; problem is that it affects the entire batch
@@ -465,9 +489,7 @@ static void _shiz_gfx_spritebatch_flush() {
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
 
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
+    _shiz_gfx_spritebatch_state(false);
 
     _spritebatch.current_count = 0;
 }
