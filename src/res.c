@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "res.h"
+#include "res.font.h"
 #include "io.h"
 
 static bool _shiz_load_image_handler(int width, int height, int components, unsigned char * const data);
