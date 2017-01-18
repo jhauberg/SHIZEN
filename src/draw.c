@@ -20,7 +20,11 @@
 #include "io.h"
 
 static SHIZRect _shiz_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor);
+
 static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill, SHIZVector2 const anchor, float const angle);
+
+static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color);
+static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
 
 static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
 
@@ -342,6 +346,7 @@ SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, S
 static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
     SHIZSpriteFontMeasurement measurement;
 
+    measurement.size = SHIZSizeEmpty;
     measurement.constrain_index = -1; // no truncation
 
     SHIZSprite character_sprite = SHIZSpriteEmpty;
