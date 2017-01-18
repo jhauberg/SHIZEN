@@ -101,7 +101,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
  *
  * @return a SHIZSize with the bounding width and height
  */
-SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
+SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
 
 /**
  * @brief Draw a text at a location.
@@ -120,7 +120,7 @@ SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, S
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
-SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment);
+SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment);
 /**
  * @brief Draw a text at a location.
  *
@@ -151,7 +151,7 @@ SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZ
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
-SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes);
-SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes, SHIZColor *highlight_colors, uint const highlight_color_count);
+SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes);
+SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes, SHIZColor * const highlight_colors, uint const highlight_color_count);
 
 #endif // draw_h

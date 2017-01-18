@@ -111,7 +111,7 @@ double shiz_get_tick_rate(void);
  *
  * @return A resource id if the resource was loaded successfully, `0` otherwise
  */
-uint shiz_load(const char *filename);
+uint shiz_load(const char * const filename);
 /**
  * @brief Unload a resource.
  *
@@ -119,14 +119,14 @@ uint shiz_load(const char *filename);
  */
 bool shiz_unload(uint const resource_id);
 
-SHIZSprite shiz_load_sprite(const char *filename);
-SHIZSprite shiz_load_sprite_src(const char *filename, SHIZRect source);
+SHIZSprite shiz_load_sprite(const char * const filename);
+SHIZSprite shiz_load_sprite_src(const char * const filename, SHIZRect const source);
 
 SHIZSprite shiz_get_sprite(uint const resource_id);
-SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect source);
+SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect const source);
 
-SHIZSpriteFont shiz_load_sprite_font(const char *filename, SHIZSize const character);
-SHIZSpriteFont shiz_load_sprite_font_ex(const char *filename, SHIZSize const character, SHIZSpriteFontTable const table);
+SHIZSpriteFont shiz_load_sprite_font(const char * const filename, SHIZSize const character);
+SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename, SHIZSize const character, SHIZSpriteFontTable const table);
 
 SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character);
 SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZSpriteFontTable const table);

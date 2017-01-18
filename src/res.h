@@ -44,12 +44,12 @@ struct SHIZResourceSound {
 static SHIZResourceImage const SHIZResourceImageEmpty = { 0, 0, 0, 0, NULL };
 static SHIZResourceSound const SHIZResourceSoundEmpty = { 0, NULL };
 
-uint shiz_res_load(SHIZResourceType const type, const char *filename);
+uint shiz_res_load(SHIZResourceType const type, const char * const filename);
 
 bool shiz_res_unload(uint const resource_id);
 bool shiz_res_unload_all(void);
 
-const SHIZResourceType shiz_res_get_type(const char *filename);
+const SHIZResourceType shiz_res_get_type(const char * const filename);
 
 SHIZResourceImage shiz_res_get_image(uint const resource_id);
 SHIZResourceSound shiz_res_get_sound(uint const resource_id);

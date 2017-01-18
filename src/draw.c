@@ -26,9 +26,9 @@ static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool con
 static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color);
 static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
 
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
 
-static int _shiz_compare_sprites(const void *a, const void *b);
+static int _shiz_compare_sprites(const void * a, const void * b);
 static void _shiz_flush_sprites(void);
 
 static uint _shiz_sprites_count = 0;
@@ -309,9 +309,9 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
     }
 }
 
-static int _shiz_compare_sprites(const void *a, const void *b) {
-    SHIZSpriteInternal const *lhs = (SHIZSpriteInternal*)a;
-    SHIZSpriteInternal const *rhs = (SHIZSpriteInternal*)b;
+static int _shiz_compare_sprites(const void * a, const void * b) {
+    SHIZSpriteInternal const * lhs = (SHIZSpriteInternal *)a;
+    SHIZSpriteInternal const * rhs = (SHIZSpriteInternal *)b;
 
     if (lhs->key < rhs->key) {
         return -1;
@@ -337,13 +337,13 @@ static void _shiz_flush_sprites() {
     _shiz_sprites_count = 0;
 }
 
-SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
+SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
     SHIZSpriteFontMeasurement measurement = _shiz_measure_sprite_text(font, text, bounds, attributes);
 
     return measurement.size;
 }
 
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
     SHIZSpriteFontMeasurement measurement;
 
     measurement.size = SHIZSizeEmpty;
@@ -376,10 +376,12 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     char const whitespace_character = ' ';
     char const newline_character = '\n';
 
-    while (*text) {
-        char character = *text;
+    const char * text_ptr = text;
 
-        text += _shiz_get_char_size(character);
+    while (*text_ptr) {
+        char character = *text_ptr;
+
+        text_ptr += _shiz_get_char_size(character);
 
         bool const break_line_explicit = character == newline_character;
         bool const break_line_required = (measurement.constrain_horizontally &&
@@ -388,13 +390,13 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
         if (break_line_explicit || break_line_required) {
             if (break_line_required && attributes.wrap == SHIZSpriteFontWrapModeWord) {
                 // backtrack until finding a whitespace
-                while (*text) {
-                    text -= _shiz_get_char_size(character);
+                while (*text_ptr) {
+                    text_ptr -= _shiz_get_char_size(character);
                     text_index -= 1;
 
-                    character = *text;
+                    character = *text_ptr;
 
-                    if (*text == whitespace_character) {
+                    if (*text_ptr == whitespace_character) {
                         break;
                     }
 
@@ -457,18 +459,18 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     return measurement;
 }
 
-SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment) {
+SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment) {
     return shiz_draw_sprite_text_ex(font, text, origin, alignment,
                                     SHIZSpriteFontSizeToFit,
                                     SHIZSpriteNoTint,
                                     SHIZSpriteFontAttributesDefault);
 }
 
-SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes) {
+SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes) {
     return shiz_draw_sprite_text_ex_colored(font, text, origin, alignment, bounds, tint, attributes, NULL, 0);
 }
 
-SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char* text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes, SHIZColor *highlight_colors, uint const highlight_color_count) {
+SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes, SHIZColor * const highlight_colors, uint const highlight_color_count) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;

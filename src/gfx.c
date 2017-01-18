@@ -358,11 +358,11 @@ static void _shiz_gfx_primitive_state(bool const enable) {
     }
 }
 
-void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
+void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const * restrict vertices, uint const count) {
     shiz_gfx_render_ex(mode, vertices, count, SHIZVector3Zero, 0);
 }
 
-void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count, SHIZVector3 const origin, float const angle) {
+void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const * restrict vertices, uint const count, SHIZVector3 const origin, float const angle) {
     mat4x4 translation;
     mat4x4_translate(translation, origin.x, origin.y, origin.z);
     
@@ -402,7 +402,7 @@ void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const *vertic
     _shiz_gfx_primitive_state(false);
 }
 
-void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices, SHIZVector3 const origin, float const angle, GLuint const texture_id) {
+void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices, SHIZVector3 const origin, float const angle, GLuint const texture_id) {
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
         _shiz_gfx_spritebatch_flush();

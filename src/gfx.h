@@ -46,8 +46,8 @@ bool shiz_gfx_kill(void);
  * additional buffer allocation and a draw call, and so it is not very efficient. 
  * Take that into consideration before extended use.
  */
-void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count);
-void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count,
+void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const * restrict vertices, uint const count);
+void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const * restrict vertices, uint const count,
                         SHIZVector3 const origin, float const angle);
 /**
  * @brief Render a textured quad.
@@ -57,7 +57,7 @@ void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const *vertic
  * @remark This function batches vertex data, and is only flushed when necessary (but at least
  *         once per frame).
  */
-void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const *vertices,
+void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
                           SHIZVector3 const origin, float const angle,
                           GLuint const texture_id);
 
