@@ -43,6 +43,11 @@ typedef struct SHIZSpriteInternalKey SHIZSpriteInternalKey;
 
 typedef enum SHIZViewportMode SHIZViewportMode;
 
+extern SHIZGraphicsContext shiz_context;
+#ifdef SHIZ_DEBUG
+extern SHIZSpriteFont shiz_debug_font;
+#endif
+
 struct SHIZGraphicsContext {
     /** Determines whether the context has been initialized */
     bool is_initialized;
