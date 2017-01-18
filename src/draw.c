@@ -19,6 +19,7 @@
 #include "res.h"
 #include "io.h"
 
+static SHIZRect _shiz_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor);
 static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill, SHIZVector2 const anchor, float const angle);
 
 static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
@@ -102,6 +103,19 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
     shiz_draw_path_3d(points3, count, color);
 }
 
+SHIZRect _shiz_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) {
+    float const hw = size.width / 2;
+    float const hh = size.height / 2;
+    
+    float const dx = hw * -anchor.x;
+    float const dy = hh * -anchor.y;
+    
+    float const l = dx - hw;
+    float const b = dy - hh;
+    
+    return SHIZRectMake(SHIZVector2Make(l, b), size);
+}
+
 static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill, SHIZVector2 const anchor, float const angle) {
     uint const vertex_count = fill ? 4 : 5; // only drawing the shape requires an additional vertex
 
@@ -112,17 +126,13 @@ static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool con
     }
 
     SHIZVector3 const origin = SHIZVector3Make(rect.origin.x, rect.origin.y, 0);
-    
-    float const hw = rect.size.width / 2;
-    float const hh = rect.size.height / 2;
-    
-    float const dx = hw * -anchor.x;
-    float const dy = hh * -anchor.y;
 
-    float const l = dx - hw;
-    float const r = dx + hw;
-    float const b = dy - hh;
-    float const t = dy + hh;
+    SHIZRect const anchored_rect = _shiz_get_anchored_rect(rect.size, anchor);
+    
+    float const l = anchored_rect.origin.x;
+    float const r = anchored_rect.origin.x + anchored_rect.size.width;
+    float const b = anchored_rect.origin.y;
+    float const t = anchored_rect.origin.y + anchored_rect.size.height;
 
     if (!fill) {
         vertices[0].position = SHIZVector3Make(l, b, 0);
@@ -185,18 +195,17 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         SHIZSize const working_size = (size.width == SHIZSpriteSizeIntrinsic.width &&
                                        size.height == SHIZSpriteSizeIntrinsic.height) ? sprite.source.size : size;
 
-        float const hw = working_size.width / 2;
-        float const hh = working_size.height / 2;
-
-        // the anchor point determines what the origin means;
-        // i.e. the origin becomes the point of which the sprite is drawn and rotated
-        float const dx = hw * -anchor.x;
-        float const dy = hh * -anchor.y;
-
-        SHIZVector2 bl = SHIZVector2Make(dx - hw, dy - hh);
-        SHIZVector2 tl = SHIZVector2Make(dx - hw, dy + hh);
-        SHIZVector2 tr = SHIZVector2Make(dx + hw, dy + hh);
-        SHIZVector2 br = SHIZVector2Make(dx + hw, dy - hh);
+        SHIZRect const anchored_rect = _shiz_get_anchored_rect(working_size, anchor);
+        
+        float const l = anchored_rect.origin.x;
+        float const r = anchored_rect.origin.x + anchored_rect.size.width;
+        float const b = anchored_rect.origin.y;
+        float const t = anchored_rect.origin.y + anchored_rect.size.height;
+        
+        SHIZVector2 bl = SHIZVector2Make(l, b);
+        SHIZVector2 tl = SHIZVector2Make(l, t);
+        SHIZVector2 tr = SHIZVector2Make(r, t);
+        SHIZVector2 br = SHIZVector2Make(r, b);
 
         vertices[0].position = SHIZVector3Make(tl.x, tl.y, 0);
         vertices[1].position = SHIZVector3Make(br.x, br.y, 0);
