@@ -23,10 +23,10 @@
 #define SHIZ_MIN_OPENGL_VERSION_MINOR 3
 
 const SHIZWindowSettings SHIZWindowSettingsDefault = {
-    "SHIZEN",    /* title */
-    false,       /* fullscreen */
-    true,        /* vsync */
-    { 320, 240 } /* preferred screen size */
+    .title = "SHIZEN",
+    .fullscreen = false,
+    .vsync = true,
+    .size = { 320, 240 }
 };
 
 static void _shiz_glfw_error_callback(int error, const char* description);
@@ -48,6 +48,8 @@ static float _shiz_glfw_get_pixel_scale(void);
 
 static void _shiz_intro(void);
 static bool _shiz_can_run(void);
+
+static SHIZVector2 _shiz_glfw_window_position;
 
 static SHIZTimeLine _timeline;
 
@@ -93,8 +95,15 @@ static bool _shiz_glfw_create_window(SHIZWindowSettings const settings) {
         if (monitor) {
             const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 
-            shiz_context.window = glfwCreateWindow(mode->width, mode->height,
+            int const display_width = mode->width;
+            int const display_height = mode->height;
+            
+            shiz_context.window = glfwCreateWindow(display_width, display_height,
                                                    settings.title, glfwGetPrimaryMonitor(), NULL);
+            
+            // prefer centered window if initially fullscreen; otherwise let the OS determine window placement
+            _shiz_glfw_window_position.x = (display_width / 2) - (settings.size.width / 2);
+            _shiz_glfw_window_position.y = (display_height / 2) - (settings.size.height / 2);
         }
     } else {
         shiz_context.window = glfwCreateWindow(settings.size.width, settings.size.height,
@@ -162,6 +171,8 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     _timeline.time = 0;
     _timeline.time_step = 0;
     _timeline.scale = 1;
+
+    glfwSetTime(_timeline.time);
     
     _time_previous = glfwGetTime();
 
@@ -393,10 +404,13 @@ static bool _shiz_can_run(void) {
 static void _shiz_glfw_toggle_windowed(GLFWwindow *window) {
     bool const is_currently_fullscreen = glfwGetWindowMonitor(window) != NULL;
 
+    int window_position_x = _shiz_glfw_window_position.x;
+    int window_position_y = _shiz_glfw_window_position.y;
+    
     if (is_currently_fullscreen) {
         // go windowed
         glfwSetWindowMonitor(window, NULL,
-                             0, 0,
+                             window_position_x, window_position_y,
                              shiz_context.preferred_screen_size.width,
                              shiz_context.preferred_screen_size.height,
                              0);
@@ -407,6 +421,13 @@ static void _shiz_glfw_toggle_windowed(GLFWwindow *window) {
         if (monitor) {
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
+            glfwGetWindowPos(window,
+                             &window_position_x,
+                             &window_position_y);
+         
+            _shiz_glfw_window_position.x = window_position_x;
+            _shiz_glfw_window_position.y = window_position_y;
+            
             glfwSetWindowMonitor(window, monitor, 0, 0,
                                  mode->width, mode->height,
                                  mode->refreshRate);
