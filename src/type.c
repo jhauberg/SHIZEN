@@ -24,11 +24,16 @@ const SHIZColor SHIZColorBlue = { 0, 0, 1, 1 };
 
 const SHIZSize SHIZSizeEmpty = { 0, 0 };
 const SHIZRect SHIZRectEmpty = {
-    { 0, 0 }, { 0, 0 }
+    .origin = { 0, 0 },
+    .size = { 0, 0 }
 };
 
 const SHIZSprite SHIZSpriteEmpty = {
-    0, { { 0, 0 }, { 0, 0 } }
+    .resource_id = 0,
+    .source = {
+        .origin = { 0, 0 },
+        .size = { 0, 0 }
+    }
 };
 
 const SHIZSize SHIZSpriteSizeIntrinsic = { -1, -1 };
@@ -47,7 +52,9 @@ const SHIZVector2 SHIZSpriteAnchorRight = { 1.0f, 0.0f };
 const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
 
 const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault = {
-    SHIZSpriteFontWrapModeWord, { 1, 1 },
-    SHIZSpriteFontSpreadNormal,
-    SHIZSpriteFontNoPadding, SHIZSpriteFontNoPadding
+    .scale = { 1, 1 },
+    .wrap = SHIZSpriteFontWrapModeWord,
+    .character_spread = SHIZSpriteFontSpreadNormal,
+    .character_padding = SHIZSpriteFontNoPadding,
+    .line_padding = SHIZSpriteFontNoPadding
 };

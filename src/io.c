@@ -68,10 +68,6 @@ void shiz_io_warning_context(const char *context, const char *format, ...) {
 }
 
 static bool _shiz_io_handle_image(unsigned char* image, int width, int height, int components, shiz_io_image_loaded_handler handler) {
-    if (!image) {
-        return false;
-    }
-
     if (handler) {
         if (!(*handler)(width, height, components, image)) {
             stbi_image_free(image);
@@ -112,5 +108,11 @@ bool shiz_io_load_image_data(const unsigned char *buffer, uint const length, shi
 
     unsigned char* image = stbi_load_from_memory(buffer, length, &width, &height, &components, STBI_rgb_alpha);
 
+    if (!image) {
+        shiz_io_error("failed to load image (from memory)");
+        
+        return false;
+    }
+    
     return _shiz_io_handle_image(image, width, height, components, handler);
 }

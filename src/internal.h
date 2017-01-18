@@ -153,7 +153,11 @@ struct SHIZSpriteFontMeasurement {
 };
 
 static const SHIZViewport SHIZViewportDefault = {
-    { 0, 0 }, { 0, 0 }, 1, { 0, 0 }, false
+    .framebuffer = { .width = 0, .height = 0 },
+    .screen = { .width = 0, .height = 0 },
+    .scale = 1,
+    .offset = { .width = 0, .height = 0 },
+    .is_fullscreen = false
 };
 
 static inline uint const _shiz_get_char_size(char const character) {
