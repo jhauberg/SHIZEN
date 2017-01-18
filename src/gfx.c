@@ -332,11 +332,7 @@ void shiz_gfx_end() {
 #endif
 }
 
-static void mat4x4_model_view_projection(mat4x4 mvp) {
-    mat4x4 model;
-    mat4x4_identity(model);
-    mat4x4 view;
-    mat4x4_identity(view);
+static void mat4x4_model_view_projection(mat4x4 mvp, mat4x4 model, mat4x4 view) {
     mat4x4 projection;
     mat4x4_ortho(projection,
                  0, _viewport.screen.width,
@@ -363,8 +359,25 @@ static void _shiz_gfx_primitive_state(bool const enable) {
 }
 
 void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count) {
+    shiz_gfx_render_ex(mode, vertices, count, SHIZVector3Zero, 0);
+}
+
+void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const *vertices, uint const count, SHIZVector3 const origin, float const angle) {
+    mat4x4 translation;
+    mat4x4_translate(translation, origin.x, origin.y, origin.z);
+    
+    mat4x4 rotation;
+    mat4x4_identity(rotation);
+    mat4x4_rotate_Z(rotation, rotation, angle);
+    
+    mat4x4 model;
+    mat4x4_mul(model, translation, rotation);
+    
+    mat4x4 view;
+    mat4x4_identity(view);
+    
     mat4x4 mvp;
-    mat4x4_model_view_projection(mvp);
+    mat4x4_model_view_projection(mvp, model, view);
     
     _shiz_gfx_primitive_state(true);
     
@@ -458,8 +471,13 @@ static void _shiz_gfx_spritebatch_flush() {
         return;
     }
 
+    mat4x4 model;
+    mat4x4_identity(model);
+    mat4x4 view;
+    mat4x4_identity(view);
+    
     mat4x4 mvp;
-    mat4x4_model_view_projection(mvp);
+    mat4x4_model_view_projection(mvp, model, view);
 
     _shiz_gfx_spritebatch_state(true);
 

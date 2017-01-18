@@ -42,10 +42,12 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
  * @brief Draw a filled rectangle.
  */
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
+void shiz_draw_rect_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle);
 /**
  * @brief Draw a rectangle.
  */
 void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color);
+void shiz_draw_rect_shape_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle);
 
 /**
  * @brief Draw a sprite.

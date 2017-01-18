@@ -19,7 +19,7 @@
 #include "res.h"
 #include "io.h"
 
-static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill);
+static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill, SHIZVector2 const anchor, float const angle);
 
 static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char* text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
 
@@ -102,7 +102,7 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
     shiz_draw_path_3d(points3, count, color);
 }
 
-static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill) {
+static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill, SHIZVector2 const anchor, float const angle) {
     uint const vertex_count = fill ? 4 : 5; // only drawing the shape requires an additional vertex
 
     SHIZVertexPositionColor vertices[vertex_count];
@@ -111,10 +111,18 @@ static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool con
         vertices[i].color = color;
     }
 
-    float const l = rect.origin.x;
-    float const r = rect.origin.x + rect.size.width;
-    float const b = rect.origin.y;
-    float const t = rect.origin.y + rect.size.height;
+    SHIZVector3 const origin = SHIZVector3Make(rect.origin.x, rect.origin.y, 0);
+    
+    float const hw = rect.size.width / 2;
+    float const hh = rect.size.height / 2;
+    
+    float const dx = hw * -anchor.x;
+    float const dy = hh * -anchor.y;
+
+    float const l = dx - hw;
+    float const r = dx + hw;
+    float const b = dy - hh;
+    float const t = dy + hh;
 
     if (!fill) {
         vertices[0].position = SHIZVector3Make(l, b, 0);
@@ -125,23 +133,31 @@ static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool con
         // the additional vertex connects to the beginning, to complete the shape
         vertices[4].position = vertices[0].position;
 
-        shiz_gfx_render(GL_LINE_STRIP, vertices, vertex_count);
+        shiz_gfx_render_ex(GL_LINE_STRIP, vertices, vertex_count, origin, angle);
     } else {
         vertices[0].position = SHIZVector3Make(l, b, 0);
         vertices[1].position = SHIZVector3Make(l, t, 0);
         vertices[2].position = SHIZVector3Make(r, b, 0);
         vertices[3].position = SHIZVector3Make(r, t, 0);
 
-        shiz_gfx_render(GL_TRIANGLE_STRIP, vertices, vertex_count);
+        shiz_gfx_render_ex(GL_TRIANGLE_STRIP, vertices, vertex_count, origin, angle);
     }
 }
 
 void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
-    _shiz_draw_rect(rect, color, true);
+    _shiz_draw_rect(rect, color, true, SHIZSpriteAnchorBottomLeft, 0);
+}
+
+void shiz_draw_rect_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle) {
+    _shiz_draw_rect(rect, color, true, anchor, angle);
 }
 
 void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color) {
-    _shiz_draw_rect(rect, color, false);
+    _shiz_draw_rect(rect, color, false, SHIZSpriteAnchorBottomLeft, 0);
+}
+
+void shiz_draw_rect_shape_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle) {
+    _shiz_draw_rect(rect, color, false, anchor, angle);
 }
 
 void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
@@ -167,8 +183,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
         }
 
         SHIZSize const working_size = (size.width == SHIZSpriteSizeIntrinsic.width &&
-                                       size.height == SHIZSpriteSizeIntrinsic.height) ?
-        sprite.source.size : size;
+                                       size.height == SHIZSpriteSizeIntrinsic.height) ? sprite.source.size : size;
 
         float const hw = working_size.width / 2;
         float const hh = working_size.height / 2;
