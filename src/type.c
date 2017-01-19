@@ -39,7 +39,8 @@ const SHIZSprite SHIZSpriteEmpty = {
 const SHIZSize SHIZSpriteSizeIntrinsic = { -1, -1 };
 
 const float SHIZSpriteNoAngle = 0;
-const uint SHIZSpriteLayerDefault = 0;
+const unsigned char SHIZSpriteLayerDefault = 0;
+const unsigned short SHIZSpriteLayerDepthDefault = 0;
 
 const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
 const SHIZVector2 SHIZSpriteAnchorTop = { 0.0f, 1.0f };

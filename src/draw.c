@@ -12,6 +12,7 @@
 #include <SHIZEN/draw.h>
 
 #include <stdlib.h>
+#include <limits.h>
 #include <math.h>
 
 #include "internal.h"
@@ -35,8 +36,8 @@ static uint _shiz_sprites_count = 0;
 
 static SHIZSpriteInternal _shiz_sprites[SHIZSpriteInternalMax];
 
-static uint const _shiz_sprite_layer_min = 0;
-static uint const _shiz_sprite_layer_max = 128;
+static unsigned short const _shiz_sprite_layer_min = 0;
+static unsigned short const _shiz_sprite_layer_max = USHRT_MAX;
 
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_process_errors(void);
@@ -181,10 +182,12 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
                         SHIZSpriteNoAngle,
                         SHIZSpriteNoTint,
                         SHIZSpriteNoRepeat,
-                        SHIZSpriteLayerDefault);
+                        false,
+                        SHIZSpriteLayerDefault,
+                        SHIZSpriteLayerDepthDefault);
 }
 
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat, uint const layer) {
+void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat, bool const opaque, unsigned char const layer, unsigned short const depth) {
     SHIZResourceImage image = shiz_res_get_image(sprite.resource_id);
 
     if (image.id == sprite.resource_id) {
@@ -278,14 +281,14 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
 
         unsigned long key = 0;
 
-        SHIZSpriteInternalKey *sprite_key = (SHIZSpriteInternalKey *)&key;
+        SHIZSpriteInternalKey * sprite_key = (SHIZSpriteInternalKey *)&key;
 
         sprite_key->layer = layer;
-        sprite_key->layer_depth = 0; // sub-layer; not used for now
+        sprite_key->layer_depth = depth;
         sprite_key->texture_id = image.texture_id;
-        sprite_key->is_opaque = false;
+        sprite_key->is_transparent = !opaque;
 
-        SHIZSpriteInternal *sprite_internal = &_shiz_sprites[_shiz_sprites_count];
+        SHIZSpriteInternal * sprite_internal = &_shiz_sprites[_shiz_sprites_count];
 
         sprite_internal->key = key;
         sprite_internal->angle = angle;
@@ -328,10 +331,9 @@ static void _shiz_flush_sprites() {
 
     for (uint sprite_index = 0; sprite_index < _shiz_sprites_count; sprite_index++) {
         SHIZSpriteInternal const sprite = _shiz_sprites[sprite_index];
-        SHIZSpriteInternalKey* const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
+        SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
 
-        shiz_gfx_render_quad(sprite.vertices, sprite.origin,
-                             sprite.angle, sprite_key->texture_id);
+        shiz_gfx_render_quad(sprite.vertices, sprite.origin, sprite.angle, sprite_key->texture_id);
     }
 
     _shiz_sprites_count = 0;
@@ -587,7 +589,8 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
                     shiz_draw_sprite_ex(character_sprite, character_origin,
                                         measurement.character_size,
                                         SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle,
-                                        highlight_color, SHIZSpriteNoRepeat, SHIZSpriteLayerDefault);
+                                        highlight_color, SHIZSpriteNoRepeat, false,
+                                        SHIZSpriteLayerDefault, SHIZSpriteLayerDepthDefault);
                 }
             }
 

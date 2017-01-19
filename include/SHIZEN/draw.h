@@ -78,8 +78,23 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  * @param repeat
  *        Specify whether the sprite should repeat (only applies if the `size` parameter
  *        sets a size larger than the intrinsic size of the sprite)
+ * @param opaque
+ *        Specify whether the sprite does not draw transparent pixels
+ * @param layer
+ *        The layer to draw this sprite in (lower layers are drawn first)
+ * @param depth
+ *        The depth of the sprite in the specified layer (sprites with lower depth are drawn first)
  */
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat, uint const layer);
+void shiz_draw_sprite_ex(SHIZSprite const sprite,
+                         SHIZVector2 const origin,
+                         SHIZSize const size,
+                         SHIZVector2 const anchor,
+                         float const angle,
+                         SHIZColor const tint,
+                         bool const repeat,
+                         bool const opaque,
+                         unsigned char const layer,
+                         unsigned short const depth);
 
 /**
  * @brief Measure the size of a text.
@@ -101,7 +116,10 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
  *
  * @return a SHIZSize with the bounding width and height
  */
-SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
+SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font,
+                                  const char * const text,
+                                  SHIZSize const bounds,
+                                  SHIZSpriteFontAttributes const attributes);
 
 /**
  * @brief Draw a text at a location.
@@ -120,7 +138,10 @@ SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const 
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
-SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment);
+SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font,
+                               const char * const text,
+                               SHIZVector2 const origin,
+                               SHIZSpriteFontAlignment const alignment);
 /**
  * @brief Draw a text at a location.
  *

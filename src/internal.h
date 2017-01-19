@@ -103,12 +103,12 @@ struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord_max;
 };
 
-// essentially an unsigned long for easy sorting
+// essentially an unsigned long (32 bits) for easy sorting
 struct SHIZSpriteInternalKey {
-    unsigned int layer_depth: 16;
-    unsigned int layer: 7; // max 128
-    unsigned int texture_id: 8; // max 256
-    unsigned int is_opaque: 1;
+    bool is_transparent: 1; // the least significant bit
+    unsigned short texture_id: 7;
+    unsigned short layer_depth: 16;
+    unsigned short layer: 8; // the most significant bits
 };
 
 #define SHIZSpriteInternalMax 2048
@@ -153,10 +153,19 @@ struct SHIZSpriteFontMeasurement {
 };
 
 static const SHIZViewport SHIZViewportDefault = {
-    .framebuffer = { .width = 0, .height = 0 },
-    .screen = { .width = 0, .height = 0 },
+    .framebuffer = {
+        .width = 0,
+        .height = 0
+    },
+    .screen = {
+        .width = 0,
+        .height = 0
+    },
+    .offset = {
+        .width = 0,
+        .height = 0
+    },
     .scale = 1,
-    .offset = { .width = 0, .height = 0 },
     .is_fullscreen = false
 };
 

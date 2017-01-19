@@ -151,7 +151,8 @@ extern const float SHIZSpriteNoAngle;
 /**
  * @brief Default sprite layer.
  */
-extern const uint SHIZSpriteLayerDefault;
+extern unsigned char const SHIZSpriteLayerDefault;
+extern unsigned short const SHIZSpriteLayerDepthDefault;
 
 extern const SHIZVector2 SHIZSpriteAnchorCenter;
 extern const SHIZVector2 SHIZSpriteAnchorTop;

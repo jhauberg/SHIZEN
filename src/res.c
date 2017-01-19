@@ -116,8 +116,8 @@ uint shiz_res_load(SHIZResourceType const type, const char * const filename) {
             _shiz_load_image_resource = &images[expected_index];
             
             if (shiz_io_load_image(filename, _shiz_load_image_handler)) {
-                images[expected_index].id = expected_id;
-                images[expected_index].filename = filename;
+                _shiz_load_image_resource->id = expected_id;
+                _shiz_load_image_resource->filename = filename;
                 
                 resource_id = expected_id;
             }
