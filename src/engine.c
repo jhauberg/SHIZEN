@@ -10,7 +10,6 @@
 //
 
 #include <stdio.h>
-#include <string.h>
 
 #include <SHIZEN/engine.h>
 

@@ -12,6 +12,7 @@
 #include <SHIZEN/draw.h>
 
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 #include <math.h>
 
@@ -402,7 +403,11 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
                         break;
                     }
 
-                    line_character_count -= 1;
+                    if (line_character_count > 0) {
+                        line_character_count -= 1;
+                    } else {
+                        break;
+                    }
                 }
             }
 
@@ -514,7 +519,7 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
 
         uint const line_character_count = line.size.width / measurement.character_size_perceived.width;
 
-        for (uint character_index = 0; character_index < line_character_count; character_index++) {
+        for (int character_index = 0; character_index < line_character_count && text_index < strlen(text); character_index++) {
             bool const should_truncate = measurement.constrain_index != -1 && (text_index > measurement.constrain_index - truncation_length);
 
             should_break_from_truncation = measurement.constrain_index == text_index;
@@ -543,6 +548,10 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
 
             if (character == newline_character) {
                 // ignore newlines and just proceed as if this iteration never happened
+                // note that this may cause character_index to go negative, and because of this
+                // the loop could go on indefinitely unless we add an additional constraint;
+                // namely whether we're still going through the actual string (i.e. text_index)
+                // and have not passed beyond its length
                 character_index--;
 
                 continue;
