@@ -304,7 +304,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
 
         _shiz_sprites_count++;
 
-        if (_shiz_sprites_count > SHIZSpriteInternalMax) {
+        if (_shiz_sprites_count >= SHIZSpriteInternalMax) {
             shiz_io_warning("sprite limit reached (%d); sprites may not draw as expected", SHIZSpriteInternalMax);
 
             _shiz_flush_sprites();

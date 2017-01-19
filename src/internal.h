@@ -103,6 +103,8 @@ struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord_max;
 };
 
+#define SHIZSpriteInternalMax 2048
+
 // essentially an unsigned long (32 bits) for easy sorting
 struct SHIZSpriteInternalKey {
     bool is_transparent: 1; // the least significant bit
@@ -110,8 +112,6 @@ struct SHIZSpriteInternalKey {
     unsigned short layer_depth: 16;
     unsigned short layer: 8; // the most significant bits
 };
-
-#define SHIZSpriteInternalMax 2048
 
 struct SHIZSpriteInternal {
     unsigned long key;
