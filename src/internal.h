@@ -46,6 +46,15 @@ typedef enum SHIZViewportMode SHIZViewportMode;
 extern SHIZGraphicsContext shiz_context;
 #ifdef SHIZ_DEBUG
 extern SHIZSpriteFont shiz_debug_font;
+
+typedef struct SHIZDebugContext SHIZDebugContext;
+
+extern SHIZDebugContext shiz_debug_context;
+
+struct SHIZDebugContext {
+    bool is_enabled;
+    bool draw_sprite_shape;
+};
 #endif
 
 struct SHIZGraphicsContext {
@@ -53,9 +62,6 @@ struct SHIZGraphicsContext {
     bool is_initialized;
     /** Determines whether the context has focus */
     bool is_focused;
-#ifdef SHIZ_DEBUG
-    bool is_debug_enabled;
-#endif
     /** Determines whether a shutdown should be initiated */
     bool should_finish;
     /** The preferred screen size; the display may be boxed if necessary */

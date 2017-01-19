@@ -61,6 +61,7 @@ SHIZGraphicsContext shiz_context;
 
 #ifdef SHIZ_DEBUG
 SHIZSpriteFont shiz_debug_font;
+SHIZDebugContext shiz_debug_context;
 #endif
 
 static void key_callback(GLFWwindow * const window, int key, int scancode, int action, int mods) {
@@ -70,11 +71,14 @@ static void key_callback(GLFWwindow * const window, int key, int scancode, int a
         shiz_context.should_finish = true;
     } else if ((key == GLFW_KEY_ENTER && mods == GLFW_MOD_ALT) && action == GLFW_RELEASE) {
         _shiz_glfw_toggle_windowed(window);
-    } else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
-#ifdef SHIZ_DEBUG
-        shiz_context.is_debug_enabled = !shiz_context.is_debug_enabled;
-#endif
     }
+#ifdef SHIZ_DEBUG
+    else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
+        shiz_debug_context.is_enabled = !shiz_debug_context.is_enabled;
+    } else if ((key == GLFW_KEY_1 && mods == GLFW_MOD_SHIFT) && action == GLFW_RELEASE) {
+        shiz_debug_context.draw_sprite_shape = !shiz_debug_context.draw_sprite_shape;
+    }
+#endif
 }
 
 static bool _shiz_glfw_create_window(SHIZWindowSettings const settings) {
@@ -174,7 +178,8 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     _time_previous = glfwGetTime();
 
 #ifdef SHIZ_DEBUG
-    shiz_context.is_debug_enabled = true;
+    shiz_debug_context.is_enabled = true;
+    shiz_debug_context.draw_sprite_shape = true;
 
     if (shiz_res_debug_load_font()) {
         SHIZSprite sprite = shiz_get_sprite(shiz_res_debug_get_font());

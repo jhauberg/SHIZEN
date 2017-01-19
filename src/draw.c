@@ -55,7 +55,7 @@ void shiz_drawing_begin() {
 
 void shiz_drawing_end() {
 #ifdef SHIZ_DEBUG
-    if (shiz_context.is_debug_enabled) {
+    if (shiz_debug_context.is_enabled) {
         _shiz_debug_display_stats();
     }
 #endif
@@ -310,6 +310,13 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZ
 
             _shiz_flush_sprites();
         }
+
+#ifdef SHIZ_DEBUG
+        if (shiz_debug_context.is_enabled && shiz_debug_context.draw_sprite_shape) {
+            shiz_draw_rect_shape(SHIZRectMake(SHIZVector2Make(origin.x + anchored_rect.origin.x,
+                                                              origin.y + anchored_rect.origin.y), working_size), SHIZColorRed);
+        }
+#endif
     }
 }
 
