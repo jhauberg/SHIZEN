@@ -50,7 +50,8 @@ static unsigned short const _shiz_sprite_layer_max = USHRT_MAX;
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_process_errors(void);
 static void _shiz_debug_build_stats(void);
-static void _shiz_debug_display_stats(void);
+static void _shiz_debug_draw_stats(void);
+static void _shiz_debug_draw_sprite_shape(SHIZRect const shape, SHIZVector2 const origin);
 
 static char _shiz_debug_font_buffer[128];
 #endif
@@ -67,7 +68,7 @@ void shiz_drawing_begin() {
 void shiz_drawing_end() {
 #ifdef SHIZ_DEBUG
     if (shiz_debug_context.is_enabled) {
-        _shiz_debug_display_stats();
+        _shiz_debug_draw_stats();
     }
 #endif
 
@@ -350,12 +351,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite,
 #ifdef SHIZ_DEBUG
     if (shiz_debug_context.is_enabled) {
         if (shiz_debug_context.draw_sprite_shape) {
-            SHIZVector2 const anchored_origin = SHIZVector2Make(origin.x + anchored_rect.origin.x,
-                                                                origin.y + anchored_rect.origin.y);
-            
-            SHIZRect const shape = SHIZRectMake(anchored_origin, working_size);
-            
-            shiz_draw_rect_shape(shape, SHIZColorRed);
+            _shiz_debug_draw_sprite_shape(anchored_rect, origin);
         }
     }
 #endif
@@ -740,7 +736,7 @@ static void _shiz_debug_build_stats() {
             shiz_gfx_debug_get_draw_count());
 }
 
-static void _shiz_debug_display_stats() {
+static void _shiz_debug_draw_stats() {
     uint const margin = 4;
 
     SHIZColor highlight_colors[] = {
@@ -761,6 +757,23 @@ static void _shiz_debug_display_stats() {
                                      SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
                                      SHIZSpriteFontAttributesDefault,
                                      highlight_colors, 4);
+}
+
+static void _shiz_debug_draw_sprite_shape(SHIZRect const shape, SHIZVector2 const origin) {
+    SHIZRect const anchored_shape = SHIZRectMake(SHIZVector2Make(origin.x + shape.origin.x,
+                                                                 origin.y + shape.origin.y),
+                                        shape.size);
+
+    shiz_draw_rect_shape(anchored_shape, SHIZColorRed);
+
+    SHIZVector2 anchor_origin = SHIZVector2Make(origin.x - 1,
+                                                origin.y - 1);
+
+    SHIZRect const anchor_shape = SHIZRectMake(anchor_origin, SHIZSizeMake(2, 2));
+
+    // todo: this is less useful, because we can't ensur that this is drawn last (otherwise occluded by the actual sprite if batch kicks in later)
+    // todo: shiz_draw_rect_deferred.. ? a primitive batcher, definitely useful
+    shiz_draw_rect(anchor_shape, SHIZColorRed);
 }
 
 static void _shiz_debug_process_errors() {
