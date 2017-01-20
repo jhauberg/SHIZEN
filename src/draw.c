@@ -330,6 +330,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite,
     sprite_internal->key = key;
     sprite_internal->angle = angle;
     sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
+    sprite_internal->order = _shiz_sprites_count;
 
     for (uint i = 0; i < vertex_count; i++) {
         sprite_internal->vertices[i].position = vertices[i].position;
@@ -364,6 +365,10 @@ static int _shiz_compare_sprites(const void * a, const void * b) {
     if (lhs->key < rhs->key) {
         return -1;
     } else if (lhs->key > rhs->key) {
+        return 1;
+    } else if (lhs->order < rhs->order) {
+        return -1;
+    } else if (lhs->order > rhs->order) {
         return 1;
     }
 

@@ -122,6 +122,7 @@ struct SHIZSpriteInternalKey {
 
 struct SHIZSpriteInternal {
     unsigned long key;
+    uint order;
     SHIZVertexPositionColorTexture vertices[6];
     SHIZVector3 origin;
     float angle;
