@@ -51,9 +51,8 @@ static uint const spritebatch_vertex_count = spritebatch_max_count * spritebatch
 typedef struct {
     uint current_count;
     GLuint current_texture_id;
-    
     SHIZRenderData render;
-    SHIZVertexPositionColorTexture vertices[spritebatch_vertex_count]; /* statically allocated buffer */
+    SHIZVertexPositionColorTexture vertices[spritebatch_vertex_count];
 } SHIZRenderSpriteBatch;
 
 typedef struct {
@@ -65,7 +64,8 @@ static SHIZRenderPrimitive _primitive;
 
 static SHIZViewport _viewport;
 
-static bool const enable_boxing_if_necessary = true; // false to let viewport fit framebuffer (pixels will be stretched)
+// set to false to let viewport fit framebuffer (pixels will be stretched)
+static bool const enable_boxing_if_necessary = true;
 
 bool shiz_gfx_init(SHIZViewport const viewport) {
     shiz_gfx_set_viewport(viewport);
@@ -261,7 +261,8 @@ static bool _shiz_gfx_init_spritebatch() {
                                   GL_FLOAT,
                                   GL_FALSE,
                                   stride,
-                                  (GLvoid*)(sizeof(SHIZVector3)) /* offset to reach color component */);
+                                  // offset to reach color component
+                                  (GLvoid*)(sizeof(SHIZVector3)));
             glEnableVertexAttribArray(1);
 
             glVertexAttribPointer(2 /* texture coord location */,
@@ -269,7 +270,9 @@ static bool _shiz_gfx_init_spritebatch() {
                                   GL_FLOAT,
                                   GL_FALSE,
                                   stride,
-                                  (GLvoid*)(sizeof(SHIZVector3) + sizeof(SHIZColor)) /* offset to reach texture coord component */);
+                                  // offset to reach texture coord component
+                                  (GLvoid*)(sizeof(SHIZVector3) +
+                                            sizeof(SHIZColor)));
             glEnableVertexAttribArray(2);
 
             glVertexAttribPointer(3 /* texture coord scale location */,
@@ -277,7 +280,10 @@ static bool _shiz_gfx_init_spritebatch() {
                                   GL_FLOAT,
                                   GL_FALSE,
                                   stride,
-                                  (GLvoid*)(sizeof(SHIZVector3) + sizeof(SHIZColor) + sizeof(SHIZVector2)) /* offset to reach texture coord min component */);
+                                  // offset to reach texture coord min component
+                                  (GLvoid*)(sizeof(SHIZVector3) +
+                                            sizeof(SHIZColor) +
+                                            sizeof(SHIZVector2)));
             glEnableVertexAttribArray(3);
 
             glVertexAttribPointer(4 /* texture coord scale location */,
@@ -285,7 +291,11 @@ static bool _shiz_gfx_init_spritebatch() {
                                   GL_FLOAT,
                                   GL_FALSE,
                                   stride,
-                                  (GLvoid*)(sizeof(SHIZVector3) + sizeof(SHIZColor) + sizeof(SHIZVector2) + sizeof(SHIZVector2)) /* offset to reach texture coord max component */);
+                                  // offset to reach texture coord max component
+                                  (GLvoid*)(sizeof(SHIZVector3) +
+                                            sizeof(SHIZColor) +
+                                            sizeof(SHIZVector2) +
+                                            sizeof(SHIZVector2)));
             glEnableVertexAttribArray(4);
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -358,11 +368,17 @@ static void _shiz_gfx_primitive_state(bool const enable) {
     }
 }
 
-void shiz_gfx_render(GLenum const mode, SHIZVertexPositionColor const * restrict vertices, uint const count) {
+void shiz_gfx_render(GLenum const mode,
+                     SHIZVertexPositionColor const * restrict vertices,
+                     uint const count) {
     shiz_gfx_render_ex(mode, vertices, count, SHIZVector3Zero, 0);
 }
 
-void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const * restrict vertices, uint const count, SHIZVector3 const origin, float const angle) {
+void shiz_gfx_render_ex(GLenum const mode,
+                        SHIZVertexPositionColor const * restrict vertices,
+                        uint const count,
+                        SHIZVector3 const origin,
+                        float const angle) {
     mat4x4 translation;
     mat4x4_translate(translation, origin.x, origin.y, origin.z);
     
@@ -386,7 +402,7 @@ void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const * restr
     glBindVertexArray(_primitive.render.vao); {
         glBindBuffer(GL_ARRAY_BUFFER, _primitive.render.vbo); {
             glBufferData(GL_ARRAY_BUFFER,
-                         sizeof(SHIZVertexPositionColor) * count /* sizeof(vertices) won't work here, because the array is passed as a pointer */,
+                         sizeof(SHIZVertexPositionColor) * count,
                          vertices,
                          GL_DYNAMIC_DRAW);
             glDrawArrays(mode, 0, count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
@@ -402,7 +418,10 @@ void shiz_gfx_render_ex(GLenum const mode, SHIZVertexPositionColor const * restr
     _shiz_gfx_primitive_state(false);
 }
 
-void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices, SHIZVector3 const origin, float const angle, GLuint const texture_id) {
+void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
+                          SHIZVector3 const origin,
+                          float const angle,
+                          GLuint const texture_id) {
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
         _shiz_gfx_spritebatch_flush();
@@ -480,7 +499,7 @@ static void _shiz_gfx_spritebatch_flush() {
     mat4x4_model_view_projection(mvp, model, view);
 
     _shiz_gfx_spritebatch_state(true);
-
+    
     glUseProgram(_spritebatch.render.program);
     // todo: a way to provide this flag; problem is that it affects the entire batch
     glUniform1i(glGetUniformLocation(_spritebatch.render.program, "enable_additive_tint"), false);
@@ -529,8 +548,10 @@ void shiz_gfx_set_viewport(SHIZViewport const viewport) {
 }
 
 static void _shiz_gfx_determine_operating_resolution() {
-    if ((_viewport.screen.width < _viewport.framebuffer.width || _viewport.screen.width > _viewport.framebuffer.width) ||
-        (_viewport.screen.height < _viewport.framebuffer.height || _viewport.screen.height > _viewport.framebuffer.height)) {
+    if ((_viewport.screen.width < _viewport.framebuffer.width ||
+         _viewport.screen.width > _viewport.framebuffer.width) ||
+        (_viewport.screen.height < _viewport.framebuffer.height ||
+         _viewport.screen.height > _viewport.framebuffer.height)) {
         shiz_io_warning_context("GFX", "Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx (%s)",
                                 _viewport.screen.width, _viewport.screen.height,
                                 _viewport.framebuffer.width, _viewport.framebuffer.height,

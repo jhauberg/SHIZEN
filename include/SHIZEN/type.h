@@ -238,7 +238,10 @@ static inline SHIZRect SHIZRectMake(SHIZVector2 origin, SHIZSize size) {
     return rect;
 }
 
-static inline SHIZColor SHIZColorMake(float const r, float const g, float const b, float const alpha) {
+static inline SHIZColor SHIZColorMake(float const r,
+                                      float const g,
+                                      float const b,
+                                      float const alpha) {
     SHIZColor color = {
         r, g, b, alpha
     };

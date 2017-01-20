@@ -28,7 +28,9 @@
  #pragma clang pop
 #endif
 
-static bool _shiz_io_handle_image(unsigned char * const image_data, int width, int height, int components, shiz_io_image_loaded_handler handler);
+static bool _shiz_io_handle_image(unsigned char * const image_data,
+                                  int width, int height, int components,
+                                  shiz_io_image_loaded_handler handler);
 static void _shiz_io_printf(const char * const format, va_list args);
 
 static uint const buffer_capacity = 256;
@@ -68,7 +70,9 @@ void shiz_io_warning_context(const char * const context, const char * const form
     SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] [%s] %s", warning_context, context, format) )
 }
 
-static bool _shiz_io_handle_image(unsigned char * const image_data, int width, int height, int components, shiz_io_image_loaded_handler const handler) {
+static bool _shiz_io_handle_image(unsigned char * const image_data,
+                                  int width, int height, int components,
+                                  shiz_io_image_loaded_handler const handler) {
     if (handler) {
         if (!(*handler)(width, height, components, image_data)) {
             stbi_image_free(image_data);
@@ -90,7 +94,8 @@ bool shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handle
     // opengl expects the first pixel to be at the bottom-left of the image, so we need to flip it
     stbi_set_flip_vertically_on_load(true);
     
-    unsigned char * image = stbi_load(filename, &width, &height, &components, STBI_rgb_alpha);
+    unsigned char * image = stbi_load(filename, &width, &height, &components,
+                                      STBI_rgb_alpha);
 
     if (!image) {
         shiz_io_error("failed to load image: '%s'", filename);
@@ -101,13 +106,15 @@ bool shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handle
     return _shiz_io_handle_image(image, width, height, components, handler);
 }
 
-bool shiz_io_load_image_data(const unsigned char * const buffer, uint const length, shiz_io_image_loaded_handler const handler) {
+bool shiz_io_load_image_data(const unsigned char * const buffer, uint const length,
+                             shiz_io_image_loaded_handler const handler) {
     int width, height;
     int components;
 
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char * image = stbi_load_from_memory(buffer, length, &width, &height, &components, STBI_rgb_alpha);
+    unsigned char * image = stbi_load_from_memory(buffer, length, &width, &height, &components,
+                                                  STBI_rgb_alpha);
 
     if (!image) {
         shiz_io_error("failed to load image (from memory)");

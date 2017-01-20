@@ -54,6 +54,7 @@ extern SHIZDebugContext shiz_debug_context;
 struct SHIZDebugContext {
     bool is_enabled;
     bool draw_sprite_shape;
+    uint sprite_count;
 };
 #endif
 
@@ -127,7 +128,10 @@ struct SHIZSpriteInternal {
 };
 
 struct SHIZSpriteFontLine {
+    /** The measured size of the line of text */
     SHIZSize size;
+    /** The number of encountered special/ignored characters in the line of text;
+     typically counts tint specifiers */
     uint ignored_character_count;
 };
 
@@ -141,7 +145,7 @@ struct SHIZSpriteFontMeasurement {
     /** The size of a character sprite as it should appear when drawn (may be scaled) */
     SHIZSize character_size;
     /** The size of a character sprite after applying any size-altering attributes (may be sized with
-        offsets/padding, so these values are not suitable for drawing; use `character_size` instead) */
+     offsets/padding, so these values are not suitable for drawing; use `character_size` instead) */
     SHIZSize character_size_perceived;
     /** The number of lines */
     uint line_count;
@@ -151,11 +155,11 @@ struct SHIZSpriteFontMeasurement {
     uint max_lines_in_bounds;
     /** Determines whether to keep text within horizontal bounds */
     bool constrain_horizontally;
-    /** Determines whether to keep text within vertical bounds, forcing linebreaks if possible; truncates otherwise */
+    /** Determines whether to keep text within vertical bounds, 
+     forcing linebreaks if possible; truncates otherwise */
     bool constrain_vertically;
     /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
     int constrain_index;
-    uint ignored_characters_count;
 };
 
 static const SHIZViewport SHIZViewportDefault = {

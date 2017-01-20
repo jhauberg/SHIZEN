@@ -102,7 +102,8 @@ static bool _shiz_glfw_create_window(SHIZWindowSettings const settings) {
             shiz_context.window = glfwCreateWindow(display_width, display_height,
                                                    settings.title, glfwGetPrimaryMonitor(), NULL);
             
-            // prefer centered window if initially fullscreen; otherwise let the OS determine window placement
+            // prefer centered window if initially fullscreen;
+            // otherwise let the OS determine window placement
             _shiz_glfw_window_position.x = (display_width / 2) - (settings.size.width / 2);
             _shiz_glfw_window_position.y = (display_height / 2) - (settings.size.height / 2);
         }
@@ -179,7 +180,6 @@ bool shiz_startup(SHIZWindowSettings const settings) {
 
 #ifdef SHIZ_DEBUG
     shiz_debug_context.is_enabled = true;
-    shiz_debug_context.draw_sprite_shape = true;
 
     if (shiz_res_debug_load_font()) {
         SHIZSprite sprite = shiz_get_sprite(shiz_res_debug_get_font());
@@ -301,7 +301,9 @@ SHIZSpriteFont shiz_load_sprite_font(const char * const filename, SHIZSize const
     return shiz_get_sprite_font(sprite, character);
 }
 
-SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename, SHIZSize const character, SHIZSpriteFontTable const table) {
+SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename,
+                                        SHIZSize const character,
+                                        SHIZSpriteFontTable const table) {
     SHIZSpriteFont const spritefont = shiz_load_sprite_font(filename, character);
     
     return shiz_get_sprite_font_ex(spritefont.sprite, spritefont.character, table);
@@ -317,13 +319,16 @@ SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const char
     return shiz_get_sprite_font_ex(sprite, character, table);
 }
 
-SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZSpriteFontTable const table) {
+SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite,
+                                       SHIZSize const character,
+                                       SHIZSpriteFontTable const table) {
     SHIZSpriteFont spritefont;
     
     spritefont.sprite = sprite;
     spritefont.character = character;
     spritefont.table = table;
-    spritefont.includes_whitespace = false; // default to skip whitespaces; this will reduce the number of sprites drawn
+    // default to skip whitespaces; this will reduce the number of sprites drawn
+    spritefont.includes_whitespace = false;
     
     return spritefont;
 }

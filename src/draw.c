@@ -23,12 +23,19 @@
 
 static SHIZRect _shiz_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor);
 
-static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill, SHIZVector2 const anchor, float const angle);
+static void _shiz_draw_rect(SHIZRect const rect,
+                            SHIZColor const color,
+                            bool const fill,
+                            SHIZVector2 const anchor,
+                            float const angle);
 
 static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color);
 static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
 
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes);
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font,
+                                                           const char * const text,
+                                                           SHIZSize const bounds,
+                                                           SHIZSpriteFontAttributes const attributes);
 
 static int _shiz_compare_sprites(const void * a, const void * b);
 static void _shiz_flush_sprites(void);
@@ -49,6 +56,10 @@ static char _shiz_debug_font_buffer[128];
 #endif
 
 void shiz_drawing_begin() {
+#ifdef SHIZ_DEBUG
+    shiz_debug_context.sprite_count = 0;
+#endif
+
     shiz_gfx_clear();
     shiz_gfx_begin();
 }
@@ -122,7 +133,11 @@ SHIZRect _shiz_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) 
     return SHIZRectMake(SHIZVector2Make(l, b), size);
 }
 
-static void _shiz_draw_rect(SHIZRect const rect, SHIZColor const color, bool const fill, SHIZVector2 const anchor, float const angle) {
+static void _shiz_draw_rect(SHIZRect const rect,
+                            SHIZColor const color,
+                            bool const fill,
+                            SHIZVector2 const anchor,
+                            float const angle) {
     uint const vertex_count = fill ? 4 : 5; // only drawing the shape requires an additional vertex
 
     SHIZVertexPositionColor vertices[vertex_count];
@@ -164,7 +179,10 @@ void shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
     _shiz_draw_rect(rect, color, true, SHIZSpriteAnchorBottomLeft, 0);
 }
 
-void shiz_draw_rect_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle) {
+void shiz_draw_rect_ex(SHIZRect const rect,
+                       SHIZColor const color,
+                       SHIZVector2 const anchor,
+                       float const angle) {
     _shiz_draw_rect(rect, color, true, anchor, angle);
 }
 
@@ -172,7 +190,10 @@ void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color) {
     _shiz_draw_rect(rect, color, false, SHIZSpriteAnchorBottomLeft, 0);
 }
 
-void shiz_draw_rect_shape_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle) {
+void shiz_draw_rect_shape_ex(SHIZRect const rect,
+                             SHIZColor const color,
+                             SHIZVector2 const anchor,
+                             float const angle) {
     _shiz_draw_rect(rect, color, false, anchor, angle);
 }
 
@@ -188,136 +209,156 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
                         SHIZSpriteLayerDepthDefault);
 }
 
-void shiz_draw_sprite_ex(SHIZSprite const sprite, SHIZVector2 const origin, SHIZSize const size, SHIZVector2 const anchor, float const angle, SHIZColor const tint, bool const repeat, bool const opaque, unsigned char const layer, unsigned short const depth) {
+void shiz_draw_sprite_ex(SHIZSprite const sprite,
+                         SHIZVector2 const origin,
+                         SHIZSize const size,
+                         SHIZVector2 const anchor,
+                         float const angle,
+                         SHIZColor const tint,
+                         bool const repeat,
+                         bool const opaque,
+                         unsigned char const layer,
+                         unsigned short const depth) {
     SHIZResourceImage image = shiz_res_get_image(sprite.resource_id);
 
-    if (image.id == sprite.resource_id) {
-        uint const vertex_count = 6;
+    if (image.id != sprite.resource_id) {
+        return;
+    }
 
-        SHIZVertexPositionColorTexture vertices[vertex_count];
+    uint const vertex_count = 6;
 
-        for (uint i = 0; i < vertex_count; i++) {
-            vertices[i].color = tint;
+    SHIZVertexPositionColorTexture vertices[vertex_count];
+
+    for (uint i = 0; i < vertex_count; i++) {
+        vertices[i].color = tint;
+    }
+
+    SHIZSize const working_size = (size.width == SHIZSpriteSizeIntrinsic.width &&
+                                   size.height == SHIZSpriteSizeIntrinsic.height) ? sprite.source.size : size;
+
+    SHIZRect const anchored_rect = _shiz_get_anchored_rect(working_size, anchor);
+    
+    float const l = anchored_rect.origin.x;
+    float const r = anchored_rect.origin.x + anchored_rect.size.width;
+    float const b = anchored_rect.origin.y;
+    float const t = anchored_rect.origin.y + anchored_rect.size.height;
+    
+    SHIZVector2 bl = SHIZVector2Make(l, b);
+    SHIZVector2 tl = SHIZVector2Make(l, t);
+    SHIZVector2 tr = SHIZVector2Make(r, t);
+    SHIZVector2 br = SHIZVector2Make(r, b);
+
+    vertices[0].position = SHIZVector3Make(tl.x, tl.y, 0);
+    vertices[1].position = SHIZVector3Make(br.x, br.y, 0);
+    vertices[2].position = SHIZVector3Make(bl.x, bl.y, 0);
+
+    vertices[3].position = SHIZVector3Make(tl.x, tl.y, 0);
+    vertices[4].position = SHIZVector3Make(tr.x, tr.y, 0);
+    vertices[5].position = SHIZVector3Make(br.x, br.y, 0);
+
+    SHIZRect source = sprite.source;
+
+    bool const flip_vertically = true;
+
+    if (flip_vertically) {
+        // opengl assumes that the origin of textures is at the bottom-left of the image,
+        // however, it is common to specify top-left as origin when using e.g. sprite sheets (and we want that)
+        // so, assuming that the provided source frame expects the top-left to be the origin,
+        // we have to flip the specified coordinate so that the origin becomes bottom-left
+        source.origin.y = (image.height - source.size.height) - source.origin.y;
+    }
+
+    SHIZVector2 const uv_min = SHIZVector2Make((source.origin.x / image.width),
+                                               (source.origin.y / image.height));
+    SHIZVector2 const uv_max = SHIZVector2Make(((source.origin.x + source.size.width) / image.width),
+                                               ((source.origin.y + source.size.height) / image.height));
+
+    float uv_scale_x = 1;
+    float uv_scale_y = 1;
+
+    if (repeat) {
+        // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
+        if (working_size.width > sprite.source.size.width) {
+            uv_scale_x = working_size.width / sprite.source.size.width;
         }
 
-        SHIZSize const working_size = (size.width == SHIZSpriteSizeIntrinsic.width &&
-                                       size.height == SHIZSpriteSizeIntrinsic.height) ? sprite.source.size : size;
-
-        SHIZRect const anchored_rect = _shiz_get_anchored_rect(working_size, anchor);
-        
-        float const l = anchored_rect.origin.x;
-        float const r = anchored_rect.origin.x + anchored_rect.size.width;
-        float const b = anchored_rect.origin.y;
-        float const t = anchored_rect.origin.y + anchored_rect.size.height;
-        
-        SHIZVector2 bl = SHIZVector2Make(l, b);
-        SHIZVector2 tl = SHIZVector2Make(l, t);
-        SHIZVector2 tr = SHIZVector2Make(r, t);
-        SHIZVector2 br = SHIZVector2Make(r, b);
-
-        vertices[0].position = SHIZVector3Make(tl.x, tl.y, 0);
-        vertices[1].position = SHIZVector3Make(br.x, br.y, 0);
-        vertices[2].position = SHIZVector3Make(bl.x, bl.y, 0);
-
-        vertices[3].position = SHIZVector3Make(tl.x, tl.y, 0);
-        vertices[4].position = SHIZVector3Make(tr.x, tr.y, 0);
-        vertices[5].position = SHIZVector3Make(br.x, br.y, 0);
-
-        SHIZRect source = sprite.source;
-
-        bool const flip_vertically = true;
-
-        if (flip_vertically) {
-            // opengl assumes that the origin of textures is at the bottom-left of the image,
-            // however, it is common to specify top-left as origin when using e.g. sprite sheets (and we want that)
-            // so, assuming that the provided source frame expects the top-left to be the origin,
-            // we have to flip the specified coordinate so that the origin becomes bottom-left
-            source.origin.y = (image.height - source.size.height) - source.origin.y;
+        if (working_size.height > sprite.source.size.height) {
+            uv_scale_y = working_size.height / sprite.source.size.height;
         }
+    }
 
-        SHIZVector2 const uv_min = SHIZVector2Make((source.origin.x / image.width),
-                                                   (source.origin.y / image.height));
-        SHIZVector2 const uv_max = SHIZVector2Make(((source.origin.x + source.size.width) / image.width),
-                                                   ((source.origin.y + source.size.height) / image.height));
+    tl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_max.y * uv_scale_y);
+    br = SHIZVector2Make(uv_max.x * uv_scale_x, uv_min.y * uv_scale_y);
+    bl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_min.y * uv_scale_y);
+    tr = SHIZVector2Make(uv_max.x * uv_scale_x, uv_max.y * uv_scale_y);
 
-        float uv_scale_x = 1;
-        float uv_scale_y = 1;
+    vertices[0].texture_coord = tl;
+    vertices[1].texture_coord = br;
+    vertices[2].texture_coord = bl;
 
-        if (repeat) {
-            // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
-            if (working_size.width > sprite.source.size.width) {
-                uv_scale_x = working_size.width / sprite.source.size.width;
-            }
+    vertices[3].texture_coord = tl;
+    vertices[4].texture_coord = tr;
+    vertices[5].texture_coord = br;
 
-            if (working_size.height > sprite.source.size.height) {
-                uv_scale_y = working_size.height / sprite.source.size.height;
-            }
-        }
+    for (uint i = 0; i < vertex_count; i++) {
+        // in order for repeated textures to work (without having to set wrapping modes,
+        // and with support for sub-textures) we have to specify the space that
+        // uv's are limited to (otherwise a sub-texture with a scaled uv would
+        // just end up using part of another subtexture- we don't want that) so this solution
+        // will simply "loop over" a scaled uv coordinate so that it is restricted
+        // within the dimensions of the expected texture
+        vertices[i].texture_coord_min = uv_min;
+        vertices[i].texture_coord_max = uv_max;
+    }
 
-        tl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_max.y * uv_scale_y);
-        br = SHIZVector2Make(uv_max.x * uv_scale_x, uv_min.y * uv_scale_y);
-        bl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_min.y * uv_scale_y);
-        tr = SHIZVector2Make(uv_max.x * uv_scale_x, uv_max.y * uv_scale_y);
+    // range within [-1;0], where -1 is nearest (so layer 128 should be z = -1)
+    float const z = -((layer - _shiz_sprite_layer_min) /
+                      (_shiz_sprite_layer_max - _shiz_sprite_layer_min));
 
-        vertices[0].texture_coord = tl;
-        vertices[1].texture_coord = br;
-        vertices[2].texture_coord = bl;
+    unsigned long key = 0;
 
-        vertices[3].texture_coord = tl;
-        vertices[4].texture_coord = tr;
-        vertices[5].texture_coord = br;
+    SHIZSpriteInternalKey * sprite_key = (SHIZSpriteInternalKey *)&key;
 
-        for (uint i = 0; i < vertex_count; i++) {
-            // in order for repeated textures to work (without having to set wrapping modes, and with support for sub-textures)
-            // we have to specify the space that uv's are limited to (otherwise a sub-texture with a
-            // scaled uv would just end up using part of another subtexture- we don't want that)
-            // so this solution will simply "loop over" a scaled uv coordinate so that it is restricted
-            // within the dimensions of the expected texture
-            vertices[i].texture_coord_min = uv_min;
-            vertices[i].texture_coord_max = uv_max;
-        }
+    sprite_key->layer = layer;
+    sprite_key->layer_depth = depth;
+    sprite_key->texture_id = image.texture_id;
+    sprite_key->is_transparent = !opaque;
 
-        // range within [-1;0], where -1 is nearest (so layer 128 should be z = -1)
-        float const z = -((layer - _shiz_sprite_layer_min) / (_shiz_sprite_layer_max - _shiz_sprite_layer_min));
+    SHIZSpriteInternal * sprite_internal = &_shiz_sprites[_shiz_sprites_count];
 
-        unsigned long key = 0;
+    sprite_internal->key = key;
+    sprite_internal->angle = angle;
+    sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
 
-        SHIZSpriteInternalKey * sprite_key = (SHIZSpriteInternalKey *)&key;
+    for (uint i = 0; i < vertex_count; i++) {
+        sprite_internal->vertices[i].position = vertices[i].position;
+        sprite_internal->vertices[i].texture_coord = vertices[i].texture_coord;
+        sprite_internal->vertices[i].texture_coord_max = vertices[i].texture_coord_max;
+        sprite_internal->vertices[i].texture_coord_min = vertices[i].texture_coord_min;
+        sprite_internal->vertices[i].color = vertices[i].color;
+    }
 
-        sprite_key->layer = layer;
-        sprite_key->layer_depth = depth;
-        sprite_key->texture_id = image.texture_id;
-        sprite_key->is_transparent = !opaque;
-
-        SHIZSpriteInternal * sprite_internal = &_shiz_sprites[_shiz_sprites_count];
-
-        sprite_internal->key = key;
-        sprite_internal->angle = angle;
-        sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
-
-        for (uint i = 0; i < vertex_count; i++) {
-            sprite_internal->vertices[i].position = vertices[i].position;
-            sprite_internal->vertices[i].texture_coord = vertices[i].texture_coord;
-            sprite_internal->vertices[i].texture_coord_max = vertices[i].texture_coord_max;
-            sprite_internal->vertices[i].texture_coord_min = vertices[i].texture_coord_min;
-            sprite_internal->vertices[i].color = vertices[i].color;
-        }
-
-        _shiz_sprites_count++;
-
-        if (_shiz_sprites_count >= SHIZSpriteInternalMax) {
-            shiz_io_warning("sprite limit reached (%d); sprites may not draw as expected", SHIZSpriteInternalMax);
-
-            _shiz_flush_sprites();
-        }
+    _shiz_sprites_count += 1;
 
 #ifdef SHIZ_DEBUG
-        if (shiz_debug_context.is_enabled && shiz_debug_context.draw_sprite_shape) {
-            shiz_draw_rect_shape(SHIZRectMake(SHIZVector2Make(origin.x + anchored_rect.origin.x,
-                                                              origin.y + anchored_rect.origin.y), working_size), SHIZColorRed);
-        }
+    shiz_debug_context.sprite_count += 1;
 #endif
+    if (_shiz_sprites_count >= SHIZSpriteInternalMax) {
+        _shiz_flush_sprites();
     }
+
+#ifdef SHIZ_DEBUG
+    if (shiz_debug_context.is_enabled) {
+        if (shiz_debug_context.draw_sprite_shape) {
+            SHIZVector2 const anchored_origin = SHIZVector2Make(origin.x + anchored_rect.origin.x,
+                                                                origin.y + anchored_rect.origin.y);
+            
+            SHIZRect const shape = SHIZRectMake(anchored_origin, working_size);
+            
+            shiz_draw_rect_shape(shape, SHIZColorRed);
+        }
+    }
+#endif
 }
 
 static int _shiz_compare_sprites(const void * a, const void * b) {
@@ -334,6 +375,14 @@ static int _shiz_compare_sprites(const void * a, const void * b) {
 }
 
 static void _shiz_flush_sprites() {
+    if (_shiz_sprites_count == 0) {
+        return;
+    }
+
+    // note that this is not a "stable" sort; meaning sprites that compare equally might "switch"
+    // position between each frame, potentially causing flickering
+    // todo: this should at least be stable, so that a sorted sprite remains in position,
+    // but preferably if 2 sprites compare equally, the painter's algorithm should come into effect
     qsort(_shiz_sprites, _shiz_sprites_count, sizeof(SHIZSpriteInternal),
           _shiz_compare_sprites);
 
@@ -347,13 +396,19 @@ static void _shiz_flush_sprites() {
     _shiz_sprites_count = 0;
 }
 
-SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
+SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font,
+                                  const char * const text,
+                                  SHIZSize const bounds,
+                                  SHIZSpriteFontAttributes const attributes) {
     SHIZSpriteFontMeasurement measurement = _shiz_measure_sprite_text(font, text, bounds, attributes);
 
     return measurement.size;
 }
 
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZSize const bounds, SHIZSpriteFontAttributes const attributes) {
+static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font,
+                                                           const char * const text,
+                                                           SHIZSize const bounds,
+                                                           SHIZSpriteFontAttributes const attributes) {
     SHIZSpriteFontMeasurement measurement;
 
     measurement.size = SHIZSizeEmpty;
@@ -436,7 +491,8 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
 
         if (measurement.constrain_vertically) {
             if (line_index + 1 > measurement.max_lines_in_bounds) {
-                measurement.constrain_index = text_index - 1; // it was actually the previous character that caused a linebreak
+                // it was actually the previous character that caused a linebreak
+                measurement.constrain_index = text_index - 1;
 
                 break;
             }
@@ -473,24 +529,44 @@ static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const 
     return measurement;
 }
 
-SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment) {
+SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font,
+                               const char * const text,
+                               SHIZVector2 const origin,
+                               SHIZSpriteFontAlignment const alignment) {
     return shiz_draw_sprite_text_ex(font, text, origin, alignment,
                                     SHIZSpriteFontSizeToFit,
                                     SHIZSpriteNoTint,
                                     SHIZSpriteFontAttributesDefault);
 }
 
-SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes) {
-    return shiz_draw_sprite_text_ex_colored(font, text, origin, alignment, bounds, tint, attributes, NULL, 0);
+SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font,
+                                  const char * const text,
+                                  SHIZVector2 const origin,
+                                  SHIZSpriteFontAlignment const alignment,
+                                  SHIZSize const bounds,
+                                  SHIZColor const tint,
+                                  SHIZSpriteFontAttributes const attributes) {
+    return shiz_draw_sprite_text_ex_colored(font, text,
+                                            origin, alignment, bounds,
+                                            tint, attributes, NULL, 0);
 }
 
-SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes, SHIZColor * const highlight_colors, uint const highlight_color_count) {
+SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
+                                          const char * const text,
+                                          SHIZVector2 const origin,
+                                          SHIZSpriteFontAlignment const alignment,
+                                          SHIZSize const bounds,
+                                          SHIZColor const tint,
+                                          SHIZSpriteFontAttributes const attributes,
+                                          SHIZColor * const highlight_colors,
+                                          uint const highlight_color_count) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;
     character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
 
-    SHIZSpriteFontMeasurement const measurement = _shiz_measure_sprite_text(font, text, bounds, attributes);
+    SHIZSpriteFontMeasurement const measurement = _shiz_measure_sprite_text(font, text, bounds,
+                                                                            attributes);
 
     uint const truncation_length = 3;
     char const truncation_character = '.';
@@ -509,14 +585,15 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
 
     uint text_index = 0;
 
-    bool should_break_from_truncation = false;
+    bool break_from_truncation = false;
 
     SHIZColor highlight_color = tint;
 
     for (uint line_index = 0; line_index < measurement.line_count; line_index++) {
         SHIZSpriteFontLine const line = measurement.lines[line_index];
 
-        float const line_width_perceived = line.size.width - (line.ignored_character_count * measurement.character_size_perceived.width);
+        float const line_width_perceived = line.size.width - (line.ignored_character_count *
+                                                              measurement.character_size_perceived.width);
 
         if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
             character_origin.x -= line_width_perceived / 2;
@@ -527,11 +604,12 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
         uint const line_character_count = line.size.width / measurement.character_size_perceived.width;
 
         for (int character_index = 0; character_index < line_character_count && text_index < strlen(text); character_index++) {
-            bool const should_truncate = measurement.constrain_index != -1 && (text_index > measurement.constrain_index - truncation_length);
+            bool const should_truncate = (measurement.constrain_index != -1 &&
+                                          text_index > (measurement.constrain_index - truncation_length));
 
-            should_break_from_truncation = measurement.constrain_index == text_index;
+            break_from_truncation = measurement.constrain_index == text_index;
 
-            char character = should_truncate ? truncation_character : text[text_index];
+            char const character = should_truncate ? truncation_character : text[text_index];
 
             text_index += 1;
 
@@ -571,12 +649,14 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
                 character_table_index = -1;
             }
 
-            bool const should_skip_leading_whitespace = !font.includes_whitespace && attributes.wrap == SHIZSpriteFontWrapModeWord;
-            bool const is_leading_whitespace = character_index == 0 && character == whitespace_character;
+            bool const skip_leading_whitespace = (attributes.wrap == SHIZSpriteFontWrapModeWord &&
+                                                  !font.includes_whitespace);
+            bool const is_leading_whitespace = (character == whitespace_character &&
+                                                character_index == 0);
 
             bool character_takes_space = true;
 
-            if (is_leading_whitespace && should_skip_leading_whitespace) {
+            if (is_leading_whitespace && skip_leading_whitespace) {
                 character_takes_space = false;
 
                 // the index has already been incremented once, so we have to step back by 2
@@ -586,21 +666,25 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
                     char const previous_character = text[previous_text_index];
 
                     if (previous_character == newline_character) {
-                        // this was an explicit line-break, so the leading whitespace is probably intentional
+                        // this was an explicit line-break,
+                        // so the leading whitespace is probably intentional
                         character_takes_space = true;
                     }
                 }
             }
 
             if (character_table_index != -1) {
-                bool can_draw_character = character != whitespace_character || font.includes_whitespace;
+                bool can_draw_character = (character != whitespace_character ||
+                                           font.includes_whitespace);
 
                 if (can_draw_character) {
-                    uint const character_row = (int)(character_table_index / (int)font.table.columns);
-                    uint const character_column = character_table_index % (int)font.table.columns;
+                    uint const character_row = (int)(character_table_index / font.table.columns);
+                    uint const character_column = character_table_index % font.table.columns;
 
-                    character_sprite.source.origin.x = font.sprite.source.origin.x + (font.character.width * character_column);
-                    character_sprite.source.origin.y = font.sprite.source.origin.y + (font.character.height * character_row);
+                    character_sprite.source.origin.x = (font.sprite.source.origin.x +
+                                                        (font.character.width * character_column));
+                    character_sprite.source.origin.y = (font.sprite.source.origin.y +
+                                                        (font.character.height * character_row));
 
                     shiz_draw_sprite_ex(character_sprite, character_origin,
                                         measurement.character_size,
@@ -614,7 +698,7 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
                 character_origin.x += measurement.character_size_perceived.width;
             }
 
-            if (should_break_from_truncation) {
+            if (break_from_truncation) {
                 // we need to break out of everything once we reach the final visible character
                 break;
             }
@@ -623,7 +707,7 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char 
         character_origin.x = origin.x;
         character_origin.y -= line.size.height;
         
-        if (should_break_from_truncation) {
+        if (break_from_truncation) {
             break;
         }
     }
@@ -639,6 +723,7 @@ static void _shiz_debug_build_stats() {
             "\4%.0fx%.0f\1@\5%.0fx%.0f\1\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
             "\2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
+            "%c%d/%d sprites/frame\1\n"
             "\2%d draws/frame\1",
             viewport.screen.width, viewport.screen.height,
             viewport.framebuffer.width, viewport.framebuffer.height,
@@ -648,6 +733,8 @@ static void _shiz_debug_build_stats() {
             shiz_gfx_debug_get_frames_per_second_min(),
             shiz_gfx_debug_get_frames_per_second_avg(),
             shiz_gfx_debug_get_frames_per_second_max(),
+            (shiz_debug_context.sprite_count > SHIZSpriteInternalMax ? '\3' : '\2'),
+            shiz_debug_context.sprite_count, SHIZSpriteInternalMax,
             // note that draw count will also include the debug stuff, so in production
             // this count may actually be smaller (likely not significantly smaller, though)
             shiz_gfx_debug_get_draw_count());
@@ -663,12 +750,16 @@ static void _shiz_debug_display_stats() {
         SHIZColorFromHex(0x20b1fc) // blue
     };
 
+    SHIZVector2 stats_text_origin =
+    SHIZVector2Make(shiz_context.preferred_screen_size.width - margin,
+                    shiz_context.preferred_screen_size.height - margin);
+
     shiz_draw_sprite_text_ex_colored(shiz_debug_font,
                                      _shiz_debug_font_buffer,
-                                     SHIZVector2Make(shiz_context.preferred_screen_size.width - margin,
-                                                     shiz_context.preferred_screen_size.height - margin),
+                                     stats_text_origin,
                                      SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
-                                     SHIZSpriteFontSizeToFit, SHIZSpriteNoTint, SHIZSpriteFontAttributesDefault,
+                                     SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
+                                     SHIZSpriteFontAttributesDefault,
                                      highlight_colors, 4);
 }
 

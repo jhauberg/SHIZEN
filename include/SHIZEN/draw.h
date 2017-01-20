@@ -41,13 +41,21 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
 /**
  * @brief Draw a filled rectangle.
  */
-void shiz_draw_rect(SHIZRect const rect, SHIZColor const color);
-void shiz_draw_rect_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle);
+void shiz_draw_rect(SHIZRect const rect,
+                    SHIZColor const color);
+void shiz_draw_rect_ex(SHIZRect const rect,
+                       SHIZColor const color,
+                       SHIZVector2 const anchor,
+                       float const angle);
 /**
  * @brief Draw a rectangle.
  */
-void shiz_draw_rect_shape(SHIZRect const rect, SHIZColor const color);
-void shiz_draw_rect_shape_ex(SHIZRect const rect, SHIZColor const color, SHIZVector2 const anchor, float const angle);
+void shiz_draw_rect_shape(SHIZRect const rect,
+                          SHIZColor const color);
+void shiz_draw_rect_shape_ex(SHIZRect const rect,
+                             SHIZColor const color,
+                             SHIZVector2 const anchor,
+                             float const angle);
 
 /**
  * @brief Draw a sprite.
@@ -67,8 +75,9 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  * @param anchor
  *        Sets an anchor that defines where on the sprite the origin is.
  *        The anchor also defines the pivot point for any applied rotation.
- *        The anchor is relative to the entire sprite; e.g. { 0, 0 } defines a pivot at the center, { -1, 0 } at the
- *        middle-left of the sprite, and { 1, 0 } defines a pivot at the middle-right.
+ *        The anchor is relative to the entire sprite; e.g. { 0, 0 } defines a pivot
+ *        at the center, { -1, 0 } at the middle-left of the sprite, and { 1, 0 } defines
+ *        a pivot at the middle-right.
  *        Similarly, { 1, 1 } defines a pivot at the top-right, and { -1, 1 } at the top-left
  * @param angle
  *        The angle in radians to rotate the sprite by (rotation is applied on
@@ -172,7 +181,21 @@ SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font,
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
-SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes);
-SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font, const char * const text, SHIZVector2 const origin, SHIZSpriteFontAlignment const alignment, SHIZSize const bounds, SHIZColor const tint, SHIZSpriteFontAttributes const attributes, SHIZColor * const highlight_colors, uint const highlight_color_count);
+SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font,
+                                  const char * const text,
+                                  SHIZVector2 const origin,
+                                  SHIZSpriteFontAlignment const alignment,
+                                  SHIZSize const bounds,
+                                  SHIZColor const tint,
+                                  SHIZSpriteFontAttributes const attributes);
+SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
+                                          const char * const text,
+                                          SHIZVector2 const origin,
+                                          SHIZSpriteFontAlignment const alignment,
+                                          SHIZSize const bounds,
+                                          SHIZColor const tint,
+                                          SHIZSpriteFontAttributes const attributes,
+                                          SHIZColor * const highlight_colors,
+                                          uint const highlight_color_count);
 
 #endif // draw_h

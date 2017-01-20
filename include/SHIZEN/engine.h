@@ -58,7 +58,8 @@ extern const SHIZWindowSettings SHIZWindowSettingsDefault;
  * @remark This function has no effect if SHIZEN was already initialized successfully.
  *
  * @param settings 
- *        A SHIZWindowSettings object with values and flags that controls the resulting graphics context
+ *        A SHIZWindowSettings object with values and flags that
+ *        controls the resulting graphics context
  *
  * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
@@ -125,10 +126,16 @@ SHIZSprite shiz_load_sprite_src(const char * const filename, SHIZRect const sour
 SHIZSprite shiz_get_sprite(uint const resource_id);
 SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect const source);
 
-SHIZSpriteFont shiz_load_sprite_font(const char * const filename, SHIZSize const character);
-SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename, SHIZSize const character, SHIZSpriteFontTable const table);
+SHIZSpriteFont shiz_load_sprite_font(const char * const filename,
+                                     SHIZSize const character);
+SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename,
+                                        SHIZSize const character,
+                                        SHIZSpriteFontTable const table);
 
-SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character);
-SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite, SHIZSize const character, SHIZSpriteFontTable const table);
+SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite,
+                                    SHIZSize const character);
+SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite,
+                                       SHIZSize const character,
+                                       SHIZSpriteFontTable const table);
 
 #endif // engine_h

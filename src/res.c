@@ -15,9 +15,10 @@
 #include "res.font.h"
 #include "io.h"
 
-static bool _shiz_load_image_handler(int width, int height, int components, unsigned char * const data);
+static bool _shiz_load_image_handler(int width, int height, int components,
+                                     unsigned char * const data);
 
-static SHIZResourceImage *_shiz_load_image_resource; // temporary pointer to the resource being loaded
+static SHIZResourceImage *_shiz_load_image_resource; // temporary pointer to the image being loaded
 
 static bool _shiz_res_is_image(uint const resource_id);
 static bool _shiz_res_is_sound(uint const resource_id);
@@ -279,7 +280,8 @@ static uint _shiz_res_next_id(SHIZResourceType const type, uint * index) {
     return resource_id_invalid;
 }
 
-static bool _shiz_load_image_handler(int width, int height, int components, unsigned char * const data) {
+static bool _shiz_load_image_handler(int width, int height, int components,
+                                     unsigned char * const data) {
     if (_shiz_load_image_resource == NULL) {
         return false;
     }
