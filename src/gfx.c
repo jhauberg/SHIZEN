@@ -25,6 +25,11 @@ static void _shiz_gfx_debug_update_frame_stats(void);
 static void _shiz_gfx_debug_update_frame_averages(void);
 static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
 static shiz_gfx_debug_event_callback * _shiz_gfx_debug_event;
+
+static const char * const _shiz_gfx_debug_event_flush = "FLUSH";
+static const char * const _shiz_gfx_debug_event_flush_capacity = "FLUSH (CAP)";
+static const char * const _shiz_gfx_debug_event_flush_texture_switch = "FLUSH (TEX)";
+
 #endif
 
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source);
@@ -352,7 +357,7 @@ void shiz_gfx_flush() {
 
 #ifdef SHIZ_DEBUG
         if (_shiz_gfx_debug_event) {
-            _shiz_gfx_debug_event("FLUSH", event_origin);
+            _shiz_gfx_debug_event(_shiz_gfx_debug_event_flush, event_origin);
         }
 #endif
     }
@@ -444,7 +449,7 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
 
 #ifdef SHIZ_DEBUG
         if (_shiz_gfx_debug_event) {
-            _shiz_gfx_debug_event("FLUSH (TEX)", origin);
+            _shiz_gfx_debug_event(_shiz_gfx_debug_event_flush_texture_switch, origin);
         }
 #endif
     }
@@ -456,7 +461,7 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
 
 #ifdef SHIZ_DEBUG
         if (_shiz_gfx_debug_event) {
-            _shiz_gfx_debug_event("FLUSH (CAP)", origin);
+            _shiz_gfx_debug_event(_shiz_gfx_debug_event_flush_capacity, origin);
         }
 #endif
     }
