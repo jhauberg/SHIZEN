@@ -17,11 +17,11 @@
 #include <math.h>
 
 #include "internal.h"
+#include "sprite.h"
+#include "spritefont.h"
 #include "gfx.h"
 #include "res.h"
 #include "io.h"
-
-static SHIZRect _shiz_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor);
 
 static void _shiz_draw_rect(SHIZRect const rect,
                             SHIZColor const color,
@@ -32,27 +32,12 @@ static void _shiz_draw_rect(SHIZRect const rect,
 static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color);
 static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
 
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font,
-                                                           const char * const text,
-                                                           SHIZSize const bounds,
-                                                           SHIZSpriteFontAttributes const attributes);
-
-static int _shiz_compare_sprites(const void * a, const void * b);
-static void _shiz_flush_sprites(void);
-
-static uint _shiz_sprites_count = 0;
-
-static SHIZSpriteInternal _shiz_sprites[SHIZSpriteInternalMax];
-
-static unsigned short const _shiz_sprite_layer_min = 0;
-static unsigned short const _shiz_sprite_layer_max = USHRT_MAX;
-
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_event(const char * event, SHIZVector3 const origin);
 static void _shiz_debug_process_errors(void);
 static void _shiz_debug_build_stats(void);
 static void _shiz_debug_draw_stats(void);
-static void _shiz_debug_draw_sprite_shape(SHIZRect const shape, SHIZVector2 const origin);
+static void _shiz_debug_draw_events(void);
 
 static char _shiz_debug_stats_buffer[256];
 #endif
@@ -61,10 +46,13 @@ void shiz_drawing_begin() {
     shiz_gfx_clear();
 
 #ifdef SHIZ_DEBUG
+    shiz_gfx_debug_set_event_callback(_shiz_debug_event);
+
     if (shiz_debug_context.is_enabled) {
         _shiz_debug_draw_stats();
-        _shiz_flush_sprites();
+        _shiz_debug_draw_events();
 
+        shiz_sprite_flush();
         shiz_gfx_flush();
     }
 
@@ -75,14 +63,11 @@ void shiz_drawing_begin() {
 
 #ifdef SHIZ_DEBUG
     shiz_debug_context.sprite_count = 0;
-    shiz_gfx_debug_set_event_callback(_shiz_debug_event);
 #endif
 }
 
 void shiz_drawing_end() {
-    if (_shiz_sprites_count > 0) {
-        _shiz_flush_sprites();
-    }
+    shiz_sprite_flush();
 
     shiz_gfx_end();
 
@@ -131,19 +116,6 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
     shiz_draw_path_3d(points3, count, color);
 }
 
-SHIZRect _shiz_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) {
-    float const hw = size.width / 2;
-    float const hh = size.height / 2;
-    
-    float const dx = hw * -anchor.x;
-    float const dy = hh * -anchor.y;
-    
-    float const l = dx - hw;
-    float const b = dy - hh;
-    
-    return SHIZRectMake(SHIZVector2Make(l, b), size);
-}
-
 static void _shiz_draw_rect(SHIZRect const rect,
                             SHIZColor const color,
                             bool const fill,
@@ -159,7 +131,7 @@ static void _shiz_draw_rect(SHIZRect const rect,
 
     SHIZVector3 const origin = SHIZVector3Make(rect.origin.x, rect.origin.y, 0);
 
-    SHIZRect const anchored_rect = _shiz_get_anchored_rect(rect.size, anchor);
+    SHIZRect const anchored_rect = shiz_sprite_get_anchored_rect(rect.size, anchor);
     
     float const l = anchored_rect.origin.x;
     float const r = anchored_rect.origin.x + anchored_rect.size.width;
@@ -230,311 +202,37 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite,
                          bool const opaque,
                          unsigned char const layer,
                          unsigned short const depth) {
-    SHIZResourceImage image = shiz_res_get_image(sprite.resource_id);
-
-    if (image.id != sprite.resource_id) {
-        return;
-    }
-
-    uint const vertex_count = 6;
-
-    SHIZVertexPositionColorTexture vertices[vertex_count];
-
-    for (uint i = 0; i < vertex_count; i++) {
-        vertices[i].color = tint;
-    }
-
-    SHIZSize const working_size = (size.width == SHIZSpriteSizeIntrinsic.width &&
-                                   size.height == SHIZSpriteSizeIntrinsic.height) ? sprite.source.size : size;
-
-    SHIZRect const anchored_rect = _shiz_get_anchored_rect(working_size, anchor);
-    
-    float const l = anchored_rect.origin.x;
-    float const r = anchored_rect.origin.x + anchored_rect.size.width;
-    float const b = anchored_rect.origin.y;
-    float const t = anchored_rect.origin.y + anchored_rect.size.height;
-    
-    SHIZVector2 bl = SHIZVector2Make(l, b);
-    SHIZVector2 tl = SHIZVector2Make(l, t);
-    SHIZVector2 tr = SHIZVector2Make(r, t);
-    SHIZVector2 br = SHIZVector2Make(r, b);
-
-    vertices[0].position = SHIZVector3Make(tl.x, tl.y, 0);
-    vertices[1].position = SHIZVector3Make(br.x, br.y, 0);
-    vertices[2].position = SHIZVector3Make(bl.x, bl.y, 0);
-
-    vertices[3].position = SHIZVector3Make(tl.x, tl.y, 0);
-    vertices[4].position = SHIZVector3Make(tr.x, tr.y, 0);
-    vertices[5].position = SHIZVector3Make(br.x, br.y, 0);
-
-    SHIZRect source = sprite.source;
-
-    bool const flip_vertically = true;
-
-    if (flip_vertically) {
-        // opengl assumes that the origin of textures is at the bottom-left of the image,
-        // however, it is common to specify top-left as origin when using e.g. sprite sheets (and we want that)
-        // so, assuming that the provided source frame expects the top-left to be the origin,
-        // we have to flip the specified coordinate so that the origin becomes bottom-left
-        source.origin.y = (image.height - source.size.height) - source.origin.y;
-    }
-
-    SHIZVector2 const uv_min = SHIZVector2Make((source.origin.x / image.width),
-                                               (source.origin.y / image.height));
-    SHIZVector2 const uv_max = SHIZVector2Make(((source.origin.x + source.size.width) / image.width),
-                                               ((source.origin.y + source.size.height) / image.height));
-
-    float uv_scale_x = 1;
-    float uv_scale_y = 1;
-
-    if (repeat) {
-        // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
-        if (working_size.width > sprite.source.size.width) {
-            uv_scale_x = working_size.width / sprite.source.size.width;
-        }
-
-        if (working_size.height > sprite.source.size.height) {
-            uv_scale_y = working_size.height / sprite.source.size.height;
-        }
-    }
-
-    tl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_max.y * uv_scale_y);
-    br = SHIZVector2Make(uv_max.x * uv_scale_x, uv_min.y * uv_scale_y);
-    bl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_min.y * uv_scale_y);
-    tr = SHIZVector2Make(uv_max.x * uv_scale_x, uv_max.y * uv_scale_y);
-
-    vertices[0].texture_coord = tl;
-    vertices[1].texture_coord = br;
-    vertices[2].texture_coord = bl;
-
-    vertices[3].texture_coord = tl;
-    vertices[4].texture_coord = tr;
-    vertices[5].texture_coord = br;
-
-    for (uint i = 0; i < vertex_count; i++) {
-        // in order for repeated textures to work (without having to set wrapping modes,
-        // and with support for sub-textures) we have to specify the space that
-        // uv's are limited to (otherwise a sub-texture with a scaled uv would
-        // just end up using part of another subtexture- we don't want that) so this solution
-        // will simply "loop over" a scaled uv coordinate so that it is restricted
-        // within the dimensions of the expected texture
-        vertices[i].texture_coord_min = uv_min;
-        vertices[i].texture_coord_max = uv_max;
-    }
-
-    // range within [-1;0], where -1 is nearest (so layer 128 should be z = -1)
-    float const z = -((layer - _shiz_sprite_layer_min) /
-                      (_shiz_sprite_layer_max - _shiz_sprite_layer_min));
-
-    unsigned long key = 0;
-
-    SHIZSpriteInternalKey * sprite_key = (SHIZSpriteInternalKey *)&key;
-
-    sprite_key->layer = layer;
-    sprite_key->layer_depth = depth;
-    sprite_key->texture_id = image.texture_id;
-    sprite_key->is_transparent = !opaque;
-
-    SHIZSpriteInternal * sprite_internal = &_shiz_sprites[_shiz_sprites_count];
-
-    sprite_internal->key = key;
-    sprite_internal->angle = angle;
-    sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
-    sprite_internal->order = _shiz_sprites_count;
-
-    for (uint i = 0; i < vertex_count; i++) {
-        sprite_internal->vertices[i].position = vertices[i].position;
-        sprite_internal->vertices[i].texture_coord = vertices[i].texture_coord;
-        sprite_internal->vertices[i].texture_coord_max = vertices[i].texture_coord_max;
-        sprite_internal->vertices[i].texture_coord_min = vertices[i].texture_coord_min;
-        sprite_internal->vertices[i].color = vertices[i].color;
-    }
-
-    _shiz_sprites_count += 1;
+    SHIZSize const sprite_size = shiz_sprite_draw(sprite, origin, size,
+                                                  anchor, angle, tint,
+                                                  repeat, opaque,
+                                                  layer, depth);
 
 #ifdef SHIZ_DEBUG
     shiz_debug_context.sprite_count += 1;
-#endif
-    if (_shiz_sprites_count >= SHIZSpriteInternalMax) {
-        _shiz_flush_sprites();
-    }
 
-#ifdef SHIZ_DEBUG
     if (shiz_debug_context.is_enabled) {
         if (shiz_debug_context.draw_sprite_shape) {
-            _shiz_debug_draw_sprite_shape(anchored_rect, origin);
+            float const anchor_size = 2;
+
+            shiz_draw_rect_shape_ex(SHIZRectMake(origin, sprite_size),
+                                    SHIZColorRed, anchor, angle);
+            shiz_draw_rect(SHIZRectMake(SHIZVector2Make(origin.x - (anchor_size / 2),
+                                                        origin.y - (anchor_size / 2 )),
+                                        SHIZSizeMake(anchor_size, anchor_size)),
+                           SHIZColorRed);
         }
     }
 #endif
-}
-
-static int _shiz_compare_sprites(const void * a, const void * b) {
-    SHIZSpriteInternal const * lhs = (SHIZSpriteInternal *)a;
-    SHIZSpriteInternal const * rhs = (SHIZSpriteInternal *)b;
-
-    if (lhs->key < rhs->key) {
-        return -1;
-    } else if (lhs->key > rhs->key) {
-        return 1;
-    } else if (lhs->order < rhs->order) {
-        return -1;
-    } else if (lhs->order > rhs->order) {
-        return 1;
-    }
-
-    return 0;
-}
-
-static void _shiz_flush_sprites() {
-    if (_shiz_sprites_count == 0) {
-        return;
-    }
-
-    // sort sprites based on their layer parameters, but also optimized for reduced state switching
-    qsort(_shiz_sprites, _shiz_sprites_count, sizeof(SHIZSpriteInternal),
-          _shiz_compare_sprites);
-
-    for (uint sprite_index = 0; sprite_index < _shiz_sprites_count; sprite_index++) {
-        SHIZSpriteInternal const sprite = _shiz_sprites[sprite_index];
-        SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
-
-        shiz_gfx_render_quad(sprite.vertices, sprite.origin, sprite.angle, sprite_key->texture_id);
-    }
-
-    _shiz_sprites_count = 0;
 }
 
 SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font,
                                   const char * const text,
                                   SHIZSize const bounds,
                                   SHIZSpriteFontAttributes const attributes) {
-    SHIZSpriteFontMeasurement measurement = _shiz_measure_sprite_text(font, text, bounds, attributes);
+    SHIZSpriteFontMeasurement const measurement = shiz_sprite_measure_text(font, text,
+                                                                           bounds, attributes);
 
     return measurement.size;
-}
-
-static SHIZSpriteFontMeasurement _shiz_measure_sprite_text(SHIZSpriteFont const font,
-                                                           const char * const text,
-                                                           SHIZSize const bounds,
-                                                           SHIZSpriteFontAttributes const attributes) {
-    SHIZSpriteFontMeasurement measurement;
-
-    measurement.size = SHIZSizeEmpty;
-    measurement.constrain_index = -1; // no truncation
-
-    SHIZSprite character_sprite = SHIZSpriteEmpty;
-
-    character_sprite.resource_id = font.sprite.resource_id;
-    character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
-
-    measurement.character_size = SHIZSizeMake(character_sprite.source.size.width * attributes.scale.x,
-                                              character_sprite.source.size.height * attributes.scale.y);
-
-    measurement.character_size_perceived = SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
-                                                        measurement.character_size.height);
-
-    measurement.constrain_horizontally = bounds.width != SHIZSpriteFontSizeToFit.width;
-    measurement.constrain_vertically = bounds.height != SHIZSpriteFontSizeToFit.height;
-
-    measurement.max_characters_per_line = floor(bounds.width / measurement.character_size_perceived.width);
-    measurement.max_lines_in_bounds = floor(bounds.height / measurement.character_size_perceived.height);
-
-    float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
-
-    uint text_index = 0;
-    uint line_index = 0;
-    uint line_character_count = 0;
-    uint line_character_ignored_count = 0;
-
-    char const whitespace_character = ' ';
-    char const newline_character = '\n';
-
-    const char * text_ptr = text;
-
-    while (*text_ptr) {
-        char character = *text_ptr;
-
-        text_ptr += _shiz_get_char_size(character);
-
-        bool const break_line_explicit = character == newline_character;
-        bool const break_line_required = (measurement.constrain_horizontally &&
-                                          line_character_count >= measurement.max_characters_per_line);
-
-        if (break_line_explicit || break_line_required) {
-            if (break_line_required && attributes.wrap == SHIZSpriteFontWrapModeWord) {
-                // backtrack until finding a whitespace
-                while (*text_ptr) {
-                    text_ptr -= _shiz_get_char_size(character);
-                    text_index -= 1;
-
-                    character = *text_ptr;
-
-                    if (*text_ptr == whitespace_character) {
-                        break;
-                    }
-
-                    if (line_character_count > 0) {
-                        line_character_count -= 1;
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            measurement.lines[line_index].size.width = line_character_count * measurement.character_size_perceived.width;
-            measurement.lines[line_index].size.height = line_height;
-            measurement.lines[line_index].ignored_character_count = line_character_ignored_count;
-
-            line_character_ignored_count = 0;
-            line_character_count = 0;
-            line_index += 1;
-
-            if (line_index > SHIZSpriteFontMaxLines) {
-                // this is bad
-                break;
-            }
-
-            continue;
-        }
-
-        if (measurement.constrain_vertically) {
-            if (line_index + 1 > measurement.max_lines_in_bounds) {
-                // it was actually the previous character that caused a linebreak
-                measurement.constrain_index = text_index - 1;
-
-                break;
-            }
-        }
-
-        if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
-            character == '\5' || character == '\6' || character == '\7') {
-            // increment ignored characters, but otherwise proceed as usual
-            line_character_ignored_count += 1;
-        }
-
-        // leave a space even if the character was not found
-        line_character_count += 1;
-
-        measurement.lines[line_index].size.width = line_character_count * measurement.character_size_perceived.width;
-        measurement.lines[line_index].size.height = line_height;
-        measurement.lines[line_index].ignored_character_count = line_character_ignored_count;
-
-        text_index += 1;
-    }
-
-    measurement.line_count = line_index + 1;
-    measurement.size.height = measurement.line_count * line_height;
-
-    for (line_index = 0; line_index < measurement.line_count; line_index++) {
-        SHIZSpriteFontLine const line = measurement.lines[line_index];
-
-        if (line.size.width > measurement.size.width) {
-            // use the widest occurring line width
-            measurement.size.width = line.size.width;
-        }
-    }
-
-    return measurement;
 }
 
 SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font,
@@ -568,159 +266,10 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                                           SHIZSpriteFontAttributes const attributes,
                                           SHIZColor * const highlight_colors,
                                           uint const highlight_color_count) {
-    SHIZSprite character_sprite = SHIZSpriteEmpty;
-
-    character_sprite.resource_id = font.sprite.resource_id;
-    character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
-
-    SHIZSpriteFontMeasurement const measurement = _shiz_measure_sprite_text(font, text, bounds,
-                                                                            attributes);
-
-    uint const truncation_length = 3;
-    char const truncation_character = '.';
-    char const whitespace_character = ' ';
-    char const newline_character = '\n';
-
-    SHIZVector2 character_origin = origin;
-
-    if ((alignment & SHIZSpriteFontAlignmentTop) == SHIZSpriteFontAlignmentTop) {
-        // intenionally left blank; no operation necessary
-    } else if ((alignment & SHIZSpriteFontAlignmentMiddle) == SHIZSpriteFontAlignmentMiddle) {
-        character_origin.y += measurement.size.height / 2;
-    } else if ((alignment & SHIZSpriteFontAlignmentBottom) == SHIZSpriteFontAlignmentBottom) {
-        character_origin.y += measurement.size.height;
-    }
-
-    uint text_index = 0;
-
-    bool break_from_truncation = false;
-
-    SHIZColor highlight_color = tint;
-
-    for (uint line_index = 0; line_index < measurement.line_count; line_index++) {
-        SHIZSpriteFontLine const line = measurement.lines[line_index];
-
-        float const line_width_perceived = line.size.width - (line.ignored_character_count *
-                                                              measurement.character_size_perceived.width);
-
-        if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
-            character_origin.x -= line_width_perceived / 2;
-        } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
-            character_origin.x -= line_width_perceived;
-        }
-
-        uint const line_character_count = line.size.width / measurement.character_size_perceived.width;
-
-        for (int character_index = 0; character_index < line_character_count && text_index < strlen(text); character_index++) {
-            bool const should_truncate = (measurement.constrain_index != -1 &&
-                                          text_index > (measurement.constrain_index - truncation_length));
-
-            break_from_truncation = measurement.constrain_index == text_index;
-
-            char const character = should_truncate ? truncation_character : text[text_index];
-
-            text_index += 1;
-
-            if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
-                character == '\5' || character == '\6' || character == '\7') {
-                // these characters are only used for tinting purposes and will be ignored/skipped otherwise
-                if (highlight_colors && highlight_color_count > 0) {
-                    int const highlight_color_index = character - 2;
-
-                    if (highlight_color_index < 0) {
-                        highlight_color = tint;
-                    } else {
-                        if (highlight_color_index < highlight_color_count) {
-                            highlight_color = highlight_colors[highlight_color_index];
-                        }
-                    }
-                }
-
-                continue;
-            }
-
-            if (character == newline_character) {
-                // ignore newlines and just proceed as if this iteration never happened
-                // note that this may cause character_index to go negative, and because of this
-                // the loop could go on indefinitely unless we add an additional constraint;
-                // namely whether we're still going through the actual string (i.e. text_index)
-                // and have not passed beyond its length
-                character_index--;
-
-                continue;
-            }
-
-            int character_table_index = character - font.table.offset;
-
-            if (character_table_index < 0 ||
-                character_table_index > font.table.columns * font.table.rows) {
-                character_table_index = -1;
-            }
-
-            bool const skip_leading_whitespace = (attributes.wrap == SHIZSpriteFontWrapModeWord &&
-                                                  !font.includes_whitespace);
-            bool const is_leading_whitespace = (character == whitespace_character &&
-                                                character_index == 0);
-
-            bool character_takes_space = true;
-
-            if (is_leading_whitespace && skip_leading_whitespace) {
-                character_takes_space = false;
-
-                // the index has already been incremented once, so we have to step back by 2
-                int const previous_text_index = text_index - 2;
-
-                if (previous_text_index >= 0) {
-                    char const previous_character = text[previous_text_index];
-
-                    if (previous_character == newline_character) {
-                        // this was an explicit line-break,
-                        // so the leading whitespace is probably intentional
-                        character_takes_space = true;
-                    }
-                }
-            }
-
-            if (character_table_index != -1) {
-                bool can_draw_character = (character != whitespace_character ||
-                                           font.includes_whitespace);
-
-                if (can_draw_character) {
-                    uint const character_row = (int)(character_table_index / font.table.columns);
-                    uint const character_column = character_table_index % font.table.columns;
-
-                    character_sprite.source.origin.x = (font.sprite.source.origin.x +
-                                                        (font.character.width * character_column));
-                    character_sprite.source.origin.y = (font.sprite.source.origin.y +
-                                                        (font.character.height * character_row));
-
-                    shiz_draw_sprite_ex(character_sprite, character_origin,
-                                        measurement.character_size,
-                                        SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle,
-                                        highlight_color, SHIZSpriteNoRepeat, false,
-                                        SHIZSpriteLayerDefault, SHIZSpriteLayerDepthDefault);
-                }
-            }
-
-            if (character_takes_space) {
-                character_origin.x += measurement.character_size_perceived.width;
-            }
-
-            if (break_from_truncation) {
-                // we need to break out of everything once we reach the final visible character
-                break;
-            }
-        }
-        
-        character_origin.x = origin.x;
-        character_origin.y -= line.size.height;
-        
-        if (break_from_truncation) {
-            break;
-        }
-    }
-    
-    return measurement.size;
+    return shiz_sprite_draw_text(font, text,
+                                 origin, alignment, bounds,
+                                 tint, attributes,
+                                 highlight_colors, highlight_color_count);
 }
 
 #ifdef SHIZ_DEBUG
@@ -728,7 +277,6 @@ static void _shiz_debug_build_stats() {
     SHIZViewport const viewport = shiz_gfx_get_viewport();
 
     sprintf(_shiz_debug_stats_buffer,
-            "SHIZEN (ALPHA) / "
             "\4%.0fx%.0f\1@\5%.0fx%.0f\1\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
             "\2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
@@ -761,27 +309,8 @@ static void _shiz_debug_event(const char * event, SHIZVector3 const origin) {
     }
 }
 
-static void _shiz_debug_draw_stats() {
+static void _shiz_debug_draw_events() {
     uint const margin = 8;
-
-    SHIZColor highlight_colors[] = {
-        SHIZColorFromHex(0xefec0d), // yellow
-        SHIZColorFromHex(0xe5152d), // red
-        SHIZColorFromHex(0x36cd33), // green
-        SHIZColorFromHex(0x20b1fc) // blue
-    };
-
-    SHIZVector2 stats_text_origin =
-    SHIZVector2Make(shiz_context.preferred_screen_size.width - margin,
-                    shiz_context.preferred_screen_size.height - margin);
-
-    shiz_draw_sprite_text_ex_colored(shiz_debug_font,
-                                     _shiz_debug_stats_buffer,
-                                     stats_text_origin,
-                                     SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
-                                     SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
-                                     SHIZSpriteFontAttributesDefault,
-                                     highlight_colors, 4);
 
     for (uint i = 0; i < shiz_debug_context.event_count; i++) {
         SHIZDebugEvent const event = shiz_debug_context.events[i];
@@ -810,19 +339,27 @@ static void _shiz_debug_draw_stats() {
     }
 }
 
-static void _shiz_debug_draw_sprite_shape(SHIZRect const shape, SHIZVector2 const origin) {
-    SHIZRect const anchored_shape = SHIZRectMake(SHIZVector2Make(origin.x + shape.origin.x,
-                                                                 origin.y + shape.origin.y),
-                                        shape.size);
+static void _shiz_debug_draw_stats() {
+    uint const margin = 8;
 
-    shiz_draw_rect_shape(anchored_shape, SHIZColorRed);
+    SHIZColor highlight_colors[] = {
+        SHIZColorFromHex(0xefec0d), // yellow
+        SHIZColorFromHex(0xe5152d), // red
+        SHIZColorFromHex(0x36cd33), // green
+        SHIZColorFromHex(0x20b1fc) // blue
+    };
 
-    SHIZVector2 anchor_origin = SHIZVector2Make(origin.x - 1,
-                                                origin.y - 1);
+    SHIZVector2 stats_text_origin =
+    SHIZVector2Make(shiz_context.preferred_screen_size.width - margin,
+                    shiz_context.preferred_screen_size.height - margin);
 
-    SHIZRect const anchor_shape = SHIZRectMake(anchor_origin, SHIZSizeMake(2, 2));
-
-    shiz_draw_rect(anchor_shape, SHIZColorRed);
+    shiz_draw_sprite_text_ex_colored(shiz_debug_font,
+                                     _shiz_debug_stats_buffer,
+                                     stats_text_origin,
+                                     SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
+                                     SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
+                                     SHIZSpriteFontAttributesDefault,
+                                     highlight_colors, 4);
 }
 
 static void _shiz_debug_process_errors() {

@@ -337,8 +337,6 @@ void shiz_gfx_begin() {
 void shiz_gfx_end() {
     shiz_gfx_flush();
 
-
-
 #ifdef SHIZ_DEBUG
     _shiz_gfx_debug_update_frame_stats();
 #endif
