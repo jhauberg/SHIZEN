@@ -67,6 +67,8 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
                           float const angle,
                           GLuint const texture_id);
 
+void shiz_gfx_flush(void);
+
 void shiz_gfx_clear(void);
 void shiz_gfx_begin(void);
 void shiz_gfx_end(void);
@@ -75,6 +77,8 @@ SHIZViewport shiz_gfx_get_viewport(void);
 void shiz_gfx_set_viewport(SHIZViewport const viewport);
 
 #ifdef DEBUG
+typedef void shiz_gfx_debug_event_callback(const char * event, SHIZVector3 const origin);
+void shiz_gfx_debug_set_event_callback(shiz_gfx_debug_event_callback * const callback);
 uint shiz_gfx_debug_get_draw_count(void);
 uint shiz_gfx_debug_get_frames_per_second(void);
 uint shiz_gfx_debug_get_frames_per_second_min(void);

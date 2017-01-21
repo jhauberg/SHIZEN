@@ -48,31 +48,41 @@ static unsigned short const _shiz_sprite_layer_min = 0;
 static unsigned short const _shiz_sprite_layer_max = USHRT_MAX;
 
 #ifdef SHIZ_DEBUG
+static void _shiz_debug_event(const char * event, SHIZVector3 const origin);
 static void _shiz_debug_process_errors(void);
 static void _shiz_debug_build_stats(void);
 static void _shiz_debug_draw_stats(void);
 static void _shiz_debug_draw_sprite_shape(SHIZRect const shape, SHIZVector2 const origin);
 
-static char _shiz_debug_font_buffer[128];
+static char _shiz_debug_stats_buffer[256];
 #endif
 
 void shiz_drawing_begin() {
-#ifdef SHIZ_DEBUG
-    shiz_debug_context.sprite_count = 0;
-#endif
-
     shiz_gfx_clear();
-    shiz_gfx_begin();
-}
 
-void shiz_drawing_end() {
 #ifdef SHIZ_DEBUG
     if (shiz_debug_context.is_enabled) {
         _shiz_debug_draw_stats();
-    }
-#endif
+        _shiz_flush_sprites();
 
-    _shiz_flush_sprites();
+        shiz_gfx_flush();
+    }
+
+    shiz_debug_context.event_count = 0;
+#endif
+    
+    shiz_gfx_begin();
+
+#ifdef SHIZ_DEBUG
+    shiz_debug_context.sprite_count = 0;
+    shiz_gfx_debug_set_event_callback(_shiz_debug_event);
+#endif
+}
+
+void shiz_drawing_end() {
+    if (_shiz_sprites_count > 0) {
+        _shiz_flush_sprites();
+    }
 
     shiz_gfx_end();
 
@@ -380,10 +390,7 @@ static void _shiz_flush_sprites() {
         return;
     }
 
-    // note that this is not a "stable" sort; meaning sprites that compare equally might "switch"
-    // position between each frame, potentially causing flickering
-    // todo: this should at least be stable, so that a sorted sprite remains in position,
-    // but preferably if 2 sprites compare equally, the painter's algorithm should come into effect
+    // sort sprites based on their layer parameters, but also optimized for reduced state switching
     qsort(_shiz_sprites, _shiz_sprites_count, sizeof(SHIZSpriteInternal),
           _shiz_compare_sprites);
 
@@ -720,7 +727,8 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
 static void _shiz_debug_build_stats() {
     SHIZViewport const viewport = shiz_gfx_get_viewport();
 
-    sprintf(_shiz_debug_font_buffer,
+    sprintf(_shiz_debug_stats_buffer,
+            "SHIZEN (ALPHA) / "
             "\4%.0fx%.0f\1@\5%.0fx%.0f\1\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
             "\2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
@@ -741,8 +749,20 @@ static void _shiz_debug_build_stats() {
             shiz_gfx_debug_get_draw_count());
 }
 
+static void _shiz_debug_event(const char * event, SHIZVector3 const origin) {
+    if (shiz_debug_context.event_count < SHIZDebugEventMax) {
+        shiz_debug_context.events[shiz_debug_context.event_count].name = event;
+        shiz_debug_context.events[shiz_debug_context.event_count].origin = SHIZVector2Make(origin.x,
+                                                                                           origin.y);
+
+        shiz_debug_context.event_count += 1;
+    } else {
+        printf("event not shown: %s", event);
+    }
+}
+
 static void _shiz_debug_draw_stats() {
-    uint const margin = 4;
+    uint const margin = 8;
 
     SHIZColor highlight_colors[] = {
         SHIZColorFromHex(0xefec0d), // yellow
@@ -756,12 +776,38 @@ static void _shiz_debug_draw_stats() {
                     shiz_context.preferred_screen_size.height - margin);
 
     shiz_draw_sprite_text_ex_colored(shiz_debug_font,
-                                     _shiz_debug_font_buffer,
+                                     _shiz_debug_stats_buffer,
                                      stats_text_origin,
                                      SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
                                      SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
                                      SHIZSpriteFontAttributesDefault,
                                      highlight_colors, 4);
+
+    for (uint i = 0; i < shiz_debug_context.event_count; i++) {
+        SHIZDebugEvent const event = shiz_debug_context.events[i];
+
+        SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault;
+
+        attrs.scale = SHIZVector2Make(0.5, 0.5);
+
+        SHIZColor const tint = SHIZSpriteTintDefaultWithAlpa(0.6f);
+        SHIZVector2 const draw_origin = SHIZVector2Make(event.origin.x,
+                                                        shiz_context.preferred_screen_size.height - 3);
+
+        char event_buffer[128];
+
+        sprintf(event_buffer, "%u) %s", i + 1, event.name);
+
+        shiz_draw_line(SHIZVector2Make(draw_origin.x,
+                                       draw_origin.y - margin),
+                       event.origin, tint);
+        shiz_draw_sprite_text_ex(shiz_debug_font,
+                                 event_buffer,
+                                 draw_origin,
+                                 SHIZSpriteFontAlignmentCenter | SHIZSpriteFontAlignmentTop,
+                                 SHIZSpriteFontSizeToFit, tint,
+                                 attrs);
+    }
 }
 
 static void _shiz_debug_draw_sprite_shape(SHIZRect const shape, SHIZVector2 const origin) {
@@ -776,8 +822,6 @@ static void _shiz_debug_draw_sprite_shape(SHIZRect const shape, SHIZVector2 cons
 
     SHIZRect const anchor_shape = SHIZRectMake(anchor_origin, SHIZSizeMake(2, 2));
 
-    // todo: this is less useful, because we can't ensur that this is drawn last (otherwise occluded by the actual sprite if batch kicks in later)
-    // todo: shiz_draw_rect_deferred.. ? a primitive batcher, definitely useful
     shiz_draw_rect(anchor_shape, SHIZColorRed);
 }
 

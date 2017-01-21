@@ -23,6 +23,8 @@ static void _shiz_gfx_debug_reset_draw_count(void);
 static void _shiz_gfx_debug_increment_draw_count(uint amount);
 static void _shiz_gfx_debug_update_frame_stats(void);
 static void _shiz_gfx_debug_update_frame_averages(void);
+static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
+static shiz_gfx_debug_event_callback * _shiz_gfx_debug_event;
 #endif
 
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source);
@@ -48,14 +50,14 @@ static uint const spritebatch_max_count = 128; /* flush when reaching this limit
 static uint const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
 static uint const spritebatch_vertex_count = spritebatch_max_count * spritebatch_vertex_count_per_quad;
 
-typedef struct {
+typedef struct SHIZRenderSpriteBatch {
     uint current_count;
     GLuint current_texture_id;
     SHIZRenderData render;
     SHIZVertexPositionColorTexture vertices[spritebatch_vertex_count];
 } SHIZRenderSpriteBatch;
 
-typedef struct {
+typedef struct SHIZRenderPrimitive {
     SHIZRenderData render;
 } SHIZRenderPrimitive;
 
@@ -323,6 +325,8 @@ void shiz_gfx_begin() {
 #ifdef SHIZ_DEBUG
     _shiz_gfx_debug_reset_draw_count();
 #endif
+
+    _spritebatch.current_texture_id = 0;
     
     glViewport(_viewport.offset.width / 2,
                _viewport.offset.height / 2,
@@ -331,15 +335,29 @@ void shiz_gfx_begin() {
 }
 
 void shiz_gfx_end() {
-    if (_spritebatch.current_count > 0) {
-        _shiz_gfx_spritebatch_flush();
-    }
+    shiz_gfx_flush();
 
-    _spritebatch.current_texture_id = 0;
+
 
 #ifdef SHIZ_DEBUG
     _shiz_gfx_debug_update_frame_stats();
 #endif
+}
+
+void shiz_gfx_flush() {
+    if (_spritebatch.current_count > 0) {
+#ifdef SHIZ_DEBUG
+        SHIZVector3 const event_origin = _shiz_gfx_debug_get_last_sprite_origin();
+#endif
+
+        _shiz_gfx_spritebatch_flush();
+
+#ifdef SHIZ_DEBUG
+        if (_shiz_gfx_debug_event) {
+            _shiz_gfx_debug_event("FLUSH", event_origin);
+        }
+#endif
+    }
 }
 
 static void mat4x4_model_view_projection(mat4x4 mvp, mat4x4 model, mat4x4 view) {
@@ -425,12 +443,24 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
         _shiz_gfx_spritebatch_flush();
+
+#ifdef SHIZ_DEBUG
+        if (_shiz_gfx_debug_event) {
+            _shiz_gfx_debug_event("FLUSH (TEX)", origin);
+        }
+#endif
     }
 
     _spritebatch.current_texture_id = texture_id;
 
     if (_spritebatch.current_count + 1 > spritebatch_max_count) {
         _shiz_gfx_spritebatch_flush();
+
+#ifdef SHIZ_DEBUG
+        if (_shiz_gfx_debug_event) {
+            _shiz_gfx_debug_event("FLUSH (CAP)", origin);
+        }
+#endif
     }
 
     uint const offset = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
@@ -653,6 +683,29 @@ static GLuint _shiz_gfx_link_program(GLuint const vs, GLuint const fs) {
 }
 
 #ifdef SHIZ_DEBUG
+static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin() {
+    if (_spritebatch.current_count > 0) {
+        int const offset = (_spritebatch.current_count - 1) * spritebatch_vertex_count_per_quad;
+
+        if (offset >= 0) {
+            SHIZVector3 last_sprite_bl_vertex = _spritebatch.vertices[offset + 2].position;
+            SHIZVector3 last_sprite_tr_vertex = _spritebatch.vertices[offset + 4].position;
+
+            SHIZVector3 const mid_point = SHIZVector3Make((last_sprite_bl_vertex.x + last_sprite_tr_vertex.x) / 2,
+                                                          (last_sprite_bl_vertex.y + last_sprite_tr_vertex.y) / 2,
+                                                          (last_sprite_bl_vertex.z + last_sprite_tr_vertex.z) / 2);
+
+            return mid_point;
+        }
+    }
+
+    return SHIZVector3Zero;
+}
+
+void shiz_gfx_debug_set_event_callback(shiz_gfx_debug_event_callback * const callback) {
+    _shiz_gfx_debug_event = callback;
+}
+
 static uint _shiz_gfx_debug_draw_count = 0;
 
 static void _shiz_gfx_debug_reset_draw_count() {

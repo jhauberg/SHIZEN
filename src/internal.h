@@ -31,6 +31,9 @@
 
 #include "type.h"
 
+#define SHIZSpriteInternalMax 2048
+#define SHIZSpriteFontMaxLines 16
+
 typedef struct SHIZGraphicsContext SHIZGraphicsContext;
 typedef struct SHIZTimeLine SHIZTimeLine;
 typedef struct SHIZViewport SHIZViewport;
@@ -50,11 +53,20 @@ typedef struct SHIZDebugContext SHIZDebugContext;
 
 extern SHIZDebugContext shiz_debug_context;
 
-struct SHIZDebugContext {
+typedef struct SHIZDebugEvent {
+    SHIZVector2 origin;
+    const char * name;
+} SHIZDebugEvent;
+
+#define SHIZDebugEventMax 128
+
+typedef struct SHIZDebugContext {
     bool is_enabled;
     bool draw_sprite_shape;
     uint sprite_count;
-};
+    uint event_count;
+    SHIZDebugEvent events[SHIZDebugEventMax];
+} SHIZDebugContext;
 #endif
 
 struct SHIZGraphicsContext {
@@ -109,8 +121,6 @@ struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord_max;
 };
 
-#define SHIZSpriteInternalMax 2048
-
 // essentially an unsigned long (32 bits) for easy sorting
 typedef struct SHIZSpriteInternalKey {
     bool is_transparent: 1; // the least significant bit
@@ -134,8 +144,6 @@ struct SHIZSpriteFontLine {
      typically counts tint specifiers */
     uint ignored_character_count;
 };
-
-#define SHIZSpriteFontMaxLines 16
 
 struct SHIZSpriteFontMeasurement {
     /** The measured size of the entire text as a whole */
