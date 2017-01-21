@@ -38,6 +38,10 @@ static void _shiz_debug_process_errors(void);
 static void _shiz_debug_build_stats(void);
 static void _shiz_debug_draw_stats(void);
 static void _shiz_debug_draw_events(void);
+static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
+                                          SHIZSize const size,
+                                          SHIZVector2 const anchor,
+                                          float const angle);
 
 static char _shiz_debug_stats_buffer[256];
 #endif
@@ -211,15 +215,7 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite,
     if (shiz_debug_context.is_enabled) {
         if (shiz_debug_context.draw_sprite_shape &&
             (sprite_size.width > 0 && sprite_size.height > 0)) {
-            shiz_draw_rect_shape_ex(SHIZRectMake(origin, sprite_size),
-                                    SHIZColorRed, anchor, angle);
-
-            float const anchor_size = 2;
-
-            shiz_draw_rect(SHIZRectMake(SHIZVector2Make(origin.x - (anchor_size / 2),
-                                                        origin.y - (anchor_size / 2 )),
-                                        SHIZSizeMake(anchor_size, anchor_size)),
-                           SHIZColorRed);
+            _shiz_debug_draw_sprite_shape(origin, sprite_size, anchor, angle);
         }
     }
 #endif
@@ -303,15 +299,7 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                 }
             }
 
-            shiz_draw_rect_shape_ex(SHIZRectMake(origin, text_size),
-                                    SHIZColorRed, anchor, SHIZSpriteNoAngle);
-
-            float const anchor_size = 2;
-
-            shiz_draw_rect(SHIZRectMake(SHIZVector2Make(origin.x - (anchor_size / 2),
-                                                        origin.y - (anchor_size / 2 )),
-                                        SHIZSizeMake(anchor_size, anchor_size)),
-                           SHIZColorRed);
+            _shiz_debug_draw_sprite_shape(origin, text_size, anchor, SHIZSpriteNoAngle);
         }
     }
 #endif
@@ -407,6 +395,21 @@ static void _shiz_debug_draw_stats() {
                                      SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
                                      SHIZSpriteFontAttributesDefault,
                                      highlight_colors, 4);
+}
+
+static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
+                                          SHIZSize const size,
+                                          SHIZVector2 const anchor,
+                                          float const angle) {
+    shiz_draw_rect_shape_ex(SHIZRectMake(origin, size),
+                            SHIZColorRed, anchor, angle);
+
+    float const anchor_size = 2;
+
+    shiz_draw_rect(SHIZRectMake(SHIZVector2Make(origin.x - (anchor_size / 2),
+                                                origin.y - (anchor_size / 2 )),
+                                SHIZSizeMake(anchor_size, anchor_size)),
+                   SHIZColorRed);
 }
 
 static void _shiz_debug_process_errors() {
