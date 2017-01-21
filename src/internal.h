@@ -27,6 +27,8 @@
  #pragma clang pop
 #endif
 
+#include <stdlib.h>
+
 #include "type.h"
 
 typedef struct SHIZGraphicsContext SHIZGraphicsContext;
@@ -37,9 +39,6 @@ typedef struct SHIZVertexPositionColorTexture SHIZVertexPositionColorTexture;
 typedef struct SHIZSpriteFontLine SHIZSpriteFontLine;
 typedef struct SHIZSpriteFontMeasurement SHIZSpriteFontMeasurement;
 typedef struct SHIZRenderData SHIZRenderData;
-
-typedef struct SHIZSpriteInternal SHIZSpriteInternal;
-typedef struct SHIZSpriteInternalKey SHIZSpriteInternalKey;
 
 typedef enum SHIZViewportMode SHIZViewportMode;
 
@@ -113,20 +112,20 @@ struct SHIZVertexPositionColorTexture {
 #define SHIZSpriteInternalMax 2048
 
 // essentially an unsigned long (32 bits) for easy sorting
-struct SHIZSpriteInternalKey {
+typedef struct SHIZSpriteInternalKey {
     bool is_transparent: 1; // the least significant bit
     unsigned short texture_id: 7;
     unsigned short layer_depth: 16;
     unsigned short layer: 8; // the most significant bits
-};
+} SHIZSpriteInternalKey;
 
-struct SHIZSpriteInternal {
+typedef struct SHIZSpriteInternal {
     unsigned long key;
     uint order;
     SHIZVertexPositionColorTexture vertices[6];
     SHIZVector3 origin;
     float angle;
-};
+} SHIZSpriteInternal;
 
 struct SHIZSpriteFontLine {
     /** The measured size of the line of text */
@@ -198,6 +197,22 @@ static inline uint const _shiz_get_char_size(char const character) {
     }
     
     return size; // in bytes
+}
+
+static inline float _shiz_lerp(float const a, float const b, float const t) {
+    return a * (1.0f - t) + b * t;
+}
+
+static inline int _shiz_random_int_range(int const min, int const max) {
+    return min + (rand() % (int)((max + 1) - min));
+}
+
+static inline float _shiz_random_float(void) {
+    return rand() / (RAND_MAX + 1.0f);
+}
+
+static inline float _shiz_random_float_range(float const min, float const max) {
+    return _shiz_lerp(min, max, _shiz_random_float());
 }
 
 #endif // internal_h
