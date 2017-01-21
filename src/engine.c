@@ -69,14 +69,16 @@ static void key_callback(GLFWwindow * const window, int key, int scancode, int a
     
     if ((key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS) {
         shiz_context.should_finish = true;
-    } else if ((key == GLFW_KEY_ENTER && mods == GLFW_MOD_ALT) && action == GLFW_RELEASE) {
+    } else if ((mods == GLFW_MOD_ALT && key == GLFW_KEY_ENTER) && action == GLFW_RELEASE) {
         _shiz_glfw_toggle_windowed(window);
     }
 #ifdef SHIZ_DEBUG
     else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
         shiz_debug_context.is_enabled = !shiz_debug_context.is_enabled;
-    } else if ((key == GLFW_KEY_1 && mods == GLFW_MOD_SHIFT) && action == GLFW_RELEASE) {
-        shiz_debug_context.draw_sprite_shape = !shiz_debug_context.draw_sprite_shape;
+    } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_1) && action == GLFW_RELEASE) {
+        if (shiz_debug_context.is_enabled) {
+            shiz_debug_context.draw_sprite_shape = !shiz_debug_context.draw_sprite_shape;
+        }
     }
 #endif
 }
@@ -379,9 +381,9 @@ static void _shiz_intro(void) {
     printf("  __|  |  | _ _| __  /  __|   \\ |\n");
     printf("\\__ \\  __ |   |     /   _|   .  |\n");
     printf("____/ _| _| ___| ____| ___| _|\\_|\n\n");
-    printf(" SHIZEN %d.%d.%d / %s\n",
+    printf(" SHIZEN %d.%d.%d / %s (built %s, %s)\n",
            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
-           SHIZEN_VERSION_NAME);
+           SHIZEN_VERSION_NAME, __DATE__, __TIME__);
     printf(" Copyright (c) 2017 Jacob Hauberg Hansen\n\n");
 
     printf(" OPENGL VERSION:  %s (GLSL %s)\n",
