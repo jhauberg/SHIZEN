@@ -157,6 +157,10 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
 
     _shiz_sprites_count += 1;
 
+#ifdef SHIZ_DEBUG
+    shiz_debug_context.sprite_count += 1;
+#endif
+
     if (_shiz_sprites_count >= SHIZSpriteInternalMax) {
         shiz_sprite_flush();
     }

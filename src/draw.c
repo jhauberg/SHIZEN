@@ -208,14 +208,14 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite,
                                                   layer, depth);
 
 #ifdef SHIZ_DEBUG
-    shiz_debug_context.sprite_count += 1;
-
     if (shiz_debug_context.is_enabled) {
-        if (shiz_debug_context.draw_sprite_shape) {
-            float const anchor_size = 2;
-
+        if (shiz_debug_context.draw_sprite_shape &&
+            (sprite_size.width > 0 && sprite_size.height > 0)) {
             shiz_draw_rect_shape_ex(SHIZRectMake(origin, sprite_size),
                                     SHIZColorRed, anchor, angle);
+
+            float const anchor_size = 2;
+
             shiz_draw_rect(SHIZRectMake(SHIZVector2Make(origin.x - (anchor_size / 2),
                                                         origin.y - (anchor_size / 2 )),
                                         SHIZSizeMake(anchor_size, anchor_size)),
@@ -266,10 +266,57 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                                           SHIZSpriteFontAttributes const attributes,
                                           SHIZColor * const highlight_colors,
                                           uint const highlight_color_count) {
-    return shiz_sprite_draw_text(font, text,
-                                 origin, alignment, bounds,
-                                 tint, attributes,
-                                 highlight_colors, highlight_color_count);
+    SHIZSize const text_size = shiz_sprite_draw_text(font, text,
+                                                     origin, alignment, bounds,
+                                                     tint, attributes,
+                                                     highlight_colors, highlight_color_count);
+
+#ifdef SHIZ_DEBUG
+    if (shiz_debug_context.is_enabled) {
+        if (shiz_debug_context.draw_sprite_shape &&
+            (text_size.width > 0 && text_size.height > 0)) {
+            SHIZVector2 anchor = SHIZSpriteAnchorCenter;
+
+            if ((alignment & SHIZSpriteFontAlignmentTop) == SHIZSpriteFontAlignmentTop) {
+                if ((alignment & SHIZSpriteFontAlignmentLeft) == SHIZSpriteFontAlignmentLeft) {
+                    anchor = SHIZSpriteAnchorTopLeft;
+                } else if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
+                    anchor = SHIZSpriteAnchorTop;
+                } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
+                    anchor = SHIZSpriteAnchorTopRight;
+                }
+            } else if ((alignment & SHIZSpriteFontAlignmentMiddle) == SHIZSpriteFontAlignmentMiddle) {
+                if ((alignment & SHIZSpriteFontAlignmentLeft) == SHIZSpriteFontAlignmentLeft) {
+                    anchor = SHIZSpriteAnchorLeft;
+                } else if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
+                    anchor = SHIZSpriteAnchorCenter;
+                } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
+                    anchor = SHIZSpriteAnchorRight;
+                }
+            } else if ((alignment & SHIZSpriteFontAlignmentBottom) == SHIZSpriteFontAlignmentBottom) {
+                if ((alignment & SHIZSpriteFontAlignmentLeft) == SHIZSpriteFontAlignmentLeft) {
+                    anchor = SHIZSpriteAnchorBottomLeft;
+                } else if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
+                    anchor = SHIZSpriteAnchorBottom;
+                } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
+                    anchor = SHIZSpriteAnchorBottomRight;
+                }
+            }
+
+            shiz_draw_rect_shape_ex(SHIZRectMake(origin, text_size),
+                                    SHIZColorRed, anchor, SHIZSpriteNoAngle);
+
+            float const anchor_size = 2;
+
+            shiz_draw_rect(SHIZRectMake(SHIZVector2Make(origin.x - (anchor_size / 2),
+                                                        origin.y - (anchor_size / 2 )),
+                                        SHIZSizeMake(anchor_size, anchor_size)),
+                           SHIZColorRed);
+        }
+    }
+#endif
+
+    return text_size;
 }
 
 #ifdef SHIZ_DEBUG

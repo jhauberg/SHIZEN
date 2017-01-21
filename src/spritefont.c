@@ -11,8 +11,7 @@
 
 #include "spritefont.h"
 
-//#include "sprite.h"
-#include <SHIZEN/draw.h>
+#include "sprite.h"
 
 #include <math.h>
 #include <string.h>
@@ -276,10 +275,7 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
                     character_sprite.source.origin.y = (font.sprite.source.origin.y +
                                                         (font.character.height * character_row));
 
-                    // todo: i would actually have preferred no circular dependency and just
-                    //       calling sprite.h:shiz_sprite_draw() here, however, that disables
-                    //       sprite shapes for all sprite characters (as that is a feature of the draw module)
-                    shiz_draw_sprite_ex(character_sprite, character_origin,
+                    shiz_sprite_draw(character_sprite, character_origin,
                                      measurement.character_size,
                                      SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle,
                                      highlight_color, SHIZSpriteNoRepeat, false,
