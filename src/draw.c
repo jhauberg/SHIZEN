@@ -71,6 +71,10 @@ void shiz_drawing_end() {
     if (shiz_debug_context.is_enabled) {
         shiz_debug_context.is_tracking_enabled = false;
 
+        bool const previously_drawing_shapes = shiz_debug_context.draw_sprite_shape;
+
+        shiz_debug_context.draw_sprite_shape = false;
+
         _shiz_debug_build_stats();
 
         if (shiz_debug_context.draw_events) {
@@ -82,6 +86,8 @@ void shiz_drawing_end() {
         shiz_sprite_flush();
 
         shiz_gfx_flush();
+
+        shiz_debug_context.draw_sprite_shape = previously_drawing_shapes;
     }
 
     _shiz_debug_process_errors();
