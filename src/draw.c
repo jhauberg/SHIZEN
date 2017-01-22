@@ -70,8 +70,11 @@ void shiz_drawing_end() {
     if (shiz_debug_context.is_enabled) {
         _shiz_debug_build_stats();
 
+        if (shiz_debug_context.draw_events) {
+            _shiz_debug_draw_events();
+        }
+
         _shiz_debug_draw_stats();
-        _shiz_debug_draw_events();
 
         shiz_sprite_flush();
 
@@ -221,7 +224,9 @@ SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
             _shiz_debug_draw_sprite_shape(origin, sprite_size, anchor, angle);
         }
 
-        _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(sprite.resource_id));
+        if (shiz_debug_context.draw_events) {
+            _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(sprite.resource_id));
+        }
     }
 #endif
 
@@ -311,7 +316,9 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
             _shiz_debug_draw_sprite_shape(origin, text_size, anchor, SHIZSpriteNoAngle);
         }
 
-        _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(font.sprite.resource_id));
+        if (shiz_debug_context.draw_events) {
+            _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(font.sprite.resource_id));
+        }
     }
 #endif
 
@@ -343,7 +350,6 @@ static void _shiz_debug_build_stats() {
             shiz_gfx_debug_get_draw_count());
 }
 
-//static void _shiz_debug_event(const char * event, SHIZVector3 const origin) {
 static void _shiz_debug_event(SHIZDebugEvent const event) {
     if (shiz_debug_context.event_count < SHIZDebugEventMax) {
         shiz_debug_context.events[shiz_debug_context.event_count].name = event.name;

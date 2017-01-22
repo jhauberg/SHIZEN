@@ -79,6 +79,10 @@ static void key_callback(GLFWwindow * const window, int key, int scancode, int a
         if (shiz_debug_context.is_enabled) {
             shiz_debug_context.draw_sprite_shape = !shiz_debug_context.draw_sprite_shape;
         }
+    } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_2) && action == GLFW_RELEASE) {
+        if (shiz_debug_context.is_enabled) {
+            shiz_debug_context.draw_events = !shiz_debug_context.draw_events;
+        }
     }
 #endif
 }

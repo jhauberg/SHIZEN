@@ -67,6 +67,7 @@ typedef struct SHIZDebugEvent {
 typedef struct SHIZDebugContext {
     bool is_enabled;
     bool draw_sprite_shape;
+    bool draw_events;
     uint sprite_count;
     uint event_count;
     SHIZDebugEvent events[SHIZDebugEventMax];
