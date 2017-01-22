@@ -9,9 +9,10 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <stdio.h>
-
 #include <SHIZEN/engine.h>
+
+#include <stdio.h>
+#include <math.h>
 
 #include "internal.h"
 #include "gfx.h"
@@ -82,6 +83,14 @@ static void key_callback(GLFWwindow * const window, int key, int scancode, int a
     } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_2) && action == GLFW_RELEASE) {
         if (shiz_debug_context.is_enabled) {
             shiz_debug_context.draw_events = !shiz_debug_context.draw_events;
+        }
+    } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_MINUS) && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        if (shiz_debug_context.is_enabled) {
+            _timeline.scale -= 0.1f;
+        }
+    } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_EQUAL) && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        if (shiz_debug_context.is_enabled) {
+            _timeline.scale += 0.1f;
         }
     }
 #endif
@@ -233,7 +242,7 @@ void shiz_ticking_begin(void) {
         time_elapsed = maximum_frame_time;
     }
     
-    _time_lag += time_elapsed * _timeline.scale;
+    _time_lag += fabs(time_elapsed * _timeline.scale);
     _time_previous = time;
 }
 
@@ -243,11 +252,11 @@ float shiz_ticking_end(void) {
 
 bool shiz_tick(uint const frequency) {
     _timeline.time_step = 1.0 / frequency;
-    
+
     if (_time_lag >= _timeline.time_step) {
         _time_lag -= _timeline.time_step;
 
-        _timeline.time += _timeline.time_step;
+        _timeline.time += _timeline.time_step * shiz_get_time_direction();
         
         return true;
     }
@@ -257,6 +266,16 @@ bool shiz_tick(uint const frequency) {
 
 double shiz_get_time() {
     return _timeline.time;
+}
+
+float shiz_get_time_direction() {
+    if (_timeline.scale > 0) {
+        return 1;
+    } else if (_timeline.scale < 0) {
+        return -1;
+    }
+
+    return 0;
 }
 
 double shiz_get_tick_rate() {
