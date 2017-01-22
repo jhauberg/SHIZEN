@@ -42,8 +42,8 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                           SHIZSize const size,
                                           SHIZVector2 const anchor,
                                           float const angle);
-static void _shiz_debug_draw_sprite_resource(SHIZVector2 const origin,
-                                             SHIZResourceImage const resource);
+static void _shiz_debug_event_sprite_resource(SHIZVector2 const origin,
+                                              SHIZResourceImage const resource);
 
 static char _shiz_debug_stats_buffer[256];
 #endif
@@ -56,6 +56,7 @@ void shiz_drawing_begin() {
 
     shiz_debug_context.event_count = 0;
     shiz_debug_context.sprite_count = 0;
+    shiz_debug_context.is_tracking_enabled = true;
 #endif
     
     shiz_gfx_begin();
@@ -68,6 +69,8 @@ void shiz_drawing_end() {
 
 #ifdef SHIZ_DEBUG
     if (shiz_debug_context.is_enabled) {
+        shiz_debug_context.is_tracking_enabled = false;
+
         _shiz_debug_build_stats();
 
         if (shiz_debug_context.draw_events) {
@@ -219,13 +222,11 @@ SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
     if (shiz_debug_context.is_enabled) {
         if (shiz_debug_context.draw_sprite_shape &&
             (sprite_size.width > 0 && sprite_size.height > 0)) {
-            // todo: drawing this stuff here is problematic: it will increase the number of
-            // draw calls shown in the stats and that's not useful for debugging
             _shiz_debug_draw_sprite_shape(origin, sprite_size, anchor, angle);
         }
 
         if (shiz_debug_context.draw_events) {
-            _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(sprite.resource_id));
+            _shiz_debug_event_sprite_resource(origin, shiz_res_get_image(sprite.resource_id));
         }
     }
 #endif
@@ -311,13 +312,11 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                 }
             }
 
-            // todo: drawing this stuff here is problematic: it will increase the number of
-            // draw calls shown in the stats and that's not useful for debugging
             _shiz_debug_draw_sprite_shape(origin, text_size, anchor, SHIZSpriteNoAngle);
         }
 
         if (shiz_debug_context.draw_events) {
-            _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(font.sprite.resource_id));
+            _shiz_debug_event_sprite_resource(origin, shiz_res_get_image(font.sprite.resource_id));
         }
     }
 #endif
@@ -351,14 +350,16 @@ static void _shiz_debug_build_stats() {
 }
 
 static void _shiz_debug_event(SHIZDebugEvent const event) {
-    if (shiz_debug_context.event_count < SHIZDebugEventMax) {
-        shiz_debug_context.events[shiz_debug_context.event_count].name = event.name;
-        shiz_debug_context.events[shiz_debug_context.event_count].lane = event.lane;
-        shiz_debug_context.events[shiz_debug_context.event_count].origin = event.origin;
+    if (shiz_debug_context.is_tracking_enabled) {
+        if (shiz_debug_context.event_count < SHIZDebugEventMax) {
+            shiz_debug_context.events[shiz_debug_context.event_count].name = event.name;
+            shiz_debug_context.events[shiz_debug_context.event_count].lane = event.lane;
+            shiz_debug_context.events[shiz_debug_context.event_count].origin = event.origin;
 
-        shiz_debug_context.event_count += 1;
-    } else {
-        printf("event not shown: %s", event.name);
+            shiz_debug_context.event_count += 1;
+        } else {
+            printf("event not shown: %s", event.name);
+        }
     }
 }
 
@@ -438,6 +439,10 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                           SHIZSize const size,
                                           SHIZVector2 const anchor,
                                           float const angle) {
+    bool const previously_tracking_events = shiz_debug_context.is_tracking_enabled;
+
+    shiz_debug_context.is_tracking_enabled = false;
+
     shiz_draw_rect_shape_ex(SHIZRectMake(origin, size),
                             SHIZColorRed, anchor, angle);
 
@@ -447,10 +452,12 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                                 origin.y - (anchor_size / 2 )),
                                 SHIZSizeMake(anchor_size, anchor_size)),
                    SHIZColorRed);
+
+    shiz_debug_context.is_tracking_enabled = previously_tracking_events;
 }
 
-static void _shiz_debug_draw_sprite_resource(SHIZVector2 const origin,
-                                             SHIZResourceImage const resource) {
+static void _shiz_debug_event_sprite_resource(SHIZVector2 const origin,
+                                              SHIZResourceImage const resource) {
     if (resource.filename) {
         SHIZDebugEvent event;
 

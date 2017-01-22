@@ -68,6 +68,7 @@ typedef struct SHIZDebugEvent {
 
 typedef struct SHIZDebugContext {
     bool is_enabled;
+    bool is_tracking_enabled; // used to disable event/draw call tracking while drawing debug stuff
     bool draw_sprite_shape;
     bool draw_events;
     uint sprite_count;

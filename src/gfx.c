@@ -443,6 +443,18 @@ void shiz_gfx_render_ex(GLenum const mode,
     glUseProgram(0);
 
     _shiz_gfx_primitive_state(false);
+
+#ifdef SHIZ_DEBUG
+    if (_shiz_gfx_debug_event) {
+        SHIZDebugEvent event;
+
+        event.name = "primitive";
+        event.origin = origin;
+        event.lane = SHIZDebugEventLaneDraws;
+
+        _shiz_gfx_debug_event(event);
+    }
+#endif
 }
 
 void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
@@ -740,7 +752,9 @@ uint shiz_gfx_debug_get_draw_count() {
 }
 
 static void _shiz_gfx_debug_increment_draw_count(uint amount) {
-    _shiz_gfx_debug_draw_count += amount;
+    if (shiz_debug_context.is_tracking_enabled) {
+        _shiz_gfx_debug_draw_count += amount;
+    }
 }
 
 static double const _shiz_gfx_debug_average_interval = 1.0; // in seconds
