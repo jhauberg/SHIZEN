@@ -49,7 +49,7 @@ static bool _shiz_gfx_kill_spritebatch(void);
 
 static void _shiz_gfx_spritebatch_state(bool const enable);
 
-static void _shiz_gfx_spritebatch_flush(void);
+static bool _shiz_gfx_spritebatch_flush(void);
 
 static uint const spritebatch_max_count = 128; /* flush when reaching this limit */
 static uint const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
@@ -361,7 +361,7 @@ void shiz_gfx_flush() {
 
             event.name = _shiz_gfx_debug_event_flush;
             event.origin = event_origin;
-            event.lane = 0;
+            event.lane = SHIZDebugEventLaneDraws;
 
             _shiz_gfx_debug_event(event);
         }
@@ -451,15 +451,15 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
                           GLuint const texture_id) {
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
-        _shiz_gfx_spritebatch_flush();
+        bool const flushed = _shiz_gfx_spritebatch_flush();
 
 #ifdef SHIZ_DEBUG
-        if (_shiz_gfx_debug_event) {
+        if (flushed && _shiz_gfx_debug_event) {
             SHIZDebugEvent event;
 
             event.name = _shiz_gfx_debug_event_flush_texture_switch;
             event.origin = origin;
-            event.lane = 0;
+            event.lane = SHIZDebugEventLaneDraws;
 
             _shiz_gfx_debug_event(event);
         }
@@ -469,15 +469,15 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
     _spritebatch.current_texture_id = texture_id;
 
     if (_spritebatch.current_count + 1 > spritebatch_max_count) {
-        _shiz_gfx_spritebatch_flush();
+        bool const flushed = _shiz_gfx_spritebatch_flush();
 
 #ifdef SHIZ_DEBUG
-        if (_shiz_gfx_debug_event) {
+        if (flushed && _shiz_gfx_debug_event) {
             SHIZDebugEvent event;
 
             event.name = _shiz_gfx_debug_event_flush_capacity;
             event.origin = origin;
-            event.lane = 0;
+            event.lane = SHIZDebugEventLaneDraws;
 
             _shiz_gfx_debug_event(event);
         }
@@ -536,9 +536,9 @@ static void _shiz_gfx_spritebatch_state(bool const enable) {
     }
 }
 
-static void _shiz_gfx_spritebatch_flush() {
+static bool _shiz_gfx_spritebatch_flush() {
     if (_spritebatch.current_count == 0) {
-        return;
+        return false;
     }
 
     mat4x4 model;
@@ -580,6 +580,8 @@ static void _shiz_gfx_spritebatch_flush() {
     _shiz_gfx_spritebatch_state(false);
 
     _spritebatch.current_count = 0;
+
+    return true;
 }
 
 SHIZViewport shiz_gfx_get_viewport() {
