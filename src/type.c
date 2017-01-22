@@ -21,6 +21,7 @@ const SHIZColor SHIZColorBlack = { 0, 0, 0, 1 };
 const SHIZColor SHIZColorRed = { 1, 0, 0, 1 };
 const SHIZColor SHIZColorGreen = { 0, 1, 0, 1 };
 const SHIZColor SHIZColorBlue = { 0, 0, 1, 1 };
+const SHIZColor SHIZColorYellow = { 1, 1, 0, 1 };
 
 const SHIZSize SHIZSizeEmpty = { 0, 0 };
 const SHIZRect SHIZRectEmpty = {

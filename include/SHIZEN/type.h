@@ -130,6 +130,7 @@ extern const SHIZColor SHIZColorBlack;
 extern const SHIZColor SHIZColorRed;
 extern const SHIZColor SHIZColorGreen;
 extern const SHIZColor SHIZColorBlue;
+extern const SHIZColor SHIZColorYellow;
 
 extern const SHIZSize SHIZSizeEmpty;
 extern const SHIZRect SHIZRectEmpty;
@@ -257,12 +258,16 @@ static inline SHIZColor SHIZColorFromHex(int const value) {
     return color;
 }
 
+static inline const SHIZColor SHIZSpriteTintWithAlpa(SHIZColor const tint, float const alpha) {
+    SHIZColor result_tint = tint;
+
+    result_tint.alpha = alpha;
+
+    return result_tint;
+}
+
 static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
-    SHIZColor default_tint = SHIZSpriteNoTint;
-
-    default_tint.alpha = alpha;
-
-    return default_tint;
+    return SHIZSpriteTintWithAlpa(SHIZSpriteNoTint, alpha);
 }
 
 #endif // type_h

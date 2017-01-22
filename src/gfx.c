@@ -26,9 +26,9 @@ static void _shiz_gfx_debug_update_frame_averages(void);
 static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
 static shiz_gfx_debug_event_callback * _shiz_gfx_debug_event;
 
-static const char * const _shiz_gfx_debug_event_flush = "FLUSH";
-static const char * const _shiz_gfx_debug_event_flush_capacity = "FLUSH (CAP)";
-static const char * const _shiz_gfx_debug_event_flush_texture_switch = "FLUSH (TEX)";
+static const char * const _shiz_gfx_debug_event_flush = "flush";
+static const char * const _shiz_gfx_debug_event_flush_capacity = "flush (cap)";
+static const char * const _shiz_gfx_debug_event_flush_texture_switch = "flush (tex)";
 
 #endif
 

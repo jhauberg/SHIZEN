@@ -28,8 +28,10 @@
 #endif
 
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "type.h"
+
 
 #define SHIZSpriteInternalMax 2048
 #define SHIZSpriteFontMaxLines 16
@@ -210,6 +212,14 @@ static inline uint const _shiz_get_char_size(char const character) {
     }
     
     return size; // in bytes
+}
+
+static inline void _shiz_str_to_upper(char * string) {
+    char * ptr;
+
+    for (ptr = string; *ptr != '\0'; ptr++) {
+        *ptr = (char)toupper(*ptr);
+    }
 }
 
 static inline float _shiz_lerp(float const a, float const b, float const t) {

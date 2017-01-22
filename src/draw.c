@@ -376,8 +376,6 @@ static void _shiz_debug_draw_events() {
 
         attrs.scale = SHIZVector2Make(0.5, 0.5);
 
-        SHIZColor const tint = SHIZSpriteTintDefaultWithAlpa(0.6f);
-
         float const lane_offset = lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
 
         SHIZVector2 const from = SHIZVector2Make(event.origin.x,
@@ -385,13 +383,23 @@ static void _shiz_debug_draw_events() {
         SHIZVector2 const to = SHIZVector2Make(event.origin.x,
                                                event.origin.y);
 
+        SHIZColor tint = SHIZSpriteNoTint;
+
         char event_buffer[128];
 
         if (event.lane == SHIZDebugEventLaneDraws) {
+            tint = SHIZColorYellow;
+            
             sprintf(event_buffer, "%u) %s", draw_events + 1, event.name);
+
+            draw_events += 1;
         } else if (event.lane == SHIZDebugEventLaneResources) {
             sprintf(event_buffer, "%s", event.name);
         }
+
+        _shiz_str_to_upper(event_buffer);
+
+        tint.alpha = 0.5f;
 
         shiz_draw_line(SHIZVector2Make(from.x, from.y - line_margin), to, tint);
         shiz_draw_sprite_text_ex(shiz_debug_font,
