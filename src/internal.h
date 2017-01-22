@@ -53,9 +53,13 @@ typedef struct SHIZDebugContext SHIZDebugContext;
 
 extern SHIZDebugContext shiz_debug_context;
 
+#define SHIZDebugEventLaneDraws 0
+#define SHIZDebugEventLaneResources 1
+
 typedef struct SHIZDebugEvent {
-    SHIZVector2 origin;
+    SHIZVector3 origin;
     const char * name;
+    uint lane;
 } SHIZDebugEvent;
 
 #define SHIZDebugEventMax 128

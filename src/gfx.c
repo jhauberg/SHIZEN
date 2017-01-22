@@ -357,7 +357,13 @@ void shiz_gfx_flush() {
 
 #ifdef SHIZ_DEBUG
         if (_shiz_gfx_debug_event) {
-            _shiz_gfx_debug_event(_shiz_gfx_debug_event_flush, event_origin);
+            SHIZDebugEvent event;
+
+            event.name = _shiz_gfx_debug_event_flush;
+            event.origin = event_origin;
+            event.lane = 0;
+
+            _shiz_gfx_debug_event(event);
         }
 #endif
     }
@@ -449,7 +455,13 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
 
 #ifdef SHIZ_DEBUG
         if (_shiz_gfx_debug_event) {
-            _shiz_gfx_debug_event(_shiz_gfx_debug_event_flush_texture_switch, origin);
+            SHIZDebugEvent event;
+
+            event.name = _shiz_gfx_debug_event_flush_texture_switch;
+            event.origin = origin;
+            event.lane = 0;
+
+            _shiz_gfx_debug_event(event);
         }
 #endif
     }
@@ -461,7 +473,13 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
 
 #ifdef SHIZ_DEBUG
         if (_shiz_gfx_debug_event) {
-            _shiz_gfx_debug_event(_shiz_gfx_debug_event_flush_capacity, origin);
+            SHIZDebugEvent event;
+
+            event.name = _shiz_gfx_debug_event_flush_capacity;
+            event.origin = origin;
+            event.lane = 0;
+
+            _shiz_gfx_debug_event(event);
         }
 #endif
     }

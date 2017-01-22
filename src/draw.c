@@ -33,7 +33,7 @@ static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZ
 static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
 
 #ifdef SHIZ_DEBUG
-static void _shiz_debug_event(const char * event, SHIZVector3 const origin);
+static void _shiz_debug_event(SHIZDebugEvent const event);
 static void _shiz_debug_process_errors(void);
 static void _shiz_debug_build_stats(void);
 static void _shiz_debug_draw_stats(void);
@@ -42,6 +42,8 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                           SHIZSize const size,
                                           SHIZVector2 const anchor,
                                           float const angle);
+static void _shiz_debug_draw_sprite_resource(SHIZVector2 const origin,
+                                             SHIZResourceImage const resource);
 
 static char _shiz_debug_stats_buffer[256];
 #endif
@@ -52,22 +54,11 @@ void shiz_drawing_begin() {
 #ifdef SHIZ_DEBUG
     shiz_gfx_debug_set_event_callback(_shiz_debug_event);
 
-    if (shiz_debug_context.is_enabled) {
-        _shiz_debug_draw_stats();
-        _shiz_debug_draw_events();
-
-        shiz_sprite_flush();
-        shiz_gfx_flush();
-    }
-
     shiz_debug_context.event_count = 0;
+    shiz_debug_context.sprite_count = 0;
 #endif
     
     shiz_gfx_begin();
-
-#ifdef SHIZ_DEBUG
-    shiz_debug_context.sprite_count = 0;
-#endif
 }
 
 void shiz_drawing_end() {
@@ -76,7 +67,17 @@ void shiz_drawing_end() {
     shiz_gfx_end();
 
 #ifdef SHIZ_DEBUG
-    _shiz_debug_build_stats();
+    if (shiz_debug_context.is_enabled) {
+        _shiz_debug_build_stats();
+
+        _shiz_debug_draw_stats();
+        _shiz_debug_draw_events();
+
+        shiz_sprite_flush();
+
+        shiz_gfx_flush();
+    }
+
     _shiz_debug_process_errors();
 #endif
 
@@ -184,28 +185,28 @@ void shiz_draw_rect_shape_ex(SHIZRect const rect,
     _shiz_draw_rect(rect, color, false, anchor, angle);
 }
 
-void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
-    shiz_draw_sprite_ex(sprite, origin,
-                        SHIZSpriteSizeIntrinsic,
-                        SHIZSpriteAnchorCenter,
-                        SHIZSpriteNoAngle,
-                        SHIZSpriteNoTint,
-                        SHIZSpriteNoRepeat,
-                        false,
-                        SHIZSpriteLayerDefault,
-                        SHIZSpriteLayerDepthDefault);
+SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin) {
+    return shiz_draw_sprite_ex(sprite, origin,
+                               SHIZSpriteSizeIntrinsic,
+                               SHIZSpriteAnchorCenter,
+                               SHIZSpriteNoAngle,
+                               SHIZSpriteNoTint,
+                               SHIZSpriteNoRepeat,
+                               false,
+                               SHIZSpriteLayerDefault,
+                               SHIZSpriteLayerDepthDefault);
 }
 
-void shiz_draw_sprite_ex(SHIZSprite const sprite,
-                         SHIZVector2 const origin,
-                         SHIZSize const size,
-                         SHIZVector2 const anchor,
-                         float const angle,
-                         SHIZColor const tint,
-                         bool const repeat,
-                         bool const opaque,
-                         unsigned char const layer,
-                         unsigned short const depth) {
+SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
+                             SHIZVector2 const origin,
+                             SHIZSize const size,
+                             SHIZVector2 const anchor,
+                             float const angle,
+                             SHIZColor const tint,
+                             bool const repeat,
+                             bool const opaque,
+                             unsigned char const layer,
+                             unsigned short const depth) {
     SHIZSize const sprite_size = shiz_sprite_draw(sprite, origin, size,
                                                   anchor, angle, tint,
                                                   repeat, opaque,
@@ -215,10 +216,16 @@ void shiz_draw_sprite_ex(SHIZSprite const sprite,
     if (shiz_debug_context.is_enabled) {
         if (shiz_debug_context.draw_sprite_shape &&
             (sprite_size.width > 0 && sprite_size.height > 0)) {
+            // todo: drawing this stuff here is problematic: it will increase the number of
+            // draw calls shown in the stats and that's not useful for debugging
             _shiz_debug_draw_sprite_shape(origin, sprite_size, anchor, angle);
         }
+
+        _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(sprite.resource_id));
     }
 #endif
+
+    return sprite_size;
 }
 
 SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font,
@@ -299,8 +306,12 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                 }
             }
 
+            // todo: drawing this stuff here is problematic: it will increase the number of
+            // draw calls shown in the stats and that's not useful for debugging
             _shiz_debug_draw_sprite_shape(origin, text_size, anchor, SHIZSpriteNoAngle);
         }
+
+        _shiz_debug_draw_sprite_resource(origin, shiz_res_get_image(font.sprite.resource_id));
     }
 #endif
 
@@ -332,20 +343,25 @@ static void _shiz_debug_build_stats() {
             shiz_gfx_debug_get_draw_count());
 }
 
-static void _shiz_debug_event(const char * event, SHIZVector3 const origin) {
+//static void _shiz_debug_event(const char * event, SHIZVector3 const origin) {
+static void _shiz_debug_event(SHIZDebugEvent const event) {
     if (shiz_debug_context.event_count < SHIZDebugEventMax) {
-        shiz_debug_context.events[shiz_debug_context.event_count].name = event;
-        shiz_debug_context.events[shiz_debug_context.event_count].origin = SHIZVector2Make(origin.x,
-                                                                                           origin.y);
+        shiz_debug_context.events[shiz_debug_context.event_count].name = event.name;
+        shiz_debug_context.events[shiz_debug_context.event_count].lane = event.lane;
+        shiz_debug_context.events[shiz_debug_context.event_count].origin = event.origin;
 
         shiz_debug_context.event_count += 1;
     } else {
-        printf("event not shown: %s", event);
+        printf("event not shown: %s", event.name);
     }
 }
 
 static void _shiz_debug_draw_events() {
-    uint const margin = 8;
+    uint const line_margin = 8;
+    uint const lane_margin = 2;
+    uint const lane_size = 4;
+
+    uint draw_events = 0;
 
     for (uint i = 0; i < shiz_debug_context.event_count; i++) {
         SHIZDebugEvent const event = shiz_debug_context.events[i];
@@ -355,19 +371,26 @@ static void _shiz_debug_draw_events() {
         attrs.scale = SHIZVector2Make(0.5, 0.5);
 
         SHIZColor const tint = SHIZSpriteTintDefaultWithAlpa(0.6f);
-        SHIZVector2 const draw_origin = SHIZVector2Make(event.origin.x,
-                                                        shiz_context.preferred_screen_size.height - 3);
+
+        float const lane_offset = lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
+
+        SHIZVector2 const from = SHIZVector2Make(event.origin.x,
+                                                 shiz_context.preferred_screen_size.height - lane_offset);
+        SHIZVector2 const to = SHIZVector2Make(event.origin.x,
+                                               event.origin.y);
 
         char event_buffer[128];
 
-        sprintf(event_buffer, "%u) %s", i + 1, event.name);
+        if (event.lane == SHIZDebugEventLaneDraws) {
+            sprintf(event_buffer, "%u) %s", draw_events + 1, event.name);
+        } else if (event.lane == SHIZDebugEventLaneResources) {
+            sprintf(event_buffer, "%s", event.name);
+        }
 
-        shiz_draw_line(SHIZVector2Make(draw_origin.x,
-                                       draw_origin.y - margin),
-                       event.origin, tint);
+        shiz_draw_line(SHIZVector2Make(from.x, from.y - line_margin), to, tint);
         shiz_draw_sprite_text_ex(shiz_debug_font,
                                  event_buffer,
-                                 draw_origin,
+                                 from,
                                  SHIZSpriteFontAlignmentCenter | SHIZSpriteFontAlignmentTop,
                                  SHIZSpriteFontSizeToFit, tint,
                                  attrs);
@@ -410,6 +433,19 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                                 origin.y - (anchor_size / 2 )),
                                 SHIZSizeMake(anchor_size, anchor_size)),
                    SHIZColorRed);
+}
+
+static void _shiz_debug_draw_sprite_resource(SHIZVector2 const origin,
+                                             SHIZResourceImage const resource) {
+    if (resource.filename) {
+        SHIZDebugEvent event;
+
+        event.name = resource.filename;
+        event.origin = SHIZVector3Make(origin.x, origin.y, 0);
+        event.lane = 1;
+        
+        _shiz_debug_event(event);
+    }
 }
 
 static void _shiz_debug_process_errors() {

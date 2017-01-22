@@ -63,7 +63,7 @@ void shiz_draw_rect_shape_ex(SHIZRect const rect,
  * @param origin
  *        The location where the sprite will be drawn.
  */
-void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
+SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
 /**
  * @brief Draw a sprite.
  *
@@ -94,16 +94,16 @@ void shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  * @param depth
  *        The depth of the sprite in the specified layer (sprites with lower depth are drawn first)
  */
-void shiz_draw_sprite_ex(SHIZSprite const sprite,
-                         SHIZVector2 const origin,
-                         SHIZSize const size,
-                         SHIZVector2 const anchor,
-                         float const angle,
-                         SHIZColor const tint,
-                         bool const repeat,
-                         bool const opaque,
-                         unsigned char const layer,
-                         unsigned short const depth);
+SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
+                             SHIZVector2 const origin,
+                             SHIZSize const size,
+                             SHIZVector2 const anchor,
+                             float const angle,
+                             SHIZColor const tint,
+                             bool const repeat,
+                             bool const opaque,
+                             unsigned char const layer,
+                             unsigned short const depth);
 
 /**
  * @brief Measure the size of a text.

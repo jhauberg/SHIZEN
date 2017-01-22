@@ -77,7 +77,7 @@ SHIZViewport shiz_gfx_get_viewport(void);
 void shiz_gfx_set_viewport(SHIZViewport const viewport);
 
 #ifdef DEBUG
-typedef void shiz_gfx_debug_event_callback(const char * event, SHIZVector3 const origin);
+typedef void shiz_gfx_debug_event_callback(SHIZDebugEvent const event);
 void shiz_gfx_debug_set_event_callback(shiz_gfx_debug_event_callback * const callback);
 uint shiz_gfx_debug_get_draw_count(void);
 uint shiz_gfx_debug_get_frames_per_second(void);
