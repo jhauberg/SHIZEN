@@ -12,7 +12,6 @@
 #include <SHIZEN/engine.h>
 
 #include <stdio.h>
-#include <math.h>
 
 #include "internal.h"
 #include "gfx.h"
@@ -51,13 +50,6 @@ static bool _shiz_can_run(void);
 
 static SHIZVector2 _shiz_glfw_window_position;
 
-static SHIZTimeLine _timeline;
-
-static double const maximum_frame_time = 1.0 / 4; // 4 frames per second
-
-static double _time_previous = 0;
-static double _time_lag = 0;
-
 SHIZGraphicsContext shiz_context;
 
 #ifdef SHIZ_DEBUG
@@ -86,11 +78,14 @@ static void key_callback(GLFWwindow * const window, int key, int scancode, int a
         }
     } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_MINUS) && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         if (shiz_debug_context.is_enabled) {
-            _timeline.scale -= 0.1f;
+            // todo: apply a boost the longer key is held
+            shiz_set_time_scale(shiz_get_time_scale() - 0.1);
+            //_timeline.scale -= 0.1;
         }
     } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_EQUAL) && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         if (shiz_debug_context.is_enabled) {
-            _timeline.scale += 0.1f;
+            //_timeline.scale += 0.1;
+            shiz_set_time_scale(shiz_get_time_scale() + 0.1);
         }
     }
 #endif
@@ -185,14 +180,8 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     
     shiz_context.is_initialized = true;
 
-    _timeline.time = 0;
-    _timeline.time_step = 0;
-    _timeline.scale = 1;
-
-    glfwSetTime(_timeline.time);
+    shiz_time_reset();
     
-    _time_previous = glfwGetTime();
-
 #ifdef SHIZ_DEBUG
     shiz_debug_context.is_enabled = true;
 
@@ -232,54 +221,6 @@ void shiz_request_finish() {
 
 bool shiz_should_finish() {
     return shiz_context.should_finish;
-}
-
-void shiz_ticking_begin(void) {
-    double const time = glfwGetTime();
-    double time_elapsed = time - _time_previous;
-    
-    if (time_elapsed > maximum_frame_time) {
-        time_elapsed = maximum_frame_time;
-    }
-    
-    _time_lag += fabs(time_elapsed * _timeline.scale);
-    _time_previous = time;
-}
-
-float shiz_ticking_end(void) {
-    return _time_lag / _timeline.time_step;
-}
-
-bool shiz_tick(uint const frequency) {
-    _timeline.time_step = 1.0 / frequency;
-
-    if (_time_lag >= _timeline.time_step) {
-        _time_lag -= _timeline.time_step;
-
-        _timeline.time += _timeline.time_step * shiz_get_time_direction();
-        
-        return true;
-    }
-    
-    return false;
-}
-
-double shiz_get_time() {
-    return _timeline.time;
-}
-
-float shiz_get_time_direction() {
-    if (_timeline.scale > 0) {
-        return 1;
-    } else if (_timeline.scale < 0) {
-        return -1;
-    }
-
-    return 0;
-}
-
-double shiz_get_tick_rate() {
-    return _timeline.time_step;
 }
 
 uint shiz_load(const char * const filename) {

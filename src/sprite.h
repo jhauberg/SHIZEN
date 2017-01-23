@@ -29,4 +29,4 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
                           unsigned char const layer,
                           unsigned short const depth);
 
-#endif /* sprite_h */
+#endif // sprite_h

@@ -22,6 +22,7 @@
 
 #include "type.h"
 #include "draw.h"
+#include "time.h"
 
 typedef struct SHIZWindowSettings SHIZWindowSettings;
 
@@ -99,14 +100,6 @@ void shiz_request_finish(void);
  * @return `true` if SHIZEN should finish up, `false` otherwise
  */
 bool shiz_should_finish(void);
-
-void shiz_ticking_begin(void);
-bool shiz_tick(uint const frequency);
-float shiz_ticking_end(void);
-
-double shiz_get_time(void);
-float shiz_get_time_direction(void);
-double shiz_get_tick_rate(void);
 
 /**
  * @brief Load a resource.

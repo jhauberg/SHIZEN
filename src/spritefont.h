@@ -29,4 +29,4 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
                                SHIZColor * const highlight_colors,
                                uint const highlight_color_count);
 
-#endif /* spritefont_h */
+#endif // spritefont_h

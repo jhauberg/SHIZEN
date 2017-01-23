@@ -32,7 +32,6 @@
 
 #include "type.h"
 
-
 #define SHIZSpriteInternalMax 2048
 #define SHIZSpriteFontMaxLines 16
 
@@ -93,7 +92,7 @@ struct SHIZGraphicsContext {
 struct SHIZTimeLine {
     double time;
     double time_step;
-    float scale;
+    double scale;
 };
 
 enum SHIZViewportMode {
@@ -176,6 +175,12 @@ struct SHIZSpriteFontMeasurement {
     bool constrain_vertically;
     /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
     int constrain_index;
+};
+
+static const SHIZTimeLine SHIZTimeLineDefault = {
+    .time = 0,
+    .time_step = 0,
+    .scale = 1
 };
 
 static const SHIZViewport SHIZViewportDefault = {
