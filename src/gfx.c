@@ -26,6 +26,7 @@ static void _shiz_gfx_debug_update_frame_averages(void);
 static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
 static shiz_gfx_debug_event_callback * _shiz_gfx_debug_event;
 
+static const char * const _shiz_gfx_debug_event_primitive = "primitive";
 static const char * const _shiz_gfx_debug_event_flush = "flush";
 static const char * const _shiz_gfx_debug_event_flush_capacity = "flush (cap)";
 static const char * const _shiz_gfx_debug_event_flush_texture_switch = "flush (tex)";
@@ -448,7 +449,7 @@ void shiz_gfx_render_ex(GLenum const mode,
     if (_shiz_gfx_debug_event) {
         SHIZDebugEvent event;
 
-        event.name = "primitive";
+        event.name = _shiz_gfx_debug_event_primitive;
         event.origin = origin;
         event.lane = SHIZDebugEventLaneDraws;
 
@@ -463,37 +464,37 @@ void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertic
                           GLuint const texture_id) {
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
-        bool const flushed = _shiz_gfx_spritebatch_flush();
-
+        if (_shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-        if (flushed && _shiz_gfx_debug_event) {
-            SHIZDebugEvent event;
+            if (_shiz_gfx_debug_event) {
+                SHIZDebugEvent event;
 
-            event.name = _shiz_gfx_debug_event_flush_texture_switch;
-            event.origin = origin;
-            event.lane = SHIZDebugEventLaneDraws;
+                event.name = _shiz_gfx_debug_event_flush_texture_switch;
+                event.origin = origin;
+                event.lane = SHIZDebugEventLaneDraws;
 
-            _shiz_gfx_debug_event(event);
-        }
+                _shiz_gfx_debug_event(event);
+            }
 #endif
+        }
     }
 
     _spritebatch.current_texture_id = texture_id;
 
     if (_spritebatch.current_count + 1 > spritebatch_max_count) {
-        bool const flushed = _shiz_gfx_spritebatch_flush();
-
+        if (_shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-        if (flushed && _shiz_gfx_debug_event) {
-            SHIZDebugEvent event;
+            if (_shiz_gfx_debug_event) {
+                SHIZDebugEvent event;
 
-            event.name = _shiz_gfx_debug_event_flush_capacity;
-            event.origin = origin;
-            event.lane = SHIZDebugEventLaneDraws;
+                event.name = _shiz_gfx_debug_event_flush_capacity;
+                event.origin = origin;
+                event.lane = SHIZDebugEventLaneDraws;
 
-            _shiz_gfx_debug_event(event);
-        }
+                _shiz_gfx_debug_event(event);
+            }
 #endif
+        }
     }
 
     uint const offset = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
