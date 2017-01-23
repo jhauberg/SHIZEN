@@ -22,6 +22,8 @@ static SHIZTimeLine _timeline;
 static double _time_previous = 0;
 static double _time_lag = 0;
 
+static bool _is_ticking = false;
+
 void shiz_time_reset() {
     _timeline = SHIZTimeLineDefault;
     
@@ -31,6 +33,12 @@ void shiz_time_reset() {
 }
 
 void shiz_ticking_begin() {
+    if (_is_ticking) {
+        return;
+    }
+
+    _is_ticking = true;
+
     double const time = glfwGetTime();
     double time_elapsed = time - _time_previous;
     
@@ -57,6 +65,12 @@ bool shiz_tick(ushort const frequency) {
 }
 
 double shiz_ticking_end() {
+    if (!_is_ticking) {
+        return 0;
+    }
+
+    _is_ticking = false;
+
     return _time_lag / _timeline.time_step;
 }
 
