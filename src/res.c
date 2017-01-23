@@ -15,6 +15,8 @@
 #include "res.font.h"
 #include "io.h"
 
+uint const SHIZResourceInvalid = 0;
+
 static bool _shiz_load_image_handler(int width, int height, int components,
                                      unsigned char * const data);
 
@@ -40,7 +42,6 @@ static uint const image_resource_id_max = max_images + image_resource_id_offset;
 static uint const sound_resource_id_offset = image_resource_id_max;
 static uint const sound_resource_id_max = max_sounds + sound_resource_id_offset;
 
-static uint const resource_id_invalid = 0;
 #ifdef SHIZ_DEBUG
 static uint const resource_id_max = sound_resource_id_max;
 #endif
@@ -104,15 +105,15 @@ uint shiz_res_load(SHIZResourceType const type, const char * const filename) {
         shiz_io_error("resource not loaded ('%s'); unsupported type (%s)",
                       filename, _shiz_res_get_filename_ext(filename));
         
-        return resource_id_invalid;
+        return SHIZResourceInvalid;
     }
     
-    uint resource_id = resource_id_invalid;
+    uint resource_id = SHIZResourceInvalid;
     
     uint expected_index;
     uint const expected_id = _shiz_res_next_id(type, &expected_index);
     
-    if (expected_id != resource_id_invalid) {
+    if (expected_id != SHIZResourceInvalid) {
         if (type == SHIZResourceTypeImage) {
             _shiz_load_image_resource = &images[expected_index];
             
@@ -158,7 +159,7 @@ static SHIZResourceType _shiz_res_get_type_from_id(uint const resource_id) {
 }
 
 bool shiz_res_unload(uint const resource_id) {
-    if (resource_id == resource_id_invalid) {
+    if (resource_id == SHIZResourceInvalid) {
         return false;
     }
 
@@ -174,7 +175,7 @@ bool shiz_res_unload(uint const resource_id) {
             
             images[index].width = 0;
             images[index].height = 0;
-            images[index].id = resource_id_invalid;
+            images[index].id = SHIZResourceInvalid;
             images[index].filename = NULL;
             images[index].texture_id = 0;
             
@@ -182,7 +183,7 @@ bool shiz_res_unload(uint const resource_id) {
         } else if (type == SHIZResourceTypeSound) {
             // todo: actual unloading left blank for future implementation
             
-            sounds[index].id = resource_id_invalid;
+            sounds[index].id = SHIZResourceInvalid;
             
             return true;
         } else {
@@ -199,7 +200,7 @@ bool shiz_res_unload_all() {
     for (uint image_resource_index = 0; image_resource_index < max_images; image_resource_index++) {
         uint resource_id = images[image_resource_index].id;
         
-        if (resource_id != resource_id_invalid) {
+        if (resource_id != SHIZResourceInvalid) {
             if (!shiz_res_unload(resource_id)) {
                 something_failed = true;
             }
@@ -209,7 +210,7 @@ bool shiz_res_unload_all() {
     for (uint sound_resource_index = 0; sound_resource_index < max_sounds; sound_resource_index++) {
         uint resource_id = sounds[sound_resource_index].id;
         
-        if (resource_id != resource_id_invalid) {
+        if (resource_id != SHIZResourceInvalid) {
             if (!shiz_res_unload(resource_id)) {
                 something_failed = true;
             }
@@ -235,9 +236,9 @@ static bool _shiz_res_is_sound(uint const resource_id) {
 
 static bool _shiz_res_is_index_free(uint const resource_index, SHIZResourceType const type) {
     if (type == SHIZResourceTypeImage) {
-        return images[resource_index].id == resource_id_invalid;
+        return images[resource_index].id == SHIZResourceInvalid;
     } else if (type == SHIZResourceTypeSound) {
-        return sounds[resource_index].id == resource_id_invalid;
+        return sounds[resource_index].id == SHIZResourceInvalid;
     }
     
     return false;
@@ -245,7 +246,7 @@ static bool _shiz_res_is_index_free(uint const resource_index, SHIZResourceType 
 
 static uint _shiz_res_next_id(SHIZResourceType const type, uint * index) {
     if (type == SHIZResourceTypeNotSupported) {
-        return resource_id_invalid;
+        return SHIZResourceInvalid;
     }
     
     uint start_id = 0;
@@ -277,7 +278,7 @@ static uint _shiz_res_next_id(SHIZResourceType const type, uint * index) {
         shiz_io_error("sound limit reached (%d)", max_sounds);
     }
     
-    return resource_id_invalid;
+    return SHIZResourceInvalid;
 }
 
 static bool _shiz_load_image_handler(int width, int height, int components,
@@ -327,7 +328,7 @@ void shiz_res_debug_print_resources() {
     for (uint image_resource_index = 0; image_resource_index < max_images; image_resource_index++) {
         uint resource_id = images[image_resource_index].id;
         
-        if (resource_id != resource_id_invalid) {
+        if (resource_id != SHIZResourceInvalid) {
             printf("i %02d: [%02d] %s (%dx%d)\n",
                    image_resource_index, resource_id,
                    images[image_resource_index].filename,
@@ -340,7 +341,7 @@ void shiz_res_debug_print_resources() {
     for (uint sound_resource_index = 0; sound_resource_index < max_sounds; sound_resource_index++) {
         uint resource_id = sounds[sound_resource_index].id;
         
-        if (resource_id != resource_id_invalid) {
+        if (resource_id != SHIZResourceInvalid) {
             printf("s %02d: [%02d] %s\n",
                    sound_resource_index, resource_id,
                    sounds[sound_resource_index].filename);
@@ -351,7 +352,7 @@ void shiz_res_debug_print_resources() {
 }
 
 bool shiz_res_debug_load_font() {
-    if (debug_font_resource.id != resource_id_invalid) {
+    if (debug_font_resource.id != SHIZResourceInvalid) {
         return false;
     }
 
@@ -371,7 +372,7 @@ bool shiz_res_debug_unload_font() {
 
     debug_font_resource.width = 0;
     debug_font_resource.height = 0;
-    debug_font_resource.id = resource_id_invalid;
+    debug_font_resource.id = SHIZResourceInvalid;
     debug_font_resource.filename = NULL;
     debug_font_resource.texture_id = 0;
 

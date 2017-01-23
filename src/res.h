@@ -41,6 +41,8 @@ struct SHIZResourceSound {
     const char *filename;
 };
 
+extern uint const SHIZResourceInvalid;
+
 static SHIZResourceImage const SHIZResourceImageEmpty = { 0, 0, 0, 0, NULL };
 static SHIZResourceSound const SHIZResourceSoundEmpty = { 0, NULL };
 

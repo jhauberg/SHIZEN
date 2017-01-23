@@ -233,15 +233,24 @@ bool shiz_unload(uint const resource_id) {
 
 SHIZSprite shiz_load_sprite(const char * const filename) {
     uint const resource_id = shiz_load(filename);
-    
+
+    if (resource_id == SHIZResourceInvalid) {
+        return SHIZSpriteEmpty;
+    }
+
     return shiz_get_sprite(resource_id);
 }
 
 SHIZSprite shiz_load_sprite_src(const char * const filename, SHIZRect const source) {
     SHIZSprite sprite = shiz_load_sprite(filename);
-    
+
+    if (sprite.resource_id == SHIZResourceInvalid) {
+        return SHIZSpriteEmpty;
+    }
+
     return shiz_get_sprite_src(sprite.resource_id, source);
 }
+
 
 SHIZSprite shiz_get_sprite(uint const resource_id) {
     SHIZResourceImage const image = shiz_res_get_image(resource_id);
