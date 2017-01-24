@@ -12,12 +12,6 @@
 #ifndef engine_h
 #define engine_h
 
-#define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 14
-#define SHIZEN_VERSION_PATCH 2
-
-#define SHIZEN_VERSION_NAME "ALPHA"
-
 #include <stdbool.h>
 
 #include "type.h"

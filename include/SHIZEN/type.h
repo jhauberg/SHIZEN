@@ -270,4 +270,21 @@ static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
     return SHIZSpriteTintWithAlpa(SHIZSpriteNoTint, alpha);
 }
 
+static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithScaleAndWrap(float const scale, SHIZSpriteFontWrapMode const wrap) {
+    SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault;
+
+    attrs.scale = SHIZVector2Make(scale, scale);
+    attrs.wrap = wrap;
+
+    return attrs;
+}
+
+static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithScale(float const scale) {
+    return SHIZSpriteFontAttributesWithScaleAndWrap(scale, SHIZSpriteFontAttributesDefault.wrap);
+}
+
+static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap) {
+    return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteFontAttributesDefault.scale.x, wrap);
+}
+
 #endif // type_h
