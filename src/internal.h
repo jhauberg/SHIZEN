@@ -12,6 +12,12 @@
 #ifndef internal_h
 #define internal_h
 
+#define SHIZEN_VERSION_MAJOR 0
+#define SHIZEN_VERSION_MINOR 14
+#define SHIZEN_VERSION_PATCH 3
+
+#define SHIZEN_VERSION_NAME "ALPHA"
+
 #define GLFW_INCLUDE_NONE
 
 #include <GL/gl3w.h>

@@ -38,7 +38,9 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
     SHIZResourceImage const image = shiz_res_get_image(sprite.resource_id);
 
     if (sprite.resource_id == SHIZResourceInvalid ||
-        sprite.resource_id != image.id) {
+        sprite.resource_id != image.id ||
+        (sprite.source.size.width <= 0 ||
+         sprite.source.size.height <= 0)) {
         return SHIZSizeEmpty;
     }
 
