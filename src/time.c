@@ -88,6 +88,10 @@ double shiz_get_time_scale() {
 
 void shiz_set_time_scale(double const scale) {
     _timeline.scale = scale;
+    
+    if (_shiz_fequal(_timeline.scale, 0)) {
+        _timeline.scale = 0;
+    }
 }
 
 float shiz_get_time_direction() {
