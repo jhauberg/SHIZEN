@@ -10,6 +10,7 @@
 //
 
 #include <SHIZEN/draw.h>
+#include <SHIZEN/time.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +30,8 @@ static void _shiz_draw_rect(SHIZRect const rect,
                             SHIZVector2 const anchor,
                             float const angle);
 
-static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color);
-static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
+static void _shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color);
+static void _shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color);
 
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_event(SHIZDebugEvent const event);
@@ -38,6 +39,8 @@ static void _shiz_debug_process_errors(void);
 static void _shiz_debug_build_stats(void);
 static void _shiz_debug_draw_stats(void);
 static void _shiz_debug_draw_events(void);
+static void _shiz_debug_draw_sprite_gizmo(SHIZVector2 const anchor,
+                                          float const angle);
 static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                           SHIZSize const size,
                                           SHIZVector2 const anchor,
@@ -97,7 +100,7 @@ void shiz_drawing_end() {
     glfwPollEvents();
 }
 
-static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color) {
+static void _shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZColor const color) {
     SHIZVertexPositionColor vertices[count];
 
     for (uint i = 0; i < count; i++) {
@@ -108,18 +111,18 @@ static void shiz_draw_path_3d(SHIZVector3 const points[], uint const count, SHIZ
     shiz_gfx_render(GL_LINE_STRIP, vertices, count);
 }
 
-static void shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color) {
+static void _shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const color) {
     SHIZVector3 points[] = {
         from, to
     };
 
-    shiz_draw_path_3d(points, 2, color);
+    _shiz_draw_path_3d(points, 2, color);
 }
 
 void shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color) {
-    shiz_draw_line_3d(SHIZVector3Make(from.x, from.y, 0),
-                      SHIZVector3Make(to.x, to.y, 0),
-                      color);
+    _shiz_draw_line_3d(SHIZVector3Make(from.x, from.y, 0),
+                       SHIZVector3Make(to.x, to.y, 0),
+                       color);
 }
 
 void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor const color) {
@@ -130,7 +133,7 @@ void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor cons
         points3[i].y = points[i].y;
     }
 
-    shiz_draw_path_3d(points3, count, color);
+    _shiz_draw_path_3d(points3, count, color);
 }
 
 static void _shiz_draw_rect(SHIZRect const rect,
@@ -339,7 +342,8 @@ static void _shiz_debug_build_stats() {
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
             "\2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
             "%c%d/%d sprites/frame\1\n"
-            "\2%d draws/frame\1",
+            "\2%d draws/frame\1\n\n"
+            "\2\x17%.1fx time\1",
             viewport.screen.width, viewport.screen.height,
             viewport.framebuffer.width, viewport.framebuffer.height,
             shiz_gfx_debug_get_frame_time(),
@@ -350,9 +354,8 @@ static void _shiz_debug_build_stats() {
             shiz_gfx_debug_get_frames_per_second_max(),
             (shiz_debug_context.sprite_count > SHIZSpriteInternalMax ? '\3' : '\2'),
             shiz_debug_context.sprite_count, SHIZSpriteInternalMax,
-            // note that draw count will also include the debug stuff, so in production
-            // this count may actually be smaller (likely not significantly smaller, though)
-            shiz_gfx_debug_get_draw_count());
+            shiz_gfx_debug_get_draw_count(),
+            shiz_get_time_scale());
 }
 
 static void _shiz_debug_event(SHIZDebugEvent const event) {
@@ -378,10 +381,6 @@ static void _shiz_debug_draw_events() {
 
     for (uint i = 0; i < shiz_debug_context.event_count; i++) {
         SHIZDebugEvent const event = shiz_debug_context.events[i];
-
-        SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault;
-
-        attrs.scale = SHIZVector2Make(0.5, 0.5);
 
         float const lane_offset = lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
 
@@ -409,12 +408,13 @@ static void _shiz_debug_draw_events() {
         tint.alpha = 0.5f;
 
         shiz_draw_line(SHIZVector2Make(from.x, from.y - line_margin), to, tint);
+
         shiz_draw_sprite_text_ex(shiz_debug_font,
                                  event_buffer,
                                  from,
                                  SHIZSpriteFontAlignmentCenter | SHIZSpriteFontAlignmentTop,
                                  SHIZSpriteFontSizeToFit, tint,
-                                 attrs);
+                                 SHIZSpriteFontAttributesWithScale(0.6f));
     }
 }
 
@@ -432,6 +432,7 @@ static void _shiz_debug_draw_stats() {
     SHIZVector2Make(shiz_context.preferred_screen_size.width - margin,
                     shiz_context.preferred_screen_size.height - margin);
 
+    SHIZSize stats_text_size =
     shiz_draw_sprite_text_ex_colored(shiz_debug_font,
                                      _shiz_debug_stats_buffer,
                                      stats_text_origin,
@@ -439,6 +440,62 @@ static void _shiz_debug_draw_stats() {
                                      SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
                                      SHIZSpriteFontAttributesDefault,
                                      highlight_colors, 4);
+
+    char version_buffer[128];
+
+    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (built %s, %s)",
+            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
+            SHIZEN_VERSION_NAME, __DATE__, __TIME__);
+
+    shiz_draw_sprite_text_ex(shiz_debug_font,
+                             version_buffer,
+                             SHIZVector2Make(margin / 2, margin / 2),
+                             SHIZSpriteFontAlignmentBottom | SHIZSpriteFontAlignmentLeft,
+                             SHIZSpriteFontSizeToFit, SHIZSpriteTintDefaultWithAlpa(0.25f),
+                             SHIZSpriteFontAttributesWithScale(1));
+
+    SHIZVector2 help_text_origin =
+    SHIZVector2Make(stats_text_origin.x,
+                    stats_text_origin.y - (stats_text_size.height + (margin * 3)));
+    
+    shiz_draw_sprite_text_ex(shiz_debug_font,
+                             "SHFT-1 TOGGLE SHAPES\n"
+                             "SHFT-2 TOGGLE EVENTS\n"
+                             "SHFT-+  TIME CONTROL",
+                             help_text_origin,
+                             SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
+                             SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
+                             SHIZSpriteFontAttributesDefault);
+}
+
+static void _shiz_debug_draw_sprite_gizmo(SHIZVector2 const anchor, float const angle) {
+    float const axis_length = 5;
+
+    SHIZVector3 const origin = SHIZVector3Make(anchor.x, anchor.y, 0);
+    
+    SHIZVertexPositionColor vertices[2];
+    
+    vertices[0].position = SHIZVector3Zero;
+    
+    // x axis
+    vertices[1].position = SHIZVector3Make(axis_length, 0, 0);
+    vertices[0].color = SHIZColorBlue;
+    vertices[1].color = SHIZColorBlue;
+    
+    shiz_gfx_render_ex(GL_LINE_STRIP, vertices, 2, origin, angle);
+    
+    // y axis
+    vertices[1].position = SHIZVector3Make(0, axis_length, 0);
+    vertices[0].color = SHIZColorGreen;
+    vertices[1].color = SHIZColorGreen;
+    
+    shiz_gfx_render_ex(GL_LINE_STRIP, vertices, 2, origin, angle);
+
+    // anchor
+    float const anchor_size = 2;
+    
+    shiz_draw_rect_ex(SHIZRectMake(anchor, SHIZSizeMake(anchor_size, anchor_size)),
+                      SHIZColorRed, SHIZSpriteAnchorCenter, angle);
 }
 
 static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
@@ -452,12 +509,7 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
     shiz_draw_rect_shape_ex(SHIZRectMake(origin, size),
                             SHIZColorRed, anchor, angle);
 
-    float const anchor_size = 2;
-
-    shiz_draw_rect(SHIZRectMake(SHIZVector2Make(origin.x - (anchor_size / 2),
-                                                origin.y - (anchor_size / 2 )),
-                                SHIZSizeMake(anchor_size, anchor_size)),
-                   SHIZColorRed);
+    _shiz_debug_draw_sprite_gizmo(origin, angle);
 
     shiz_debug_context.is_tracking_enabled = previously_tracking_events;
 }
