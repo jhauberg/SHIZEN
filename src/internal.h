@@ -35,8 +35,11 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "type.h"
+
+#define SHIZEpsilon (1.0 / 1024)
 
 #define SHIZSpriteInternalMax 2048
 #define SHIZSpriteFontMaxLines 16
@@ -232,6 +235,10 @@ static inline void _shiz_str_to_upper(char * string) {
     for (ptr = string; *ptr != '\0'; ptr++) {
         *ptr = (char)toupper(*ptr);
     }
+}
+
+static inline bool _shiz_fequal(float const a, float const b) {
+    return (fabs(b - a) < SHIZEpsilon);
 }
 
 static inline float _shiz_lerp(float const a, float const b, float const t) {
