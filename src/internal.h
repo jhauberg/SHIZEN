@@ -72,7 +72,7 @@ typedef struct SHIZDebugEvent {
     uint lane;
 } SHIZDebugEvent;
 
-#define SHIZDebugEventMax 128
+#define SHIZDebugEventMax 64
 
 typedef struct SHIZDebugContext {
     bool is_enabled;
@@ -141,8 +141,7 @@ struct SHIZVertexPositionColorTexture {
 typedef struct SHIZSpriteInternalKey {
     bool is_transparent: 1; // the least significant bit
     unsigned short texture_id: 7;
-    unsigned short layer_depth: 16;
-    unsigned short layer: 8; // the most significant bits
+    SHIZLayer layer; // the most significant bits
 } SHIZSpriteInternalKey;
 
 typedef struct SHIZSpriteInternal {
@@ -255,6 +254,15 @@ static inline float _shiz_random_float(void) {
 
 static inline float _shiz_random_float_range(float const min, float const max) {
     return _shiz_lerp(min, max, _shiz_random_float());
+}
+
+static inline float _shiz_layer_get_z(SHIZLayer const layer) {
+    float const value = layer.layer + layer.depth;
+    
+    float const min = SHIZLayerMin + SHIZLayerDepthMin;
+    float const max = SHIZLayerMax + SHIZLayerDepthMax;
+    
+    return (float)(value - min) / (max - min);
 }
 
 #endif // internal_h

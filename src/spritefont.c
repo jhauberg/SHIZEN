@@ -147,6 +147,7 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
                                SHIZSize const bounds,
                                SHIZColor const tint,
                                SHIZSpriteFontAttributes const attributes,
+                               SHIZLayer const layer,
                                SHIZColor * const highlight_colors,
                                uint const highlight_color_count) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
@@ -279,7 +280,7 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
                                      measurement.character_size,
                                      SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle,
                                      highlight_color, SHIZSpriteNoRepeat, false,
-                                     SHIZSpriteLayerDefault, SHIZSpriteLayerDepthDefault);
+                                     layer);
                 }
             }
 

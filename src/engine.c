@@ -78,13 +78,10 @@ static void key_callback(GLFWwindow * const window, int key, int scancode, int a
         }
     } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_MINUS) && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         if (shiz_debug_context.is_enabled) {
-            // todo: apply a boost the longer key is held
             shiz_set_time_scale(shiz_get_time_scale() - 0.1);
-            //_timeline.scale -= 0.1;
         }
     } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_EQUAL) && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
         if (shiz_debug_context.is_enabled) {
-            //_timeline.scale += 0.1;
             shiz_set_time_scale(shiz_get_time_scale() + 0.1);
         }
     }

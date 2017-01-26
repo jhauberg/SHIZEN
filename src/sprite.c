@@ -11,8 +11,6 @@
 
 #include "sprite.h"
 
-#include <limits.h>
-
 #include "gfx.h"
 #include "res.h"
 
@@ -22,9 +20,6 @@ static uint _shiz_sprites_count = 0;
 
 static SHIZSpriteInternal _shiz_sprites[SHIZSpriteInternalMax];
 
-static unsigned short const _shiz_sprite_layer_min = 0;
-static unsigned short const _shiz_sprite_layer_max = USHRT_MAX;
-
 SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
                           SHIZVector2 const origin,
                           SHIZSize const size,
@@ -33,8 +28,7 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
                           SHIZColor const tint,
                           bool const repeat,
                           bool const opaque,
-                          unsigned char const layer,
-                          unsigned short const depth) {
+                          SHIZLayer const layer) {
     SHIZResourceImage const image = shiz_res_get_image(sprite.resource_id);
 
     if (sprite.resource_id == SHIZResourceInvalid ||
@@ -130,16 +124,13 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
         vertices[i].texture_coord_max = uv_max;
     }
 
-    // range within [-1;0], where -1 is nearest (so layer 128 should be z = -1)
-    float const z = -((layer - _shiz_sprite_layer_min) /
-                      (_shiz_sprite_layer_max - _shiz_sprite_layer_min));
+    float const z = _shiz_layer_get_z(layer);
 
     unsigned long key = 0;
 
     SHIZSpriteInternalKey * sprite_key = (SHIZSpriteInternalKey *)&key;
-
+    
     sprite_key->layer = layer;
-    sprite_key->layer_depth = depth;
     sprite_key->texture_id = image.texture_id;
     sprite_key->is_transparent = !opaque;
 

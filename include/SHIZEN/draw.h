@@ -34,10 +34,12 @@ void shiz_drawing_end(void);
  * @brief Draw a line.
  */
 void shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color);
+void shiz_draw_line_ex(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color, SHIZLayer const layer);
 /**
  * @brief Draw a path.
  */
 void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor const color);
+void shiz_draw_path_ex(SHIZVector2 const points[], uint const count, SHIZColor const color, SHIZLayer const layer);
 /**
  * @brief Draw a filled rectangle.
  */
@@ -46,7 +48,8 @@ void shiz_draw_rect(SHIZRect const rect,
 void shiz_draw_rect_ex(SHIZRect const rect,
                        SHIZColor const color,
                        SHIZVector2 const anchor,
-                       float const angle);
+                       float const angle,
+                       SHIZLayer const layer);
 /**
  * @brief Draw a rectangle.
  */
@@ -55,7 +58,8 @@ void shiz_draw_rect_shape(SHIZRect const rect,
 void shiz_draw_rect_shape_ex(SHIZRect const rect,
                              SHIZColor const color,
                              SHIZVector2 const anchor,
-                             float const angle);
+                             float const angle,
+                             SHIZLayer const layer);
 
 /**
  * @brief Draw a sprite.
@@ -91,8 +95,6 @@ SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  *        Specify whether the sprite does not draw transparent pixels
  * @param layer
  *        The layer to draw this sprite in (lower layers are drawn first)
- * @param depth
- *        The depth of the sprite in the specified layer (sprites with lower depth are drawn first)
  */
 SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
                              SHIZVector2 const origin,
@@ -102,8 +104,7 @@ SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
                              SHIZColor const tint,
                              bool const repeat,
                              bool const opaque,
-                             unsigned char const layer,
-                             unsigned short const depth);
+                             SHIZLayer const layer);
 
 /**
  * @brief Measure the size of a text.
@@ -187,7 +188,8 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font,
                                   SHIZSpriteFontAlignment const alignment,
                                   SHIZSize const bounds,
                                   SHIZColor const tint,
-                                  SHIZSpriteFontAttributes const attributes);
+                                  SHIZSpriteFontAttributes const attributes,
+                                  SHIZLayer const layer);
 SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                                           const char * const text,
                                           SHIZVector2 const origin,
@@ -195,6 +197,7 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                                           SHIZSize const bounds,
                                           SHIZColor const tint,
                                           SHIZSpriteFontAttributes const attributes,
+                                          SHIZLayer const layer,
                                           SHIZColor * const highlight_colors,
                                           uint const highlight_color_count);
 

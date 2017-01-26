@@ -29,6 +29,11 @@ const SHIZRect SHIZRectEmpty = {
     .size = { 0, 0 }
 };
 
+const SHIZLayer SHIZLayerDefault = {
+    .layer = 0,
+    .depth = 0
+};
+
 const SHIZSprite SHIZSpriteEmpty = {
     .resource_id = 0,
     .source = {
@@ -38,10 +43,6 @@ const SHIZSprite SHIZSpriteEmpty = {
 };
 
 const SHIZSize SHIZSpriteSizeIntrinsic = { -1, -1 };
-
-const float SHIZSpriteNoAngle = 0;
-const unsigned char SHIZSpriteLayerDefault = 0;
-const unsigned short SHIZSpriteLayerDepthDefault = 0;
 
 const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
 const SHIZVector2 SHIZSpriteAnchorTop = { 0.0f, 1.0f };

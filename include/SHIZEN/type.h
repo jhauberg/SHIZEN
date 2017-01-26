@@ -14,6 +14,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <limits.h>
 
 typedef struct SHIZVector2 SHIZVector2;
 typedef struct SHIZVector3 SHIZVector3;
@@ -50,6 +51,17 @@ struct SHIZColor {
     float r, g, b;
     float alpha;
 };
+
+#define SHIZLayerMin 0
+#define SHIZLayerMax UCHAR_MAX
+
+#define SHIZLayerDepthMin 0
+#define SHIZLayerDepthMax USHRT_MAX
+
+typedef struct SHIZLayer {
+    unsigned short depth: 16;
+    unsigned short layer: 8;
+} SHIZLayer;
 
 /**
  * Represents a 2-dimensional frame of an image resource.
@@ -146,14 +158,9 @@ extern const SHIZSprite SHIZSpriteEmpty;
 extern const SHIZSize SHIZSpriteSizeIntrinsic;
 
 /**
- * @brief Do not apply rotation.
- */
-extern const float SHIZSpriteNoAngle;
-/**
  * @brief Default sprite layer.
  */
-extern unsigned char const SHIZSpriteLayerDefault;
-extern unsigned short const SHIZSpriteLayerDepthDefault;
+extern SHIZLayer const SHIZLayerDefault;
 
 extern const SHIZVector2 SHIZSpriteAnchorCenter;
 extern const SHIZVector2 SHIZSpriteAnchorTop;
@@ -166,6 +173,10 @@ extern const SHIZVector2 SHIZSpriteAnchorRight;
 extern const SHIZVector2 SHIZSpriteAnchorBottomRight;
 
 /**
+ * @brief Do not apply rotation.
+ */
+#define SHIZSpriteNoAngle 0
+/**
  * @brief Do not apply a tint.
  */
 #define SHIZSpriteNoTint SHIZColorWhite
@@ -177,6 +188,14 @@ extern const SHIZVector2 SHIZSpriteAnchorBottomRight;
  * @brief Do not repeat the sprite.
  */
 #define SHIZSpriteNoRepeat false
+/**
+ * @brief The sprite contains transparent pixels.
+ */
+#define SHIZSpriteNotOpaque false
+/**
+ * @brief The sprite does not contain transparent pixels.
+ */
+#define SHIZSpriteIsOpaque true
 
 /**
  * @brief Do not constrain text to bounds.
@@ -285,6 +304,31 @@ static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithScale(f
 
 static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap) {
     return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteFontAttributesDefault.scale.x, wrap);
+}
+
+static inline const SHIZLayer SHIZLayeredWithDepth(unsigned char const layer, unsigned short const depth) {
+    SHIZLayer result;
+    
+    result.layer = layer;
+    result.depth = depth;
+    
+    return result;
+}
+
+static inline const SHIZLayer SHIZLayered(unsigned char const layer) {
+    return SHIZLayeredWithDepth(layer, SHIZLayerDefault.depth);
+}
+
+static inline const SHIZLayer SHIZLayeredAbove(SHIZLayer const layer) {
+    SHIZLayer layer_above = layer;
+    
+    if (layer.depth < SHIZLayerDepthMax) {
+        layer_above.depth = layer.depth + 1;
+    } else if (layer.layer < SHIZLayerMax) {
+        layer_above.layer = layer.layer + 1;
+    }
+    
+    return layer_above;
 }
 
 #endif // type_h

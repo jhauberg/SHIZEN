@@ -26,7 +26,6 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
                           SHIZColor const tint,
                           bool const repeat,
                           bool const opaque,
-                          unsigned char const layer,
-                          unsigned short const depth);
+                          SHIZLayer const layer);
 
 #endif // sprite_h
