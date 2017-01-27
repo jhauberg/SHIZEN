@@ -13,14 +13,13 @@
 #define time_h
 
 #include <stdbool.h>
-#include <stdint.h>
 
 void shiz_time_reset(void);
 
 void shiz_ticking_begin(void);
 double shiz_ticking_end(void);
 
-bool shiz_tick(ushort const frequency);
+bool shiz_tick(unsigned short const frequency);
 
 double shiz_get_tick_rate(void);
 double shiz_get_time(void);

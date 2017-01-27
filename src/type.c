@@ -11,30 +11,41 @@
 
 #include <SHIZEN/type.h>
 
-const SHIZVector2 SHIZVector2Zero = { 0, 0 };
-const SHIZVector2 SHIZVector2One = { 1, 1 };
-const SHIZVector3 SHIZVector3Zero = { 0, 0, 0 };
-const SHIZVector3 SHIZVector3One = { 1, 1, 1 };
+SHIZVector2 const SHIZVector2Zero = { 0, 0 };
+SHIZVector2 const SHIZVector2One = { 1, 1 };
+SHIZVector3 const SHIZVector3Zero = { 0, 0, 0 };
+SHIZVector3 const SHIZVector3One = { 1, 1, 1 };
 
-const SHIZColor SHIZColorWhite = { 1, 1, 1, 1 };
-const SHIZColor SHIZColorBlack = { 0, 0, 0, 1 };
-const SHIZColor SHIZColorRed = { 1, 0, 0, 1 };
-const SHIZColor SHIZColorGreen = { 0, 1, 0, 1 };
-const SHIZColor SHIZColorBlue = { 0, 0, 1, 1 };
-const SHIZColor SHIZColorYellow = { 1, 1, 0, 1 };
+SHIZColor const SHIZColorWhite = { 1, 1, 1, 1 };
+SHIZColor const SHIZColorBlack = { 0, 0, 0, 1 };
+SHIZColor const SHIZColorRed = { 1, 0, 0, 1 };
+SHIZColor const SHIZColorGreen = { 0, 1, 0, 1 };
+SHIZColor const SHIZColorBlue = { 0, 0, 1, 1 };
+SHIZColor const SHIZColorYellow = { 1, 1, 0, 1 };
 
-const SHIZSize SHIZSizeEmpty = { 0, 0 };
-const SHIZRect SHIZRectEmpty = {
+SHIZSize const SHIZSizeEmpty = { 0, 0 };
+
+SHIZRect const SHIZRectEmpty = {
     .origin = { 0, 0 },
     .size = { 0, 0 }
 };
 
-const SHIZLayer SHIZLayerDefault = {
+SHIZLayer const SHIZLayerDefault = {
     .layer = 0,
     .depth = 0
 };
 
-const SHIZSprite SHIZSpriteEmpty = {
+SHIZVector2 const SHIZAnchorCenter = { 0.0f, 0.0f };
+SHIZVector2 const SHIZAnchorTop = { 0.0f, 1.0f };
+SHIZVector2 const SHIZAnchorTopLeft = { -1.0f, 1.0f };
+SHIZVector2 const SHIZAnchorLeft = { -1.0f, 0.0f };
+SHIZVector2 const SHIZAnchorBottomLeft = { -1.0f, -1.0f };
+SHIZVector2 const SHIZAnchorBottom = { 0.0f, -1.0f };
+SHIZVector2 const SHIZAnchorTopRight = { 1.0f, 1.0f };
+SHIZVector2 const SHIZAnchorRight = { 1.0f, 0.0f };
+SHIZVector2 const SHIZAnchorBottomRight = { 1.0f, -1.0f };
+
+SHIZSprite const SHIZSpriteEmpty = {
     .resource_id = 0,
     .source = {
         .origin = { 0, 0 },
@@ -42,19 +53,9 @@ const SHIZSprite SHIZSpriteEmpty = {
     }
 };
 
-const SHIZSize SHIZSpriteSizeIntrinsic = { -1, -1 };
+SHIZSize const SHIZSpriteSizeIntrinsic = { -1, -1 };
 
-const SHIZVector2 SHIZSpriteAnchorCenter = { 0.0f, 0.0f };
-const SHIZVector2 SHIZSpriteAnchorTop = { 0.0f, 1.0f };
-const SHIZVector2 SHIZSpriteAnchorTopLeft = { -1.0f, 1.0f };
-const SHIZVector2 SHIZSpriteAnchorLeft = { -1.0f, 0.0f };
-const SHIZVector2 SHIZSpriteAnchorBottomLeft = { -1.0f, -1.0f };
-const SHIZVector2 SHIZSpriteAnchorBottom = { 0.0f, -1.0f };
-const SHIZVector2 SHIZSpriteAnchorTopRight = { 1.0f, 1.0f };
-const SHIZVector2 SHIZSpriteAnchorRight = { 1.0f, 0.0f };
-const SHIZVector2 SHIZSpriteAnchorBottomRight = { 1.0f, -1.0f };
-
-const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault = {
+SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault = {
     .scale = { 1, 1 },
     .wrap = SHIZSpriteFontWrapModeWord,
     .character_spread = SHIZSpriteFontSpreadNormal,

@@ -34,12 +34,14 @@ void shiz_drawing_end(void);
  * @brief Draw a line.
  */
 void shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color);
-void shiz_draw_line_ex(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color, SHIZLayer const layer);
+void shiz_draw_line_ex(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color,
+                       SHIZLayer const layer);
 /**
  * @brief Draw a path.
  */
-void shiz_draw_path(SHIZVector2 const points[], uint const count, SHIZColor const color);
-void shiz_draw_path_ex(SHIZVector2 const points[], uint const count, SHIZColor const color, SHIZLayer const layer);
+void shiz_draw_path(SHIZVector2 const points[], unsigned int const count, SHIZColor const color);
+void shiz_draw_path_ex(SHIZVector2 const points[], unsigned int const count, SHIZColor const color,
+                       SHIZLayer const layer);
 /**
  * @brief Draw a filled rectangle.
  */
@@ -64,13 +66,19 @@ void shiz_draw_rect_shape_ex(SHIZRect const rect,
 /**
  * @brief Draw a sprite.
  *
+ * @param sprite
+ *        The sprite to draw
  * @param origin
- *        The location where the sprite will be drawn.
+ *        The location where the sprite will be drawn
+ *
+ * @return a SHIZSize with the bounding width and height of the drawn sprite
  */
 SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
 /**
  * @brief Draw a sprite.
  *
+ * @param sprite
+ *        The sprite to draw
  * @param origin
  *        The location where the sprite will be drawn
  * @param size
@@ -95,6 +103,8 @@ SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  *        Specify whether the sprite does not draw transparent pixels
  * @param layer
  *        The layer to draw this sprite in (lower layers are drawn first)
+ *
+ * @return a SHIZSize with the bounding width and height of the drawn sprite
  */
 SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
                              SHIZVector2 const origin,
@@ -137,7 +147,7 @@ SHIZSize shiz_measure_sprite_text(SHIZSpriteFont const font,
  * Draw a text at a location, aligned as specified.
  *
  * @param font
- *        A SHIZSpriteFont defining the resource containing character sprites.
+ *        A SHIZSpriteFont defining the resource containing character sprites
  * @param text
  *        The string of text to draw
  * @param origin
@@ -160,7 +170,7 @@ SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font,
  * @remark Applying vertical bounds can cause the text to be truncated if it exceeds the bounds.
  *
  * @param font
- *        A SHIZSpriteFont defining the resource containing character sprites.
+ *        A SHIZSpriteFont defining the resource containing character sprites
  * @param text
  *        The string of text to draw
  * @param origin
@@ -179,6 +189,8 @@ SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font,
  * @param attributes
  *        A SHIZSpriteFontAttributes containing any additional attributes to draw the text
  *        (use `SHIZSpriteFontAttributesDefault` to apply default attributes)
+ * @param layer
+ *        The layer to draw text in
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
@@ -199,6 +211,6 @@ SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                                           SHIZSpriteFontAttributes const attributes,
                                           SHIZLayer const layer,
                                           SHIZColor * const highlight_colors,
-                                          uint const highlight_color_count);
+                                          unsigned int const highlight_color_count);
 
 #endif // draw_h

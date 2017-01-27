@@ -18,12 +18,10 @@
 #include "draw.h"
 #include "time.h"
 
-typedef struct SHIZWindowSettings SHIZWindowSettings;
-
 /**
  * Provides settings and flags for the creation of the window.
  */
-struct SHIZWindowSettings {
+typedef struct SHIZWindowSettings {
     /** The name of the window */
     const char *title;
     /** Determines whether the window should be fullscreen */
@@ -32,14 +30,14 @@ struct SHIZWindowSettings {
     bool vsync;
     /** The size of the window */
     SHIZSize size;
-};
+} SHIZWindowSettings;
 
 /**
  * @brief Default window settings.
  *
  * Default window settings provides a 320x240 non-fullscreen window with v-sync enabled.
  */
-extern const SHIZWindowSettings SHIZWindowSettingsDefault;
+extern SHIZWindowSettings const SHIZWindowSettingsDefault;
 
 /**
  * @brief Startup the SHIZEN engine core.
@@ -100,19 +98,19 @@ bool shiz_should_finish(void);
  *
  * @return A resource id if the resource was loaded successfully, `0` otherwise
  */
-uint shiz_load(const char * const filename);
+unsigned int shiz_load(const char * const filename);
 /**
  * @brief Unload a resource.
  *
  * @return `true` if the resource was unloaded successfully, `false` otherwise
  */
-bool shiz_unload(uint const resource_id);
+bool shiz_unload(unsigned int const resource_id);
 
 SHIZSprite shiz_load_sprite(const char * const filename);
 SHIZSprite shiz_load_sprite_src(const char * const filename, SHIZRect const source);
 
-SHIZSprite shiz_get_sprite(uint const resource_id);
-SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect const source);
+SHIZSprite shiz_get_sprite(unsigned int const resource_id);
+SHIZSprite shiz_get_sprite_src(unsigned int const resource_id, SHIZRect const source);
 
 SHIZSpriteFont shiz_load_sprite_font(const char * const filename,
                                      SHIZSize const character);

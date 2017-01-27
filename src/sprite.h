@@ -14,18 +14,19 @@
 
 #include "internal.h"
 
-SHIZRect shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor);
+SHIZRect const shiz_sprite_get_anchored_rect(SHIZSize const size,
+                                             SHIZVector2 const anchor);
 
 void shiz_sprite_flush(void);
 
-SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
-                          SHIZVector2 const origin,
-                          SHIZSize const size,
-                          SHIZVector2 const anchor,
-                          float const angle,
-                          SHIZColor const tint,
-                          bool const repeat,
-                          bool const opaque,
-                          SHIZLayer const layer);
+SHIZSize const shiz_sprite_draw(SHIZSprite const sprite,
+                                SHIZVector2 const origin,
+                                SHIZSize const size,
+                                SHIZVector2 const anchor,
+                                float const angle,
+                                SHIZColor const tint,
+                                bool const repeat,
+                                bool const opaque,
+                                SHIZLayer const layer);
 
 #endif // sprite_h

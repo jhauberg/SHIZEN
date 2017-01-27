@@ -17,44 +17,39 @@
 
 #include "internal.h"
 
-typedef enum SHIZResourceType SHIZResourceType;
-
-typedef struct SHIZResourceImage SHIZResourceImage;
-typedef struct SHIZResourceSound SHIZResourceSound;
-
-enum SHIZResourceType {
+typedef enum SHIZResourceType {
     SHIZResourceTypeNotSupported,
     SHIZResourceTypeImage,
     SHIZResourceTypeSound
-};
+} SHIZResourceType;
 
-struct SHIZResourceImage {
-    uint id;
-    uint width;
-    uint height;
+typedef struct SHIZResourceImage {
     GLuint texture_id;
-    const char *filename;
-};
+    unsigned int resource_id;
+    unsigned int width;
+    unsigned int height;
+    const char * filename;
+} SHIZResourceImage;
 
-struct SHIZResourceSound {
-    uint id;
-    const char *filename;
-};
+typedef struct SHIZResourceSound {
+    unsigned int resource_id;
+    const char * filename;
+} SHIZResourceSound;
 
-extern uint const SHIZResourceInvalid;
+extern SHIZResourceImage const SHIZResourceImageEmpty;
+extern SHIZResourceSound const SHIZResourceSoundEmpty;
 
-static SHIZResourceImage const SHIZResourceImageEmpty = { 0, 0, 0, 0, NULL };
-static SHIZResourceSound const SHIZResourceSoundEmpty = { 0, NULL };
+extern unsigned int const SHIZResourceInvalid;
 
-uint shiz_res_load(SHIZResourceType const type, const char * const filename);
+unsigned int shiz_res_load(SHIZResourceType const type, const char * const filename);
 
-bool shiz_res_unload(uint const resource_id);
+bool shiz_res_unload(unsigned int const resource_id);
 bool shiz_res_unload_all(void);
 
-const SHIZResourceType shiz_res_get_type(const char * const filename);
+SHIZResourceType const shiz_res_get_type(const char * const filename);
 
-SHIZResourceImage shiz_res_get_image(uint const resource_id);
-SHIZResourceSound shiz_res_get_sound(uint const resource_id);
+SHIZResourceImage shiz_res_get_image(unsigned int const resource_id);
+SHIZResourceSound shiz_res_get_sound(unsigned int const resource_id);
 
 #ifdef SHIZ_DEBUG
 void shiz_res_debug_print_resources(void);
@@ -62,7 +57,7 @@ void shiz_res_debug_print_resources(void);
 bool shiz_res_debug_load_font(void);
 bool shiz_res_debug_unload_font(void);
 
-uint shiz_res_debug_get_font(void);
+unsigned int shiz_res_debug_get_font(void);
 #endif
 
 #endif // res_h

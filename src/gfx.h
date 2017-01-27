@@ -48,10 +48,10 @@ bool shiz_gfx_kill(void);
  */
 void shiz_gfx_render(GLenum const mode,
                      SHIZVertexPositionColor const * restrict vertices,
-                     uint const count);
+                     unsigned int const count);
 void shiz_gfx_render_ex(GLenum const mode,
                         SHIZVertexPositionColor const * restrict vertices,
-                        uint const count,
+                        unsigned int const count,
                         SHIZVector3 const origin,
                         float const angle);
 /**
@@ -74,16 +74,17 @@ void shiz_gfx_begin(void);
 void shiz_gfx_end(void);
 
 SHIZViewport shiz_gfx_get_viewport(void);
+
 void shiz_gfx_set_viewport(SHIZViewport const viewport);
 
 #ifdef DEBUG
 typedef void shiz_gfx_debug_event_callback(SHIZDebugEvent const event);
 void shiz_gfx_debug_set_event_callback(shiz_gfx_debug_event_callback * const callback);
-uint shiz_gfx_debug_get_draw_count(void);
-uint shiz_gfx_debug_get_frames_per_second(void);
-uint shiz_gfx_debug_get_frames_per_second_min(void);
-uint shiz_gfx_debug_get_frames_per_second_max(void);
-uint shiz_gfx_debug_get_frames_per_second_avg(void);
+unsigned int shiz_gfx_debug_get_draw_count(void);
+unsigned int shiz_gfx_debug_get_frames_per_second(void);
+unsigned int shiz_gfx_debug_get_frames_per_second_min(void);
+unsigned int shiz_gfx_debug_get_frames_per_second_max(void);
+unsigned int shiz_gfx_debug_get_frames_per_second_avg(void);
 double shiz_gfx_debug_get_frame_time(void);
 double shiz_gfx_debug_get_frame_time_avg(void);
 #endif

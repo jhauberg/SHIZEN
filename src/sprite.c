@@ -16,33 +16,34 @@
 
 static int _shiz_compare_sprites(const void * a, const void * b);
 
-static uint _shiz_sprites_count = 0;
+static unsigned int _sprites_count = 0;
 
-static SHIZSpriteInternal _shiz_sprites[SHIZSpriteInternalMax];
+static SHIZSpriteInternal _sprites[SHIZSpriteInternalMax];
 
-SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
-                          SHIZVector2 const origin,
-                          SHIZSize const size,
-                          SHIZVector2 const anchor,
-                          float const angle,
-                          SHIZColor const tint,
-                          bool const repeat,
-                          bool const opaque,
-                          SHIZLayer const layer) {
+SHIZSize const
+shiz_sprite_draw(SHIZSprite const sprite,
+                 SHIZVector2 const origin,
+                 SHIZSize const size,
+                 SHIZVector2 const anchor,
+                 float const angle,
+                 SHIZColor const tint,
+                 bool const repeat,
+                 bool const opaque,
+                 SHIZLayer const layer) {
     SHIZResourceImage const image = shiz_res_get_image(sprite.resource_id);
 
     if (sprite.resource_id == SHIZResourceInvalid ||
-        sprite.resource_id != image.id ||
+        sprite.resource_id != image.resource_id ||
         (sprite.source.size.width <= 0 ||
          sprite.source.size.height <= 0)) {
         return SHIZSizeEmpty;
     }
 
-    uint const vertex_count = 6;
+    unsigned int const vertex_count = 6;
 
     SHIZVertexPositionColorTexture vertices[vertex_count];
 
-    for (uint i = 0; i < vertex_count; i++) {
+    for (unsigned int i = 0; i < vertex_count; i++) {
         vertices[i].color = tint;
     }
 
@@ -113,7 +114,7 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
     vertices[4].texture_coord = tr;
     vertices[5].texture_coord = br;
 
-    for (uint i = 0; i < vertex_count; i++) {
+    for (unsigned int i = 0; i < vertex_count; i++) {
         // in order for repeated textures to work (without having to set wrapping modes,
         // and with support for sub-textures) we have to specify the space that
         // uv's are limited to (otherwise a sub-texture with a scaled uv would
@@ -134,14 +135,14 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
     sprite_key->texture_id = image.texture_id;
     sprite_key->is_transparent = !opaque;
 
-    SHIZSpriteInternal * sprite_internal = &_shiz_sprites[_shiz_sprites_count];
+    SHIZSpriteInternal * sprite_internal = &_sprites[_sprites_count];
 
     sprite_internal->key = key;
     sprite_internal->angle = angle;
     sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
-    sprite_internal->order = _shiz_sprites_count;
+    sprite_internal->order = _sprites_count;
 
-    for (uint i = 0; i < vertex_count; i++) {
+    for (unsigned int i = 0; i < vertex_count; i++) {
         sprite_internal->vertices[i].position = vertices[i].position;
         sprite_internal->vertices[i].texture_coord = vertices[i].texture_coord;
         sprite_internal->vertices[i].texture_coord_max = vertices[i].texture_coord_max;
@@ -149,20 +150,21 @@ SHIZSize shiz_sprite_draw(SHIZSprite const sprite,
         sprite_internal->vertices[i].color = vertices[i].color;
     }
 
-    _shiz_sprites_count += 1;
+    _sprites_count += 1;
 
 #ifdef SHIZ_DEBUG
     shiz_debug_context.sprite_count += 1;
 #endif
 
-    if (_shiz_sprites_count >= SHIZSpriteInternalMax) {
+    if (_sprites_count >= SHIZSpriteInternalMax) {
         shiz_sprite_flush();
     }
 
     return anchored_rect.size;
 }
 
-SHIZRect shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) {
+SHIZRect const
+shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) {
     float const hw = size.width / 2;
     float const hh = size.height / 2;
 
@@ -175,10 +177,33 @@ SHIZRect shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const an
     return SHIZRectMake(SHIZVector2Make(l, b), size);
 }
 
-static int _shiz_compare_sprites(const void * a, const void * b) {
+void
+shiz_sprite_flush() {
+    if (_sprites_count == 0) {
+        return;
+    }
+
+    // sort sprites based on their layer parameters, but also optimized for reduced state switching
+    qsort(_sprites, _sprites_count, sizeof(SHIZSpriteInternal),
+          _shiz_compare_sprites);
+    // note that sorting can not guarantee correct order in cases where flushing is required due to
+    // reaching sprite capacity (though the z-buffer should help)
+
+    for (unsigned int sprite_index = 0; sprite_index < _sprites_count; sprite_index++) {
+        SHIZSpriteInternal const sprite = _sprites[sprite_index];
+        SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
+
+        shiz_gfx_render_quad(sprite.vertices, sprite.origin, sprite.angle, sprite_key->texture_id);
+    }
+
+    _sprites_count = 0;
+}
+
+static int
+_shiz_compare_sprites(const void * a, const void * b) {
     SHIZSpriteInternal const * lhs = (SHIZSpriteInternal *)a;
     SHIZSpriteInternal const * rhs = (SHIZSpriteInternal *)b;
-
+    
     if (lhs->key < rhs->key) {
         return -1;
     } else if (lhs->key > rhs->key) {
@@ -188,25 +213,6 @@ static int _shiz_compare_sprites(const void * a, const void * b) {
     } else if (lhs->order > rhs->order) {
         return 1;
     }
-
+    
     return 0;
-}
-
-void shiz_sprite_flush() {
-    if (_shiz_sprites_count == 0) {
-        return;
-    }
-
-    // sort sprites based on their layer parameters, but also optimized for reduced state switching
-    qsort(_shiz_sprites, _shiz_sprites_count, sizeof(SHIZSpriteInternal),
-          _shiz_compare_sprites);
-
-    for (uint sprite_index = 0; sprite_index < _shiz_sprites_count; sprite_index++) {
-        SHIZSpriteInternal const sprite = _shiz_sprites[sprite_index];
-        SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
-
-        shiz_gfx_render_quad(sprite.vertices, sprite.origin, sprite.angle, sprite_key->texture_id);
-    }
-
-    _shiz_sprites_count = 0;
 }

@@ -14,20 +14,20 @@
 
 #include "internal.h"
 
-SHIZSpriteFontMeasurement shiz_sprite_measure_text(SHIZSpriteFont const font,
-                                                   const char * const text,
-                                                   SHIZSize const bounds,
-                                                   SHIZSpriteFontAttributes const attributes);
+SHIZSpriteFontMeasurement const shiz_sprite_measure_text(SHIZSpriteFont const font,
+                                                         const char * const text,
+                                                         SHIZSize const bounds,
+                                                         SHIZSpriteFontAttributes const attributes);
 
-SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
-                               const char * const text,
-                               SHIZVector2 const origin,
-                               SHIZSpriteFontAlignment const alignment,
-                               SHIZSize const bounds,
-                               SHIZColor const tint,
-                               SHIZSpriteFontAttributes const attributes,
-                               SHIZLayer const layer,
-                               SHIZColor * const highlight_colors,
-                               uint const highlight_color_count);
+SHIZSize const shiz_sprite_draw_text(SHIZSpriteFont const font,
+                                     const char * const text,
+                                     SHIZVector2 const origin,
+                                     SHIZSpriteFontAlignment const alignment,
+                                     SHIZSize const bounds,
+                                     SHIZColor const tint,
+                                     SHIZSpriteFontAttributes const attributes,
+                                     SHIZLayer const layer,
+                                     SHIZColor * const highlight_colors,
+                                     unsigned int const highlight_color_count);
 
 #endif // spritefont_h

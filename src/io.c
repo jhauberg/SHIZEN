@@ -33,60 +33,53 @@ static bool _shiz_io_handle_image(unsigned char * const image_data,
                                   shiz_io_image_loaded_handler handler);
 static void _shiz_io_printf(const char * const format, va_list args);
 
-static uint const buffer_capacity = 256;
 
-static char buffer[buffer_capacity];
-static char buffer_format[buffer_capacity];
+#define SHIZIOBufferCapacity 256
 
-static const char *error_context = "ERROR";
-static const char *warning_context = "WARNING";
+static char _buffer[SHIZIOBufferCapacity];
+static char _buffer_format[SHIZIOBufferCapacity];
 
-static void _shiz_io_printf(const char * const format, va_list args) {
-    vsnprintf(buffer, buffer_capacity, format, args);
-    fprintf(stderr, "%s\n", buffer);
-}
+#define SHIZIOContextError "ERROR"
+#define SHIZIOContextWarning "WARNING"
 
 #define SHIZ_IO_PRINTF(stmt) \
     va_list args; \
     va_start(args, format); { \
         stmt; \
-        _shiz_io_printf(buffer_format, args); \
+        _shiz_io_printf(_buffer_format, args); \
     } \
     va_end(args); \
 
-void shiz_io_error(const char * const format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] %s", error_context, format) )
-}
-
-void shiz_io_error_context(const char * const context, const char * const format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] [%s] %s", error_context, context, format) )
-}
-
-void shiz_io_warning(const char * const format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] %s", warning_context, format) )
-}
-
-void shiz_io_warning_context(const char * const context, const char * const format, ...) {
-    SHIZ_IO_PRINTF( sprintf(buffer_format, "[%s] [%s] %s", warning_context, context, format) )
-}
-
-static bool _shiz_io_handle_image(unsigned char * const image_data,
-                                  int width, int height, int components,
-                                  shiz_io_image_loaded_handler const handler) {
-    if (handler) {
-        if (!(*handler)(width, height, components, image_data)) {
-            stbi_image_free(image_data);
-
-            return false;
-        }
-    }
-
-    stbi_image_free(image_data);
+static void
+_shiz_io_printf(const char * const format, va_list args) {
+    vsnprintf(_buffer, SHIZIOBufferCapacity, format, args);
     
-    return true;
+    fprintf(stderr, "%s\n", _buffer);
 }
 
-bool shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handler const handler) {
+
+void
+shiz_io_error(const char * const format, ...) {
+    SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] %s", SHIZIOContextError, format) )
+}
+
+void
+shiz_io_error_context(const char * const context, const char * const format, ...) {
+    SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] [%s] %s", SHIZIOContextError, context, format) )
+}
+
+void
+shiz_io_warning(const char * const format, ...) {
+    SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] %s", SHIZIOContextWarning, format) )
+}
+
+void
+shiz_io_warning_context(const char * const context, const char * const format, ...) {
+    SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] [%s] %s", SHIZIOContextWarning, context, format) )
+}
+
+bool
+shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handler const handler) {
     int width, height;
     int components;
 
@@ -106,7 +99,8 @@ bool shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handle
     return _shiz_io_handle_image(image, width, height, components, handler);
 }
 
-bool shiz_io_load_image_data(const unsigned char * const buffer, uint const length,
+bool
+shiz_io_load_image_data(const unsigned char * const buffer, unsigned int const length,
                              shiz_io_image_loaded_handler const handler) {
     int width, height;
     int components;
@@ -123,4 +117,21 @@ bool shiz_io_load_image_data(const unsigned char * const buffer, uint const leng
     }
     
     return _shiz_io_handle_image(image, width, height, components, handler);
+}
+
+static bool
+_shiz_io_handle_image(unsigned char * const image_data,
+                      int width, int height, int components,
+                      shiz_io_image_loaded_handler const handler) {
+    if (handler) {
+        if (!(*handler)(width, height, components, image_data)) {
+            stbi_image_free(image_data);
+            
+            return false;
+        }
+    }
+    
+    stbi_image_free(image_data);
+    
+    return true;
 }

@@ -28,6 +28,23 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .size = { 320, 240 }
 };
 
+static SHIZViewport const SHIZViewportDefault = {
+    .framebuffer = {
+        .width = 0,
+        .height = 0
+    },
+    .screen = {
+        .width = 0,
+        .height = 0
+    },
+    .offset = {
+        .width = 0,
+        .height = 0
+    },
+    .scale = 1,
+    .is_fullscreen = false
+};
+
 static void _shiz_glfw_error_callback(int error, const char * const description);
 
 static void _shiz_glfw_window_close_callback(GLFWwindow * const window);
@@ -57,7 +74,8 @@ SHIZSpriteFont shiz_debug_font;
 SHIZDebugContext shiz_debug_context;
 #endif
 
-static void key_callback(GLFWwindow * const window, int key, int scancode, int action, int mods) {
+static void
+key_callback(GLFWwindow * const window, int key, int scancode, int action, int mods) {
     (void)scancode;
     
     if ((key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS) {
@@ -88,55 +106,8 @@ static void key_callback(GLFWwindow * const window, int key, int scancode, int a
 #endif
 }
 
-static bool _shiz_glfw_create_window(SHIZWindowSettings const settings) {
-    glfwWindowHint(GLFW_SAMPLES, 0);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, SHIZ_MIN_OPENGL_VERSION_MAJOR);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, SHIZ_MIN_OPENGL_VERSION_MINOR);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-
-    if (settings.fullscreen) {
-        GLFWmonitor * monitor = glfwGetPrimaryMonitor();
-
-        if (monitor) {
-            const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-
-            int const display_width = mode->width;
-            int const display_height = mode->height;
-            
-            shiz_context.window = glfwCreateWindow(display_width, display_height,
-                                                   settings.title, glfwGetPrimaryMonitor(), NULL);
-            
-            // prefer centered window if initially fullscreen;
-            // otherwise let the OS determine window placement
-            _shiz_glfw_window_position.x = (display_width / 2) - (settings.size.width / 2);
-            _shiz_glfw_window_position.y = (display_height / 2) - (settings.size.height / 2);
-        }
-    } else {
-        shiz_context.window = glfwCreateWindow(settings.size.width, settings.size.height,
-                                               settings.title, NULL, NULL);
-    }
-
-    if (!shiz_context.window) {
-        return false;
-    }
-
-    glfwSetWindowCloseCallback(shiz_context.window, _shiz_glfw_window_close_callback);
-    glfwSetWindowFocusCallback(shiz_context.window, _shiz_glfw_window_focus_callback);
-
-    glfwSetFramebufferSizeCallback(shiz_context.window, _shiz_glfw_framebuffer_size_callback);
-
-    glfwSetKeyCallback(shiz_context.window, key_callback);
-
-    glfwMakeContextCurrent(shiz_context.window);
-    glfwSwapInterval(settings.vsync ? 1 : 0);
-
-    return true;
-}
-
-bool shiz_startup(SHIZWindowSettings const settings) {
+bool
+shiz_startup(SHIZWindowSettings const settings) {
     if (shiz_context.is_initialized) {
         return true;
     }
@@ -194,7 +165,8 @@ bool shiz_startup(SHIZWindowSettings const settings) {
     return true;
 }
 
-bool shiz_shutdown() {
+bool
+shiz_shutdown() {
     if (!shiz_context.is_initialized) {
         return false;
     }
@@ -212,24 +184,29 @@ bool shiz_shutdown() {
     return true;
 }
 
-void shiz_request_finish() {
+void
+shiz_request_finish() {
     shiz_context.should_finish = true;
 }
 
-bool shiz_should_finish() {
+bool
+shiz_should_finish() {
     return shiz_context.should_finish;
 }
 
-uint shiz_load(const char * const filename) {
+unsigned int
+shiz_load(const char * const filename) {
     return shiz_res_load(shiz_res_get_type(filename), filename);
 }
 
-bool shiz_unload(uint const resource_id) {
+bool
+shiz_unload(unsigned int const resource_id) {
     return shiz_res_unload(resource_id);
 }
 
-SHIZSprite shiz_load_sprite(const char * const filename) {
-    uint const resource_id = shiz_load(filename);
+SHIZSprite
+shiz_load_sprite(const char * const filename) {
+    unsigned int const resource_id = shiz_load(filename);
 
     if (resource_id == SHIZResourceInvalid) {
         return SHIZSpriteEmpty;
@@ -238,7 +215,8 @@ SHIZSprite shiz_load_sprite(const char * const filename) {
     return shiz_get_sprite(resource_id);
 }
 
-SHIZSprite shiz_load_sprite_src(const char * const filename, SHIZRect const source) {
+SHIZSprite
+shiz_load_sprite_src(const char * const filename, SHIZRect const source) {
     SHIZSprite sprite = shiz_load_sprite(filename);
 
     if (sprite.resource_id == SHIZResourceInvalid) {
@@ -249,7 +227,8 @@ SHIZSprite shiz_load_sprite_src(const char * const filename, SHIZRect const sour
 }
 
 
-SHIZSprite shiz_get_sprite(uint const resource_id) {
+SHIZSprite
+shiz_get_sprite(unsigned int const resource_id) {
     SHIZResourceImage const image = shiz_res_get_image(resource_id);
 
     SHIZRect const source = SHIZRectMake(SHIZVector2Zero,
@@ -258,7 +237,8 @@ SHIZSprite shiz_get_sprite(uint const resource_id) {
     return shiz_get_sprite_src(resource_id, source);
 }
 
-SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect const source) {
+SHIZSprite
+shiz_get_sprite_src(unsigned int const resource_id, SHIZRect const source) {
     SHIZSprite sprite;
 
     sprite.resource_id = resource_id;
@@ -267,21 +247,24 @@ SHIZSprite shiz_get_sprite_src(uint const resource_id, SHIZRect const source) {
     return sprite;
 }
 
-SHIZSpriteFont shiz_load_sprite_font(const char * const filename, SHIZSize const character) {
+SHIZSpriteFont
+shiz_load_sprite_font(const char * const filename, SHIZSize const character) {
     SHIZSprite const sprite = shiz_load_sprite(filename);
     
     return shiz_get_sprite_font(sprite, character);
 }
 
-SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename,
-                                        SHIZSize const character,
-                                        SHIZSpriteFontTable const table) {
+SHIZSpriteFont
+shiz_load_sprite_font_ex(const char * const filename,
+                         SHIZSize const character,
+                         SHIZSpriteFontTable const table) {
     SHIZSpriteFont const spritefont = shiz_load_sprite_font(filename, character);
     
     return shiz_get_sprite_font_ex(spritefont.sprite, spritefont.character, table);
 }
 
-SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character) {
+SHIZSpriteFont
+shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character) {
     SHIZSpriteFontTable table;
 
     table.columns = sprite.source.size.width / character.width;
@@ -291,9 +274,10 @@ SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const char
     return shiz_get_sprite_font_ex(sprite, character, table);
 }
 
-SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite,
-                                       SHIZSize const character,
-                                       SHIZSpriteFontTable const table) {
+SHIZSpriteFont
+shiz_get_sprite_font_ex(SHIZSprite const sprite,
+                        SHIZSize const character,
+                        SHIZSpriteFontTable const table) {
     SHIZSpriteFont spritefont;
     
     spritefont.sprite = sprite;
@@ -305,7 +289,57 @@ SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite,
     return spritefont;
 }
 
-static SHIZViewport _shiz_get_viewport(void) {
+static bool
+_shiz_glfw_create_window(SHIZWindowSettings const settings) {
+    glfwWindowHint(GLFW_SAMPLES, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, SHIZ_MIN_OPENGL_VERSION_MAJOR);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, SHIZ_MIN_OPENGL_VERSION_MINOR);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+    
+    if (settings.fullscreen) {
+        GLFWmonitor * monitor = glfwGetPrimaryMonitor();
+        
+        if (monitor) {
+            const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+            
+            int const display_width = mode->width;
+            int const display_height = mode->height;
+            
+            shiz_context.window = glfwCreateWindow(display_width, display_height,
+                                                   settings.title, glfwGetPrimaryMonitor(), NULL);
+            
+            // prefer centered window if initially fullscreen;
+            // otherwise let the OS determine window placement
+            _shiz_glfw_window_position.x = (display_width / 2) - (settings.size.width / 2);
+            _shiz_glfw_window_position.y = (display_height / 2) - (settings.size.height / 2);
+        }
+    } else {
+        shiz_context.window = glfwCreateWindow(settings.size.width, settings.size.height,
+                                               settings.title, NULL, NULL);
+    }
+    
+    if (!shiz_context.window) {
+        return false;
+    }
+    
+    glfwSetWindowCloseCallback(shiz_context.window, _shiz_glfw_window_close_callback);
+    glfwSetWindowFocusCallback(shiz_context.window, _shiz_glfw_window_focus_callback);
+    
+    glfwSetFramebufferSizeCallback(shiz_context.window, _shiz_glfw_framebuffer_size_callback);
+    
+    glfwSetKeyCallback(shiz_context.window, key_callback);
+    
+    glfwMakeContextCurrent(shiz_context.window);
+    glfwSwapInterval(settings.vsync ? 1 : 0);
+    
+    return true;
+}
+
+static
+SHIZViewport _shiz_get_viewport(void) {
     SHIZViewport viewport = SHIZViewportDefault;
 
     viewport.screen = shiz_context.preferred_screen_size;
@@ -319,7 +353,8 @@ static SHIZViewport _shiz_get_viewport(void) {
     return viewport;
 }
 
-static SHIZSize _shiz_glfw_get_window_size() {
+static
+SHIZSize _shiz_glfw_get_window_size() {
     int window_width;
     int window_height;
 
@@ -328,7 +363,8 @@ static SHIZSize _shiz_glfw_get_window_size() {
     return SHIZSizeMake(window_width, window_height);
 }
 
-static SHIZSize _shiz_glfw_get_framebuffer_size() {
+static
+SHIZSize _shiz_glfw_get_framebuffer_size() {
     int framebuffer_width;
     int framebuffer_height;
     
@@ -340,14 +376,16 @@ static SHIZSize _shiz_glfw_get_framebuffer_size() {
     return SHIZSizeMake(framebuffer_width, framebuffer_height);
 }
 
-static float _shiz_glfw_get_pixel_scale() {
+static float
+_shiz_glfw_get_pixel_scale() {
     SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
     SHIZSize const window = _shiz_glfw_get_window_size();
     
     return (framebuffer.width + framebuffer.height) / (window.width + window.height);
 }
 
-static void _shiz_intro(void) {
+static void
+_shiz_intro(void) {
     printf("  __|  |  | _ _| __  /  __|   \\ |\n");
     printf("\\__ \\  __ |   |     /   _|   .  |\n");
     printf("____/ _| _| ___| ____| ___| _|\\_|\n\n");
@@ -364,7 +402,8 @@ static void _shiz_intro(void) {
            glGetString(GL_VENDOR));
 }
 
-static bool _shiz_can_run(void) {
+static bool
+_shiz_can_run(void) {
     int major;
     int minor;
     
@@ -380,7 +419,8 @@ static bool _shiz_can_run(void) {
     return true;
 }
 
-static void _shiz_glfw_toggle_windowed(GLFWwindow * const window) {
+static void
+_shiz_glfw_toggle_windowed(GLFWwindow * const window) {
     bool const is_currently_fullscreen = glfwGetWindowMonitor(window) != NULL;
 
     int window_position_x = _shiz_glfw_window_position.x;
@@ -414,23 +454,27 @@ static void _shiz_glfw_toggle_windowed(GLFWwindow * const window) {
     }
 }
 
-static void _shiz_glfw_error_callback(int error, const char * const description) {
+static void
+_shiz_glfw_error_callback(int error, const char * const description) {
     shiz_io_error_context("GLFW", "%d %s", error, description);
 }
 
-static void _shiz_glfw_window_close_callback(GLFWwindow * const window) {
+static void
+_shiz_glfw_window_close_callback(GLFWwindow * const window) {
     (void)window;
 
     shiz_context.should_finish = true;
 }
 
-static void _shiz_glfw_window_focus_callback(GLFWwindow * const window, int focused) {
+static void
+_shiz_glfw_window_focus_callback(GLFWwindow * const window, int focused) {
     (void)window;
 
     shiz_context.is_focused = focused;
 }
 
-static void _shiz_glfw_framebuffer_size_callback(GLFWwindow * const window, int width, int height) {
+static void
+_shiz_glfw_framebuffer_size_callback(GLFWwindow * const window, int width, int height) {
     (void)window;
     (void)width;
     (void)height;

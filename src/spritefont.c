@@ -16,10 +16,11 @@
 #include <math.h>
 #include <string.h>
 
-SHIZSpriteFontMeasurement shiz_sprite_measure_text(SHIZSpriteFont const font,
-                                                   const char * const text,
-                                                   SHIZSize const bounds,
-                                                   SHIZSpriteFontAttributes const attributes) {
+SHIZSpriteFontMeasurement const
+shiz_sprite_measure_text(SHIZSpriteFont const font,
+                         const char * const text,
+                         SHIZSize const bounds,
+                         SHIZSpriteFontAttributes const attributes) {
     SHIZSpriteFontMeasurement measurement;
 
     measurement.size = SHIZSizeEmpty;
@@ -44,10 +45,10 @@ SHIZSpriteFontMeasurement shiz_sprite_measure_text(SHIZSpriteFont const font,
 
     float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
 
-    uint text_index = 0;
-    uint line_index = 0;
-    uint line_character_count = 0;
-    uint line_character_ignored_count = 0;
+    unsigned int text_index = 0;
+    unsigned int line_index = 0;
+    unsigned int line_character_count = 0;
+    unsigned int line_character_ignored_count = 0;
 
     char const whitespace_character = ' ';
     char const newline_character = '\n';
@@ -140,16 +141,17 @@ SHIZSpriteFontMeasurement shiz_sprite_measure_text(SHIZSpriteFont const font,
     return measurement;
 }
 
-SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
-                               const char * const text,
-                               SHIZVector2 const origin,
-                               SHIZSpriteFontAlignment const alignment,
-                               SHIZSize const bounds,
-                               SHIZColor const tint,
-                               SHIZSpriteFontAttributes const attributes,
-                               SHIZLayer const layer,
-                               SHIZColor * const highlight_colors,
-                               uint const highlight_color_count) {
+SHIZSize const
+shiz_sprite_draw_text(SHIZSpriteFont const font,
+                      const char * const text,
+                      SHIZVector2 const origin,
+                      SHIZSpriteFontAlignment const alignment,
+                      SHIZSize const bounds,
+                      SHIZColor const tint,
+                      SHIZSpriteFontAttributes const attributes,
+                      SHIZLayer const layer,
+                      SHIZColor * const highlight_colors,
+                      unsigned int const highlight_color_count) {
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;
@@ -158,7 +160,7 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
     SHIZSpriteFontMeasurement const measurement = shiz_sprite_measure_text(font, text, bounds,
                                                                            attributes);
 
-    uint const truncation_length = 3;
+    unsigned int const truncation_length = 3;
     char const truncation_character = '.';
     char const whitespace_character = ' ';
     char const newline_character = '\n';
@@ -173,13 +175,13 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
         character_origin.y += measurement.size.height;
     }
 
-    uint text_index = 0;
+    unsigned int text_index = 0;
 
     bool break_from_truncation = false;
 
     SHIZColor highlight_color = tint;
 
-    for (uint line_index = 0; line_index < measurement.line_count; line_index++) {
+    for (unsigned int line_index = 0; line_index < measurement.line_count; line_index++) {
         SHIZSpriteFontLine const line = measurement.lines[line_index];
 
         float const line_width_perceived = line.size.width - (line.ignored_character_count *
@@ -191,7 +193,7 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
             character_origin.x -= line_width_perceived;
         }
 
-        uint const line_character_count = line.size.width / measurement.character_size_perceived.width;
+        unsigned int const line_character_count = line.size.width / measurement.character_size_perceived.width;
 
         for (int character_index = 0; character_index < line_character_count && text_index < strlen(text); character_index++) {
             bool const should_truncate = (measurement.constrain_index != -1 &&
@@ -268,8 +270,8 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
                                            font.includes_whitespace);
 
                 if (can_draw_character) {
-                    uint const character_row = (int)(character_table_index / font.table.columns);
-                    uint const character_column = character_table_index % font.table.columns;
+                    unsigned int const character_row = (int)(character_table_index / font.table.columns);
+                    unsigned int const character_column = character_table_index % font.table.columns;
 
                     character_sprite.source.origin.x = (font.sprite.source.origin.x +
                                                         (font.character.width * character_column));
@@ -278,7 +280,7 @@ SHIZSize shiz_sprite_draw_text(SHIZSpriteFont const font,
 
                     shiz_sprite_draw(character_sprite, character_origin,
                                      measurement.character_size,
-                                     SHIZSpriteAnchorTopLeft, SHIZSpriteNoAngle,
+                                     SHIZAnchorTopLeft, SHIZSpriteNoAngle,
                                      highlight_color, SHIZSpriteNoRepeat, false,
                                      layer);
                 }

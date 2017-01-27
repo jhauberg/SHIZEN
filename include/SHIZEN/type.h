@@ -13,50 +13,29 @@
 #define type_h
 
 #include <stdbool.h>
-#include <stdint.h>
-#include <limits.h>
 
-typedef struct SHIZVector2 SHIZVector2;
-typedef struct SHIZVector3 SHIZVector3;
-typedef struct SHIZColor SHIZColor;
-typedef struct SHIZSize SHIZSize;
-typedef struct SHIZRect SHIZRect;
-typedef struct SHIZSprite SHIZSprite;
-typedef struct SHIZSpriteFont SHIZSpriteFont;
-typedef struct SHIZSpriteFontTable SHIZSpriteFontTable;
-typedef struct SHIZSpriteFontAttributes SHIZSpriteFontAttributes;
-
-typedef enum SHIZSpriteFontAlignment SHIZSpriteFontAlignment;
-typedef enum SHIZSpriteFontWrapMode SHIZSpriteFontWrapMode;
-
-struct SHIZVector2 {
+typedef struct SHIZVector2 {
     float x, y;
-};
+} SHIZVector2;
 
-struct SHIZVector3 {
+typedef struct SHIZVector3 {
     float x, y, z;
-};
+} SHIZVector3;
 
-struct SHIZSize {
+typedef struct SHIZSize {
     float width;
     float height;
-};
+} SHIZSize;
 
-struct SHIZRect {
+typedef struct SHIZRect {
     SHIZVector2 origin;
     SHIZSize size;
-};
+} SHIZRect;
 
-struct SHIZColor {
+typedef struct SHIZColor {
     float r, g, b;
     float alpha;
-};
-
-#define SHIZLayerMin 0
-#define SHIZLayerMax UCHAR_MAX
-
-#define SHIZLayerDepthMin 0
-#define SHIZLayerDepthMax USHRT_MAX
+} SHIZColor;
 
 typedef struct SHIZLayer {
     unsigned short depth: 16;
@@ -67,38 +46,38 @@ typedef struct SHIZLayer {
  * Represents a 2-dimensional frame of an image resource.
  * The source frame can either be a subset of, or span the entire image.
  */
-struct SHIZSprite {
+typedef struct SHIZSprite {
     /** The image resource */
-    uint resource_id;
+    unsigned int resource_id;
     /* The frame that specifies which part of the image to draw */
     SHIZRect source;
-};
+} SHIZSprite;
 
-enum SHIZSpriteFontAlignment {
+typedef enum SHIZSpriteFontAlignment {
     SHIZSpriteFontAlignmentTop = 1,
     SHIZSpriteFontAlignmentLeft = 2,
     SHIZSpriteFontAlignmentRight = 4,
     SHIZSpriteFontAlignmentCenter = 8,
     SHIZSpriteFontAlignmentMiddle = 16,
     SHIZSpriteFontAlignmentBottom = 32
-};
+} SHIZSpriteFontAlignment;
 
-enum SHIZSpriteFontWrapMode {
+typedef enum SHIZSpriteFontWrapMode {
     SHIZSpriteFontWrapModeCharacter,
     SHIZSpriteFontWrapModeWord
-};
+} SHIZSpriteFontWrapMode;
 
-struct SHIZSpriteFontTable {
-    uint columns;
-    uint rows;
+typedef struct SHIZSpriteFontTable {
+    unsigned int columns;
+    unsigned int rows;
     /** An offset to align the table with the standard ASCII table */
-    uint offset;
-};
+    unsigned int offset;
+} SHIZSpriteFontTable;
 
 /**
  * Represents a set of attributes that specify how text should be drawn.
  */
-struct SHIZSpriteFontAttributes {
+typedef struct SHIZSpriteFontAttributes {
     /** The word-wrapping mode */
     SHIZSpriteFontWrapMode wrap;
     /** A scale defining the final size of the text */
@@ -109,12 +88,12 @@ struct SHIZSpriteFontAttributes {
     float character_padding;
     /** A value that adds padding to each line */
     float line_padding;
-};
+} SHIZSpriteFontAttributes;
 
 /**
  Represents a set of sprite characters aligned to an ASCII table.
  */
-struct SHIZSpriteFont {
+typedef struct SHIZSpriteFont {
     /** A sprite that defines the font resource */
     SHIZSprite sprite;
     /** The size of each sprite character */
@@ -123,54 +102,60 @@ struct SHIZSpriteFont {
     SHIZSpriteFontTable table;
     /** Determines whether the font resource includes a sprite for the whitespace character */
     bool includes_whitespace;
-};
+} SHIZSpriteFont;
 
 /**
  * @brief Default font attributes.
  * 
  * Default font attributes apply scaling at 1:1 and enables word-wrapping.
  */
-extern const SHIZSpriteFontAttributes SHIZSpriteFontAttributesDefault;
+extern SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault;
 
-extern const SHIZVector2 SHIZVector2Zero;
-extern const SHIZVector2 SHIZVector2One;
-extern const SHIZVector3 SHIZVector3Zero;
-extern const SHIZVector3 SHIZVector3One;
+extern SHIZVector2 const SHIZVector2Zero;
+extern SHIZVector2 const SHIZVector2One;
+extern SHIZVector3 const SHIZVector3Zero;
+extern SHIZVector3 const SHIZVector3One;
 
-extern const SHIZColor SHIZColorWhite;
-extern const SHIZColor SHIZColorBlack;
-extern const SHIZColor SHIZColorRed;
-extern const SHIZColor SHIZColorGreen;
-extern const SHIZColor SHIZColorBlue;
-extern const SHIZColor SHIZColorYellow;
+extern SHIZColor const SHIZColorWhite;
+extern SHIZColor const SHIZColorBlack;
+extern SHIZColor const SHIZColorRed;
+extern SHIZColor const SHIZColorGreen;
+extern SHIZColor const SHIZColorBlue;
+extern SHIZColor const SHIZColorYellow;
 
-extern const SHIZSize SHIZSizeEmpty;
-extern const SHIZRect SHIZRectEmpty;
+extern SHIZSize const SHIZSizeEmpty;
+extern SHIZRect const SHIZRectEmpty;
 
 /**
  * @brief An empty sprite. This sprite cannot be drawn.
  */
-extern const SHIZSprite SHIZSpriteEmpty;
+extern SHIZSprite const SHIZSpriteEmpty;
 
 /**
  * @brief Size a sprite to its intrinsic (or natural) size.
  */
-extern const SHIZSize SHIZSpriteSizeIntrinsic;
+extern SHIZSize const SHIZSpriteSizeIntrinsic;
 
 /**
  * @brief Default sprite layer.
  */
 extern SHIZLayer const SHIZLayerDefault;
 
-extern const SHIZVector2 SHIZSpriteAnchorCenter;
-extern const SHIZVector2 SHIZSpriteAnchorTop;
-extern const SHIZVector2 SHIZSpriteAnchorTopLeft;
-extern const SHIZVector2 SHIZSpriteAnchorLeft;
-extern const SHIZVector2 SHIZSpriteAnchorBottomLeft;
-extern const SHIZVector2 SHIZSpriteAnchorBottom;
-extern const SHIZVector2 SHIZSpriteAnchorTopRight;
-extern const SHIZVector2 SHIZSpriteAnchorRight;
-extern const SHIZVector2 SHIZSpriteAnchorBottomRight;
+extern SHIZVector2 const SHIZAnchorCenter;
+extern SHIZVector2 const SHIZAnchorTop;
+extern SHIZVector2 const SHIZAnchorTopLeft;
+extern SHIZVector2 const SHIZAnchorLeft;
+extern SHIZVector2 const SHIZAnchorBottomLeft;
+extern SHIZVector2 const SHIZAnchorBottom;
+extern SHIZVector2 const SHIZAnchorTopRight;
+extern SHIZVector2 const SHIZAnchorRight;
+extern SHIZVector2 const SHIZAnchorBottomRight;
+
+#define SHIZLayerMin 0
+#define SHIZLayerMax 255 // UCHAR_MAX
+
+#define SHIZLayerDepthMin 0
+#define SHIZLayerDepthMax 65535 // USHRT_MAX
 
 /**
  * @brief Do not apply rotation.
@@ -226,70 +211,89 @@ extern const SHIZVector2 SHIZSpriteAnchorBottomRight;
  */
 #define SHIZSpriteFontNoPadding 0
 
-static inline SHIZVector2 SHIZVector2Make(float const x, float const y) {
-    SHIZVector2 vector = {
+// rule of thumb: small functions that do basic things (such as the make functions) and called frequently
+// can be inlined at a benefit; think of it as the body of the function being put in place of the call
+// so larger functions that do more than just initialize a struct shold not be inlined
+static inline SHIZVector2 const
+SHIZVector2Make(float const x, float const y) {
+    SHIZVector2 const vector = {
         x, y
     };
 
     return vector;
 }
 
-static inline SHIZVector3 SHIZVector3Make(float const x, float const y, float const z) {
-    SHIZVector3 vector = {
+static inline SHIZVector3 const
+SHIZVector3Make(float const x, float const y, float const z) {
+    SHIZVector3 const vector = {
         x, y, z
     };
 
     return vector;
 }
 
-static inline SHIZSize SHIZSizeMake(float const width, float const height) {
-    SHIZSize size = {
+static inline SHIZSize const
+SHIZSizeMake(float const width, float const height) {
+    SHIZSize const size = {
         width, height
     };
 
     return size;
 }
 
-static inline SHIZRect SHIZRectMake(SHIZVector2 origin, SHIZSize size) {
-    SHIZRect rect = {
+static inline SHIZRect const
+SHIZRectMake(SHIZVector2 origin, SHIZSize size) {
+    SHIZRect const rect = {
         origin, size
     };
 
     return rect;
 }
 
-static inline SHIZColor SHIZColorMake(float const r,
-                                      float const g,
-                                      float const b,
-                                      float const alpha) {
-    SHIZColor color = {
+static inline SHIZRect const
+SHIZRectMakeEx(float const x, float const y, float const width, float const height) {
+    return SHIZRectMake(SHIZVector2Make(x, y),
+                        SHIZSizeMake(width, height));
+}
+
+static inline SHIZColor const
+SHIZColorMake(float const r,
+              float const g,
+              float const b,
+              float const alpha) {
+    SHIZColor const color = {
         r, g, b, alpha
     };
 
     return color;
 }
 
-static inline SHIZColor SHIZColorFromHex(int const value) {
-    SHIZColor color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
-                                    ((value >> 8) & 0xFF) / 255.0f,
-                                    ((value >> 0) & 0xFF) / 255.0f, 1);
+static inline SHIZColor const
+SHIZColorFromHex(int const value) {
+    SHIZColor const color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
+                                          ((value >> 8) & 0xFF) / 255.0f,
+                                          ((value >> 0) & 0xFF) / 255.0f, 1);
     
     return color;
 }
 
-static inline const SHIZColor SHIZSpriteTintWithAlpa(SHIZColor const tint, float const alpha) {
-    SHIZColor result_tint = tint;
+static inline SHIZColor const
+SHIZColorWithAlpa(SHIZColor const color, float const alpha) {
+    SHIZColor result_color = color;
 
-    result_tint.alpha = alpha;
+    result_color.alpha = alpha;
 
-    return result_tint;
+    return result_color;
 }
 
-static inline const SHIZColor SHIZSpriteTintDefaultWithAlpa(float const alpha) {
-    return SHIZSpriteTintWithAlpa(SHIZSpriteNoTint, alpha);
+static inline SHIZColor const
+SHIZSpriteTintDefaultWithAlpa(float const alpha) {
+    return SHIZColorWithAlpa(SHIZSpriteNoTint, alpha);
 }
 
-static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithScaleAndWrap(float const scale, SHIZSpriteFontWrapMode const wrap) {
+static inline SHIZSpriteFontAttributes const
+SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
+                                         SHIZSpriteFontWrapMode const wrap) {
     SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault;
 
     attrs.scale = SHIZVector2Make(scale, scale);
@@ -298,15 +302,19 @@ static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithScaleAn
     return attrs;
 }
 
-static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithScale(float const scale) {
+static inline SHIZSpriteFontAttributes const
+SHIZSpriteFontAttributesWithScale(float const scale) {
     return SHIZSpriteFontAttributesWithScaleAndWrap(scale, SHIZSpriteFontAttributesDefault.wrap);
 }
 
-static inline const SHIZSpriteFontAttributes SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap) {
+static inline SHIZSpriteFontAttributes const
+SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap) {
     return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteFontAttributesDefault.scale.x, wrap);
 }
 
-static inline const SHIZLayer SHIZLayeredWithDepth(unsigned char const layer, unsigned short const depth) {
+static inline SHIZLayer const
+SHIZLayeredWithDepth(unsigned char const layer,
+                     unsigned short const depth) {
     SHIZLayer result;
     
     result.layer = layer;
@@ -315,11 +323,13 @@ static inline const SHIZLayer SHIZLayeredWithDepth(unsigned char const layer, un
     return result;
 }
 
-static inline const SHIZLayer SHIZLayered(unsigned char const layer) {
+static inline SHIZLayer const
+SHIZLayered(unsigned char const layer) {
     return SHIZLayeredWithDepth(layer, SHIZLayerDefault.depth);
 }
 
-static inline const SHIZLayer SHIZLayeredAbove(SHIZLayer const layer) {
+static inline SHIZLayer const
+SHIZLayeredAbove(SHIZLayer const layer) {
     SHIZLayer layer_above = layer;
     
     if (layer.depth < SHIZLayerDepthMax) {
