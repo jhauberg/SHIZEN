@@ -329,6 +329,19 @@ SHIZLayered(unsigned char const layer) {
 }
 
 static inline SHIZLayer const
+SHIZLayeredBelow(SHIZLayer const layer) {
+    SHIZLayer layer_below = layer;
+
+    if (layer.depth > SHIZLayerDepthMin) {
+        layer_below.depth = layer.depth - 1;
+    } else if (layer.layer > SHIZLayerMin) {
+        layer_below.layer = layer.layer - 1;
+    }
+
+    return layer_below;
+}
+
+static inline SHIZLayer const
 SHIZLayeredAbove(SHIZLayer const layer) {
     SHIZLayer layer_above = layer;
     
