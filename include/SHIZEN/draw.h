@@ -64,6 +64,31 @@ void shiz_draw_rect_shape_ex(SHIZRect const rect,
                              SHIZLayer const layer);
 
 /**
+ * @brief Draw a filled circle.
+ */
+void shiz_draw_circle(SHIZVector2 const center,
+                      float const radius,
+                      unsigned int const segments,
+                      SHIZColor const color);
+void shiz_draw_circle_ex(SHIZVector2 const center,
+                         float const radius,
+                         unsigned int const segments,
+                         SHIZColor const color,
+                         SHIZLayer const layer);
+/**
+ * @brief Draw a circle.
+ */
+void shiz_draw_circle_shape(SHIZVector2 const center,
+                            float const radius,
+                            unsigned int const segments,
+                            SHIZColor const color);
+void shiz_draw_circle_shape_ex(SHIZVector2 const center,
+                               float const radius,
+                               unsigned int const segments,
+                               SHIZColor const color,
+                               SHIZLayer const layer);
+
+/**
  * @brief Draw a sprite.
  *
  * @param sprite
