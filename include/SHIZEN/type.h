@@ -136,10 +136,8 @@ extern SHIZSprite const SHIZSpriteEmpty;
  */
 extern SHIZSize const SHIZSpriteSizeIntrinsic;
 
-/**
- * @brief Default sprite layer.
- */
-extern SHIZLayer const SHIZLayerDefault;
+extern SHIZLayer const SHIZLayerTop;
+extern SHIZLayer const SHIZLayerBottom;
 
 extern SHIZVector2 const SHIZAnchorCenter;
 extern SHIZVector2 const SHIZAnchorTop;
@@ -156,6 +154,8 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
 
 #define SHIZLayerDepthMin 0
 #define SHIZLayerDepthMax 65535 // USHRT_MAX
+
+#define SHIZLayerDefault SHIZLayerBottom
 
 /**
  * @brief Do not apply rotation.
