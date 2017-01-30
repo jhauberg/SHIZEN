@@ -4519,7 +4519,7 @@ static int stbi__parse_png_file(stbi__png *z, int scan, int req_comp)
                if (idata_limit == 0) idata_limit = c.length > 4096 ? c.length : 4096;
                while (ioff + c.length > idata_limit)
                   idata_limit *= 2;
-               STBI_NOTUSED(idata_limit_old);
+               if (idata_limit_old) STBI_NOTUSED(idata_limit_old);
                p = (stbi_uc *) STBI_REALLOC_SIZED(z->idata, idata_limit_old, idata_limit); if (p == NULL) return stbi__err("outofmem", "Out of memory");
                z->idata = p;
             }

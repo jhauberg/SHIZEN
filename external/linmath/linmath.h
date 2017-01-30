@@ -556,10 +556,8 @@ static inline void quat_from_mat4x4(quat q, mat4x4 M)
 	int *p = perm;
 
 	for(i = 0; i<3; i++) {
-		float m = M[i][i];
-		if( m < r )
+		if( M[i][i] < r )
 			continue;
-		m = r;
 		p = &perm[i];
 	}
 
