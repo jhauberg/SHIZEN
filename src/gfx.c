@@ -23,18 +23,13 @@ static void _shiz_gfx_debug_reset_draw_count(void);
 static void _shiz_gfx_debug_increment_draw_count(unsigned int amount);
 static void _shiz_gfx_debug_update_frame_stats(void);
 static void _shiz_gfx_debug_update_frame_averages(void);
-static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
-static shiz_gfx_debug_event_callback * _shiz_gfx_debug_event;
 
-//static const char * const _shiz_gfx_debug_event_primitive = "primitive";
-//static const char * const _shiz_gfx_debug_event_flush = "flush";
-//static const char * const _shiz_gfx_debug_event_flush_capacity = "flush (cap)";
-//static const char * const _shiz_gfx_debug_event_flush_texture_switch = "flush (tex)";
+static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
+
 static const char * const _shiz_gfx_debug_event_primitive = "prim";
 static const char * const _shiz_gfx_debug_event_flush = "flsh";
 static const char * const _shiz_gfx_debug_event_flush_capacity = "flsh|cap";
 static const char * const _shiz_gfx_debug_event_flush_texture_switch = "flsh|tex";
-
 #endif
 
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source);
@@ -158,15 +153,7 @@ shiz_gfx_flush() {
         _shiz_gfx_spritebatch_flush();
 
 #ifdef SHIZ_DEBUG
-        if (_shiz_gfx_debug_event) {
-            SHIZDebugEvent event;
-
-            event.name = _shiz_gfx_debug_event_flush;
-            event.origin = event_origin;
-            event.lane = SHIZDebugEventLaneDraws;
-
-            _shiz_gfx_debug_event(event);
-        }
+        shiz_debug_add_event_draw(_shiz_gfx_debug_event_flush, event_origin);
 #endif
     }
 }
@@ -245,15 +232,7 @@ shiz_gfx_render_ex(GLenum const mode,
     _shiz_gfx_primitive_state(false);
 
 #ifdef SHIZ_DEBUG
-    if (_shiz_gfx_debug_event) {
-        SHIZDebugEvent event;
-
-        event.name = _shiz_gfx_debug_event_primitive;
-        event.origin = origin;
-        event.lane = SHIZDebugEventLaneDraws;
-
-        _shiz_gfx_debug_event(event);
-    }
+    shiz_debug_add_event_draw(_shiz_gfx_debug_event_primitive, origin);
 #endif
 }
 
@@ -266,15 +245,7 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
         _spritebatch.current_texture_id != texture_id) {
         if (_shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-            if (_shiz_gfx_debug_event) {
-                SHIZDebugEvent event;
-
-                event.name = _shiz_gfx_debug_event_flush_texture_switch;
-                event.origin = origin;
-                event.lane = SHIZDebugEventLaneDraws;
-
-                _shiz_gfx_debug_event(event);
-            }
+            shiz_debug_add_event_draw(_shiz_gfx_debug_event_flush_texture_switch, origin);
 #endif
         }
     }
@@ -284,15 +255,7 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
     if (_spritebatch.current_count + 1 > SHIZGFXSpriteBatchMax) {
         if (_shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-            if (_shiz_gfx_debug_event) {
-                SHIZDebugEvent event;
-
-                event.name = _shiz_gfx_debug_event_flush_capacity;
-                event.origin = origin;
-                event.lane = SHIZDebugEventLaneDraws;
-
-                _shiz_gfx_debug_event(event);
-            }
+            shiz_debug_add_event_draw(_shiz_gfx_debug_event_flush_capacity, origin);
 #endif
         }
     }
@@ -578,7 +541,7 @@ _shiz_gfx_spritebatch_state(bool const enable) {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glFrontFace(GL_CW);
-        
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {
@@ -783,11 +746,6 @@ SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin() {
     return SHIZVector3Zero;
 }
 
-void
-shiz_gfx_debug_set_event_callback(shiz_gfx_debug_event_callback * const callback) {
-    _shiz_gfx_debug_event = callback;
-}
-
 static unsigned int _shiz_gfx_debug_draw_count = 0;
 
 static void
@@ -802,7 +760,7 @@ shiz_gfx_debug_get_draw_count() {
 
 static void
 _shiz_gfx_debug_increment_draw_count(unsigned int amount) {
-    if (shiz_debug_context.is_tracking_enabled) {
+    if (shiz_debug_is_events_enabled()) {
         _shiz_gfx_debug_draw_count += amount;
     }
 }

@@ -161,7 +161,7 @@ shiz_res_unload(unsigned int const resource_id) {
         return false;
     }
 
-    SHIZResourceType type = _shiz_res_get_type_from_id(resource_id);
+    SHIZResourceType const type = _shiz_res_get_type_from_id(resource_id);
 
     int const index = _shiz_res_get_index_from_id(resource_id, type);
 
@@ -197,7 +197,7 @@ shiz_res_unload_all() {
     bool something_failed = false;
     
     for (unsigned int image_resource_index = 0; image_resource_index < SHIZResourceImageMax; image_resource_index++) {
-        unsigned int resource_id = images[image_resource_index].resource_id;
+        unsigned int const resource_id = images[image_resource_index].resource_id;
         
         if (resource_id != SHIZResourceInvalid) {
             if (!shiz_res_unload(resource_id)) {
@@ -207,7 +207,7 @@ shiz_res_unload_all() {
     }
     
     for (unsigned int sound_resource_index = 0; sound_resource_index < SHIZResourceSoundMax; sound_resource_index++) {
-        unsigned int resource_id = sounds[sound_resource_index].resource_id;
+        unsigned int const resource_id = sounds[sound_resource_index].resource_id;
         
         if (resource_id != SHIZResourceInvalid) {
             if (!shiz_res_unload(resource_id)) {
@@ -217,8 +217,10 @@ shiz_res_unload_all() {
     }
 
 #ifdef SHIZ_DEBUG
-    if (!shiz_res_debug_unload_font()) {
-        something_failed = true;
+    if (debug_font_resource.resource_id != SHIZResourceInvalid) {
+        if (!shiz_res_debug_unload_font()) {
+            something_failed = true;
+        }
     }
 #endif
     
@@ -398,6 +400,10 @@ shiz_res_debug_load_font() {
 
 bool
 shiz_res_debug_unload_font() {
+    if (debug_font_resource.texture_id == 0) {
+        return false;
+    }
+    
     glDeleteTextures(1, &debug_font_resource.texture_id);
 
     debug_font_resource.width = 0;

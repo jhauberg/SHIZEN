@@ -19,6 +19,7 @@
 SHIZRect const shiz_sprite_get_anchored_rect(SHIZSize const size,
                                              SHIZVector2 const anchor);
 
+void shiz_sprite_reset(void);
 void shiz_sprite_flush(void);
 
 SHIZSize const shiz_sprite_draw(SHIZSprite const sprite,
@@ -30,5 +31,9 @@ SHIZSize const shiz_sprite_draw(SHIZSprite const sprite,
                                 bool const repeat,
                                 bool const opaque,
                                 SHIZLayer const layer);
+
+#ifdef SHIZ_DEBUG
+unsigned int shiz_debug_get_sprite_count(void);
+#endif
 
 #endif // sprite_h

@@ -105,8 +105,6 @@ SHIZViewport shiz_gfx_get_viewport(void);
 void shiz_gfx_set_viewport(SHIZViewport const viewport);
 
 #ifdef DEBUG
-typedef void shiz_gfx_debug_event_callback(SHIZDebugEvent const event);
-void shiz_gfx_debug_set_event_callback(shiz_gfx_debug_event_callback * const callback);
 unsigned int shiz_gfx_debug_get_draw_count(void);
 unsigned int shiz_gfx_debug_get_frames_per_second(void);
 unsigned int shiz_gfx_debug_get_frames_per_second_min(void);

@@ -31,6 +31,7 @@ typedef struct SHIZSpriteInternal {
 static int _shiz_compare_sprites(const void * a, const void * b);
 
 static unsigned int _sprites_count = 0;
+static unsigned int _sprites_count_total = 0;
 
 static SHIZSpriteInternal _sprites[SHIZSpriteInternalMax];
 
@@ -154,7 +155,7 @@ shiz_sprite_draw(SHIZSprite const sprite,
     sprite_internal->key = key;
     sprite_internal->angle = angle;
     sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
-    sprite_internal->order = _sprites_count;
+    sprite_internal->order = _sprites_count_total;
 
     for (unsigned int i = 0; i < vertex_count; i++) {
         sprite_internal->vertices[i].position = vertices[i].position;
@@ -165,10 +166,8 @@ shiz_sprite_draw(SHIZSprite const sprite,
     }
 
     _sprites_count += 1;
-
-#ifdef SHIZ_DEBUG
-    shiz_debug_context.sprite_count += 1;
-#endif
+    // this counts total sprites during a frame; i.e. the accumulation of all flushed sprites
+    _sprites_count_total += 1;
 
     if (_sprites_count >= SHIZSpriteInternalMax) {
         shiz_sprite_flush();
@@ -189,6 +188,11 @@ shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) {
     float const b = dy - hh;
 
     return SHIZRectMake(SHIZVector2Make(l, b), size);
+}
+
+void
+shiz_sprite_reset() {
+    _sprites_count_total = 0;
 }
 
 void
@@ -230,3 +234,10 @@ _shiz_compare_sprites(const void * a, const void * b) {
     
     return 0;
 }
+
+#ifdef SHIZ_DEBUG
+unsigned int
+shiz_debug_get_sprite_count() {
+    return _sprites_count_total;
+}
+#endif
