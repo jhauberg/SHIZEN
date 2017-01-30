@@ -14,6 +14,8 @@
 
 #include "internal.h"
 
+#define SHIZSpriteInternalMax 2048
+
 SHIZRect const shiz_sprite_get_anchored_rect(SHIZSize const size,
                                              SHIZVector2 const anchor);
 

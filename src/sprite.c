@@ -14,6 +14,20 @@
 #include "gfx.h"
 #include "res.h"
 
+typedef struct SHIZSpriteInternalKey {
+    bool is_transparent: 1; // the least significant bit
+    unsigned short texture_id: 7;
+    SHIZLayer layer; // 24 bits
+} SHIZSpriteInternalKey; // total 32 bits (unsigned long)
+
+typedef struct SHIZSpriteInternal {
+    unsigned long key; // packed SHIZSpriteInternalKey
+    unsigned int order; // literal call order; used as a last resort to ensure stable sorting
+    SHIZVertexPositionColorTexture vertices[6];
+    SHIZVector3 origin;
+    float angle;
+} SHIZSpriteInternal;
+
 static int _shiz_compare_sprites(const void * a, const void * b);
 
 static unsigned int _sprites_count = 0;
