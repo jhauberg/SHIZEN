@@ -26,10 +26,10 @@ static void _shiz_gfx_debug_update_frame_averages(void);
 
 static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
 
-static const char * const _shiz_gfx_debug_event_primitive = "prim";
-static const char * const _shiz_gfx_debug_event_flush = "flsh";
-static const char * const _shiz_gfx_debug_event_flush_capacity = "flsh|cap";
-static const char * const _shiz_gfx_debug_event_flush_texture_switch = "flsh|tex";
+static const char * const _shiz_gfx_debug_event_primitive = "\xDB";
+static const char * const _shiz_gfx_debug_event_flush = "fls";
+static const char * const _shiz_gfx_debug_event_flush_capacity = "fls|cap";
+static const char * const _shiz_gfx_debug_event_flush_texture_switch = "fls|tex";
 #endif
 
 static GLuint _shiz_gfx_compile_shader(GLenum const type, const GLchar *source);

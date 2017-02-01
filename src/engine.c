@@ -299,55 +299,6 @@ shiz_get_sprite_font_ex(SHIZSprite const sprite,
     return spritefont;
 }
 
-static bool
-_shiz_glfw_create_window(SHIZWindowSettings const settings) {
-    glfwWindowHint(GLFW_SAMPLES, 0);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, SHIZ_MIN_OPENGL_VERSION_MAJOR);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, SHIZ_MIN_OPENGL_VERSION_MINOR);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-    
-    if (settings.fullscreen) {
-        GLFWmonitor * monitor = glfwGetPrimaryMonitor();
-        
-        if (monitor) {
-            const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-            
-            int const display_width = mode->width;
-            int const display_height = mode->height;
-            
-            _context.window = glfwCreateWindow(display_width, display_height,
-                                               settings.title, glfwGetPrimaryMonitor(), NULL);
-            
-            // prefer centered window if initially fullscreen;
-            // otherwise let the OS determine window placement
-            _shiz_glfw_window_position.x = (display_width / 2) - (settings.size.width / 2);
-            _shiz_glfw_window_position.y = (display_height / 2) - (settings.size.height / 2);
-        }
-    } else {
-        _context.window = glfwCreateWindow(settings.size.width, settings.size.height,
-                                               settings.title, NULL, NULL);
-    }
-    
-    if (!_context.window) {
-        return false;
-    }
-    
-    glfwSetWindowCloseCallback(_context.window, _shiz_glfw_window_close_callback);
-    glfwSetWindowFocusCallback(_context.window, _shiz_glfw_window_focus_callback);
-    
-    glfwSetFramebufferSizeCallback(_context.window, _shiz_glfw_framebuffer_size_callback);
-    
-    glfwSetKeyCallback(_context.window, key_callback);
-    
-    glfwMakeContextCurrent(_context.window);
-    glfwSwapInterval(settings.vsync ? 1 : 0);
-    
-    return true;
-}
-
 static
 SHIZViewport _shiz_get_viewport(void) {
     SHIZViewport viewport = SHIZViewportDefault;
@@ -363,35 +314,13 @@ SHIZViewport _shiz_get_viewport(void) {
     return viewport;
 }
 
-static
-SHIZSize _shiz_glfw_get_window_size() {
-    int window_width;
-    int window_height;
-
-    glfwGetWindowSize(_context.window, &window_width, &window_height);
-    
-    return SHIZSizeMake(window_width, window_height);
+SHIZSize _shiz_get_preferred_screen_size() {
+    return _context.preferred_screen_size;
 }
 
-static
-SHIZSize _shiz_glfw_get_framebuffer_size() {
-    int framebuffer_width;
-    int framebuffer_height;
-    
-    // determine pixel size of the framebuffer for the window
-    // this size is not necesarilly equal to the size of the window, as some
-    // platforms may increase the pixel count (e.g. doubling on retina screens)
-    glfwGetFramebufferSize(_context.window, &framebuffer_width, &framebuffer_height);
-    
-    return SHIZSizeMake(framebuffer_width, framebuffer_height);
-}
-
-static float
-_shiz_glfw_get_pixel_scale() {
-    SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
-    SHIZSize const window = _shiz_glfw_get_window_size();
-    
-    return (framebuffer.width + framebuffer.height) / (window.width + window.height);
+void _shiz_present_frame() {
+    glfwSwapBuffers(_context.window);
+    glfwPollEvents();
 }
 
 static void
@@ -427,6 +356,86 @@ _shiz_can_run(void) {
     }
     
     return true;
+}
+
+static bool
+_shiz_glfw_create_window(SHIZWindowSettings const settings) {
+    glfwWindowHint(GLFW_SAMPLES, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, SHIZ_MIN_OPENGL_VERSION_MAJOR);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, SHIZ_MIN_OPENGL_VERSION_MINOR);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+    
+    if (settings.fullscreen) {
+        GLFWmonitor * monitor = glfwGetPrimaryMonitor();
+        
+        if (monitor) {
+            const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+            
+            int const display_width = mode->width;
+            int const display_height = mode->height;
+            
+            _context.window = glfwCreateWindow(display_width, display_height,
+                                               settings.title, glfwGetPrimaryMonitor(), NULL);
+            
+            // prefer centered window if initially fullscreen;
+            // otherwise let the OS determine window placement
+            _shiz_glfw_window_position.x = (display_width / 2) - (settings.size.width / 2);
+            _shiz_glfw_window_position.y = (display_height / 2) - (settings.size.height / 2);
+        }
+    } else {
+        _context.window = glfwCreateWindow(settings.size.width, settings.size.height,
+                                           settings.title, NULL, NULL);
+    }
+    
+    if (!_context.window) {
+        return false;
+    }
+    
+    glfwSetWindowCloseCallback(_context.window, _shiz_glfw_window_close_callback);
+    glfwSetWindowFocusCallback(_context.window, _shiz_glfw_window_focus_callback);
+    
+    glfwSetFramebufferSizeCallback(_context.window, _shiz_glfw_framebuffer_size_callback);
+    
+    glfwSetKeyCallback(_context.window, key_callback);
+    
+    glfwMakeContextCurrent(_context.window);
+    glfwSwapInterval(settings.vsync ? 1 : 0);
+    
+    return true;
+}
+
+static
+SHIZSize _shiz_glfw_get_window_size() {
+    int window_width;
+    int window_height;
+    
+    glfwGetWindowSize(_context.window, &window_width, &window_height);
+    
+    return SHIZSizeMake(window_width, window_height);
+}
+
+static
+SHIZSize _shiz_glfw_get_framebuffer_size() {
+    int framebuffer_width;
+    int framebuffer_height;
+    
+    // determine pixel size of the framebuffer for the window
+    // this size is not necesarilly equal to the size of the window, as some
+    // platforms may increase the pixel count (e.g. doubling on retina screens)
+    glfwGetFramebufferSize(_context.window, &framebuffer_width, &framebuffer_height);
+    
+    return SHIZSizeMake(framebuffer_width, framebuffer_height);
+}
+
+static float
+_shiz_glfw_get_pixel_scale() {
+    SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
+    SHIZSize const window = _shiz_glfw_get_window_size();
+    
+    return (framebuffer.width + framebuffer.height) / (window.width + window.height);
 }
 
 static void
@@ -492,13 +501,4 @@ _shiz_glfw_framebuffer_size_callback(GLFWwindow * const window, int width, int h
     SHIZViewport const viewport = _shiz_get_viewport();
 
     shiz_gfx_set_viewport(viewport);
-}
-
-SHIZSize _shiz_get_preferred_screen_size() {
-    return _context.preferred_screen_size;
-}
-
-void _shiz_present_frame() {
-    glfwSwapBuffers(_context.window);
-    glfwPollEvents();
 }

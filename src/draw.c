@@ -484,10 +484,10 @@ _shiz_debug_build_stats() {
     sprintf(_shiz_debug_stats_buffer,
             "\4%.0fx%.0f\1@\5%.0fx%.0f\1\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
-            "\2%d\1 (\3%d\1|\4%d\1|\5%d\1)\n\n"
+            "\2%d fps\1 (\3%d\x19\1 \4%d\x12\1 \5%d\x18\1)\n\n"
             "%c%d/%d sprites/frame\1\n"
             "\2%d draws/frame\1\n\n"
-            "\2\x17%.1fx time\1",
+            "\2%.1fx time\1",
             viewport.screen.width, viewport.screen.height,
             viewport.framebuffer.width, viewport.framebuffer.height,
             shiz_gfx_debug_get_frame_time(),
@@ -504,8 +504,8 @@ _shiz_debug_build_stats() {
 static void
 _shiz_debug_draw_events() {
     unsigned int const line_margin = 8;
-    unsigned int const lane_margin = 2;
-    unsigned int const lane_size = 4;
+    unsigned int const lane_margin = 4;
+    unsigned int const lane_size = 8;
 
     unsigned int draw_events = 0;
 
@@ -525,23 +525,21 @@ _shiz_debug_draw_events() {
 
         SHIZColor tint = SHIZSpriteNoTint;
 
-        char event_buffer[128];
+        char event_buffer[128] = { 0 };
 
         if (event.lane == SHIZDebugEventLaneDraws) {
             tint = SHIZColorYellow;
 
             draw_events += 1;
 
-            sprintf(event_buffer, "%u-%s", draw_events, event.name);
+            sprintf(event_buffer, "%u:%s", draw_events, event.name);
         } else if (event.lane == SHIZDebugEventLaneResources) {
             sprintf(event_buffer, "%s", event.name);
         }
 
         _shiz_str_to_upper(event_buffer);
 
-        //tint.alpha = 0.6f;
-
-        shiz_draw_line_ex(SHIZVector2Make(from.x, from.y - line_margin), to, tint, layer);
+        shiz_draw_line_ex(SHIZVector2Make(from.x, from.y - line_margin - lane_margin), to, tint, layer);
 
         SHIZSize const event_text_size =
         shiz_draw_sprite_text_ex(shiz_debug_get_font(),
@@ -549,7 +547,7 @@ _shiz_debug_draw_events() {
                                  from,
                                  SHIZSpriteFontAlignmentCenter | SHIZSpriteFontAlignmentTop,
                                  SHIZSpriteFontSizeToFit, tint,
-                                 SHIZSpriteFontAttributesWithScale(0.6f), layer);
+                                 SHIZSpriteFontAttributesWithScale(1), layer);
 
         shiz_draw_rect_ex(SHIZRectMake(from, event_text_size),
                           SHIZColorBlack, SHIZAnchorTop, SHIZSpriteNoAngle,
@@ -567,7 +565,7 @@ _shiz_debug_draw_stats() {
         SHIZColorFromHex(0xefec0d), // yellow
         SHIZColorFromHex(0xe5152d), // red
         SHIZColorFromHex(0x36cd33), // green
-        SHIZColorFromHex(0x20b1fc) // blue
+        SHIZColorFromHex(0x20b1fc)  // blue
     };
 
     SHIZSize const display_size = _shiz_get_preferred_screen_size();
@@ -587,7 +585,7 @@ _shiz_debug_draw_stats() {
 
     char version_buffer[128];
 
-    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (built %s, %s)",
+    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (%s, %s)",
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
             SHIZEN_VERSION_NAME, __DATE__, __TIME__);
 
