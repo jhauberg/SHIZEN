@@ -14,6 +14,8 @@
 #include "res.h"
 #include "io.h"
 
+#include "spritefont.8x8.h"
+
 #define SHIZDebugEventMax 64
 
 typedef struct SHIZDebugContext {
@@ -36,7 +38,7 @@ shiz_debug_init() {
     _context.draw_events = false;
     _context.event_count = 0;
     
-    if (!shiz_res_debug_load_font()) {
+    if (!shiz_res_debug_load_font(IBMCGA8x8, IBMCGA8x8Size)) {
         return false;
     }
     
@@ -46,7 +48,7 @@ shiz_debug_init() {
         SHIZSpriteFont const spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(8, 8));
         
         _context.font = spritefont;
-        _context.font.table.offset = 32;
+        _context.font.table.offset = IBMCGA8x8Offset;
     }
     
     return true;

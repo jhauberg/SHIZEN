@@ -54,7 +54,7 @@ SHIZResourceSound shiz_res_get_sound(unsigned int const resource_id);
 #ifdef SHIZ_DEBUG
 void shiz_res_debug_print_resources(void);
 
-bool shiz_res_debug_load_font(void);
+bool shiz_res_debug_load_font(const unsigned char * const buffer, unsigned int const length);
 bool shiz_res_debug_unload_font(void);
 
 unsigned int shiz_res_debug_get_font(void);
