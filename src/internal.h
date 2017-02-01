@@ -55,30 +55,10 @@ SHIZSize _shiz_get_preferred_screen_size(void);
 
 void _shiz_present_frame(void);
 
-static inline unsigned int const _shiz_get_char_size(char const character) {
-    int bits = 7;
-    unsigned int size = 0;
-    
-    while (bits >= 0) {
-        if (!((character >> bits) & 1)) {
-            break;
-        }
-        
-        size += 1;
-        bits -= 1;
-    }
-    
-    if (size == 0) {
-        size = sizeof(char);
-    }
-    
-    return size; // in bytes
-}
-
 static inline void _shiz_str_to_upper(char * string) {
     char * ptr;
 
-    for (ptr = string; *ptr != '\0'; ptr++) {
+    for (ptr = string; *ptr; ptr++) {
         *ptr = (char)toupper(*ptr);
     }
 }

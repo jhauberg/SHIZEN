@@ -58,7 +58,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     while (*text_ptr) {
         char character = *text_ptr;
 
-        text_ptr += _shiz_get_char_size(character);
+        text_ptr += 1;
 
         bool const break_line_explicit = character == newline_character;
         bool const break_line_required = (measurement.constrain_horizontally &&
@@ -68,7 +68,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             if (break_line_required && attributes.wrap == SHIZSpriteFontWrapModeWord) {
                 // backtrack until finding a whitespace
                 while (*text_ptr) {
-                    text_ptr -= _shiz_get_char_size(character);
+                    text_ptr -= 1;
                     text_index -= 1;
 
                     character = *text_ptr;
@@ -80,6 +80,11 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
                     if (line_character_count > 0) {
                         line_character_count -= 1;
                     } else {
+                        break;
+                    }
+                    
+                    if (text_index == 0) {
+                        // additional safety measure
                         break;
                     }
                 }
@@ -176,6 +181,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
     }
 
     unsigned int text_index = 0;
+    unsigned long const text_length = strlen(text);
 
     bool break_from_truncation = false;
 
@@ -195,7 +201,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
 
         unsigned int const line_character_count = line.size.width / measurement.character_size_perceived.width;
 
-        for (int character_index = 0; character_index < line_character_count && text_index < strlen(text); character_index++) {
+        for (int character_index = 0; character_index < line_character_count && text_index < text_length; character_index++) {
             bool const should_truncate = (measurement.constrain_index != -1 &&
                                           text_index > (measurement.constrain_index - truncation_length));
 
@@ -234,7 +240,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 continue;
             }
 
-            int character_table_index = character - font.table.offset;
+            int character_table_index = (unsigned char)character - font.table.offset;
 
             if (character_table_index < 0 ||
                 character_table_index > font.table.columns * font.table.rows) {
