@@ -154,6 +154,29 @@ shiz_draw_path_ex(SHIZVector2 const points[],
 }
 
 void
+shiz_draw_point(SHIZVector2 const point, SHIZColor const color) {
+    shiz_draw_point_ex(point, 1, color, SHIZLayerDefault);
+}
+
+void
+shiz_draw_point_ex(SHIZVector2 const point, float const scale, SHIZColor const color, SHIZLayer const layer) {
+    if (scale > 1) {
+        shiz_draw_rect_ex(SHIZRectMake(point, SHIZSizeMake(scale, scale)), color,
+                          SHIZAnchorCenter, SHIZSpriteNoAngle,
+                          layer);
+    } else {
+        SHIZVertexPositionColor vertices[1] = {
+            {
+                .position = SHIZVector3Make(point.x, point.y, _shiz_layer_get_z(layer)),
+                .color = color
+            }
+        };
+
+        shiz_gfx_render(GL_POINTS, vertices, 1);
+    }
+}
+
+void
 shiz_draw_rect(SHIZRect const rect, SHIZColor const color) {
     shiz_draw_rect_ex(rect, color,
                       SHIZAnchorBottomLeft,
