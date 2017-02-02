@@ -128,7 +128,7 @@ extern SHIZColor const SHIZColorGreen;
 extern SHIZColor const SHIZColorBlue;
 extern SHIZColor const SHIZColorYellow;
 
-extern SHIZSize const SHIZSizeEmpty;
+extern SHIZSize const SHIZSizeZero;
 extern SHIZRect const SHIZRectEmpty;
 
 /**

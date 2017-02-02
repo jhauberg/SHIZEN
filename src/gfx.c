@@ -630,7 +630,7 @@ _shiz_gfx_determine_operating_resolution()
 static void
 _shiz_gfx_apply_viewport_boxing_if_necessary()
 {
-    _viewport.offset = SHIZSizeEmpty;
+    _viewport.offset = SHIZSizeZero;
 
     if (enable_boxing_if_necessary) {
         SHIZViewportMode mode;

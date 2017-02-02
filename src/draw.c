@@ -614,7 +614,7 @@ _shiz_debug_draw_viewport()
     SHIZVector2 const center = SHIZVector2Make(viewport.screen.width / 2,
                                                viewport.screen.height / 2);
     
-    SHIZColor color = SHIZColorWithAlpa(SHIZColorRed, 0.6);
+    SHIZColor color = SHIZColorWithAlpa(SHIZColorRed, 0.8);
     
     SHIZRect viewport_shape = SHIZRectMake(center, SHIZSizeMake(viewport.screen.width - 1,
                                                                 viewport.screen.height - 1));

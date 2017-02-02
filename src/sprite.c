@@ -52,7 +52,7 @@ shiz_sprite_draw(SHIZSprite const sprite,
         sprite.resource_id != image.resource_id ||
         (sprite.source.size.width <= 0 ||
          sprite.source.size.height <= 0)) {
-        return SHIZSizeEmpty;
+        return SHIZSizeZero;
     }
 
     unsigned int const vertex_count = 6;

@@ -24,7 +24,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 {
     SHIZSpriteFontMeasurement measurement;
 
-    measurement.size = SHIZSizeEmpty;
+    measurement.size = SHIZSizeZero;
     measurement.constrain_index = -1; // no truncation
 
     SHIZSprite character_sprite = SHIZSpriteEmpty;
@@ -56,6 +56,11 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
     const char * text_ptr = text;
 
+    bool const skip_leading_whitespace = (attributes.wrap == SHIZSpriteFontWrapModeWord &&
+                                          !font.includes_whitespace);
+    bool current_line_has_leading_whitespace = false;
+    bool next_line_has_leading_whitespace = false;
+
     while (*text_ptr) {
         char character = *text_ptr;
 
@@ -66,6 +71,8 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
                                           line_character_count >= measurement.max_characters_per_line);
 
         if (break_line_explicit || break_line_required) {
+            next_line_has_leading_whitespace = false;
+
             if (break_line_required && attributes.wrap == SHIZSpriteFontWrapModeWord) {
                 // backtrack until finding a whitespace
                 while (*text_ptr) {
@@ -74,7 +81,9 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
                     character = *text_ptr;
 
-                    if (*text_ptr == whitespace_character) {
+                    if (character == whitespace_character) {
+                        next_line_has_leading_whitespace = true;
+
                         break;
                     }
 
@@ -91,13 +100,21 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
                 }
             }
 
-            measurement.lines[line_index].size.width = line_character_count * measurement.character_size_perceived.width;
+            unsigned int character_count_perceived = line_character_count - line_character_ignored_count;
+
+            if (skip_leading_whitespace && current_line_has_leading_whitespace) {
+                character_count_perceived -= 1;
+            }
+
+            measurement.lines[line_index].size.width = character_count_perceived * measurement.character_size_perceived.width;
             measurement.lines[line_index].size.height = line_height;
-            measurement.lines[line_index].ignored_character_count = line_character_ignored_count;
+            measurement.lines[line_index].character_count = line_character_count;
 
             line_character_ignored_count = 0;
             line_character_count = 0;
             line_index += 1;
+
+            current_line_has_leading_whitespace = next_line_has_leading_whitespace;
 
             if (line_index > SHIZSpriteFontMaxLines) {
                 // this is bad
@@ -125,9 +142,15 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         // leave a space even if the character was not found
         line_character_count += 1;
 
-        measurement.lines[line_index].size.width = line_character_count * measurement.character_size_perceived.width;
+        unsigned int character_count_perceived = line_character_count - line_character_ignored_count;
+
+        if (skip_leading_whitespace && current_line_has_leading_whitespace) {
+            character_count_perceived -= 1;
+        }
+
+        measurement.lines[line_index].size.width = character_count_perceived * measurement.character_size_perceived.width;
         measurement.lines[line_index].size.height = line_height;
-        measurement.lines[line_index].ignored_character_count = line_character_ignored_count;
+        measurement.lines[line_index].character_count = line_character_count;
 
         text_index += 1;
     }
@@ -175,7 +198,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
     SHIZVector2 character_origin = origin;
 
     if ((alignment & SHIZSpriteFontAlignmentTop) == SHIZSpriteFontAlignmentTop) {
-        // intenionally left blank; no operation necessary
+        // intentionally left blank; no operation necessary
     } else if ((alignment & SHIZSpriteFontAlignmentMiddle) == SHIZSpriteFontAlignmentMiddle) {
         character_origin.y += measurement.size.height / 2;
     } else if ((alignment & SHIZSpriteFontAlignmentBottom) == SHIZSpriteFontAlignmentBottom) {
@@ -192,18 +215,13 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
     for (unsigned int line_index = 0; line_index < measurement.line_count; line_index++) {
         SHIZSpriteFontLine const line = measurement.lines[line_index];
 
-        float const line_width_perceived = line.size.width - (line.ignored_character_count *
-                                                              measurement.character_size_perceived.width);
-
         if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
-            character_origin.x -= line_width_perceived / 2;
+            character_origin.x -= line.size.width / 2;
         } else if ((alignment & SHIZSpriteFontAlignmentRight) == SHIZSpriteFontAlignmentRight) {
-            character_origin.x -= line_width_perceived;
+            character_origin.x -= line.size.width;
         }
 
-        unsigned int const line_character_count = line.size.width / measurement.character_size_perceived.width;
-
-        for (int character_index = 0; character_index < line_character_count && text_index < text_length; character_index++) {
+        for (int character_index = 0; character_index < line.character_count && text_index < text_length; character_index++) {
             bool const should_truncate = (measurement.constrain_index != -1 &&
                                           text_index > (measurement.constrain_index - truncation_length));
 
@@ -259,6 +277,8 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             if (is_leading_whitespace && skip_leading_whitespace) {
                 character_takes_space = false;
 
+                // however, in some cases, a leading whitespace is intentional, so we
+                // try to determine that by stepping backwards:
                 // the index has already been incremented once, so we have to step back by 2
                 int const previous_text_index = text_index - 2;
 
@@ -266,8 +286,8 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                     char const previous_character = text[previous_text_index];
 
                     if (previous_character == newline_character) {
-                        // this was an explicit line-break,
-                        // so the leading whitespace is probably intentional
+                        // the previous character was an explicit line-break,
+                        // so the leading whitespace is probably intentional and should appear
                         character_takes_space = true;
                     }
                 }

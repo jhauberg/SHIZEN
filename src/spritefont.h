@@ -19,9 +19,8 @@
 typedef struct SHIZSpriteFontLine {
     /** The measured size of the line of text */
     SHIZSize size;
-    /** The number of encountered special/ignored characters in the line of text;
-     typically counts tint specifiers */
-    unsigned int ignored_character_count;
+    /** The number of characters in the line */
+    unsigned int character_count;
 } SHIZSpriteFontLine;
 
 typedef struct SHIZSpriteFontMeasurement {

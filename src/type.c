@@ -23,7 +23,7 @@ SHIZColor const SHIZColorGreen = { 0, 1, 0, 1 };
 SHIZColor const SHIZColorBlue = { 0, 0, 1, 1 };
 SHIZColor const SHIZColorYellow = { 1, 1, 0, 1 };
 
-SHIZSize const SHIZSizeEmpty = { 0, 0 };
+SHIZSize const SHIZSizeZero = { 0, 0 };
 
 SHIZRect const SHIZRectEmpty = {
     .origin = { 0, 0 },
