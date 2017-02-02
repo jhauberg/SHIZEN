@@ -48,50 +48,31 @@ void shiz_draw_path_ex(SHIZVector2 const points[], unsigned int const count, SHI
 void shiz_draw_point(SHIZVector2 const point, SHIZColor const color);
 void shiz_draw_point_ex(SHIZVector2 const point, SHIZColor const color, SHIZLayer const layer);
 /**
- * @brief Draw a filled rectangle.
+ * @brief Draw a rectangle.
  */
 void shiz_draw_rect(SHIZRect const rect,
-                    SHIZColor const color);
+                    SHIZColor const color,
+                    SHIZDrawMode const mode);
 void shiz_draw_rect_ex(SHIZRect const rect,
                        SHIZColor const color,
+                       SHIZDrawMode const mode,
                        SHIZVector2 const anchor,
                        float const angle,
                        SHIZLayer const layer);
 /**
- * @brief Draw a rectangle.
- */
-void shiz_draw_rect_shape(SHIZRect const rect,
-                          SHIZColor const color);
-void shiz_draw_rect_shape_ex(SHIZRect const rect,
-                             SHIZColor const color,
-                             SHIZVector2 const anchor,
-                             float const angle,
-                             SHIZLayer const layer);
-
-/**
- * @brief Draw a filled circle.
+ * @brief Draw a circle.
  */
 void shiz_draw_circle(SHIZVector2 const center,
                       float const radius,
                       unsigned int const segments,
+                      SHIZDrawMode const mode,
                       SHIZColor const color);
 void shiz_draw_circle_ex(SHIZVector2 const center,
                          float const radius,
                          unsigned int const segments,
+                         SHIZDrawMode const mode,
                          SHIZColor const color,
                          SHIZLayer const layer);
-/**
- * @brief Draw a circle.
- */
-void shiz_draw_circle_shape(SHIZVector2 const center,
-                            float const radius,
-                            unsigned int const segments,
-                            SHIZColor const color);
-void shiz_draw_circle_shape_ex(SHIZVector2 const center,
-                               float const radius,
-                               unsigned int const segments,
-                               SHIZColor const color,
-                               SHIZLayer const layer);
 
 /**
  * @brief Draw a sprite.

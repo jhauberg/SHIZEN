@@ -42,6 +42,11 @@ typedef struct SHIZLayer {
     unsigned short layer: 8;
 } SHIZLayer;
 
+typedef enum SHIZDrawMode {
+    SHIZDrawModeFill,
+    SHIZDrawModeOutline
+} SHIZDrawMode;
+
 /**
  * Represents a 2-dimensional frame of an image resource.
  * The source frame can either be a subset of, or span the entire image.
