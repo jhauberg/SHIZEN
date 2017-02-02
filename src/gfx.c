@@ -49,9 +49,11 @@ static bool _shiz_gfx_kill_spritebatch(void);
 
 static void _shiz_gfx_spritebatch_state(bool const enable);
 
+static void _shiz_gfx_spritebatch_reset(void);
 static bool _shiz_gfx_spritebatch_flush(void);
 
 static void _shiz_gfx_apply_model_view_projection(mat4x4 mvp, mat4x4 model, mat4x4 view);
+static void _shiz_gfx_apply_translation_rotation_scale(mat4x4 model, SHIZVector3 translation, float angle, float scale);
 
 #define SHIZGFXSpriteBatchMax 128 /* flush when reaching this limit */
 
@@ -124,7 +126,7 @@ shiz_gfx_begin() {
     _shiz_gfx_debug_reset_draw_count();
 #endif
 
-    _spritebatch.current_texture_id = 0;
+    _shiz_gfx_spritebatch_reset();
     
     glViewport(_viewport.offset.width / 2,
                _viewport.offset.height / 2,
@@ -189,30 +191,20 @@ shiz_gfx_render_ex(GLenum const mode,
                    unsigned int const count,
                    SHIZVector3 const origin,
                    float const angle) {
-    mat4x4 translation;
-    mat4x4_identity(translation);
-    mat4x4_translate(translation, origin.x, origin.y, origin.z);
-    
-    mat4x4 rotation;
-    mat4x4_identity(rotation);
-    mat4x4_rotate_Z(rotation, rotation, angle);
-    
+    mat4x4 transform;
+    mat4x4_identity(transform);
     mat4x4 model;
     mat4x4_identity(model);
-    mat4x4_mul(model, translation, rotation);
-    
     mat4x4 view;
     mat4x4_identity(view);
     
-    mat4x4 mvp;
-    mat4x4_identity(mvp);
-    
-    _shiz_gfx_apply_model_view_projection(mvp, model, view);
+    _shiz_gfx_apply_translation_rotation_scale(model, origin, angle, 1);
+    _shiz_gfx_apply_model_view_projection(transform, model, view);
     
     _shiz_gfx_primitive_state(true);
     
     glUseProgram(_primitive.render.program);
-    glUniformMatrix4fv(glGetUniformLocation(_primitive.render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
+    glUniformMatrix4fv(glGetUniformLocation(_primitive.render.program, "transform"), 1, GL_FALSE, *transform);
     glBindVertexArray(_primitive.render.vao); {
         glBindBuffer(GL_ARRAY_BUFFER, _primitive.render.vbo); {
             glBufferData(GL_ARRAY_BUFFER,
@@ -232,7 +224,11 @@ shiz_gfx_render_ex(GLenum const mode,
     _shiz_gfx_primitive_state(false);
 
 #ifdef SHIZ_DEBUG
-    shiz_debug_add_event_draw(_shiz_gfx_debug_event_primitive, origin);
+    if (origin.x == 0 && origin.y == 0 && origin.z == 0 && count > 0) {
+        shiz_debug_add_event_draw(_shiz_gfx_debug_event_primitive, vertices[0].position);
+    } else {
+        shiz_debug_add_event_draw(_shiz_gfx_debug_event_primitive, origin);
+    }
 #endif
 }
 
@@ -262,15 +258,9 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
 
     unsigned int const offset = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
 
-    mat4x4 translation;
-    mat4x4_translate(translation, origin.x, origin.y, origin.z);
-
-    mat4x4 rotation;
-    mat4x4_identity(rotation);
-    mat4x4_rotate_Z(rotation, rotation, angle);
-
-    mat4x4 world;
-    mat4x4_mul(world, translation, rotation);
+    mat4x4 model;
+    
+    _shiz_gfx_apply_translation_rotation_scale(model, origin, angle, 1);
 
     for (unsigned int i = 0; i < spritebatch_vertex_count_per_quad; i++) {
         SHIZVertexPositionColorTexture vertex = vertices[i];
@@ -281,12 +271,13 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
             vertex.position.z, 1
         };
 
-        vec4 transformed_position;
-        mat4x4_mul_vec4(transformed_position, world, position);
+        vec4 world_position;
         
-        vertex.position = SHIZVector3Make(transformed_position[0],
-                                          transformed_position[1],
-                                          transformed_position[2]);
+        mat4x4_mul_vec4(world_position, model, position);
+        
+        vertex.position = SHIZVector3Make(world_position[0],
+                                          world_position[1],
+                                          world_position[2]);
         
         _spritebatch.vertices[offset + i] = vertex;
     }
@@ -300,10 +291,10 @@ _shiz_gfx_init_primitive() {
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
     "layout (location = 1) in vec4 vertex_color;\n"
-    "uniform mat4 transform_mvp;\n"
+    "uniform mat4 transform;\n"
     "out vec4 color;\n"
     "void main() {\n"
-    "    gl_Position = transform_mvp * vec4(vertex_position, 1);\n"
+    "    gl_Position = transform * vec4(vertex_position, 1);\n"
     "    color = vertex_color;\n"
     "}\n";
     
@@ -391,13 +382,13 @@ _shiz_gfx_init_spritebatch() {
     "layout (location = 2) in vec2 vertex_texture_coord;\n"
     "layout (location = 3) in vec2 vertex_texture_coord_min;\n"
     "layout (location = 4) in vec2 vertex_texture_coord_max;\n"
-    "uniform mat4 transform_mvp;\n"
+    "uniform mat4 transform;\n"
     "out vec2 texture_coord;\n"
     "out vec2 texture_coord_min;\n"
     "out vec2 texture_coord_max;\n"
     "out vec4 tint_color;\n"
     "void main() {\n"
-    "    gl_Position = transform_mvp * vec4(vertex_position, 1);\n"
+    "    gl_Position = transform * vec4(vertex_position, 1);\n"
     "    texture_coord = vertex_texture_coord.st;\n"
     "    texture_coord_min = vertex_texture_coord_min.xy;\n"
     "    texture_coord_max = vertex_texture_coord_max.xy;\n"
@@ -562,16 +553,16 @@ _shiz_gfx_spritebatch_flush() {
     mat4x4 view;
     mat4x4_identity(view);
     
-    mat4x4 mvp;
+    mat4x4 transform;
     
-    _shiz_gfx_apply_model_view_projection(mvp, model, view);
+    _shiz_gfx_apply_model_view_projection(transform, model, view);
 
     _shiz_gfx_spritebatch_state(true);
     
     glUseProgram(_spritebatch.render.program);
     // todo: a way to provide this flag; problem is that it affects the entire batch
     glUniform1i(glGetUniformLocation(_spritebatch.render.program, "enable_additive_tint"), false);
-    glUniformMatrix4fv(glGetUniformLocation(_spritebatch.render.program, "transform_mvp"), 1, GL_FALSE, *mvp);
+    glUniformMatrix4fv(glGetUniformLocation(_spritebatch.render.program, "transform"), 1, GL_FALSE, *transform);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _spritebatch.current_texture_id); {
         glBindVertexArray(_spritebatch.render.vao); {
@@ -602,17 +593,39 @@ _shiz_gfx_spritebatch_flush() {
 }
 
 static void
+_shiz_gfx_spritebatch_reset() {
+    _spritebatch.current_texture_id = 0;
+}
+
+static void
+_shiz_gfx_apply_translation_rotation_scale(mat4x4 model, SHIZVector3 translation, float angle, float scale) {
+    mat4x4 translated;
+    mat4x4_translate(translated, translation.x, translation.y, translation.z);
+    
+    mat4x4 rotated;
+    mat4x4_identity(rotated);
+    mat4x4_rotate_Z(rotated, rotated, angle);
+    
+    mat4x4 scaled;
+    mat4x4_identity(scaled);
+    mat4x4_scale_aniso(scaled, scaled, scale, scale, scale);
+    
+    mat4x4_mul(model, translated, rotated);
+    mat4x4_mul(model, model, scaled);
+}
+
+static void
 _shiz_gfx_apply_model_view_projection(mat4x4 mvp, mat4x4 model, mat4x4 view) {
     mat4x4 projection;
+    mat4x4_identity(projection);
     mat4x4_ortho(projection,
                  0, _viewport.screen.width,
                  0, _viewport.screen.height,
                  -1 /* near */, 1 /* far */);
-    
-    mat4x4 view_model;
-    mat4x4_mul(view_model, view, model);
-    
-    mat4x4_mul(mvp, projection, view_model);
+
+    mat4x4 mv;
+    mat4x4_mul(mv, model, view);
+    mat4x4_mul(mvp, projection, mv);
 }
 
 static void
