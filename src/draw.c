@@ -50,6 +50,7 @@ static void _shiz_draw_line_3d(SHIZVector3 const from,
 static void _shiz_debug_build_stats(void);
 static void _shiz_debug_draw_stats(void);
 static void _shiz_debug_draw_events(void);
+static void _shiz_debug_draw_viewport(void);
 static void _shiz_debug_draw_sprite_gizmo(SHIZVector2 const anchor,
                                           float const angle,
                                           SHIZLayer const layer);
@@ -90,6 +91,7 @@ shiz_drawing_end() {
         // disable event tracking as well (this is enabled again at the beginning of next frame)
         shiz_debug_set_events_enabled(false);
 
+        _shiz_debug_draw_viewport();
         _shiz_debug_build_stats();
         _shiz_debug_draw_stats();
 
@@ -155,25 +157,19 @@ shiz_draw_path_ex(SHIZVector2 const points[],
 
 void
 shiz_draw_point(SHIZVector2 const point, SHIZColor const color) {
-    shiz_draw_point_ex(point, 1, color, SHIZLayerDefault);
+    shiz_draw_point_ex(point, color, SHIZLayerDefault);
 }
 
 void
-shiz_draw_point_ex(SHIZVector2 const point, float const scale, SHIZColor const color, SHIZLayer const layer) {
-    if (scale > 1) {
-        shiz_draw_rect_ex(SHIZRectMake(point, SHIZSizeMake(scale, scale)), color,
-                          SHIZAnchorCenter, SHIZSpriteNoAngle,
-                          layer);
-    } else {
-        SHIZVertexPositionColor vertices[1] = {
-            {
-                .position = SHIZVector3Make(point.x, point.y, _shiz_layer_get_z(layer)),
-                .color = color
-            }
-        };
+shiz_draw_point_ex(SHIZVector2 const point, SHIZColor const color, SHIZLayer const layer) {
+    SHIZVertexPositionColor vertices[1] = {
+        {
+            .position = SHIZVector3Make(point.x, point.y, _shiz_layer_get_z(layer)),
+            .color = color
+        }
+    };
 
-        shiz_gfx_render(GL_POINTS, vertices, 1);
-    }
+    shiz_gfx_render(GL_POINTS, vertices, 1);
 }
 
 void
@@ -504,15 +500,26 @@ _shiz_debug_build_stats() {
     char const sprite_count_tint_specifier =
         shiz_debug_get_sprite_count() > SHIZSpriteInternalMax ? '\3' : '\2';
     
+    char display_size_buffer[32] = { 0 };
+    
+    if (viewport.screen.width != viewport.framebuffer.width ||
+        viewport.screen.height != viewport.framebuffer.height) {
+        sprintf(display_size_buffer, "\4%.0fx%.0f\1@\5%.0fx%.0f\1",
+                viewport.screen.width, viewport.screen.height,
+                viewport.framebuffer.width, viewport.framebuffer.height);
+    } else {
+        sprintf(display_size_buffer, "\4%.0fx%.0f\1",
+                viewport.screen.width, viewport.screen.height);
+    }
+    
     sprintf(_shiz_debug_stats_buffer,
-            "\4%.0fx%.0f\1@\5%.0fx%.0f\1\n\n"
+            "%s\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
             "\2%d fps\1 (\3%d\x19\1 \4%d\x12\1 \5%d\x18\1)\n\n"
             "%c%d/%d sprites/frame\1\n"
             "\2%d draws/frame\1\n\n"
             "\2%.1fx time\1",
-            viewport.screen.width, viewport.screen.height,
-            viewport.framebuffer.width, viewport.framebuffer.height,
+            display_size_buffer,
             shiz_gfx_debug_get_frame_time(),
             shiz_gfx_debug_get_frame_time_avg(),
             shiz_gfx_debug_get_frames_per_second(),
@@ -548,7 +555,7 @@ _shiz_debug_draw_events() {
 
         SHIZColor tint = SHIZSpriteNoTint;
 
-        char event_buffer[128] = { 0 };
+        char event_buffer[32] = { 0 };
 
         if (event.lane == SHIZDebugEventLaneDraws) {
             tint = SHIZColorYellow;
@@ -631,6 +638,32 @@ _shiz_debug_draw_stats() {
                              SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
                              SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
                              SHIZSpriteFontAttributesDefault, layer);
+}
+
+static void
+_shiz_debug_draw_viewport() {
+    SHIZViewport const viewport = shiz_gfx_get_viewport();
+    
+    SHIZVector2 const center = SHIZVector2Make(viewport.screen.width / 2,
+                                               viewport.screen.height / 2);
+    
+    SHIZColor color = SHIZColorWithAlpa(SHIZColorRed, 0.6);
+    
+    SHIZRect viewport_shape = SHIZRectMake(center, SHIZSizeMake(viewport.screen.width - 1,
+                                                                viewport.screen.height - 1));
+    
+    // bounds
+    shiz_draw_rect_shape_ex(viewport_shape, color, SHIZAnchorCenter, 0, SHIZLayerBottom);
+    
+    // center grid
+    float const padding = 24;
+    
+    shiz_draw_line_ex(SHIZVector2Make(center.x, viewport.screen.height - padding),
+                      SHIZVector2Make(center.x, padding),
+                      color, SHIZLayerBottom);
+    shiz_draw_line_ex(SHIZVector2Make(padding, center.y),
+                      SHIZVector2Make(viewport.screen.width - padding, center.y),
+                      color, SHIZLayerBottom);
 }
 
 static void

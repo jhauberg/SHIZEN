@@ -46,7 +46,7 @@ void shiz_draw_path_ex(SHIZVector2 const points[], unsigned int const count, SHI
  * @brief Draw a point.
  */
 void shiz_draw_point(SHIZVector2 const point, SHIZColor const color);
-void shiz_draw_point_ex(SHIZVector2 const point, float const scale, SHIZColor const color, SHIZLayer const layer);
+void shiz_draw_point_ex(SHIZVector2 const point, SHIZColor const color, SHIZLayer const layer);
 /**
  * @brief Draw a filled rectangle.
  */
