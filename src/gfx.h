@@ -20,14 +20,6 @@ typedef enum SHIZViewportMode {
     SHIZViewportModePillarbox
 } SHIZViewportMode;
 
-typedef struct SHIZViewport {
-    SHIZSize framebuffer;
-    SHIZSize screen;
-    float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
-    SHIZSize offset; // offset if letter/pillarboxing is enabled
-    bool is_fullscreen;
-} SHIZViewport;
-
 typedef struct SHIZVertexPositionColor {
     SHIZVector3 position;
     SHIZColor color;

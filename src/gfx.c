@@ -15,6 +15,7 @@
 
 #include <linmath.h>
 
+#include "transform.h"
 #include "gfx.h"
 #include "io.h"
 
@@ -51,9 +52,6 @@ static void _shiz_gfx_spritebatch_state(bool const enable);
 
 static void _shiz_gfx_spritebatch_reset(void);
 static bool _shiz_gfx_spritebatch_flush(void);
-
-static void _shiz_gfx_apply_model_view_projection(mat4x4 mvp, mat4x4 model, mat4x4 view);
-static void _shiz_gfx_apply_translation_rotation_scale(mat4x4 model, SHIZVector3 translation, float angle, float scale);
 
 #define SHIZGFXSpriteBatchMax 128 /* flush when reaching this limit */
 
@@ -191,15 +189,15 @@ shiz_gfx_render_ex(GLenum const mode,
                    unsigned int const count,
                    SHIZVector3 const origin,
                    float const angle) {
-    mat4x4 transform;
-    mat4x4_identity(transform);
     mat4x4 model;
     mat4x4_identity(model);
-    mat4x4 view;
-    mat4x4_identity(view);
-    
-    _shiz_gfx_apply_translation_rotation_scale(model, origin, angle, 1);
-    _shiz_gfx_apply_model_view_projection(transform, model, view);
+
+    shiz_transform_translate_rotate_scale(model, origin, angle, 1);
+
+    mat4x4 transform;
+    mat4x4_identity(transform);
+
+    shiz_transform_project_ortho(transform, model, _viewport);
     
     _shiz_gfx_primitive_state(true);
     
@@ -258,9 +256,9 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
 
     unsigned int const offset = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
 
-    mat4x4 model;
-    
-    _shiz_gfx_apply_translation_rotation_scale(model, origin, angle, 1);
+    mat4x4 transform;
+
+    shiz_transform_translate_rotate_scale(transform, origin, angle, 1);
 
     for (unsigned int i = 0; i < spritebatch_vertex_count_per_quad; i++) {
         SHIZVertexPositionColorTexture vertex = vertices[i];
@@ -273,7 +271,7 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
 
         vec4 world_position;
         
-        mat4x4_mul_vec4(world_position, model, position);
+        mat4x4_mul_vec4(world_position, transform, position);
         
         vertex.position = SHIZVector3Make(world_position[0],
                                           world_position[1],
@@ -550,12 +548,10 @@ _shiz_gfx_spritebatch_flush() {
 
     mat4x4 model;
     mat4x4_identity(model);
-    mat4x4 view;
-    mat4x4_identity(view);
-    
+
     mat4x4 transform;
-    
-    _shiz_gfx_apply_model_view_projection(transform, model, view);
+
+    shiz_transform_project_ortho(transform, model, _viewport);
 
     _shiz_gfx_spritebatch_state(true);
     
@@ -595,37 +591,6 @@ _shiz_gfx_spritebatch_flush() {
 static void
 _shiz_gfx_spritebatch_reset() {
     _spritebatch.current_texture_id = 0;
-}
-
-static void
-_shiz_gfx_apply_translation_rotation_scale(mat4x4 model, SHIZVector3 translation, float angle, float scale) {
-    mat4x4 translated;
-    mat4x4_translate(translated, translation.x, translation.y, translation.z);
-    
-    mat4x4 rotated;
-    mat4x4_identity(rotated);
-    mat4x4_rotate_Z(rotated, rotated, angle);
-    
-    mat4x4 scaled;
-    mat4x4_identity(scaled);
-    mat4x4_scale_aniso(scaled, scaled, scale, scale, scale);
-    
-    mat4x4_mul(model, translated, rotated);
-    mat4x4_mul(model, model, scaled);
-}
-
-static void
-_shiz_gfx_apply_model_view_projection(mat4x4 mvp, mat4x4 model, mat4x4 view) {
-    mat4x4 projection;
-    mat4x4_identity(projection);
-    mat4x4_ortho(projection,
-                 0, _viewport.screen.width,
-                 0, _viewport.screen.height,
-                 -1 /* near */, 1 /* far */);
-
-    mat4x4 mv;
-    mat4x4_mul(mv, model, view);
-    mat4x4_mul(mvp, projection, mv);
 }
 
 static void
