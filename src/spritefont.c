@@ -20,7 +20,8 @@ SHIZSpriteFontMeasurement const
 shiz_sprite_measure_text(SHIZSpriteFont const font,
                          const char * const text,
                          SHIZSize const bounds,
-                         SHIZSpriteFontAttributes const attributes) {
+                         SHIZSpriteFontAttributes const attributes)
+{
     SHIZSpriteFontMeasurement measurement;
 
     measurement.size = SHIZSizeEmpty;
@@ -156,7 +157,8 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                       SHIZSpriteFontAttributes const attributes,
                       SHIZLayer const layer,
                       SHIZColor * const highlight_colors,
-                      unsigned int const highlight_color_count) {
+                      unsigned int const highlight_color_count)
+{
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
     character_sprite.resource_id = font.sprite.resource_id;

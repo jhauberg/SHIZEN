@@ -31,7 +31,8 @@ static double _time_lag = 0;
 static bool _is_ticking = false;
 
 void
-shiz_time_reset() {
+shiz_time_reset()
+{
     _timeline = SHIZTimeLineDefault;
     
     glfwSetTime(_timeline.time);
@@ -40,7 +41,8 @@ shiz_time_reset() {
 }
 
 void
-shiz_ticking_begin() {
+shiz_ticking_begin()
+{
     if (_is_ticking) {
         return;
     }
@@ -59,7 +61,8 @@ shiz_ticking_begin() {
 }
 
 bool
-shiz_tick(unsigned short const frequency) {
+shiz_tick(unsigned short const frequency)
+{
     _timeline.time_step = 1.0 / frequency;
     
     if (_time_lag >= _timeline.time_step) {
@@ -74,7 +77,8 @@ shiz_tick(unsigned short const frequency) {
 }
 
 double
-shiz_ticking_end() {
+shiz_ticking_end()
+{
     if (!_is_ticking) {
         return 0;
     }
@@ -85,22 +89,26 @@ shiz_ticking_end() {
 }
 
 double
-shiz_get_tick_rate() {
+shiz_get_tick_rate()
+{
     return _timeline.time_step;
 }
 
 double
-shiz_get_time() {
+shiz_get_time()
+{
     return _timeline.time;
 }
 
 double
-shiz_get_time_scale() {
+shiz_get_time_scale()
+{
     return _timeline.scale;
 }
 
 void
-shiz_set_time_scale(double const scale) {
+shiz_set_time_scale(double const scale)
+{
     _timeline.scale = scale;
     
     if (_shiz_fequal(_timeline.scale, 0)) {
@@ -109,7 +117,8 @@ shiz_set_time_scale(double const scale) {
 }
 
 float
-shiz_get_time_direction() {
+shiz_get_time_direction()
+{
     if (_timeline.scale > 0) {
         return 1;
     } else if (_timeline.scale < 0) {

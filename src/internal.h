@@ -63,7 +63,9 @@ SHIZSize _shiz_get_preferred_screen_size(void);
 
 void _shiz_present_frame(void);
 
-static inline void _shiz_str_to_upper(char * string) {
+static inline void
+_shiz_str_to_upper(char * string)
+{
     char * ptr;
 
     for (ptr = string; *ptr; ptr++) {
@@ -71,27 +73,39 @@ static inline void _shiz_str_to_upper(char * string) {
     }
 }
 
-static inline bool _shiz_fequal(float const a, float const b) {
+static inline bool
+_shiz_fequal(float const a, float const b)
+{
     return (fabs(b - a) < SHIZEpsilon);
 }
 
-static inline float _shiz_lerp(float const a, float const b, float const t) {
+static inline float
+_shiz_lerp(float const a, float const b, float const t)
+{
     return a * (1.0f - t) + b * t;
 }
 
-static inline int _shiz_random_int_range(int const min, int const max) {
+static inline int
+_shiz_random_int_range(int const min, int const max)
+{
     return min + (rand() % (int)((max + 1) - min));
 }
 
-static inline float _shiz_random_float(void) {
+static inline float
+_shiz_random_float(void)
+{
     return rand() / (RAND_MAX + 1.0f);
 }
 
-static inline float _shiz_random_float_range(float const min, float const max) {
+static inline float
+_shiz_random_float_range(float const min, float const max)
+{
     return _shiz_lerp(min, max, _shiz_random_float());
 }
 
-static inline float _shiz_layer_get_z(SHIZLayer const layer) {
+static inline float
+_shiz_layer_get_z(SHIZLayer const layer)
+{
     float const value = layer.layer + layer.depth;
     
     float const min = SHIZLayerMin + SHIZLayerDepthMin;

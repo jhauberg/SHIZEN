@@ -44,7 +44,8 @@ shiz_sprite_draw(SHIZSprite const sprite,
                  SHIZColor const tint,
                  bool const repeat,
                  bool const opaque,
-                 SHIZLayer const layer) {
+                 SHIZLayer const layer)
+{
     SHIZResourceImage const image = shiz_res_get_image(sprite.resource_id);
 
     if (sprite.resource_id == SHIZResourceInvalid ||
@@ -177,7 +178,8 @@ shiz_sprite_draw(SHIZSprite const sprite,
 }
 
 SHIZRect const
-shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) {
+shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor)
+{
     float const hw = size.width / 2;
     float const hh = size.height / 2;
 
@@ -191,12 +193,14 @@ shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor) {
 }
 
 void
-shiz_sprite_reset() {
+shiz_sprite_reset()
+{
     _sprites_count_total = 0;
 }
 
 void
-shiz_sprite_flush() {
+shiz_sprite_flush()
+{
     if (_sprites_count == 0) {
         return;
     }
@@ -218,7 +222,8 @@ shiz_sprite_flush() {
 }
 
 static int
-_shiz_compare_sprites(const void * a, const void * b) {
+_shiz_compare_sprites(const void * a, const void * b)
+{
     SHIZSpriteInternal const * lhs = (SHIZSpriteInternal *)a;
     SHIZSpriteInternal const * rhs = (SHIZSpriteInternal *)b;
     
@@ -237,7 +242,8 @@ _shiz_compare_sprites(const void * a, const void * b) {
 
 #ifdef SHIZ_DEBUG
 unsigned int
-shiz_debug_get_sprite_count() {
+shiz_debug_get_sprite_count()
+{
     return _sprites_count_total;
 }
 #endif

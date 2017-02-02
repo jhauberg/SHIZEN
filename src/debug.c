@@ -31,7 +31,8 @@ typedef struct SHIZDebugContext {
 static SHIZDebugContext _context;
 
 bool
-shiz_debug_init() {
+shiz_debug_init()
+{
     _context.is_enabled = true;
     _context.is_events_enabled = true;
     _context.draw_shapes = false;
@@ -55,7 +56,8 @@ shiz_debug_init() {
 }
 
 bool
-shiz_debug_kill() {
+shiz_debug_kill()
+{
     _context.is_enabled = false;
     
     if (!shiz_res_debug_unload_font()) {
@@ -66,7 +68,8 @@ shiz_debug_kill() {
 }
 
 void
-shiz_debug_process_errors() {
+shiz_debug_process_errors()
+{
     GLenum error;
     
     while ((error = glGetError()) != GL_NO_ERROR) {
@@ -75,72 +78,86 @@ shiz_debug_process_errors() {
 }
 
 void
-shiz_debug_toggle_enabled() {
+shiz_debug_toggle_enabled()
+{
     _context.is_enabled = !_context.is_enabled;
 }
 
 void
-shiz_debug_toggle_events_enabled() {
+shiz_debug_toggle_events_enabled()
+{
     shiz_debug_set_events_enabled(!_context.is_events_enabled);
 }
 
 void
-shiz_debug_toggle_draw_events() {
+shiz_debug_toggle_draw_events()
+{
     _context.draw_events = !_context.draw_events;
 }
 
 void
-shiz_debug_toggle_draw_shapes() {
+shiz_debug_toggle_draw_shapes()
+{
     _context.draw_shapes = !_context.draw_shapes;
 }
 
 bool
-shiz_debug_is_enabled() {
+shiz_debug_is_enabled()
+{
     return _context.is_enabled;
 }
 
 bool
-shiz_debug_is_events_enabled() {
+shiz_debug_is_events_enabled()
+{
     return _context.is_events_enabled;
 }
 
 bool
-shiz_debug_is_drawing_events() {
+shiz_debug_is_drawing_events()
+{
     return _context.draw_events;
 }
 
 bool
-shiz_debug_is_drawing_shapes() {
+shiz_debug_is_drawing_shapes()
+{
     return _context.draw_shapes;
 }
 
 void
-shiz_debug_set_drawing_shapes(bool const enabled) {
+shiz_debug_set_drawing_shapes(bool const enabled)
+{
     _context.draw_shapes = enabled;
 }
 
 void
-shiz_debug_set_events_enabled(bool const enabled) {
+shiz_debug_set_events_enabled(bool const enabled)
+{
     _context.is_events_enabled = enabled;
 }
 
 SHIZSpriteFont
-shiz_debug_get_font() {
+shiz_debug_get_font()
+{
     return _context.font;
 }
 
 unsigned int
-shiz_debug_get_event_count() {
+shiz_debug_get_event_count()
+{
     return _context.event_count;
 }
 
 void
-shiz_debug_reset_events() {
+shiz_debug_reset_events()
+{
     _context.event_count = 0;
 }
 
 void
-shiz_debug_add_event(SHIZDebugEvent const event) {
+shiz_debug_add_event(SHIZDebugEvent const event)
+{
     if (shiz_debug_is_events_enabled()) {
         if (shiz_debug_get_event_count() < SHIZDebugEventMax) {
             _context.events[_context.event_count].name = event.name;
@@ -155,7 +172,8 @@ shiz_debug_add_event(SHIZDebugEvent const event) {
 }
 
 void
-shiz_debug_add_event_resource(const char * const filename, SHIZVector3 const origin) {
+shiz_debug_add_event_resource(const char * const filename, SHIZVector3 const origin)
+{
     if (filename) {
         SHIZDebugEvent event;
 
@@ -168,7 +186,8 @@ shiz_debug_add_event_resource(const char * const filename, SHIZVector3 const ori
 }
 
 void
-shiz_debug_add_event_draw(const char * const cause, SHIZVector3 const origin) {
+shiz_debug_add_event_draw(const char * const cause, SHIZVector3 const origin)
+{
     if (cause) {
         SHIZDebugEvent event;
 
@@ -181,6 +200,7 @@ shiz_debug_add_event_draw(const char * const cause, SHIZVector3 const origin) {
 }
 
 SHIZDebugEvent
-shiz_debug_get_event(unsigned int const index) {
+shiz_debug_get_event(unsigned int const index)
+{
     return _context.events[index];
 }

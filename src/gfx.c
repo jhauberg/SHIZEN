@@ -84,7 +84,8 @@ static SHIZGFXPrimitive _primitive;
 static SHIZViewport _viewport;
 
 bool
-shiz_gfx_init(SHIZViewport const viewport) {
+shiz_gfx_init(SHIZViewport const viewport)
+{
     shiz_gfx_set_viewport(viewport);
 
     if (!_shiz_gfx_init_primitive()) {
@@ -99,7 +100,8 @@ shiz_gfx_init(SHIZViewport const viewport) {
 }
 
 bool
-shiz_gfx_kill() {
+shiz_gfx_kill()
+{
     if (!_shiz_gfx_kill_primitive()) {
         return false;
     }
@@ -112,14 +114,16 @@ shiz_gfx_kill() {
 }
 
 void
-shiz_gfx_clear() {
+shiz_gfx_clear()
+{
     glClearColor(0, 0, 0, 1);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void
-shiz_gfx_begin() {
+shiz_gfx_begin()
+{
 #ifdef SHIZ_DEBUG
     _shiz_gfx_debug_reset_draw_count();
 #endif
@@ -133,7 +137,8 @@ shiz_gfx_begin() {
 }
 
 void
-shiz_gfx_end() {
+shiz_gfx_end()
+{
     shiz_gfx_flush();
 
 #ifdef SHIZ_DEBUG
@@ -142,7 +147,8 @@ shiz_gfx_end() {
 }
 
 void
-shiz_gfx_flush() {
+shiz_gfx_flush()
+{
     if (_spritebatch.current_count > 0) {
 #ifdef SHIZ_DEBUG
         // note that this will use the center of the sprite, which may not correlate to the anchor
@@ -159,12 +165,14 @@ shiz_gfx_flush() {
 }
 
 SHIZViewport
-shiz_gfx_get_viewport() {
+shiz_gfx_get_viewport()
+{
     return _viewport;
 }
 
 void
-shiz_gfx_set_viewport(SHIZViewport const viewport) {
+shiz_gfx_set_viewport(SHIZViewport const viewport)
+{
     if (viewport.framebuffer.width == _viewport.framebuffer.width ||
         viewport.framebuffer.height == _viewport.framebuffer.height) {
         return;
@@ -179,7 +187,8 @@ shiz_gfx_set_viewport(SHIZViewport const viewport) {
 void
 shiz_gfx_render(GLenum const mode,
                 SHIZVertexPositionColor const * restrict vertices,
-                unsigned int const count) {
+                unsigned int const count)
+{
     shiz_gfx_render_ex(mode, vertices, count, SHIZVector3Zero, 0);
 }
 
@@ -188,7 +197,8 @@ shiz_gfx_render_ex(GLenum const mode,
                    SHIZVertexPositionColor const * restrict vertices,
                    unsigned int const count,
                    SHIZVector3 const origin,
-                   float const angle) {
+                   float const angle)
+{
     mat4x4 model;
     mat4x4_identity(model);
 
@@ -234,7 +244,8 @@ void
 shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
                      SHIZVector3 const origin,
                      float const angle,
-                     GLuint const texture_id) {
+                     GLuint const texture_id)
+{
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
         if (_shiz_gfx_spritebatch_flush()) {
@@ -284,7 +295,8 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
 }
 
 static bool
-_shiz_gfx_init_primitive() {
+_shiz_gfx_init_primitive()
+{
     const char * vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
@@ -349,7 +361,8 @@ _shiz_gfx_init_primitive() {
 }
 
 static bool
-_shiz_gfx_kill_primitive() {
+_shiz_gfx_kill_primitive()
+{
     glDeleteProgram(_primitive.render.program);
     glDeleteVertexArrays(1, &_primitive.render.vao);
     glDeleteBuffers(1, &_primitive.render.vbo);
@@ -358,7 +371,8 @@ _shiz_gfx_kill_primitive() {
 }
 
 static void
-_shiz_gfx_primitive_state(bool const enable) {
+_shiz_gfx_primitive_state(bool const enable)
+{
     if (enable) {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
@@ -372,7 +386,8 @@ _shiz_gfx_primitive_state(bool const enable) {
 }
 
 static bool
-_shiz_gfx_init_spritebatch() {
+_shiz_gfx_init_spritebatch()
+{
     const char * vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
@@ -513,7 +528,8 @@ _shiz_gfx_init_spritebatch() {
 }
 
 static bool
-_shiz_gfx_kill_spritebatch() {
+_shiz_gfx_kill_spritebatch()
+{
     glDeleteProgram(_spritebatch.render.program);
     glDeleteVertexArrays(1, &_spritebatch.render.vao);
     glDeleteBuffers(1, &_spritebatch.render.vbo);
@@ -522,7 +538,8 @@ _shiz_gfx_kill_spritebatch() {
 }
 
 static void
-_shiz_gfx_spritebatch_state(bool const enable) {
+_shiz_gfx_spritebatch_state(bool const enable)
+{
     if (enable) {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
@@ -541,7 +558,8 @@ _shiz_gfx_spritebatch_state(bool const enable) {
 }
 
 static bool
-_shiz_gfx_spritebatch_flush() {
+_shiz_gfx_spritebatch_flush()
+{
     if (_spritebatch.current_count == 0) {
         return false;
     }
@@ -589,12 +607,14 @@ _shiz_gfx_spritebatch_flush() {
 }
 
 static void
-_shiz_gfx_spritebatch_reset() {
+_shiz_gfx_spritebatch_reset()
+{
     _spritebatch.current_texture_id = 0;
 }
 
 static void
-_shiz_gfx_determine_operating_resolution() {
+_shiz_gfx_determine_operating_resolution()
+{
     if ((_viewport.screen.width < _viewport.framebuffer.width ||
          _viewport.screen.width > _viewport.framebuffer.width) ||
         (_viewport.screen.height < _viewport.framebuffer.height ||
@@ -608,7 +628,8 @@ _shiz_gfx_determine_operating_resolution() {
 }
 
 static void
-_shiz_gfx_apply_viewport_boxing_if_necessary() {
+_shiz_gfx_apply_viewport_boxing_if_necessary()
+{
     _viewport.offset = SHIZSizeEmpty;
 
     if (enable_boxing_if_necessary) {
@@ -624,7 +645,8 @@ _shiz_gfx_apply_viewport_boxing_if_necessary() {
 }
 
 static void
-_shiz_gfx_determine_viewport_mode(SHIZViewportMode * mode) {
+_shiz_gfx_determine_viewport_mode(SHIZViewportMode * mode)
+{
     float const screen_aspect_ratio = _viewport.screen.width / _viewport.screen.height;
     float const framebuffer_aspect_ratio = _viewport.framebuffer.width / _viewport.framebuffer.height;
 
@@ -654,7 +676,8 @@ _shiz_gfx_determine_viewport_mode(SHIZViewportMode * mode) {
 }
 
 static GLuint
-_shiz_gfx_compile_shader(GLenum const type, const GLchar *source) {
+_shiz_gfx_compile_shader(GLenum const type, const GLchar *source)
+{
     GLuint const shader = glCreateShader(type);
 
     glShaderSource(shader, 1, &source, NULL);
@@ -678,7 +701,8 @@ _shiz_gfx_compile_shader(GLenum const type, const GLchar *source) {
 }
 
 static GLuint
-_shiz_gfx_link_program(GLuint const vs, GLuint const fs) {
+_shiz_gfx_link_program(GLuint const vs, GLuint const fs)
+{
     GLuint const program = glCreateProgram();
 
     glAttachShader(program, vs);
@@ -705,7 +729,8 @@ _shiz_gfx_link_program(GLuint const vs, GLuint const fs) {
 
 #ifdef SHIZ_DEBUG
 static
-SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin() {
+SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin()
+{
     if (_spritebatch.current_count > 0) {
         int const offset = (_spritebatch.current_count - 1) * spritebatch_vertex_count_per_quad;
 
@@ -727,17 +752,20 @@ SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin() {
 static unsigned int _shiz_gfx_debug_draw_count = 0;
 
 static void
-_shiz_gfx_debug_reset_draw_count() {
+_shiz_gfx_debug_reset_draw_count()
+{
     _shiz_gfx_debug_draw_count = 0;
 }
 
 unsigned int
-shiz_gfx_debug_get_draw_count() {
+shiz_gfx_debug_get_draw_count()
+{
     return _shiz_gfx_debug_draw_count;
 }
 
 static void
-_shiz_gfx_debug_increment_draw_count(unsigned int amount) {
+_shiz_gfx_debug_increment_draw_count(unsigned int amount)
+{
     if (shiz_debug_is_events_enabled()) {
         _shiz_gfx_debug_draw_count += amount;
     }
@@ -763,37 +791,44 @@ static unsigned int _shiz_gfx_debug_frame_time_sample_count = 0;
 static double _shiz_gfx_debug_last_frame_time = 0;
 
 double
-shiz_gfx_debug_get_frame_time() {
+shiz_gfx_debug_get_frame_time()
+{
     return _shiz_gfx_debug_frame_time * 1000;
 }
 
 double
-shiz_gfx_debug_get_frame_time_avg() {
+shiz_gfx_debug_get_frame_time_avg()
+{
     return _shiz_gfx_debug_frame_time_avg * 1000;
 }
 
 unsigned int
-shiz_gfx_debug_get_frames_per_second() {
+shiz_gfx_debug_get_frames_per_second()
+{
     return _shiz_gfx_debug_frames_per_second;
 }
 
 unsigned int
-shiz_gfx_debug_get_frames_per_second_max() {
+shiz_gfx_debug_get_frames_per_second_max()
+{
     return _shiz_gfx_debug_frames_per_second_max;
 }
 
 unsigned int
-shiz_gfx_debug_get_frames_per_second_min() {
+shiz_gfx_debug_get_frames_per_second_min()
+{
     return _shiz_gfx_debug_frames_per_second_min;
 }
 
 unsigned int
-shiz_gfx_debug_get_frames_per_second_avg() {
+shiz_gfx_debug_get_frames_per_second_avg()
+{
     return _shiz_gfx_debug_frames_per_second_avg;
 }
 
 static void
-_shiz_gfx_debug_update_frame_averages() {
+_shiz_gfx_debug_update_frame_averages()
+{
     _shiz_gfx_debug_frames_per_second_avg = _shiz_gfx_debug_frame_samples / _shiz_gfx_debug_frame_sample_count;
     _shiz_gfx_debug_frame_sample_count = 0;
     _shiz_gfx_debug_frame_samples = 0;
@@ -809,7 +844,8 @@ _shiz_gfx_debug_update_frame_averages() {
 }
 
 static void
-_shiz_gfx_debug_update_frame_stats() {
+_shiz_gfx_debug_update_frame_stats()
+{
     double const time = glfwGetTime();
     double const time_since_last_frame = time - _shiz_gfx_debug_last_frame_time;
 
