@@ -53,6 +53,9 @@ void shiz_draw_point_ex(SHIZVector2 const point, SHIZColor const color, SHIZLaye
 void shiz_draw_rect(SHIZRect const rect,
                     SHIZColor const color,
                     SHIZDrawMode const mode);
+/**
+ * @brief Draw a rectangle.
+ */
 void shiz_draw_rect_ex(SHIZRect const rect,
                        SHIZColor const color,
                        SHIZDrawMode const mode,
@@ -174,9 +177,9 @@ SHIZSize shiz_draw_sprite_text(SHIZSpriteFont const font,
                                SHIZVector2 const origin,
                                SHIZSpriteFontAlignment const alignment);
 /**
- * @brief Draw a text at a location.
+ * @brief Draw text at a location.
  *
- * Draw a text at a location, aligned and attributed as specified.
+ * Draw text at a location, aligned and attributed as specified.
  *
  * @remark Applying vertical bounds can cause the text to be truncated if it exceeds the bounds.
  *
@@ -213,6 +216,9 @@ SHIZSize shiz_draw_sprite_text_ex(SHIZSpriteFont const font,
                                   SHIZColor const tint,
                                   SHIZSpriteFontAttributes const attributes,
                                   SHIZLayer const layer);
+/**
+ * @brief Draw highlighted text at a location.
+ */
 SHIZSize shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                                           const char * const text,
                                           SHIZVector2 const origin,
