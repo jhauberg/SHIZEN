@@ -403,11 +403,11 @@ _shiz_gfx_init_spritebatch()
     "void main() {\n"
     "    gl_Position = transform * vec4(vertex_position, 1);\n"
     "    texture_coord = vertex_texture_coord.st;\n"
-    "    texture_coord_min = vertex_texture_coord_min.xy;\n"
-    "    texture_coord_max = vertex_texture_coord_max.xy;\n"
+    "    texture_coord_min = vertex_texture_coord_min.st;\n"
+    "    texture_coord_max = vertex_texture_coord_max.st;\n"
     "    tint_color = vertex_color;\n"
     "}\n";
-    
+
     const char * fragment_shader =
     "#version 330 core\n"
     "in vec2 texture_coord;\n"
@@ -418,22 +418,9 @@ _shiz_gfx_init_spritebatch()
     "uniform sampler2D sampler;\n"
     "layout (location = 0) out vec4 fragment_color;\n"
     "void main() {\n"
-    "    float threshold = 0.0001;\n"
-    "    float s = texture_coord.s;\n"
-    "    if (texture_coord_min.x > 0 && texture_coord_max.x > 0) {\n"
-    "        s = mod(mod(s, texture_coord_min.x + threshold), "
-    "                       texture_coord_max.x - threshold) + texture_coord_min.x;\n"
-    "    } else if (texture_coord_max.x > 0) {\n"
-    "        s = mod(s, texture_coord_max.x - threshold) + texture_coord_min.x;\n"
-    "    }\n"
-    "    float t = texture_coord.t;\n"
-    "    if (texture_coord_min.y > 0 && texture_coord_max.y > 0) {\n"
-    "        t = mod(mod(t, texture_coord_min.y + threshold),"
-    "                       texture_coord_max.y - threshold) + texture_coord_min.y;\n"
-    "    } else if (texture_coord_max.y > 0) {\n"
-    "        t = mod(t, texture_coord_max.y - threshold) + texture_coord_min.y;\n"
-    "    }\n"
-    "    vec2 repeated_texture_coord = vec2(s, t);\n"
+    "    vec2 rollover_texture_coord = mod(texture_coord_min - texture_coord,"
+    "                                      texture_coord_max - texture_coord_min);\n"
+    "    vec2 repeated_texture_coord = texture_coord_max - rollover_texture_coord;\n"
     "    vec4 sampled_color = texture(sampler, repeated_texture_coord.st);\n"
     "    if (enable_additive_tint != 0) {\n"
     "        fragment_color = (sampled_color + vec4(tint_color.rgb, 0)) * tint_color.a;\n"
@@ -441,7 +428,7 @@ _shiz_gfx_init_spritebatch()
     "        fragment_color = sampled_color * tint_color;\n"
     "    }\n"
     "}\n";
-    
+
     GLuint vs = _shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
     GLuint fs = _shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
     

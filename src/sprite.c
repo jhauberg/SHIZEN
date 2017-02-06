@@ -233,7 +233,6 @@ _shiz_sprite_set_uv(SHIZSpriteInternal * sprite_internal,
     
     if (repeat) {
         // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
-        // todo: any reason that we use sprite.source here?
         if (size.width > flipped_source.size.width) {
             uv_scale_x = size.width / flipped_source.size.width;
         }
@@ -243,10 +242,15 @@ _shiz_sprite_set_uv(SHIZSpriteInternal * sprite_internal,
         }
     }
     
-    SHIZVector2 const tl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_max.y * uv_scale_y);
-    SHIZVector2 const br = SHIZVector2Make(uv_max.x * uv_scale_x, uv_min.y * uv_scale_y);
-    SHIZVector2 const bl = SHIZVector2Make(uv_min.x * uv_scale_x, uv_min.y * uv_scale_y);
-    SHIZVector2 const tr = SHIZVector2Make(uv_max.x * uv_scale_x, uv_max.y * uv_scale_y);
+    SHIZVector2 const uv_min_scaled = SHIZVector2Make(uv_min.x * uv_scale_x,
+                                                      uv_min.y * uv_scale_y);
+    SHIZVector2 const uv_max_scaled = SHIZVector2Make(uv_max.x * uv_scale_x,
+                                                      uv_max.y * uv_scale_y);
+    
+    SHIZVector2 const tl = SHIZVector2Make(uv_min_scaled.x, uv_max_scaled.y);
+    SHIZVector2 const br = SHIZVector2Make(uv_max_scaled.x, uv_min_scaled.y);
+    SHIZVector2 const bl = SHIZVector2Make(uv_min_scaled.x, uv_min_scaled.y);
+    SHIZVector2 const tr = SHIZVector2Make(uv_max_scaled.x, uv_max_scaled.y);
     
     sprite_internal->vertices[0].texture_coord = tl;
     sprite_internal->vertices[1].texture_coord = br;
