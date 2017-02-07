@@ -9,8 +9,10 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
+#ifdef SHIZ_DEBUG
 #include <SHIZEN/engine.h>
 
+#include "debug.h"
 #include "res.h"
 #include "io.h"
 
@@ -204,3 +206,4 @@ shiz_debug_get_event(unsigned int const index)
 {
     return _context.events[index];
 }
+#endif
