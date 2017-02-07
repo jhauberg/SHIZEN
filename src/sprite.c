@@ -136,10 +136,10 @@ shiz_sprite_flush()
         SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
 
         // finally push vertex data to the renderer
-        shiz_gfx_render_quad(sprite.vertices,
-                             sprite.origin,
-                             sprite.angle,
-                             sprite_key->texture_id);
+        shiz_gfx_render_sprite(sprite.vertices,
+                               sprite.origin,
+                               sprite.angle,
+                               sprite_key->texture_id);
     }
 
     _sprites_count = 0;

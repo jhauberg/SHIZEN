@@ -23,8 +23,8 @@ shiz_transform_project_ortho(mat4x4 world,
     mat4x4_identity(projection);
     
     mat4x4_ortho(projection,
-                 0, viewport.screen.width,
-                 0, viewport.screen.height,
+                 0, viewport.resolution.width,
+                 0, viewport.resolution.height,
                  -1 /* near */, 1 /* far */);
 
     mat4x4 model_view;

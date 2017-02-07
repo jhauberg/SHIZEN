@@ -33,6 +33,11 @@ typedef struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord_max;
 } SHIZVertexPositionColorTexture;
 
+typedef struct SHIZVertexPositionTexture {
+    SHIZVector3 position;
+    SHIZVector2 texture_coord;
+} SHIZVertexPositionTexture;
+
 /**
  * @brief Initialize the SHIZEN graphics module.
  *
@@ -81,16 +86,15 @@ void shiz_gfx_render_ex(GLenum const mode,
  * @remark This function batches vertex data, and is only flushed when necessary (but at least
  *         once per frame).
  */
-void shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
-                          SHIZVector3 const origin,
-                          float const angle,
-                          GLuint const texture_id);
+void shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
+                            SHIZVector3 const origin,
+                            float const angle,
+                            GLuint const texture_id);
 
-void shiz_gfx_flush(void);
-
-void shiz_gfx_clear(void);
 void shiz_gfx_begin(void);
 void shiz_gfx_end(void);
+
+void shiz_gfx_flush(void);
 
 SHIZViewport shiz_gfx_get_viewport(void);
 

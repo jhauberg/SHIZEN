@@ -52,8 +52,6 @@ static char _shiz_debug_stats_buffer[256];
 void
 shiz_drawing_begin()
 {
-    shiz_gfx_clear();
-
 #ifdef SHIZ_DEBUG
     shiz_debug_reset_events();
 #endif
@@ -67,10 +65,11 @@ void
 shiz_drawing_end()
 {
     shiz_sprite_flush();
-
-    shiz_gfx_end();
+    shiz_gfx_flush();
 
 #ifdef SHIZ_DEBUG
+    // draw debug stuff lastly, but before ending the frame- it becomes part of the post-process
+    // to ensure consistency with the rendered shapes/sprites
     if (shiz_debug_is_enabled()) {
         bool const previously_drawing_shapes = shiz_debug_is_drawing_shapes();
         
@@ -88,18 +87,21 @@ shiz_drawing_end()
         }
 
         shiz_sprite_flush();
-
         shiz_gfx_flush();
 
         // reset back to previous settings
         shiz_debug_set_events_enabled(true);
         shiz_debug_set_drawing_shapes(previously_drawing_shapes);
     }
+#endif
 
+    shiz_gfx_end();
+
+#ifdef SHIZ_DEBUG
     // flush out any encountered errors during this frame
     shiz_debug_process_errors();
 #endif
-
+    
     _shiz_present_frame();
 }
 
@@ -466,14 +468,14 @@ _shiz_debug_build_stats()
     
     char display_size_buffer[32] = { 0 };
     
-    if (viewport.screen.width != viewport.framebuffer.width ||
-        viewport.screen.height != viewport.framebuffer.height) {
+    if (viewport.resolution.width != viewport.framebuffer.width ||
+        viewport.resolution.height != viewport.framebuffer.height) {
         sprintf(display_size_buffer, "\4%.0fx%.0f\1@\5%.0fx%.0f\1",
-                viewport.screen.width, viewport.screen.height,
+                viewport.resolution.width, viewport.resolution.height,
                 viewport.framebuffer.width, viewport.framebuffer.height);
     } else {
         sprintf(display_size_buffer, "\4%.0fx%.0f\1",
-                viewport.screen.width, viewport.screen.height);
+                viewport.resolution.width, viewport.resolution.height);
     }
     
     sprintf(_shiz_debug_stats_buffer,
@@ -506,7 +508,7 @@ _shiz_debug_draw_events()
 
     SHIZLayer const layer = SHIZLayerTop;
 
-    SHIZSize const display_size = _shiz_get_preferred_screen_size();
+    SHIZSize const display_size = _shiz_get_operating_resolution();
 
     for (unsigned int i = 0; i < shiz_debug_get_event_count(); i++) {
         SHIZDebugEvent const event = shiz_debug_get_event(i);
@@ -553,7 +555,7 @@ _shiz_debug_draw_events()
 static void
 _shiz_debug_draw_stats()
 {
-    SHIZLayer const layer = SHIZLayeredBelow(SHIZLayeredBelow(SHIZLayerTop));
+    SHIZLayer const layer = SHIZLayeredBelow(SHIZLayerTop);
 
     unsigned int const margin = 8;
 
@@ -564,73 +566,65 @@ _shiz_debug_draw_stats()
         SHIZColorFromHex(0x20b1fc)  // blue
     };
 
-    SHIZSize const display_size = _shiz_get_preferred_screen_size();
+    SHIZSize const display_size = _shiz_get_operating_resolution();
 
     SHIZVector2 stats_text_origin =
     SHIZVector2Make(display_size.width - margin,
                     display_size.height - margin);
 
-    SHIZSize stats_text_size =
+    SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
+        attrs.character_spread = SHIZSpriteFontSpreadTight;
+    }
+    
     shiz_draw_sprite_text_ex_colored(shiz_debug_get_font(),
                                      _shiz_debug_stats_buffer,
                                      stats_text_origin,
                                      SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
                                      SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
-                                     SHIZSpriteFontAttributesDefault, layer,
+                                     attrs, layer,
                                      highlight_colors, 4);
 
     char version_buffer[128];
 
-    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (%s, %s)",
+    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (%s)",
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
-            SHIZEN_VERSION_NAME, __DATE__, __TIME__);
-
+            SHIZEN_VERSION_NAME, __DATE__);
+    
     shiz_draw_sprite_text_ex(shiz_debug_get_font(),
                              version_buffer,
                              SHIZVector2Make(margin / 2, margin / 2),
                              SHIZSpriteFontAlignmentBottom | SHIZSpriteFontAlignmentLeft,
                              SHIZSpriteFontSizeToFit, SHIZSpriteTintDefaultWithAlpa(0.25f),
-                             SHIZSpriteFontAttributesWithScale(1), layer);
-
-    SHIZVector2 help_text_origin =
-    SHIZVector2Make(stats_text_origin.x,
-                    stats_text_origin.y - (stats_text_size.height + (margin * 3)));
-    
-    shiz_draw_sprite_text_ex(shiz_debug_get_font(),
-                             "SHFT-1 TOGGLE SHAPES\n"
-                             "SHFT-2 TOGGLE EVENTS\n"
-                             "SHFT-+  TIME CONTROL",
-                             help_text_origin,
-                             SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
-                             SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
-                             SHIZSpriteFontAttributesDefault, layer);
+                             attrs, layer);
 }
 
 static void
 _shiz_debug_draw_viewport()
 {
+    SHIZLayer const layer = SHIZLayeredBelow(SHIZLayeredBelow(SHIZLayerTop));
+    
     SHIZViewport const viewport = shiz_gfx_get_viewport();
     
-    SHIZVector2 const center = SHIZVector2Make(viewport.screen.width / 2,
-                                               viewport.screen.height / 2);
+    SHIZVector2 const center = SHIZVector2Make(viewport.resolution.width / 2,
+                                               viewport.resolution.height / 2);
     
     SHIZColor color = SHIZColorWithAlpa(SHIZColorRed, 0.8);
     
-    SHIZRect viewport_shape = SHIZRectMake(center, SHIZSizeMake(viewport.screen.width - 1,
-                                                                viewport.screen.height - 1));
+    SHIZRect viewport_shape = SHIZRectMake(center, SHIZSizeMake(viewport.resolution.width - 1,
+                                                                viewport.resolution.height - 1));
     
     // bounds
-    shiz_draw_rect_ex(viewport_shape, color, SHIZDrawModeOutline, SHIZAnchorCenter, 0, SHIZLayerBottom);
+    shiz_draw_rect_ex(viewport_shape, color, SHIZDrawModeOutline, SHIZAnchorCenter, 0, layer);
     
     // center grid
     float const padding = 24;
     
-    shiz_draw_line_ex(SHIZVector2Make(center.x, viewport.screen.height - padding),
+    shiz_draw_line_ex(SHIZVector2Make(center.x, viewport.resolution.height - padding),
                       SHIZVector2Make(center.x, padding),
-                      color, SHIZLayerBottom);
+                      color, layer);
     shiz_draw_line_ex(SHIZVector2Make(padding, center.y),
-                      SHIZVector2Make(viewport.screen.width - padding, center.y),
-                      color, SHIZLayerBottom);
+                      SHIZVector2Make(viewport.resolution.width - padding, center.y),
+                      color, layer);
 }
 
 static void
@@ -680,7 +674,7 @@ _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
 
     shiz_debug_set_events_enabled(false);
 
-    SHIZSize const padded_size = SHIZSizeMake(size.width + 0, size.height + 0);
+    SHIZSize const padded_size = SHIZSizeMake(size.width + 1, size.height + 1);
     SHIZVector2 const padded_origin = SHIZVector2Make(origin.x - 0, origin.y - 0);
     
     SHIZLayer const layer_above = SHIZLayeredAbove(layer);

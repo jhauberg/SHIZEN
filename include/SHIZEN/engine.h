@@ -22,14 +22,16 @@
  * Provides settings and flags for the creation of the window.
  */
 typedef struct SHIZWindowSettings {
-    /** The name of the window */
-    const char *title;
-    /** Determines whether the window should be fullscreen */
+    /** The title of the window */
+    const char * title;
+    /** Determines whether the window should be fullscreen initially */
     bool fullscreen;
     /** Determines whether v-sync should be enabled */
     bool vsync;
-    /** The size of the window */
-    SHIZSize size;
+    /** The size of the world within the window; the actual window size is determined by pixel size */
+    SHIZSize world_size;
+    /** The size of each pixel; defaults to 1; a higher pixel size results in a larger window size */
+    unsigned int pixel_size;
 } SHIZWindowSettings;
 
 /**

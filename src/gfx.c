@@ -40,6 +40,14 @@ static void _shiz_gfx_apply_viewport_boxing_if_necessary(void);
 static void _shiz_gfx_determine_viewport_mode(SHIZViewportMode *mode);
 static void _shiz_gfx_determine_operating_resolution(void);
 
+static void _shiz_gfx_clear(void);
+
+static void _shiz_gfx_post_state(bool const enable);
+
+static bool _shiz_gfx_init_post(void);
+static bool _shiz_gfx_kill_post(void);
+static void _shiz_gfx_render_post(void);
+
 static bool _shiz_gfx_init_primitive(void);
 static bool _shiz_gfx_kill_primitive(void);
 
@@ -58,6 +66,8 @@ static bool _shiz_gfx_spritebatch_flush(void);
 static unsigned int const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
 static unsigned int const spritebatch_vertex_count = SHIZGFXSpriteBatchMax * spritebatch_vertex_count_per_quad;
 
+static unsigned int const post_vertex_count = 4;
+
 // set to false to let viewport fit framebuffer (pixels will be stretched)
 static bool const enable_boxing_if_necessary = true;
 
@@ -66,6 +76,13 @@ typedef struct SHIZGFXObject {
     GLuint vbo;
     GLuint vao;
 } SHIZGFXObject;
+
+typedef struct SHIZGFXPost {
+    GLuint texture_id;
+    GLuint framebuffer;
+    GLuint renderbuffer;
+    SHIZGFXObject render;
+} SHIZGFXPost;
 
 typedef struct SHIZGFXSpriteBatch {
     unsigned int current_count;
@@ -80,6 +97,7 @@ typedef struct SHIZGFXPrimitive {
 
 static SHIZGFXSpriteBatch _spritebatch;
 static SHIZGFXPrimitive _primitive;
+static SHIZGFXPost _post;
 
 static SHIZViewport _viewport;
 
@@ -89,10 +107,20 @@ shiz_gfx_init(SHIZViewport const viewport)
     shiz_gfx_set_viewport(viewport);
 
     if (!_shiz_gfx_init_primitive()) {
+        shiz_io_error_context("GFX", "Could not initialize primitive");
+        
         return false;
     }
 
     if (!_shiz_gfx_init_spritebatch()) {
+        shiz_io_error_context("GFX", "Could not initialize spritebatch");
+        
+        return false;
+    }
+
+    if (!_shiz_gfx_init_post()) {
+        shiz_io_error_context("GFX", "Could not initialize post");
+        
         return false;
     }
 
@@ -110,15 +138,11 @@ shiz_gfx_kill()
         return false;
     }
 
-    return true;
-}
+    if (!_shiz_gfx_kill_post()) {
+        return false;
+    }
 
-void
-shiz_gfx_clear()
-{
-    glClearColor(0, 0, 0, 1);
-    glClearDepth(1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    return true;
 }
 
 void
@@ -129,11 +153,14 @@ shiz_gfx_begin()
 #endif
 
     _shiz_gfx_spritebatch_reset();
-    
-    glViewport(_viewport.offset.width / 2,
-               _viewport.offset.height / 2,
-               _viewport.framebuffer.width - _viewport.offset.width,
-               _viewport.framebuffer.height - _viewport.offset.height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer); {
+        glViewport(0, 0,
+                   _viewport.resolution.width,
+                   _viewport.resolution.height);
+
+        _shiz_gfx_clear();
+    }
 }
 
 void
@@ -141,6 +168,15 @@ shiz_gfx_end()
 {
     shiz_gfx_flush();
 
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); {
+        glViewport(_viewport.offset.width / 2,
+                   _viewport.offset.height / 2,
+                   _viewport.framebuffer.width - _viewport.offset.width,
+                   _viewport.framebuffer.height - _viewport.offset.height);
+        
+        _shiz_gfx_render_post();
+    }
+    
 #ifdef SHIZ_DEBUG
     _shiz_gfx_debug_update_frame_stats();
 #endif
@@ -241,10 +277,10 @@ shiz_gfx_render_ex(GLenum const mode,
 }
 
 void
-shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
-                     SHIZVector3 const origin,
-                     float const angle,
-                     GLuint const texture_id)
+shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
+                       SHIZVector3 const origin,
+                       float const angle,
+                       GLuint const texture_id)
 {
     if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.current_texture_id != texture_id) {
@@ -294,6 +330,161 @@ shiz_gfx_render_quad(SHIZVertexPositionColorTexture const * restrict vertices,
     _spritebatch.current_count += 1;
 }
 
+static void
+_shiz_gfx_clear()
+{
+    glClearColor(0, 0, 0, 1);
+    glClearDepth(1.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+
+static void
+_shiz_gfx_post_state(bool const enable)
+{
+    if (enable) {
+
+    }
+}
+
+static bool
+_shiz_gfx_init_post()
+{
+    const char * vertex_shader =
+    "#version 330 core\n"
+    "layout (location = 0) in vec3 vertex_position;\n"
+    "layout (location = 1) in vec2 vertex_texture_coord;\n"
+    "out vec2 texture_coord;\n"
+    "void main() {\n"
+    "    gl_Position = vec4(vertex_position, 1);\n"
+    "    texture_coord = vertex_texture_coord.st;\n"
+    "}\n";
+
+    const char * fragment_shader =
+    "#version 330 core\n"
+    "in vec2 texture_coord;\n"
+    "uniform sampler2D sampler;\n"
+    "layout (location = 0) out vec4 fragment_color;\n"
+    "void main() {\n"
+    "    vec4 sampled_color = texture(sampler, texture_coord.st);\n"
+    "    fragment_color = sampled_color;\n"
+    "}\n";
+
+    GLuint vs = _shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    GLuint fs = _shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+
+    if (!vs && !fs) {
+        return false;
+    }
+
+    _post.render.program = _shiz_gfx_link_program(vs, fs);
+
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+
+    if (!_post.render.program) {
+        return false;
+    }
+    
+    GLsizei const texture_width = _viewport.resolution.width;
+    GLsizei const texture_height = _viewport.resolution.height;
+    
+    glGenFramebuffers(1, &_post.framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer);
+
+    glGenTextures(1, &_post.texture_id);
+    glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                     texture_width, texture_height,
+                     0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    glGenRenderbuffers(1, &_post.renderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, _post.renderbuffer); {
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texture_width, texture_height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _post.renderbuffer);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _post.texture_id, 0);
+    }
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        return false;
+    }
+
+    static const SHIZVertexPositionTexture vertices[post_vertex_count] = {
+        { .position = { -1, -1, 0 }, .texture_coord = { 0, 0 } },
+        { .position = { -1,  1, 0 }, .texture_coord = { 0, 1 } },
+        { .position = {  1, -1, 0 }, .texture_coord = { 1, 0 } },
+        { .position = {  1,  1, 0 }, .texture_coord = { 1, 1 } },
+    };
+    
+    glGenBuffers(1, &_post.render.vbo);
+    glGenVertexArrays(1, &_post.render.vao);
+    
+    glBindVertexArray(_post.render.vao); {
+        glBindBuffer(GL_ARRAY_BUFFER, _post.render.vbo); {
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+            
+            glVertexAttribPointer(0 /* position location */,
+                                  3 /* number of position components per vertex */,
+                                  GL_FLOAT, GL_FALSE /* values are not normalized */,
+                                  sizeof(SHIZVertexPositionTexture) /* offset to reach next vertex */,
+                                  0 /* position component is the first, so no offset */);
+            glEnableVertexAttribArray(0);
+            
+            glVertexAttribPointer(1 /* texture coord location */,
+                                  2 /* number of color components per vertex */,
+                                  GL_FLOAT, GL_FALSE,
+                                  sizeof(SHIZVertexPositionTexture),
+                                  (GLvoid*)(sizeof(SHIZVector3)) /* offset to reach color component */);
+            glEnableVertexAttribArray(1);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+    glBindVertexArray(0);
+
+    return true;
+}
+
+static void
+_shiz_gfx_render_post()
+{
+    _shiz_gfx_post_state(true);
+    
+    glUseProgram(_post.render.program);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
+        glBindVertexArray(_post.render.vao); {
+            glBindBuffer(GL_ARRAY_BUFFER, _post.render.vbo); {
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, post_vertex_count);
+            }
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+        glBindVertexArray(0);
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glUseProgram(0);
+    
+    _shiz_gfx_post_state(false);
+}
+
+static bool
+_shiz_gfx_kill_post()
+{
+    glDeleteFramebuffers(1, &_post.framebuffer);
+    glDeleteRenderbuffers(1, &_post.renderbuffer);
+    glDeleteTextures(1, &_post.texture_id);
+    glDeleteProgram(_post.render.program);
+    glDeleteVertexArrays(1, &_post.render.vao);
+    glDeleteBuffers(1, &_post.render.vbo);
+
+    return true;
+}
+
 static bool
 _shiz_gfx_init_primitive()
 {
@@ -339,16 +530,14 @@ _shiz_gfx_init_primitive()
         glBindBuffer(GL_ARRAY_BUFFER, _primitive.render.vbo); {
             glVertexAttribPointer(0 /* position location */,
                                   3 /* number of position components per vertex */,
-                                  GL_FLOAT,
-                                  GL_FALSE /* values are not normalized */,
+                                  GL_FLOAT, GL_FALSE /* values are not normalized */,
                                   sizeof(SHIZVertexPositionColor) /* offset to reach next vertex */,
                                   0 /* position component is the first, so no offset */);
             glEnableVertexAttribArray(0);
             
             glVertexAttribPointer(1 /* color location */,
                                   4 /* number of color components per vertex */,
-                                  GL_FLOAT,
-                                  GL_FALSE,
+                                  GL_FLOAT, GL_FALSE,
                                   sizeof(SHIZVertexPositionColor),
                                   (GLvoid*)(sizeof(SHIZVector3)) /* offset to reach color component */);
             glEnableVertexAttribArray(1);
@@ -459,16 +648,14 @@ _shiz_gfx_init_spritebatch()
             
             glVertexAttribPointer(0 /* position location */,
                                   3 /* number of position components per vertex */,
-                                  GL_FLOAT,
-                                  GL_FALSE /* values are not normalized */,
+                                  GL_FLOAT, GL_FALSE /* values are not normalized */,
                                   stride /* offset to reach next vertex */,
                                   0 /* position component is the first, so no offset */);
             glEnableVertexAttribArray(0);
             
             glVertexAttribPointer(1 /* color location */,
                                   4 /* number of color components per vertex */,
-                                  GL_FLOAT,
-                                  GL_FALSE,
+                                  GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach color component
                                   (GLvoid*)(sizeof(SHIZVector3)));
@@ -476,8 +663,7 @@ _shiz_gfx_init_spritebatch()
             
             glVertexAttribPointer(2 /* texture coord location */,
                                   2 /* number of coord components per vertex */,
-                                  GL_FLOAT,
-                                  GL_FALSE,
+                                  GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach texture coord component
                                   (GLvoid*)(sizeof(SHIZVector3) +
@@ -486,8 +672,7 @@ _shiz_gfx_init_spritebatch()
             
             glVertexAttribPointer(3 /* texture coord scale location */,
                                   2 /* number of scale components per vertex */,
-                                  GL_FLOAT,
-                                  GL_FALSE,
+                                  GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach texture coord min component
                                   (GLvoid*)(sizeof(SHIZVector3) +
@@ -497,8 +682,7 @@ _shiz_gfx_init_spritebatch()
             
             glVertexAttribPointer(4 /* texture coord scale location */,
                                   2 /* number of scale components per vertex */,
-                                  GL_FLOAT,
-                                  GL_FALSE,
+                                  GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach texture coord max component
                                   (GLvoid*)(sizeof(SHIZVector3) +
@@ -602,12 +786,12 @@ _shiz_gfx_spritebatch_reset()
 static void
 _shiz_gfx_determine_operating_resolution()
 {
-    if ((_viewport.screen.width < _viewport.framebuffer.width ||
-         _viewport.screen.width > _viewport.framebuffer.width) ||
-        (_viewport.screen.height < _viewport.framebuffer.height ||
-         _viewport.screen.height > _viewport.framebuffer.height)) {
+    if ((_viewport.resolution.width < _viewport.framebuffer.width ||
+         _viewport.resolution.width > _viewport.framebuffer.width) ||
+        (_viewport.resolution.height < _viewport.framebuffer.height ||
+         _viewport.resolution.height > _viewport.framebuffer.height)) {
         shiz_io_warning_context("GFX", "Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx (%s)",
-                                _viewport.screen.width, _viewport.screen.height,
+                                _viewport.resolution.width, _viewport.resolution.height,
                                 _viewport.framebuffer.width, _viewport.framebuffer.height,
                                 _viewport.scale,
                                 _viewport.is_fullscreen ? "fullscreen" : "windowed");
@@ -634,7 +818,7 @@ _shiz_gfx_apply_viewport_boxing_if_necessary()
 static void
 _shiz_gfx_determine_viewport_mode(SHIZViewportMode * mode)
 {
-    float const screen_aspect_ratio = _viewport.screen.width / _viewport.screen.height;
+    float const screen_aspect_ratio = _viewport.resolution.width / _viewport.resolution.height;
     float const framebuffer_aspect_ratio = _viewport.framebuffer.width / _viewport.framebuffer.height;
 
     *mode = SHIZViewportModeNormal;

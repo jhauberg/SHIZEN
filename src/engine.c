@@ -28,8 +28,12 @@ typedef struct SHIZGraphicsContext {
     bool is_focused;
     /** Determines whether a shutdown should be initiated */
     bool should_finish;
-    /** The preferred screen size; the display may be boxed if necessary */
-    SHIZSize preferred_screen_size;
+    /** The operating resolution; the display may be boxed if necessary */
+    SHIZSize native_size;
+    /** The actual display size; essentially operating size ⨉ pixel size */
+    SHIZSize display_size;
+    /** The size of each pixel; must be higher than 0 */
+    unsigned int pixel_size;
     /** A reference to the current window */
     GLFWwindow * window;
 } SHIZGraphicsContext;
@@ -38,7 +42,8 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .title = "SHIZEN",
     .fullscreen = false,
     .vsync = true,
-    .size = { 320, 240 }
+    .world_size = { 320, 240 },
+    .pixel_size = 1
 };
 
 static SHIZViewport const SHIZViewportDefault = {
@@ -46,7 +51,7 @@ static SHIZViewport const SHIZViewportDefault = {
         .width = 0,
         .height = 0
     },
-    .screen = {
+    .resolution = {
         .width = 0,
         .height = 0
     },
@@ -75,8 +80,10 @@ static SHIZViewport _shiz_get_viewport(void);
 
 static float _shiz_glfw_get_pixel_scale(void);
 
-static void _shiz_intro(void);
 static bool _shiz_can_run(void);
+
+static void _shiz_intro(void);
+static void _shiz_intro_gl(void);
 
 static SHIZVector2 _shiz_glfw_window_position;
 
@@ -120,7 +127,19 @@ shiz_startup(SHIZWindowSettings const settings)
         return true;
     }
 
-    _context.preferred_screen_size = settings.size;
+    _shiz_intro();
+    
+    _context.native_size = settings.world_size;
+    _context.pixel_size = 1;
+    
+    if (settings.pixel_size > 0) {
+        _context.pixel_size = settings.pixel_size;
+    } else {
+        shiz_io_warning("SHIZEN does not support a pixel-size of 0; defaulting to 1");
+    }
+    
+    _context.display_size = SHIZSizeMake(_context.native_size.width * _context.pixel_size,
+                                         _context.native_size.height * _context.pixel_size);
     
     glfwSetErrorCallback(_shiz_glfw_error_callback);
     
@@ -142,13 +161,13 @@ shiz_startup(SHIZWindowSettings const settings)
         return false;
     }
     
+    _shiz_intro_gl();
+    
     if (!_shiz_can_run()) {
         shiz_io_error("SHIZEN is not supported on this system");
 
         return false;
     }
-
-    _shiz_intro();
     
     if (!shiz_gfx_init(_shiz_get_viewport())) {
         return false;
@@ -316,12 +335,12 @@ shiz_get_sprite_font_ex(SHIZSprite const sprite,
     return spritefont;
 }
 
-static
-SHIZViewport _shiz_get_viewport(void)
+static SHIZViewport
+_shiz_get_viewport()
 {
     SHIZViewport viewport = SHIZViewportDefault;
 
-    viewport.screen = _shiz_get_preferred_screen_size();
+    viewport.resolution = _shiz_get_operating_resolution();
     viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
     viewport.scale = _shiz_glfw_get_pixel_scale();
 
@@ -332,19 +351,21 @@ SHIZViewport _shiz_get_viewport(void)
     return viewport;
 }
 
-SHIZSize _shiz_get_preferred_screen_size()
+SHIZSize
+_shiz_get_operating_resolution()
 {
-    return _context.preferred_screen_size;
+    return _context.native_size;
 }
 
-void _shiz_present_frame()
+void
+_shiz_present_frame()
 {
     glfwSwapBuffers(_context.window);
     glfwPollEvents();
 }
 
 static void
-_shiz_intro(void)
+_shiz_intro()
 {
     printf("  __|  |  | _ _| __  /  __|   \\ |\n");
     printf("\\__ \\  __ |   |     /   _|   .  |\n");
@@ -353,7 +374,11 @@ _shiz_intro(void)
            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
            SHIZEN_VERSION_NAME, __DATE__, __TIME__);
     printf(" Copyright (c) 2017 Jacob Hauberg Hansen\n\n");
+}
 
+static void
+_shiz_intro_gl()
+{
     printf(" OPENGL VERSION:  %s (GLSL %s)\n",
            glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
     printf(" OPENGL RENDERER: %s\n",
@@ -363,7 +388,7 @@ _shiz_intro(void)
 }
 
 static bool
-_shiz_can_run(void)
+_shiz_can_run()
 {
     int major;
     int minor;
@@ -405,11 +430,12 @@ _shiz_glfw_create_window(SHIZWindowSettings const settings)
             
             // prefer centered window if initially fullscreen;
             // otherwise let the OS determine window placement
-            _shiz_glfw_window_position.x = (display_width / 2) - (settings.size.width / 2);
-            _shiz_glfw_window_position.y = (display_height / 2) - (settings.size.height / 2);
+            _shiz_glfw_window_position.x = (display_width / 2) - (_context.display_size.width / 2);
+            _shiz_glfw_window_position.y = (display_height / 2) - (_context.display_size.height / 2);
         }
     } else {
-        _context.window = glfwCreateWindow(settings.size.width, settings.size.height,
+        _context.window = glfwCreateWindow(_context.display_size.width,
+                                           _context.display_size.height,
                                            settings.title, NULL, NULL);
     }
     
@@ -476,8 +502,8 @@ _shiz_glfw_toggle_windowed(GLFWwindow * const window)
         // go windowed
         glfwSetWindowMonitor(window, NULL,
                              window_position_x, window_position_y,
-                             _context.preferred_screen_size.width,
-                             _context.preferred_screen_size.height,
+                             _context.display_size.width,
+                             _context.display_size.height,
                              0);
     } else {
         // go fullscreen
