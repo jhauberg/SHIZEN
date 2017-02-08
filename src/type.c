@@ -30,16 +30,6 @@ SHIZRect const SHIZRectEmpty = {
     .size = { 0, 0 }
 };
 
-SHIZLayer const SHIZLayerTop = {
-    .layer = SHIZLayerMax,
-    .depth = SHIZLayerDepthMax
-};
-
-SHIZLayer const SHIZLayerBottom = {
-    .layer = SHIZLayerMin,
-    .depth = SHIZLayerDepthMin
-};
-
 SHIZVector2 const SHIZAnchorCenter = { 0.0f, 0.0f };
 SHIZVector2 const SHIZAnchorTop = { 0.0f, 1.0f };
 SHIZVector2 const SHIZAnchorTopLeft = { -1.0f, 1.0f };
