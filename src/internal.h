@@ -51,13 +51,29 @@ typedef struct SHIZTimeLine {
     double scale;
 } SHIZTimeLine;
 
-typedef struct SHIZViewport {
-    SHIZSize framebuffer;
-    SHIZSize resolution;
-    float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
-    SHIZSize offset; // offset if letter/pillarboxing is enabled
-    bool is_fullscreen;
-} SHIZViewport;
+typedef struct SHIZRenderObject {
+    GLuint program;
+    GLuint vbo;
+    GLuint vao;
+} SHIZRenderObject;
+
+typedef struct SHIZVertexPositionColor {
+    SHIZVector3 position;
+    SHIZColor color;
+} SHIZVertexPositionColor;
+
+typedef struct SHIZVertexPositionTexture {
+    SHIZVector3 position;
+    SHIZVector2 texture_coord;
+} SHIZVertexPositionTexture;
+
+typedef struct SHIZVertexPositionColorTexture {
+    SHIZVector3 position;
+    SHIZColor color;
+    SHIZVector2 texture_coord;
+    SHIZVector2 texture_coord_min;
+    SHIZVector2 texture_coord_max;
+} SHIZVertexPositionColorTexture;
 
 SHIZSize _shiz_get_operating_resolution(void);
 

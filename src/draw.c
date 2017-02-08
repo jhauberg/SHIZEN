@@ -461,7 +461,7 @@ _shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const
 static void
 _shiz_debug_build_stats()
 {
-    SHIZViewport const viewport = shiz_gfx_get_viewport();
+    SHIZViewport const viewport = shiz_get_viewport();
     
     char const sprite_count_tint_specifier =
         shiz_debug_get_sprite_count() > SHIZSpriteInternalMax ? '\3' : '\2';
@@ -478,6 +478,8 @@ _shiz_debug_build_stats()
                 viewport.resolution.width, viewport.resolution.height);
     }
     
+    SHIZDebugFrameStats const frame_stats = shiz_gfx_debug_get_frame_stats();
+    
     sprintf(_shiz_debug_stats_buffer,
             "%s\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
@@ -486,14 +488,14 @@ _shiz_debug_build_stats()
             "\2%d draws/frame\1\n\n"
             "\2%.1fx time\1",
             display_size_buffer,
-            shiz_gfx_debug_get_frame_time(),
-            shiz_gfx_debug_get_frame_time_avg(),
-            shiz_gfx_debug_get_frames_per_second(),
-            shiz_gfx_debug_get_frames_per_second_min(),
-            shiz_gfx_debug_get_frames_per_second_avg(),
-            shiz_gfx_debug_get_frames_per_second_max(),
+            frame_stats.frame_time,
+            frame_stats.frame_time_avg,
+            frame_stats.frames_per_second,
+            frame_stats.frames_per_second_min,
+            frame_stats.frames_per_second_avg,
+            frame_stats.frames_per_second_max,
             sprite_count_tint_specifier, shiz_debug_get_sprite_count(), SHIZSpriteInternalMax,
-            shiz_gfx_debug_get_draw_count(),
+            frame_stats.draw_count,
             shiz_get_time_scale());
 }
 
@@ -603,7 +605,7 @@ _shiz_debug_draw_viewport()
 {
     SHIZLayer const layer = SHIZLayeredBelow(SHIZLayeredBelow(SHIZLayerTop));
     
-    SHIZViewport const viewport = shiz_gfx_get_viewport();
+    SHIZViewport const viewport = shiz_get_viewport();
     
     SHIZVector2 const center = SHIZVector2Make(viewport.resolution.width / 2,
                                                viewport.resolution.height / 2);

@@ -14,29 +14,7 @@
 
 #include "internal.h"
 
-typedef enum SHIZViewportMode {
-    SHIZViewportModeNormal,
-    SHIZViewportModeLetterbox,
-    SHIZViewportModePillarbox
-} SHIZViewportMode;
-
-typedef struct SHIZVertexPositionColor {
-    SHIZVector3 position;
-    SHIZColor color;
-} SHIZVertexPositionColor;
-
-typedef struct SHIZVertexPositionColorTexture {
-    SHIZVector3 position;
-    SHIZColor color;
-    SHIZVector2 texture_coord;
-    SHIZVector2 texture_coord_min;
-    SHIZVector2 texture_coord_max;
-} SHIZVertexPositionColorTexture;
-
-typedef struct SHIZVertexPositionTexture {
-    SHIZVector3 position;
-    SHIZVector2 texture_coord;
-} SHIZVertexPositionTexture;
+#include "viewport.h"
 
 /**
  * @brief Initialize the SHIZEN graphics module.
@@ -78,10 +56,11 @@ void shiz_gfx_render_ex(GLenum const mode,
                         unsigned int const count,
                         SHIZVector3 const origin,
                         float const angle);
+
 /**
- * @brief Render a textured quad.
- * 
- * Render a textured quad at a location, optionally rotated at an angle.
+ * @brief Render a sprite; a textured quad.
+ *
+ * Render a sprite at a location, optionally rotated at an angle.
  *
  * @remark This function batches vertex data, and is only flushed when necessary (but at least
  *         once per frame).
@@ -96,18 +75,8 @@ void shiz_gfx_end(void);
 
 void shiz_gfx_flush(void);
 
-SHIZViewport shiz_gfx_get_viewport(void);
-
-void shiz_gfx_set_viewport(SHIZViewport const viewport);
-
 #ifdef DEBUG
-unsigned int shiz_gfx_debug_get_draw_count(void);
-unsigned int shiz_gfx_debug_get_frames_per_second(void);
-unsigned int shiz_gfx_debug_get_frames_per_second_min(void);
-unsigned int shiz_gfx_debug_get_frames_per_second_max(void);
-unsigned int shiz_gfx_debug_get_frames_per_second_avg(void);
-double shiz_gfx_debug_get_frame_time(void);
-double shiz_gfx_debug_get_frame_time_avg(void);
+SHIZDebugFrameStats shiz_gfx_debug_get_frame_stats(void);
 #endif
 
 #endif // gfx_h

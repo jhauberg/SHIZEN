@@ -9,7 +9,6 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-
 #ifndef spritefont_8x8_h
 #define spritefont_8x8_h
 

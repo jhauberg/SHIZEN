@@ -55,10 +55,6 @@ static SHIZViewport const SHIZViewportDefault = {
         .width = 0,
         .height = 0
     },
-    .offset = {
-        .width = 0,
-        .height = 0
-    },
     .scale = 1,
     .is_fullscreen = false
 };
@@ -557,5 +553,5 @@ _shiz_glfw_framebuffer_size_callback(GLFWwindow * const window, int width, int h
 
     SHIZViewport const viewport = _shiz_get_viewport();
 
-    shiz_gfx_set_viewport(viewport);
+    shiz_set_viewport(viewport);
 }

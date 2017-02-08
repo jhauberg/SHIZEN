@@ -23,6 +23,16 @@ typedef struct SHIZDebugEvent {
     unsigned int lane;
 } SHIZDebugEvent;
 
+typedef struct SHIZDebugFrameStats {
+    unsigned int draw_count;
+    unsigned int frames_per_second;
+    unsigned int frames_per_second_min;
+    unsigned int frames_per_second_max;
+    unsigned int frames_per_second_avg;
+    double frame_time;
+    double frame_time_avg;
+} SHIZDebugFrameStats;
+
 bool shiz_debug_init(void);
 bool shiz_debug_kill(void);
 

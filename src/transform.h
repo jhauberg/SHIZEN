@@ -15,6 +15,7 @@
 #include <linmath.h>
 
 #include "internal.h"
+#include "viewport.h"
 
 void shiz_transform_project_ortho(mat4x4 world,
                                   mat4x4 model,
