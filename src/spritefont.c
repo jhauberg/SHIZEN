@@ -221,11 +221,18 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             character_origin.x -= line.size.width;
         }
 
-        for (int character_index = 0; character_index < line.character_count && text_index < text_length; character_index++) {
-            bool const should_truncate = (measurement.constrain_index != -1 &&
-                                          text_index > (measurement.constrain_index - truncation_length));
+        unsigned int character_index;
 
-            break_from_truncation = measurement.constrain_index == text_index;
+        for (character_index = 0;
+             character_index < line.character_count && text_index < text_length;
+             character_index++) {
+            bool const should_truncate =
+                (measurement.constrain_index != -1 &&
+                 text_index > (measurement.constrain_index - truncation_length));
+
+            break_from_truncation =
+                measurement.constrain_index != -1 &&
+                (unsigned int)measurement.constrain_index == text_index;
 
             char const character = should_truncate ? truncation_character : text[text_index];
 
@@ -235,12 +242,15 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 character == '\5' || character == '\6' || character == '\7') {
                 // these characters are only used for tinting purposes and will be ignored/skipped otherwise
                 if (highlight_colors && highlight_color_count > 0) {
+                    // at this point, we know that 'character' is one of the numeric tint specifiers
+                    // so we can determine the index like below, where a tint specifier of 1 results
+                    // in an index of -1, which we then use to reset any highlight
                     int const highlight_color_index = character - 2;
 
                     if (highlight_color_index < 0) {
                         highlight_color = tint;
                     } else {
-                        if (highlight_color_index < highlight_color_count) {
+                        if (highlight_color_index < (int)highlight_color_count) {
                             highlight_color = highlight_colors[highlight_color_index];
                         }
                     }
@@ -255,15 +265,17 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 // the loop could go on indefinitely unless we add an additional constraint;
                 // namely whether we're still going through the actual string (i.e. text_index)
                 // and have not passed beyond its length
-                character_index--;
+                if (character_index > 0) {
+                    character_index--;
 
-                continue;
+                    continue;
+                }
             }
 
             int character_table_index = (unsigned char)character - font.table.offset;
 
             if (character_table_index < 0 ||
-                character_table_index > font.table.columns * font.table.rows) {
+                character_table_index > (int)(font.table.columns * font.table.rows)) {
                 character_table_index = -1;
             }
 
