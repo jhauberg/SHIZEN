@@ -261,15 +261,11 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
 
             if (character == newline_character) {
                 // ignore newlines and just proceed as if this iteration never happened
-                // note that this may cause character_index to go negative, and because of this
-                // the loop could go on indefinitely unless we add an additional constraint;
-                // namely whether we're still going through the actual string (i.e. text_index)
-                // and have not passed beyond its length
-                if (character_index > 0) {
-                    character_index--;
+                // note that this may cause character_index to rollover
+                // but this will just cause the loop to end, which is intended
+                character_index--;
 
-                    continue;
-                }
+                continue;
             }
 
             int character_table_index = (unsigned char)character - font.table.offset;
