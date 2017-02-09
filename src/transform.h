@@ -12,8 +12,6 @@
 #ifndef transform_h
 #define transform_h
 
-#include <linmath.h>
-
 #include "internal.h"
 #include "viewport.h"
 

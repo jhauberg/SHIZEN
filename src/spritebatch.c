@@ -11,8 +11,6 @@
 
 #include "spritebatch.h"
 
-#include <linmath.h>
-
 #include "shader.h"
 #include "viewport.h"
 #include "transform.h"

@@ -12,8 +12,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <linmath.h>
-
 #include "gfx.h"
 
 #ifdef SHIZ_DEBUG
