@@ -55,6 +55,14 @@ typedef struct SHIZSprite {
     SHIZRect source;
 } SHIZSprite;
 
+typedef struct SHIZSpriteSheet {
+    unsigned int columns;
+    unsigned int rows;
+    SHIZSprite resource;
+    SHIZSize sprite_size;
+    SHIZSize sprite_padding;
+} SHIZSpriteSheet;
+
 typedef enum SHIZSpriteFontAlignment {
     SHIZSpriteFontAlignmentTop = 1,
     SHIZSpriteFontAlignmentLeft = 2,
@@ -132,6 +140,7 @@ extern SHIZRect const SHIZRectEmpty;
  * @brief An empty sprite. This sprite cannot be drawn.
  */
 extern SHIZSprite const SHIZSpriteEmpty;
+extern SHIZSpriteSheet const SHIZSpriteSheetEmpty;
 
 /**
  * @brief Size a sprite to its intrinsic (or natural) size.

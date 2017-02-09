@@ -72,7 +72,7 @@ static SHIZSize _shiz_glfw_get_framebuffer_size(void);
 
 static void _shiz_glfw_toggle_windowed(GLFWwindow * const window);
 
-static SHIZViewport _shiz_get_viewport(void);
+static SHIZViewport _shiz_build_viewport(void);
 
 static float _shiz_glfw_get_pixel_scale(void);
 
@@ -165,7 +165,7 @@ shiz_startup(SHIZWindowSettings const settings)
         return false;
     }
     
-    if (!shiz_gfx_init(_shiz_get_viewport())) {
+    if (!shiz_gfx_init(_shiz_build_viewport())) {
         return false;
     }
     
@@ -249,7 +249,7 @@ shiz_load_sprite(const char * const filename)
 SHIZSprite
 shiz_load_sprite_src(const char * const filename, SHIZRect const source)
 {
-    SHIZSprite sprite = shiz_load_sprite(filename);
+    SHIZSprite const sprite = shiz_load_sprite(filename);
 
     if (sprite.resource_id == SHIZResourceInvalid) {
         return SHIZSpriteEmpty;
@@ -258,6 +258,31 @@ shiz_load_sprite_src(const char * const filename, SHIZRect const source)
     return shiz_get_sprite_src(sprite.resource_id, source);
 }
 
+SHIZSpriteSheet
+shiz_load_sprite_sheet(const char * const filename, SHIZSize const sprite_size)
+{
+    SHIZSprite const sprite = shiz_load_sprite(filename);
+    
+    if (sprite.resource_id == SHIZResourceInvalid) {
+        return SHIZSpriteSheetEmpty;
+    }
+    
+    return shiz_get_sprite_sheet(sprite, sprite_size);
+}
+
+SHIZSpriteSheet
+shiz_load_sprite_sheet_src(const char * const filename,
+                           SHIZSize const sprite_size,
+                           SHIZRect const source)
+{
+    SHIZSpriteSheet const sprite_sheet = shiz_load_sprite_sheet(filename, sprite_size);
+    
+    if (sprite_sheet.resource.resource_id == SHIZResourceInvalid) {
+        return SHIZSpriteSheetEmpty;
+    }
+    
+    return shiz_get_sprite_sheet_src(sprite_sheet.resource, sprite_size, source);
+}
 
 SHIZSprite
 shiz_get_sprite(unsigned int const resource_id)
@@ -283,6 +308,64 @@ shiz_get_sprite_src(unsigned int const resource_id, SHIZRect const source)
     sprite.source = source;
 
     return sprite;
+}
+
+SHIZSpriteSheet
+shiz_get_sprite_sheet(SHIZSprite const resource, SHIZSize const sprite_size)
+{
+    SHIZSpriteSheet spritesheet;
+    
+    spritesheet.resource = resource;
+    spritesheet.sprite_size = sprite_size;
+    
+    spritesheet.columns = resource.source.size.width / sprite_size.width;
+    spritesheet.rows = resource.source.size.height / sprite_size.height;
+
+    return spritesheet;
+}
+
+SHIZSpriteSheet
+shiz_get_sprite_sheet_src(SHIZSprite const resource,
+                          SHIZSize const sprite_size,
+                          SHIZRect const source)
+{
+    return shiz_get_sprite_sheet(shiz_get_sprite_src(resource.resource_id, source), sprite_size);
+}
+
+SHIZSprite
+shiz_get_sprite_index(SHIZSpriteSheet const spritesheet, unsigned int const index)
+{
+    unsigned int const row = (unsigned int)(index / spritesheet.columns);
+    unsigned int const column = index % spritesheet.columns;
+    
+    SHIZVector2 const source_origin = SHIZVector2Make(spritesheet.resource.source.origin.x +
+                                                      spritesheet.sprite_padding.width,
+                                                      spritesheet.resource.source.origin.y +
+                                                      spritesheet.sprite_padding.height);
+    
+    SHIZVector2 const origin = SHIZVector2Make(source_origin.x +
+                                               (column * spritesheet.sprite_size.width),
+                                               source_origin.y +
+                                               (row * spritesheet.sprite_size.height));
+    
+    SHIZSize const size = SHIZSizeMake(spritesheet.sprite_size.width -
+                                       (spritesheet.sprite_padding.width * 2),
+                                       spritesheet.sprite_size.height -
+                                       (spritesheet.sprite_padding.height * 2));
+    
+    SHIZRect const sprite_frame = SHIZRectMake(origin, size);
+    
+    return shiz_get_sprite_src(spritesheet.resource.resource_id, sprite_frame);
+}
+
+SHIZSprite
+shiz_get_sprite_colrow(SHIZSpriteSheet const spritesheet,
+                       unsigned int const column,
+                       unsigned int const row)
+{
+    unsigned int const index = row * spritesheet.columns + column;
+    
+    return shiz_get_sprite_index(spritesheet, index);
 }
 
 SHIZSpriteFont
@@ -332,7 +415,7 @@ shiz_get_sprite_font_ex(SHIZSprite const sprite,
 }
 
 static SHIZViewport
-_shiz_get_viewport()
+_shiz_build_viewport()
 {
     SHIZViewport viewport = SHIZViewportDefault;
 
@@ -551,7 +634,7 @@ _shiz_glfw_framebuffer_size_callback(GLFWwindow * const window, int width, int h
     (void)width;
     (void)height;
 
-    SHIZViewport const viewport = _shiz_get_viewport();
+    SHIZViewport const viewport = _shiz_build_viewport();
 
     shiz_set_viewport(viewport);
 }

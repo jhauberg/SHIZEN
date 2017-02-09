@@ -48,6 +48,22 @@ SHIZSprite const SHIZSpriteEmpty = {
     }
 };
 
+SHIZSpriteSheet const SHIZSpriteSheetEmpty = {
+    .rows = 0,
+    .columns = 0,
+    .resource = {
+        .resource_id = 0,
+        .source = {
+            .origin = { 0, 0 },
+            .size = { 0, 0 }
+        }
+    },
+    .sprite_size = {
+        .width = 0,
+        .height = 0
+    }
+};
+
 SHIZSize const SHIZSpriteSizeIntrinsic = { -1, -1 };
 
 SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault = {

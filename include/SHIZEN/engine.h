@@ -114,6 +114,21 @@ SHIZSprite shiz_load_sprite_src(const char * const filename, SHIZRect const sour
 SHIZSprite shiz_get_sprite(unsigned int const resource_id);
 SHIZSprite shiz_get_sprite_src(unsigned int const resource_id, SHIZRect const source);
 
+SHIZSpriteSheet shiz_load_sprite_sheet(const char * const filename, SHIZSize const sprite_size);
+SHIZSpriteSheet shiz_load_sprite_sheet_src(const char * const filename,
+                                           SHIZSize const sprite_size,
+                                           SHIZRect const source);
+
+SHIZSpriteSheet shiz_get_sprite_sheet(SHIZSprite const resource, SHIZSize const sprite_size);
+SHIZSpriteSheet shiz_get_sprite_sheet_src(SHIZSprite const resource,
+                                          SHIZSize const sprite_size,
+                                          SHIZRect const source);
+
+SHIZSprite shiz_get_sprite_index(SHIZSpriteSheet const spritesheet, unsigned int const index);
+SHIZSprite shiz_get_sprite_colrow(SHIZSpriteSheet const spritesheet,
+                                  unsigned int const column,
+                                  unsigned int const row);
+
 SHIZSpriteFont shiz_load_sprite_font(const char * const filename,
                                      SHIZSize const character);
 SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename,
