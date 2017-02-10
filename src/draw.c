@@ -478,7 +478,7 @@ _shiz_debug_build_stats()
                 viewport.resolution.width, viewport.resolution.height);
     }
     
-    SHIZDebugFrameStats const frame_stats = shiz_gfx_debug_get_frame_stats();
+    SHIZDebugFrameStats const frame_stats = shiz_debug_get_frame_stats();
     
     sprintf(_shiz_debug_stats_buffer,
             "%s\n\n"

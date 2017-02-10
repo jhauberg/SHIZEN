@@ -75,8 +75,4 @@ void shiz_gfx_end(void);
 
 void shiz_gfx_flush(void);
 
-#ifdef DEBUG
-SHIZDebugFrameStats shiz_gfx_debug_get_frame_stats(void);
-#endif
-
 #endif // gfx_h

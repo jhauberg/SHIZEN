@@ -15,14 +15,12 @@
 #include "viewport.h"
 #include "transform.h"
 
-#include "gfx.debug.h"
-
 #ifdef SHIZ_DEBUG
-static SHIZVector3 _shiz_gfx_debug_get_last_sprite_origin(void);
+static SHIZVector3 _shiz_debug_get_last_sprite_origin(void);
 
-static const char * const _shiz_gfx_debug_event_flush = "fls";
-static const char * const _shiz_gfx_debug_event_flush_capacity = "fls|cap";
-static const char * const _shiz_gfx_debug_event_flush_texture_switch = "fls|tex";
+static const char * const _shiz_debug_event_flush = "fls";
+static const char * const _shiz_debug_event_flush_capacity = "fls|cap";
+static const char * const _shiz_debug_event_flush_texture_switch = "fls|tex";
 #endif
 
 static void _shiz_gfx_spritebatch_state(bool const enable);
@@ -51,7 +49,7 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
         _spritebatch.current_texture_id != texture_id) {
         if (shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-            shiz_debug_add_event_draw(_shiz_gfx_debug_event_flush_texture_switch, origin);
+            shiz_debug_add_event_draw(_shiz_debug_event_flush_texture_switch, origin);
 #endif
         }
     }
@@ -61,7 +59,7 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
     if (_spritebatch.current_count + 1 > SHIZGFXSpriteBatchMax) {
         if (shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-            shiz_debug_add_event_draw(_shiz_gfx_debug_event_flush_capacity, origin);
+            shiz_debug_add_event_draw(_shiz_debug_event_flush_capacity, origin);
 #endif
         }
     }
@@ -239,7 +237,7 @@ shiz_gfx_spritebatch_flush()
 #ifdef SHIZ_DEBUG
     // note that this will use the center of the sprite, which may not correlate to the anchor
     // that this sprite was drawn with
-    shiz_debug_add_event_draw(_shiz_gfx_debug_event_flush, _shiz_gfx_debug_get_last_sprite_origin());
+    shiz_debug_add_event_draw(_shiz_debug_event_flush, _shiz_debug_get_last_sprite_origin());
 #endif
     
     mat4x4 model;
@@ -267,7 +265,7 @@ shiz_gfx_spritebatch_flush()
                                 _spritebatch.vertices);
                 glDrawArrays(GL_TRIANGLES, 0, index_count);
 #ifdef SHIZ_DEBUG
-                shiz_gfx_debug_increment_draw_count(1);
+                shiz_debug_increment_draw_count(1);
 #endif
             }
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -312,7 +310,7 @@ _shiz_gfx_spritebatch_state(bool const enable)
 
 #ifdef SHIZ_DEBUG
 static SHIZVector3
-_shiz_gfx_debug_get_last_sprite_origin()
+_shiz_debug_get_last_sprite_origin()
 {
     if (_spritebatch.current_count > 0) {
         int const offset = (_spritebatch.current_count - 1) * spritebatch_vertex_count_per_quad;

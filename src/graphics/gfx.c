@@ -14,18 +14,13 @@
 
 #include "gfx.h"
 
-#ifdef SHIZ_DEBUG
- #include "gfx.debug.h"
-#endif
-
 #include "shader.h"
 #include "transform.h"
 #include "spritebatch.h"
 #include "io.h"
 
 #ifdef SHIZ_DEBUG
-static const char * const _shiz_gfx_debug_event_primitive = "\xDB";
-static SHIZDebugFrameStats _shiz_gfx_debug_frame_stats;
+static const char * const _shiz_debug_event_primitive = "\xDB";
 #endif
 
 static void _shiz_gfx_clear(void);
@@ -110,7 +105,7 @@ void
 shiz_gfx_begin()
 {
 #ifdef SHIZ_DEBUG
-    shiz_gfx_debug_reset_draw_count();
+    shiz_debug_reset_draw_count();
 #endif
 
     shiz_gfx_spritebatch_reset();
@@ -144,7 +139,7 @@ shiz_gfx_end()
     }
     
 #ifdef SHIZ_DEBUG
-    shiz_gfx_debug_update_frame_stats(&_shiz_gfx_debug_frame_stats);
+    shiz_debug_update_frame_stats();
 #endif
 }
 
@@ -429,7 +424,7 @@ _shiz_gfx_render_primitive(GLenum const mode,
                          GL_DYNAMIC_DRAW);
             glDrawArrays(mode, 0, count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
 #ifdef SHIZ_DEBUG
-            shiz_gfx_debug_increment_draw_count(1);
+            shiz_debug_increment_draw_count(1);
 #endif
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -441,9 +436,9 @@ _shiz_gfx_render_primitive(GLenum const mode,
     
 #ifdef SHIZ_DEBUG
     if (origin.x == 0 && origin.y == 0 && origin.z == 0 && count > 0) {
-        shiz_debug_add_event_draw(_shiz_gfx_debug_event_primitive, vertices[0].position);
+        shiz_debug_add_event_draw(_shiz_debug_event_primitive, vertices[0].position);
     } else {
-        shiz_debug_add_event_draw(_shiz_gfx_debug_event_primitive, origin);
+        shiz_debug_add_event_draw(_shiz_debug_event_primitive, origin);
     }
 #endif
 }
@@ -472,11 +467,3 @@ _shiz_gfx_primitive_state(bool const enable)
         glDisable(GL_BLEND);
     }
 }
-
-#ifdef SHIZ_DEBUG
-SHIZDebugFrameStats
-shiz_gfx_debug_get_frame_stats()
-{
-    return _shiz_gfx_debug_frame_stats;
-}
-#endif

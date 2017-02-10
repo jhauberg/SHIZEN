@@ -12,6 +12,8 @@
 #ifdef SHIZ_DEBUG
 #include <SHIZEN/engine.h>
 
+#include <limits.h>
+
 #include "debug.h"
 #include "res.h"
 #include "io.h"
@@ -30,7 +32,25 @@ typedef struct SHIZDebugContext {
     SHIZDebugEvent events[SHIZDebugEventMax];
 } SHIZDebugContext;
 
+static void _shiz_debug_update_frame_averages(void);
+static bool _shiz_debug_load_font(void);
+
 static SHIZDebugContext _context;
+static SHIZDebugFrameStats _frame_stats;
+
+static double const _average_interval = 1.0; // in seconds
+
+static double _last_frame_time = 0;
+static double _last_average_time = 0;
+
+static unsigned int _frame_samples = 0; // sample frames to calculate average
+static unsigned int _frame_sample_count = 0;
+
+static double _frame_time = 0;
+static double _frame_time_avg = 0;
+
+static double _frame_time_samples = 0; // sample frames to calculate average
+static unsigned int _frame_time_sample_count = 0;
 
 bool
 shiz_debug_init()
@@ -40,20 +60,19 @@ shiz_debug_init()
     _context.draw_shapes = false;
     _context.draw_events = false;
     _context.event_count = 0;
-    
-    if (!shiz_res_debug_load_font(IBMCGA8x8, IBMCGA8x8Size)) {
+
+    _frame_stats.draw_count = 0;
+    _frame_stats.frame_time = 0;
+    _frame_stats.frame_time_avg = 0;
+    _frame_stats.frames_per_second = 0;
+    _frame_stats.frames_per_second_min = UINT_MAX;
+    _frame_stats.frames_per_second_max = 0;
+    _frame_stats.frames_per_second_avg = 0;
+
+    if (!_shiz_debug_load_font()) {
         return false;
     }
-    
-    SHIZSprite const sprite = shiz_get_sprite(shiz_res_debug_get_font());
-    
-    if (sprite.resource_id != SHIZResourceInvalid) {
-        SHIZSpriteFont const spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(8, 8));
-        
-        _context.font = spritefont;
-        _context.font.table.offset = IBMCGA8x8Offset;
-    }
-    
+
     return true;
 }
 
@@ -205,5 +224,98 @@ SHIZDebugEvent
 shiz_debug_get_event(unsigned int const index)
 {
     return _context.events[index];
+}
+
+void
+shiz_debug_reset_draw_count()
+{
+    _frame_stats.draw_count = 0;
+}
+
+void
+shiz_debug_increment_draw_count(unsigned int amount)
+{
+    if (shiz_debug_is_events_enabled()) {
+        _frame_stats.draw_count += amount;
+    }
+}
+
+void
+shiz_debug_update_frame_stats()
+{
+    double const time = glfwGetTime();
+    double const time_since_last_frame = time - _last_frame_time;
+
+    _frame_time = time_since_last_frame;
+    _last_frame_time = time;
+
+    _frame_stats.frames_per_second = 1.0 / _frame_time;
+
+    if (_frame_stats.frames_per_second < _frame_stats.frames_per_second_min) {
+        _frame_stats.frames_per_second_min = _frame_stats.frames_per_second;
+    }
+
+    if (_frame_stats.frames_per_second > _frame_stats.frames_per_second_max) {
+        _frame_stats.frames_per_second_max = _frame_stats.frames_per_second;
+    }
+
+    _frame_samples += _frame_stats.frames_per_second;
+    _frame_sample_count++;
+
+    _frame_time_samples += _frame_time;
+    _frame_time_sample_count++;
+
+    double const time_since_last_average = time - _last_average_time;
+
+    if (time_since_last_average >= _average_interval) {
+        _last_average_time = time;
+
+        _shiz_debug_update_frame_averages();
+    }
+
+    _frame_stats.frame_time = _frame_time * 1000;
+    _frame_stats.frame_time_avg = _frame_time_avg * 1000;
+}
+
+SHIZDebugFrameStats
+shiz_debug_get_frame_stats()
+{
+    return _frame_stats;
+}
+
+static void
+_shiz_debug_update_frame_averages()
+{
+    _frame_stats.frames_per_second_avg = _frame_samples / _frame_sample_count;
+    _frame_sample_count = 0;
+    _frame_samples = 0;
+
+    _frame_time_avg = _frame_time_samples / _frame_time_sample_count;
+    _frame_time_sample_count = 0;
+    _frame_time_samples = 0;
+
+    // reset min/max to show rolling stats rather than historically accurate stats (its more interesting
+    // knowing min/max for the current scene/context than knowing the 9999+ max fps during the first blank frame)
+    _frame_stats.frames_per_second_min = UINT_MAX;
+    _frame_stats.frames_per_second_max = 0;
+}
+
+static bool
+_shiz_debug_load_font()
+{
+    if (!shiz_res_debug_load_font(IBMCGA8x8, IBMCGA8x8Size)) {
+        return false;
+    }
+
+    SHIZSprite const sprite = shiz_get_sprite(shiz_res_debug_get_font());
+
+    if (sprite.resource_id != SHIZResourceInvalid) {
+        SHIZSpriteFont const spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(8, 8));
+
+        _context.font = spritefont;
+        _context.font.table.offset = IBMCGA8x8Offset;
+    }
+
+    return true;
 }
 #endif

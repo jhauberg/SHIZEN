@@ -221,10 +221,10 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             character_origin.x -= line.size.width;
         }
 
-        unsigned int character_index;
+        int character_index;
 
         for (character_index = 0;
-             character_index < line.character_count && text_index < text_length;
+             character_index < (int)line.character_count && text_index < text_length;
              character_index++) {
             bool const should_truncate =
                 (measurement.constrain_index != -1 &&
