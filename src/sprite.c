@@ -27,7 +27,9 @@ typedef struct SHIZSpriteInternal {
 typedef struct SHIZSpriteInternalKey {
     bool is_transparent: 1; // the least significant bit
     unsigned short texture_id: 7;
-    SHIZLayer layer; // 24 bits
+    // note that we can't just put a SHIZLayer field here as it would break the sorting
+    unsigned short layer_depth: 16;
+    unsigned short layer: 8;
 } SHIZSpriteInternalKey; // total 32 bits (unsigned long)
 
 static int _shiz_sprite_compare(const void * a, const void * b);
@@ -67,8 +69,9 @@ shiz_sprite_draw(SHIZSprite const sprite,
     unsigned long sort_key = 0;
     
     SHIZSpriteInternalKey * sprite_key = (SHIZSpriteInternalKey *)&sort_key;
-    
-    sprite_key->layer = layer;
+
+    sprite_key->layer = layer.layer;
+    sprite_key->layer_depth = layer.depth;
     sprite_key->texture_id = image.texture_id;
     sprite_key->is_transparent = !opaque;
     
@@ -161,6 +164,7 @@ _shiz_sprite_compare(const void * a, const void * b)
     } else if (lhs->key > rhs->key) {
         return 1;
     } else if (lhs->order < rhs->order) {
+        // fall back to using order of drawing if both keys are equal
         return -1;
     } else if (lhs->order > rhs->order) {
         return 1;
@@ -173,8 +177,7 @@ static void
 _shiz_sprite_sort(void)
 {
     // sort sprites based on their layer parameters, but also optimized for reduced state switching
-    qsort(_sprites,
-          _sprites_count,
+    qsort(_sprites, _sprites_count,
           sizeof(SHIZSpriteInternal),
           _shiz_sprite_compare);
     
