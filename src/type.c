@@ -65,7 +65,7 @@ SHIZSpriteSheet const SHIZSpriteSheetEmpty = {
 };
 
 SHIZSpriteSize const SHIZSpriteSizeIntrinsic = {
-    .size = { -1, -1 },
+    .target = { -1, -1 },
     .scale = SHIZSpriteNoScale
 };
 

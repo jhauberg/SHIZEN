@@ -64,7 +64,7 @@ typedef struct SHIZSpriteSheet {
 } SHIZSpriteSheet;
 
 typedef struct SHIZSpriteSize {
-    SHIZSize size;
+    SHIZSize target;
     float scale;
 } SHIZSpriteSize;
 
@@ -191,7 +191,8 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
 /**
  * @brief Do not constrain text to bounds.
  */
-#define SHIZSpriteFontSizeToFit SHIZSizeMake(SHIZSpriteSizeIntrinsic.size.width, SHIZSpriteSizeIntrinsic.size.height) 
+#define SHIZSpriteFontSizeToFit SHIZSizeMake(SHIZSpriteSizeIntrinsic.target.width, \
+                                             SHIZSpriteSizeIntrinsic.target.height)
 /**
  * @brief Do not constrain text to horizontal bounds.
  */
@@ -311,7 +312,7 @@ SHIZSpriteSized(SHIZSize const size, float const scale)
 {
     SHIZSpriteSize sprite_size;
 
-    sprite_size.size = size;
+    sprite_size.target = size;
     sprite_size.scale = scale;
 
     return sprite_size;
