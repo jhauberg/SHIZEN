@@ -320,6 +320,7 @@ shiz_get_sprite_sheet(SHIZSprite const resource, SHIZSize const sprite_size)
     
     spritesheet.columns = resource.source.size.width / sprite_size.width;
     spritesheet.rows = resource.source.size.height / sprite_size.height;
+    spritesheet.sprite_padding = SHIZSizeZero;
 
     return spritesheet;
 }
