@@ -25,6 +25,7 @@ void shiz_sprite_flush(void);
 SHIZSize const shiz_sprite_draw(SHIZSprite const sprite,
                                 SHIZVector2 const origin,
                                 SHIZSize const size,
+                                float const scale,
                                 SHIZVector2 const anchor,
                                 float const angle,
                                 SHIZColor const tint,

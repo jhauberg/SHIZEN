@@ -123,6 +123,7 @@ SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
 SHIZSize shiz_draw_sprite_ex(SHIZSprite const sprite,
                              SHIZVector2 const origin,
                              SHIZSize const size,
+                             float const scale,
                              SHIZVector2 const anchor,
                              float const angle,
                              SHIZColor const tint,

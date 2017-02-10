@@ -157,6 +157,7 @@ extern SHIZVector2 const SHIZAnchorTopRight;
 extern SHIZVector2 const SHIZAnchorRight;
 extern SHIZVector2 const SHIZAnchorBottomRight;
 
+#define SHIZSpriteNoScale 1
 /**
  * @brief Do not apply rotation.
  */

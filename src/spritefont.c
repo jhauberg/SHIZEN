@@ -315,7 +315,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                                                         (font.character.height * character_row));
 
                     shiz_sprite_draw(character_sprite, character_origin,
-                                     measurement.character_size,
+                                     measurement.character_size, SHIZSpriteNoScale,
                                      SHIZAnchorTopLeft, SHIZSpriteNoAngle,
                                      highlight_color, SHIZSpriteNoRepeat, false,
                                      layer);

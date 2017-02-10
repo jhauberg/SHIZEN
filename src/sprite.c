@@ -45,6 +45,7 @@ SHIZSize const
 shiz_sprite_draw(SHIZSprite const sprite,
                  SHIZVector2 const origin,
                  SHIZSize const size,
+                 float const scale,
                  SHIZVector2 const anchor,
                  float const angle,
                  SHIZColor const tint,
@@ -79,14 +80,18 @@ shiz_sprite_draw(SHIZSprite const sprite,
     sprite_internal->order = _sprites_count_total;
 
     SHIZSize const texture_size = SHIZSizeMake(image.width, image.height);
-    SHIZSize const sprite_size = (size.width == SHIZSpriteSizeIntrinsic.width &&
-                                  size.height == SHIZSpriteSizeIntrinsic.height) ?
-                                    sprite.source.size : size;
-    
+
+    SHIZSize const source_size = SHIZSizeMake(size.width == SHIZSpriteSizeIntrinsic.width ?
+                                                sprite.source.size.width : size.width,
+                                              size.height == SHIZSpriteSizeIntrinsic.height ?
+                                                sprite.source.size.height : size.height);
+    SHIZSize const destination_size = SHIZSizeMake(source_size.width * scale,
+                                                   source_size.height * scale);
+
     // set vertex positions appropriately for the given anchor (note that vertices are not transformed until flushed)
-    _shiz_sprite_set_position(sprite_internal, sprite_size, anchor);
+    _shiz_sprite_set_position(sprite_internal, destination_size, anchor);
     // set texture coordinates appropriately, taking repeating/tiling into account
-    _shiz_sprite_set_uv(sprite_internal, sprite_size, texture_size, sprite.source, tint, repeat);
+    _shiz_sprite_set_uv(sprite_internal, destination_size, texture_size, sprite.source, tint, repeat);
 
     // count for current batch
     _sprites_count += 1;
@@ -97,7 +102,7 @@ shiz_sprite_draw(SHIZSprite const sprite,
         shiz_sprite_flush();
     }
 
-    return sprite_size;
+    return destination_size;
 }
 
 SHIZRect const

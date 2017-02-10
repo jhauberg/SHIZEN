@@ -293,11 +293,12 @@ shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin)
 {
     return shiz_draw_sprite_ex(sprite, origin,
                                SHIZSpriteSizeIntrinsic,
+                               SHIZSpriteNoScale,
                                SHIZAnchorCenter,
                                SHIZSpriteNoAngle,
                                SHIZSpriteNoTint,
                                SHIZSpriteNoRepeat,
-                               false,
+                               SHIZSpriteNotOpaque,
                                SHIZLayerDefault);
 }
 
@@ -305,6 +306,7 @@ SHIZSize
 shiz_draw_sprite_ex(SHIZSprite const sprite,
                     SHIZVector2 const origin,
                     SHIZSize const size,
+                    float const scale,
                     SHIZVector2 const anchor,
                     float const angle,
                     SHIZColor const tint,
@@ -312,7 +314,7 @@ shiz_draw_sprite_ex(SHIZSprite const sprite,
                     bool const opaque,
                     SHIZLayer const layer)
 {
-    SHIZSize const sprite_size = shiz_sprite_draw(sprite, origin, size,
+    SHIZSize const sprite_size = shiz_sprite_draw(sprite, origin, size, scale,
                                                   anchor, angle, tint,
                                                   repeat, opaque,
                                                   layer);
