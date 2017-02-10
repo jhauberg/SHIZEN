@@ -64,7 +64,10 @@ SHIZSpriteSheet const SHIZSpriteSheetEmpty = {
     }
 };
 
-SHIZSize const SHIZSpriteSizeIntrinsic = { -1, -1 };
+SHIZSpriteSize const SHIZSpriteSizeIntrinsic = {
+    .size = { -1, -1 },
+    .scale = SHIZSpriteNoScale
+};
 
 SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault = {
     .scale = { 1, 1 },

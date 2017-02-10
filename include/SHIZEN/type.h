@@ -63,6 +63,11 @@ typedef struct SHIZSpriteSheet {
     SHIZSize sprite_padding;
 } SHIZSpriteSheet;
 
+typedef struct SHIZSpriteSize {
+    SHIZSize size;
+    float scale;
+} SHIZSpriteSize;
+
 typedef enum SHIZSpriteFontAlignment {
     SHIZSpriteFontAlignmentTop = 1,
     SHIZSpriteFontAlignmentLeft = 2,
@@ -145,7 +150,7 @@ extern SHIZSpriteSheet const SHIZSpriteSheetEmpty;
 /**
  * @brief Size a sprite to its intrinsic (or natural) size.
  */
-extern SHIZSize const SHIZSpriteSizeIntrinsic;
+extern SHIZSpriteSize const SHIZSpriteSizeIntrinsic;
 
 extern SHIZVector2 const SHIZAnchorCenter;
 extern SHIZVector2 const SHIZAnchorTop;
@@ -186,7 +191,7 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
 /**
  * @brief Do not constrain text to bounds.
  */
-#define SHIZSpriteFontSizeToFit SHIZSpriteSizeIntrinsic
+#define SHIZSpriteFontSizeToFit SHIZSizeMake(SHIZSpriteSizeIntrinsic.size.width, SHIZSpriteSizeIntrinsic.size.height) 
 /**
  * @brief Do not constrain text to horizontal bounds.
  */
@@ -216,7 +221,8 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
 // can be inlined at a benefit; think of it as the body of the function being put in place of the call
 // so larger functions that do more than just initialize a struct shold not be inlined
 static inline SHIZVector2 const
-SHIZVector2Make(float const x, float const y) {
+SHIZVector2Make(float const x, float const y)
+{
     SHIZVector2 const vector = {
         x, y
     };
@@ -225,7 +231,8 @@ SHIZVector2Make(float const x, float const y) {
 }
 
 static inline SHIZVector3 const
-SHIZVector3Make(float const x, float const y, float const z) {
+SHIZVector3Make(float const x, float const y, float const z)
+{
     SHIZVector3 const vector = {
         x, y, z
     };
@@ -234,7 +241,8 @@ SHIZVector3Make(float const x, float const y, float const z) {
 }
 
 static inline SHIZSize const
-SHIZSizeMake(float const width, float const height) {
+SHIZSizeMake(float const width, float const height)
+{
     SHIZSize const size = {
         width, height
     };
@@ -243,7 +251,8 @@ SHIZSizeMake(float const width, float const height) {
 }
 
 static inline SHIZRect const
-SHIZRectMake(SHIZVector2 origin, SHIZSize size) {
+SHIZRectMake(SHIZVector2 origin, SHIZSize size)
+{
     SHIZRect const rect = {
         origin, size
     };
@@ -252,7 +261,8 @@ SHIZRectMake(SHIZVector2 origin, SHIZSize size) {
 }
 
 static inline SHIZRect const
-SHIZRectMakeEx(float const x, float const y, float const width, float const height) {
+SHIZRectMakeEx(float const x, float const y, float const width, float const height)
+{
     return SHIZRectMake(SHIZVector2Make(x, y),
                         SHIZSizeMake(width, height));
 }
@@ -261,7 +271,8 @@ static inline SHIZColor const
 SHIZColorMake(float const r,
               float const g,
               float const b,
-              float const alpha) {
+              float const alpha)
+{
     SHIZColor const color = {
         r, g, b, alpha
     };
@@ -270,7 +281,8 @@ SHIZColorMake(float const r,
 }
 
 static inline SHIZColor const
-SHIZColorFromHex(int const value) {
+SHIZColorFromHex(int const value)
+{
     SHIZColor const color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
                                           ((value >> 8) & 0xFF) / 255.0f,
                                           ((value >> 0) & 0xFF) / 255.0f, 1);
@@ -279,7 +291,8 @@ SHIZColorFromHex(int const value) {
 }
 
 static inline SHIZColor const
-SHIZColorWithAlpa(SHIZColor const color, float const alpha) {
+SHIZColorWithAlpa(SHIZColor const color, float const alpha)
+{
     SHIZColor result_color = color;
 
     result_color.alpha = alpha;
@@ -288,13 +301,36 @@ SHIZColorWithAlpa(SHIZColor const color, float const alpha) {
 }
 
 static inline SHIZColor const
-SHIZSpriteTintDefaultWithAlpa(float const alpha) {
+SHIZSpriteTintDefaultWithAlpa(float const alpha)
+{
     return SHIZColorWithAlpa(SHIZSpriteNoTint, alpha);
+}
+
+static inline SHIZSpriteSize const
+SHIZSpriteSized(SHIZSize const size, float const scale)
+{
+    SHIZSpriteSize sprite_size;
+
+    sprite_size.size = size;
+    sprite_size.scale = scale;
+
+    return sprite_size;
+}
+
+static inline SHIZSpriteSize const
+SHIZSpriteSizedIntrinsicallyWithScale(float const scale)
+{
+    SHIZSpriteSize size = SHIZSpriteSizeIntrinsic;
+
+    size.scale = scale;
+
+    return size;
 }
 
 static inline SHIZSpriteFontAttributes const
 SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
-                                         SHIZSpriteFontWrapMode const wrap) {
+                                         SHIZSpriteFontWrapMode const wrap)
+{
     SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault;
 
     attrs.scale = SHIZVector2Make(scale, scale);
@@ -304,12 +340,14 @@ SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
 }
 
 static inline SHIZSpriteFontAttributes const
-SHIZSpriteFontAttributesWithScale(float const scale) {
+SHIZSpriteFontAttributesWithScale(float const scale)
+{
     return SHIZSpriteFontAttributesWithScaleAndWrap(scale, SHIZSpriteFontAttributesDefault.wrap);
 }
 
 static inline SHIZSpriteFontAttributes const
-SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap) {
+SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap)
+{
     return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteFontAttributesDefault.scale.x, wrap);
 }
 

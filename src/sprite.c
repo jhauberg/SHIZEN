@@ -46,8 +46,7 @@ static SHIZSpriteInternal _sprites[SHIZSpriteInternalMax];
 SHIZSize const
 shiz_sprite_draw(SHIZSprite const sprite,
                  SHIZVector2 const origin,
-                 SHIZSize const size,
-                 float const scale,
+                 SHIZSpriteSize const size,
                  SHIZVector2 const anchor,
                  float const angle,
                  SHIZColor const tint,
@@ -84,12 +83,12 @@ shiz_sprite_draw(SHIZSprite const sprite,
 
     SHIZSize const texture_size = SHIZSizeMake(image.width, image.height);
 
-    SHIZSize const source_size = SHIZSizeMake(size.width == SHIZSpriteSizeIntrinsic.width ?
-                                                sprite.source.size.width : size.width,
-                                              size.height == SHIZSpriteSizeIntrinsic.height ?
-                                                sprite.source.size.height : size.height);
-    SHIZSize const destination_size = SHIZSizeMake(source_size.width * scale,
-                                                   source_size.height * scale);
+    SHIZSize const source_size = SHIZSizeMake(size.size.width == SHIZSpriteSizeIntrinsic.size.width ?
+                                                sprite.source.size.width : size.size.width,
+                                              size.size.height == SHIZSpriteSizeIntrinsic.size.height ?
+                                                sprite.source.size.height : size.size.height);
+    SHIZSize const destination_size = SHIZSizeMake(source_size.width * size.scale,
+                                                   source_size.height * size.scale);
 
     // set vertex positions appropriately for the given anchor (note that vertices are not transformed until flushed)
     _shiz_sprite_set_position(sprite_internal, destination_size, anchor);
