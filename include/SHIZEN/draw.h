@@ -97,7 +97,7 @@ SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
  *        The location where the sprite will be drawn
  * @param size
  *        The size to draw the sprite with (unless `repeat` is true, the sprite is scaled to fit).
- *        Use `SHIZSpriteSizeIntrinsic` to automatically set the size intrinsic to the sprite.
+ *        Use `SHIZSpriteSizeIntrinsic` to draw this sprite at its default size.
  * @param anchor
  *        Sets an anchor that defines where on the sprite the origin is.
  *        The anchor also defines the pivot point for any applied rotation.

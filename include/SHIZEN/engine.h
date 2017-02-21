@@ -24,6 +24,7 @@
 typedef struct SHIZWindowSettings {
     /** The title of the window */
     const char * title;
+    const char * description;
     /** Determines whether the window should be fullscreen initially */
     bool fullscreen;
     /** Determines whether v-sync should be enabled */

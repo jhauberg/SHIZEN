@@ -115,7 +115,7 @@ shiz_gfx_init_spritebatch()
     "    texture_coord_max = vertex_texture_coord_max.st;\n"
     "    tint_color = vertex_color;\n"
     "}\n";
-    
+
     const char * fragment_shader =
     "#version 330 core\n"
     "in vec2 texture_coord;\n"
@@ -126,7 +126,7 @@ shiz_gfx_init_spritebatch()
     "uniform sampler2D sampler;\n"
     "layout (location = 0) out vec4 fragment_color;\n"
     "void main() {\n"
-    "    vec2 rollover_texture_coord = mod(texture_coord_min - texture_coord,"
+    "    vec2 rollover_texture_coord = mod(texture_coord_min - texture_coord,\n"
     "                                      texture_coord_max - texture_coord_min);\n"
     "    vec2 repeated_texture_coord = texture_coord_max - rollover_texture_coord;\n"
     "    vec4 sampled_color = texture(sampler, repeated_texture_coord.st);\n"
@@ -135,8 +135,8 @@ shiz_gfx_init_spritebatch()
     "    } else {\n"
     "        fragment_color = sampled_color * tint_color;\n"
     "    }\n"
-    "}\n";
-    
+    "}";
+
     GLuint vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
     GLuint fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
     
