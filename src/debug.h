@@ -53,6 +53,7 @@ void shiz_debug_set_events_enabled(bool const enabled);
 
 SHIZSpriteFont shiz_debug_get_font(void);
 SHIZDebugEvent shiz_debug_get_event(unsigned int const index);
+
 unsigned int shiz_debug_get_event_count(void);
 
 void shiz_debug_reset_events(void);
@@ -63,6 +64,7 @@ void shiz_debug_add_event_draw(const char * const cause, SHIZVector3 const origi
 void shiz_debug_reset_draw_count(void);
 void shiz_debug_increment_draw_count(unsigned int amount);
 void shiz_debug_update_frame_stats(void);
+
 SHIZDebugFrameStats shiz_debug_get_frame_stats(void);
 
 #endif // debug_h

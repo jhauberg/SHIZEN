@@ -546,8 +546,8 @@ _shiz_glfw_create_window(SHIZWindowSettings const settings)
     return true;
 }
 
-static
-SHIZSize _shiz_glfw_get_window_size()
+static SHIZSize
+_shiz_glfw_get_window_size()
 {
     int window_width;
     int window_height;
@@ -557,8 +557,8 @@ SHIZSize _shiz_glfw_get_window_size()
     return SHIZSizeMake(window_width, window_height);
 }
 
-static
-SHIZSize _shiz_glfw_get_framebuffer_size()
+static SHIZSize
+_shiz_glfw_get_framebuffer_size()
 {
     int framebuffer_width;
     int framebuffer_height;

@@ -38,7 +38,7 @@ static bool _shiz_debug_load_font(void);
 static SHIZDebugContext _context;
 static SHIZDebugFrameStats _frame_stats;
 
-static double const _average_interval = 1.0; // in seconds
+static double const _frame_average_interval = 1.0; // in seconds
 
 static double _last_frame_time = 0;
 static double _last_average_time = 0;
@@ -80,7 +80,7 @@ bool
 shiz_debug_kill()
 {
     _context.is_enabled = false;
-    
+
     if (!shiz_res_debug_unload_font()) {
         return false;
     }
@@ -267,7 +267,7 @@ shiz_debug_update_frame_stats()
 
     double const time_since_last_average = time - _last_average_time;
 
-    if (time_since_last_average >= _average_interval) {
+    if (time_since_last_average >= _frame_average_interval) {
         _last_average_time = time;
 
         _shiz_debug_update_frame_averages();
