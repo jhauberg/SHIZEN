@@ -16,6 +16,28 @@
 #include <math.h>
 #include <string.h>
 
+static inline unsigned int const
+_shiz_get_char_size(char const character)
+{
+    int bits = 7;
+    unsigned int size = 0;
+
+    while (bits >= 0) {
+        if (!((character >> bits) & 1)) {
+            break;
+        }
+
+        size += 1;
+        bits -= 1;
+    }
+
+    if (size == 0) {
+        size = sizeof(char);
+    }
+
+    return size; // in bytes
+}
+
 SHIZSpriteFontMeasurement const
 shiz_sprite_measure_text(SHIZSpriteFont const font,
                          const char * const text,
@@ -54,17 +76,18 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     char const whitespace_character = ' ';
     char const newline_character = '\n';
 
-    const char * text_ptr = text;
-
     bool const skip_leading_whitespace = (attributes.wrap == SHIZSpriteFontWrapModeWord &&
                                           !font.includes_whitespace);
+
     bool current_line_has_leading_whitespace = false;
     bool next_line_has_leading_whitespace = false;
 
-    while (*text_ptr) {
-        char character = *text_ptr;
+    const char * text_ptr = text;
 
-        text_ptr += 1;
+    while (*text_ptr) {
+        int character = *text_ptr;
+
+        text_ptr += _shiz_get_char_size(character);
 
         bool const break_line_explicit = character == newline_character;
         bool const break_line_required = (measurement.constrain_horizontally &&
@@ -76,7 +99,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             if (break_line_required && attributes.wrap == SHIZSpriteFontWrapModeWord) {
                 // backtrack until finding a whitespace
                 while (*text_ptr) {
-                    text_ptr -= 1;
+                    text_ptr -= _shiz_get_char_size(character);
                     text_index -= 1;
 
                     character = *text_ptr;
@@ -212,6 +235,8 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
 
     SHIZColor highlight_color = tint;
 
+    const char * text_ptr = text;
+
     for (unsigned int line_index = 0; line_index < measurement.line_count; line_index++) {
         SHIZSpriteFontLine const line = measurement.lines[line_index];
 
@@ -234,8 +259,9 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 measurement.constrain_index != -1 &&
                 (unsigned int)measurement.constrain_index == text_index;
 
-            char const character = should_truncate ? truncation_character : text[text_index];
+            int const character = should_truncate ? truncation_character : *text_ptr;
 
+            text_ptr += _shiz_get_char_size(character);
             text_index += 1;
 
             if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
