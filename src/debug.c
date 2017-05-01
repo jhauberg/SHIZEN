@@ -303,7 +303,7 @@ _shiz_debug_update_frame_averages()
 static bool
 _shiz_debug_load_font()
 {
-    if (!shiz_res_debug_load_font(IBMCGA8x8, IBMCGA8x8Size)) {
+    if (!shiz_res_debug_load_font(IBM8x8, IBM8x8Size)) {
         return false;
     }
 
@@ -313,7 +313,7 @@ _shiz_debug_load_font()
         SHIZSpriteFont const spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(8, 8));
 
         _context.font = spritefont;
-        _context.font.table.offset = IBMCGA8x8Offset;
+        _context.font.table.offset = IBM8x8Offset;
     }
 
     return true;
