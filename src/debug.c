@@ -310,10 +310,10 @@ _shiz_debug_load_font()
     SHIZSprite const sprite = shiz_get_sprite(shiz_res_debug_get_font());
 
     if (sprite.resource_id != SHIZResourceInvalid) {
-        SHIZSpriteFont const spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(8, 8));
+        SHIZSpriteFont const spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(IBM8x8TileSize, IBM8x8TileSize));
 
         _context.font = spritefont;
-        _context.font.table.offset = IBM8x8Offset;
+        _context.font.table.codepage = IBM8x8Codepage;
     }
 
     return true;

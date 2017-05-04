@@ -483,7 +483,7 @@ _shiz_debug_build_stats()
     sprintf(_shiz_debug_stats_buffer,
             "%s\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
-            "\2%d fps\1 (\3%d\x19\1 \4%d\x12\1 \5%d\x18\1)\n\n"
+            "\2%d fps\1 (\3%d↓\1 \4%d↕\1 \5%d↑\1)\n\n"
             "%c%d/%d sprites/frame\1\n"
             "\2%d draws/frame\1\n\n"
             "\2%.1fx time\1",
@@ -591,7 +591,7 @@ _shiz_debug_draw_stats()
     sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (%s)",
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
             SHIZEN_VERSION_NAME, __DATE__);
-    
+
     shiz_draw_sprite_text_ex(shiz_debug_get_font(),
                              version_buffer,
                              SHIZVector2Make(margin / 2, margin / 2),

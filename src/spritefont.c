@@ -14,28 +14,33 @@
 #include "sprite.h"
 
 #include <math.h>
-#include <string.h>
 
-static inline unsigned int const
-_shiz_get_char_size(char const character)
+static unsigned int
+utf8_decode(const char * str, unsigned int * i)
 {
-    int bits = 7;
-    unsigned int size = 0;
+    const unsigned char *s = (const unsigned char *)str;
 
-    while (bits >= 0) {
-        if (!((character >> bits) & 1)) {
-            break;
+    int u = *s, l = 1;
+
+    if (((u) & 0xc0) == 0xc0) {
+        int a = (u & 0x20) ? ((u & 0x10) ? ((u & 0x08) ? ((u & 0x04) ? 6 : 5) : 4) : 3) : 2;
+
+        if (a < 6 || !(u & 0x02)) {
+            int b = 0;
+
+            u = ((u << (a + 1)) & 0xff) >> (a + 1);
+
+            for (b = 1; b < a; ++b) {
+                u = (u << 6) | (s[l++] & 0x3f);
+            }
         }
-
-        size += 1;
-        bits -= 1;
     }
 
-    if (size == 0) {
-        size = sizeof(char);
+    if (i) {
+        *i = l;
     }
 
-    return size; // in bytes
+    return u;
 }
 
 SHIZSpriteFontMeasurement const
@@ -85,9 +90,12 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     const char * text_ptr = text;
 
     while (*text_ptr) {
-        int character = *text_ptr;
+        char character = *text_ptr;
+        unsigned int character_size = 0;
 
-        text_ptr += _shiz_get_char_size(character);
+        utf8_decode(text_ptr, &character_size);
+
+        text_ptr += character_size;
 
         bool const break_line_explicit = character == newline_character;
         bool const break_line_required = (measurement.constrain_horizontally &&
@@ -99,8 +107,10 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             if (break_line_required && attributes.wrap == SHIZSpriteFontWrapModeWord) {
                 // backtrack until finding a whitespace
                 while (*text_ptr) {
-                    text_ptr -= _shiz_get_char_size(character);
+                    text_ptr -= character_size;
                     text_index -= 1;
+
+                    utf8_decode(text_ptr, &character_size);
 
                     character = *text_ptr;
 
@@ -229,7 +239,6 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
     }
 
     unsigned int text_index = 0;
-    unsigned long const text_length = strlen(text);
 
     bool break_from_truncation = false;
 
@@ -249,7 +258,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
         int character_index;
 
         for (character_index = 0;
-             character_index < (int)line.character_count && text_index < text_length;
+             character_index < (int)line.character_count;
              character_index++) {
             bool const should_truncate =
                 (measurement.constrain_index != -1 &&
@@ -259,9 +268,15 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 measurement.constrain_index != -1 &&
                 (unsigned int)measurement.constrain_index == text_index;
 
-            int const character = should_truncate ? truncation_character : *text_ptr;
+            char const character = should_truncate ?
+                truncation_character : *text_ptr;
 
-            text_ptr += _shiz_get_char_size(character);
+            unsigned int character_size = 0;
+            // for special characters we need to find the character decimal value
+            // so that we can later look up the proper index in the font codepage
+            unsigned int character_decimal = utf8_decode(text_ptr, &character_size);
+
+            text_ptr += character_size;
             text_index += 1;
 
             if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
@@ -294,10 +309,24 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 continue;
             }
 
-            int character_table_index = (unsigned char)character - font.table.offset;
+            unsigned int const table_size = font.table.columns * font.table.rows;
+
+            int character_table_index = -1;
+            
+            if (font.table.codepage != 0) {
+                for (unsigned int i = 0; i < table_size; i++) {
+                    if (font.table.codepage[i] == character_decimal) {
+                        character_table_index = i;
+                        
+                        break;
+                    }
+                }
+            } else {
+                character_table_index = (unsigned char)character;
+            }
 
             if (character_table_index < 0 ||
-                character_table_index > (int)(font.table.columns * font.table.rows)) {
+                character_table_index > (int)table_size) {
                 character_table_index = -1;
             }
 

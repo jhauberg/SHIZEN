@@ -144,6 +144,8 @@ shiz_startup(SHIZWindowSettings const settings)
         shiz_io_error_context("GLFW", "(%s) failed to initialize", glfwGetVersionString());
 
         return false;
+    } else {
+        printf(" Using GLFW %s\n\n", glfwGetVersionString());
     }
 
     if (!_shiz_glfw_create_window(settings)) {
@@ -395,8 +397,8 @@ shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character)
 
     table.columns = sprite.source.size.width / character.width;
     table.rows = sprite.source.size.height / character.height;
-    table.offset = 0;
-
+    table.codepage = 0;
+    
     return shiz_get_sprite_font_ex(sprite, character, table);
 }
 
@@ -463,7 +465,7 @@ _shiz_intro(const char * description)
         printf("%s\n", description);
     }
 
-    printf("\n");
+    printf(" ----------------\n");
 }
 
 static void

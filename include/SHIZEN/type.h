@@ -85,8 +85,7 @@ typedef enum SHIZSpriteFontWrapMode {
 typedef struct SHIZSpriteFontTable {
     unsigned int columns;
     unsigned int rows;
-    /** An offset to align the table with the standard ASCII table */
-    unsigned int offset;
+    const unsigned int * codepage;
 } SHIZSpriteFontTable;
 
 /**
