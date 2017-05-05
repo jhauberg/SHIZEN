@@ -14,6 +14,9 @@
 
 #include "internal.h"
 
+/**
+ * The amount of sprites that can be batched until a draw call is issued.
+ */
 #define SHIZSpriteInternalMax 2048
 
 SHIZRect const shiz_sprite_get_anchored_rect(SHIZSize const size,

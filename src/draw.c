@@ -46,7 +46,7 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                           float const angle,
                                           SHIZLayer const layer);
 
-static char _shiz_debug_stats_buffer[256];
+static char _shiz_debug_stats_buffer[256] = { 0 };
 #endif
 
 void
@@ -464,7 +464,8 @@ _shiz_debug_build_stats()
     SHIZViewport const viewport = shiz_get_viewport();
     
     char const sprite_count_tint_specifier =
-        shiz_debug_get_sprite_count() > SHIZSpriteInternalMax ? '\3' : '\2';
+        shiz_debug_get_sprite_count() > SHIZSpriteInternalMax ?
+            '\3' : '\2';
     
     char display_size_buffer[32] = { 0 };
     
@@ -588,7 +589,7 @@ _shiz_debug_draw_stats()
                                      attrs, layer,
                                      highlight_colors, 4);
 
-    char version_buffer[128];
+    char version_buffer[128] = { 0 };
 
     sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (%s)",
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
