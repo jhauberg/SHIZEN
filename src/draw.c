@@ -559,6 +559,8 @@ _shiz_debug_draw_stats()
 {
     SHIZLayer const layer = SHIZLayeredBelow(SHIZLayerTop);
 
+    SHIZSpriteFont const spritefont = shiz_debug_get_font();
+
     unsigned int const margin = 8;
 
     SHIZColor highlight_colors[] = {
@@ -578,7 +580,7 @@ _shiz_debug_draw_stats()
         attrs.character_spread = SHIZSpriteFontSpreadTight;
     }
     
-    shiz_draw_sprite_text_ex_colored(shiz_debug_get_font(),
+    shiz_draw_sprite_text_ex_colored(spritefont,
                                      _shiz_debug_stats_buffer,
                                      stats_text_origin,
                                      SHIZSpriteFontAlignmentTop | SHIZSpriteFontAlignmentRight,
@@ -592,7 +594,7 @@ _shiz_debug_draw_stats()
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
             SHIZEN_VERSION_NAME, __DATE__);
 
-    shiz_draw_sprite_text_ex(shiz_debug_get_font(),
+    shiz_draw_sprite_text_ex(spritefont,
                              version_buffer,
                              SHIZVector2Make(margin / 2, margin / 2),
                              SHIZSpriteFontAlignmentBottom | SHIZSpriteFontAlignmentLeft,
