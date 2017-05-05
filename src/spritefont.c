@@ -52,7 +52,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     SHIZSpriteFontMeasurement measurement;
 
     measurement.size = SHIZSizeZero;
-    measurement.constrain_index = -1; // no truncation
+    measurement.max_characters = -1; // no truncation
 
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
@@ -73,7 +73,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
     float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
 
-    unsigned int text_index = 0;
+    unsigned int character_count = 0;
     unsigned int line_index = 0;
     unsigned int line_character_count = 0;
     unsigned int line_character_ignored_count = 0;
@@ -108,7 +108,8 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
                 // backtrack until finding a whitespace
                 while (*text_ptr) {
                     text_ptr -= character_size;
-                    text_index -= 1;
+                    
+                    character_count -= 1;
 
                     utf8_decode(text_ptr, &character_size);
 
@@ -126,7 +127,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
                         break;
                     }
                     
-                    if (text_index == 0) {
+                    if (character_count == 0) {
                         // additional safety measure
                         break;
                     }
@@ -160,7 +161,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         if (measurement.constrain_vertically) {
             if (line_index + 1 > measurement.max_lines_in_bounds) {
                 // it was actually the previous character that caused a linebreak
-                measurement.constrain_index = text_index - 1;
+                measurement.max_characters = character_count - 1;
 
                 break;
             }
@@ -172,9 +173,9 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             line_character_ignored_count += 1;
         }
 
-        // leave a space even if the character was not found
         line_character_count += 1;
-
+        character_count += 1;
+        
         unsigned int character_count_perceived = line_character_count - line_character_ignored_count;
 
         if (skip_leading_whitespace && current_line_has_leading_whitespace) {
@@ -184,8 +185,6 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         measurement.lines[line_index].size.width = character_count_perceived * measurement.character_size_perceived.width;
         measurement.lines[line_index].size.height = line_height;
         measurement.lines[line_index].character_count = line_character_count;
-
-        text_index += 1;
     }
 
     measurement.line_count = line_index + 1;
@@ -224,6 +223,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                                                                            attributes);
 
     unsigned int const truncation_length = 3;
+    
     char const truncation_character = '.';
     char const whitespace_character = ' ';
     char const newline_character = '\n';
@@ -238,7 +238,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
         character_origin.y += measurement.size.height;
     }
 
-    unsigned int text_index = 0;
+    unsigned int character_count = 0;
 
     bool break_from_truncation = false;
 
@@ -261,12 +261,12 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
              character_index < (int)line.character_count;
              character_index++) {
             bool const should_truncate =
-                (measurement.constrain_index != -1 &&
-                 text_index > (measurement.constrain_index - truncation_length));
+                (measurement.max_characters != -1 &&
+                 character_count > (measurement.max_characters - truncation_length));
 
             break_from_truncation =
-                measurement.constrain_index != -1 &&
-                (unsigned int)measurement.constrain_index == text_index;
+                measurement.max_characters != -1 &&
+                (unsigned int)measurement.max_characters == character_count;
 
             char const character = should_truncate ?
                 truncation_character : *text_ptr;
@@ -277,7 +277,8 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             unsigned int character_decimal = utf8_decode(text_ptr, &character_size);
 
             text_ptr += character_size;
-            text_index += 1;
+            
+            character_count += 1;
 
             if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
                 character == '\5' || character == '\6' || character == '\7') {
@@ -289,6 +290,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                     int const highlight_color_index = character - 2;
 
                     if (highlight_color_index < 0) {
+                        // reset to original tint
                         highlight_color = tint;
                     } else {
                         if (highlight_color_index < (int)highlight_color_count) {
@@ -338,19 +340,26 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             bool character_takes_space = true;
 
             if (is_leading_whitespace && skip_leading_whitespace) {
+                // this character probably shouldn't take up any space;
+                // however, in some cases, a leading whitespace is intentional,
+                // so we try to determine that by stepping backwards:
+                // the index has already been incremented once, so we have to step back by 2
+
                 character_takes_space = false;
 
-                // however, in some cases, a leading whitespace is intentional, so we
-                // try to determine that by stepping backwards:
-                // the index has already been incremented once, so we have to step back by 2
-                int const previous_text_index = text_index - 2;
+                int const previous_text_index = character_count - 2;
 
                 if (previous_text_index >= 0) {
+                    // note that we don't care about character byte sizes here;
+                    // we might stumble into the back-end of a larger character
+                    // by stepping back like this, but it doesn't matter, as we're
+                    // only interested in knowing whether it's a newline or not
                     char const previous_character = text[previous_text_index];
 
                     if (previous_character == newline_character) {
                         // the previous character was an explicit line-break,
-                        // so the leading whitespace is probably intentional and should appear
+                        // so the leading whitespace is probably intentional
+                        // and should appear
                         character_takes_space = true;
                     }
                 }

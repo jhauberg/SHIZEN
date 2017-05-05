@@ -45,7 +45,7 @@ typedef struct SHIZSpriteFontMeasurement {
      forcing linebreaks if possible; truncates otherwise */
     bool constrain_vertically;
     /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
-    int constrain_index;
+    int max_characters;
 } SHIZSpriteFontMeasurement;
 
 SHIZSpriteFontMeasurement const shiz_sprite_measure_text(SHIZSpriteFont const font,
