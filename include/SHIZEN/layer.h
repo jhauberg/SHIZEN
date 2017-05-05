@@ -17,8 +17,8 @@ typedef struct SHIZLayer {
     unsigned short layer: 8;
 } SHIZLayer;
 
-extern SHIZLayer const SHIZLayerTop;
-extern SHIZLayer const SHIZLayerBottom;
+extern SHIZLayer const SHIZLayerTop; // max
+extern SHIZLayer const SHIZLayerBottom; // min
 
 #define SHIZLayerMin 0
 #define SHIZLayerMax 255 // UCHAR_MAX
