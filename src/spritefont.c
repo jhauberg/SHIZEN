@@ -81,7 +81,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     char const whitespace_character = ' ';
     char const newline_character = '\n';
 
-    bool const skip_leading_whitespace = (attributes.wrap == SHIZSpriteFontWrapModeWord &&
+    bool const skip_leading_whitespace = (/*attributes.wrap == SHIZSpriteFontWrapModeWord &&*/
                                           !font.includes_whitespace);
 
     bool current_line_has_leading_whitespace = false;
@@ -150,7 +150,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             current_line_has_leading_whitespace = next_line_has_leading_whitespace;
 
             if (measurement.constrain_vertically) {
-                if (line_index + 1 > measurement.max_lines_in_bounds) {
+                if (line_index + 1 >= measurement.max_lines_in_bounds) {
                     measurement.max_characters = character_count;
 
                     break;
