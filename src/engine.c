@@ -21,23 +21,6 @@
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
 #define SHIZ_MIN_OPENGL_VERSION_MINOR 3
 
-typedef struct SHIZGraphicsContext {
-    /** Determines whether the context has been initialized */
-    bool is_initialized;
-    /** Determines whether the context has focus */
-    bool is_focused;
-    /** Determines whether a shutdown should be initiated */
-    bool should_finish;
-    /** The operating resolution; the display may be boxed if necessary */
-    SHIZSize native_size;
-    /** The actual display size; essentially operating size ⨉ pixel size */
-    SHIZSize display_size;
-    /** The size of each pixel; must be higher than 0 */
-    unsigned int pixel_size;
-    /** A reference to the current window */
-    GLFWwindow * window;
-} SHIZGraphicsContext;
-
 const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .title = "SHIZEN",
     .description = NULL,
@@ -84,16 +67,14 @@ static void _shiz_intro_gl(void);
 
 static SHIZVector2 _shiz_glfw_window_position;
 
-static SHIZGraphicsContext _context;
+SHIZGraphicsContext _context;
 
 static void
 key_callback(GLFWwindow * const window, int key, int scancode, int action, int mods)
 {
     (void)scancode;
-    
-    if ((key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS) {
-        _context.should_finish = true;
-    } else if ((mods == GLFW_MOD_ALT && key == GLFW_KEY_ENTER) && action == GLFW_RELEASE) {
+
+    if ((mods == GLFW_MOD_ALT && key == GLFW_KEY_ENTER) && action == GLFW_RELEASE) {
         _shiz_glfw_toggle_windowed(window);
     }
 #ifdef SHIZ_DEBUG
@@ -205,6 +186,12 @@ shiz_shutdown()
 #endif
     
     shiz_res_unload_all();
+
+    glfwSetWindowCloseCallback(_context.window, NULL);
+    glfwSetWindowFocusCallback(_context.window, NULL);
+    glfwSetFramebufferSizeCallback(_context.window, NULL);
+    glfwSetKeyCallback(_context.window, NULL);
+    glfwSetErrorCallback(NULL);
 
     glfwTerminate();
     
