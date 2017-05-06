@@ -613,30 +613,63 @@ _shiz_debug_draw_stats()
 static void
 _shiz_debug_draw_viewport()
 {
-    SHIZLayer const layer = SHIZLayeredBelow(SHIZLayeredBelow(SHIZLayerTop));
+    SHIZLayer const bounds_layer = SHIZLayeredBelow(SHIZLayeredBelow(SHIZLayerTop));
     
     SHIZViewport const viewport = shiz_get_viewport();
     
     SHIZVector2 const center = SHIZVector2Make(viewport.resolution.width / 2,
                                                viewport.resolution.height / 2);
+
+    SHIZColor const bounds_color = SHIZColorWithAlpa(SHIZColorYellow, 0.8);
+
+    SHIZColor const x_color = SHIZColorWithAlpa(SHIZColorFromHex(0x419fff), 0.6);
+    SHIZColor const y_color = SHIZColorWithAlpa(SHIZColorGreen, 0.6);
     
-    SHIZColor color = SHIZColorWithAlpa(SHIZColorRed, 0.8);
-    
-    SHIZRect viewport_shape = SHIZRectMake(center, SHIZSizeMake(viewport.resolution.width - 1,
-                                                                viewport.resolution.height - 1));
+    SHIZRect const viewport_shape = SHIZRectMake(center,
+                                                 SHIZSizeMake(viewport.resolution.width - 1,
+                                                              viewport.resolution.height - 1));
     
     // bounds
-    shiz_draw_rect_ex(viewport_shape, color, SHIZDrawModeOutline, SHIZAnchorCenter, 0, layer);
+    shiz_draw_rect_ex(viewport_shape, bounds_color,
+                      SHIZDrawModeOutline, SHIZAnchorCenter, 0, bounds_layer);
     
-    // center grid
+    // axes
+    SHIZLayer const axes_layer = SHIZLayerBottom;
+
     float const padding = 24;
-    
-    shiz_draw_line_ex(SHIZVector2Make(center.x, viewport.resolution.height - padding),
-                      SHIZVector2Make(center.x, padding),
-                      color, layer);
-    shiz_draw_line_ex(SHIZVector2Make(padding, center.y),
-                      SHIZVector2Make(viewport.resolution.width - padding, center.y),
-                      color, layer);
+
+    SHIZVector2 const y_bottom = SHIZVector2Make(center.x, padding);
+    SHIZVector2 const y_top = SHIZVector2Make(center.x, viewport.resolution.height - padding);
+
+    SHIZVector2 const x_left = SHIZVector2Make(padding, center.y);
+    SHIZVector2 const x_right = SHIZVector2Make(viewport.resolution.width - padding, center.y);
+
+    shiz_draw_line_ex(y_top, y_bottom,
+                      y_color, axes_layer);
+    shiz_draw_line_ex(x_left, x_right,
+                      x_color, axes_layer);
+
+    SHIZSpriteFont const spritefont = shiz_debug_get_font();
+
+    char y_max[32] = { 0 };
+    char x_max[32] = { 0 };
+
+    sprintf(y_max, "Y=%.0f", viewport.resolution.height);
+    sprintf(x_max, "X=%.0f", viewport.resolution.width);
+
+    shiz_draw_sprite_text_ex(spritefont, y_max, SHIZVector2Make(y_top.x, y_top.y + spritefont.character.height / 2),
+                             SHIZSpriteFontAlignmentCenter|SHIZSpriteFontAlignmentBottom,
+                             SHIZSpriteFontSizeToFit, y_color, SHIZSpriteFontAttributesDefault, axes_layer);
+    shiz_draw_sprite_text_ex(spritefont, "Y=0", SHIZVector2Make(y_bottom.x, y_bottom.y - spritefont.character.height / 2),
+                             SHIZSpriteFontAlignmentCenter|SHIZSpriteFontAlignmentTop,
+                             SHIZSpriteFontSizeToFit, y_color, SHIZSpriteFontAttributesDefault, axes_layer);
+
+    shiz_draw_sprite_text_ex(spritefont, x_max, SHIZVector2Make(x_right.x, x_right.y + spritefont.character.width / 2),
+                             SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentBottom,
+                             SHIZSpriteFontSizeToFit, x_color, SHIZSpriteFontAttributesDefault, axes_layer);
+    shiz_draw_sprite_text_ex(spritefont, "X=0", SHIZVector2Make(x_left.x, x_left.y - spritefont.character.width / 2),
+                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentTop,
+                             SHIZSpriteFontSizeToFit, x_color, SHIZSpriteFontAttributesDefault, axes_layer);
 }
 
 static void
