@@ -30,6 +30,14 @@ shiz_input_update()
 
     GLFWwindow * const window = _context.window;
 
+    bool is_modified =
+        glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+
     down[SHIZInputUp] =
         glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
@@ -47,11 +55,11 @@ shiz_input_update()
         glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
 
     down[SHIZInputConfirm] =
-        glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_KP_ENTER) == GLFW_PRESS;
+        (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_KP_ENTER) == GLFW_PRESS) && !is_modified;
 
     down[SHIZInputEscape] =
-        glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+        glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !is_modified;
 
     down[SHIZInputAny] = false;
 
