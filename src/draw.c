@@ -42,6 +42,7 @@ static void _shiz_debug_draw_sprite_gizmo(SHIZVector2 const anchor,
                                           SHIZLayer const layer);
 static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                                           SHIZSize const size,
+                                          SHIZColor const color,
                                           SHIZVector2 const anchor,
                                           float const angle,
                                           SHIZLayer const layer);
@@ -321,7 +322,7 @@ shiz_draw_sprite_ex(SHIZSprite const sprite,
     if (shiz_debug_is_enabled()) {
         if (shiz_debug_is_drawing_shapes() &&
             (sprite_size.width > 0 && sprite_size.height > 0)) {
-            _shiz_debug_draw_sprite_shape(origin, sprite_size, anchor, angle, layer);
+            _shiz_debug_draw_sprite_shape(origin, sprite_size, SHIZColorRed, anchor, angle, layer);
         }
 
         shiz_debug_add_event_resource(shiz_res_get_image(sprite.resource_id).filename,
@@ -421,7 +422,13 @@ shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                 }
             }
 
-            _shiz_debug_draw_sprite_shape(origin, text_size, anchor,
+            // draw final size
+            _shiz_debug_draw_sprite_shape(origin, text_size, SHIZColorRed, anchor,
+                                          SHIZSpriteNoAngle,
+                                          SHIZLayerDefault);
+
+            // draw bounds
+            _shiz_debug_draw_sprite_shape(origin, bounds, SHIZColorYellow, anchor,
                                           SHIZSpriteNoAngle,
                                           SHIZLayerDefault);
         }
@@ -671,6 +678,7 @@ _shiz_debug_draw_sprite_gizmo(SHIZVector2 const anchor, float const angle, SHIZL
 static void
 _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
                               SHIZSize const size,
+                              SHIZColor const color,
                               SHIZVector2 const anchor,
                               float const angle,
                               SHIZLayer const layer)
@@ -685,7 +693,7 @@ _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
     SHIZLayer const layer_above = SHIZLayeredAbove(layer);
     
     shiz_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
-                      SHIZColorRed, SHIZDrawModeOutline, anchor, angle, layer_above);
+                      color, SHIZDrawModeOutline, anchor, angle, layer_above);
 
     _shiz_debug_draw_sprite_gizmo(origin, angle, layer_above);
 
