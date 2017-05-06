@@ -17,6 +17,7 @@
 #include "type.h"
 #include "draw.h"
 #include "time.h"
+#include "input.h"
 
 /**
  * Provides settings and flags for the creation of the window.
