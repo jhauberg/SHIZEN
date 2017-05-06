@@ -146,9 +146,18 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
             line_character_ignored_count = 0;
             line_character_count = 0;
-            line_index += 1;
 
             current_line_has_leading_whitespace = next_line_has_leading_whitespace;
+
+            if (measurement.constrain_vertically) {
+                if (line_index + 1 > measurement.max_lines_in_bounds) {
+                    measurement.max_characters = character_count;
+
+                    break;
+                }
+            }
+
+            line_index += 1;
 
             if (line_index > SHIZSpriteFontMaxLines) {
                 // this is bad
@@ -156,15 +165,6 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             }
 
             continue;
-        }
-
-        if (measurement.constrain_vertically) {
-            if (line_index + 1 > measurement.max_lines_in_bounds) {
-                // it was actually the previous character that caused a linebreak
-                measurement.max_characters = character_count - 1;
-
-                break;
-            }
         }
 
         if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
@@ -271,10 +271,12 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             char const character = should_truncate ?
                 truncation_character : *text_ptr;
 
-            unsigned int character_size = 0;
+            unsigned int character_size = should_truncate ?
+                sizeof(character) : 0;
             // for special characters we need to find the character decimal value
             // so that we can later look up the proper index in the font codepage
-            unsigned int character_decimal = utf8_decode(text_ptr, &character_size);
+            unsigned int character_decimal = should_truncate ?
+                character : utf8_decode(text_ptr, &character_size);
 
             text_ptr += character_size;
             
@@ -332,7 +334,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 character_table_index = -1;
             }
 
-            bool const skip_leading_whitespace = (attributes.wrap == SHIZSpriteFontWrapModeWord &&
+            bool const skip_leading_whitespace = (/*attributes.wrap == SHIZSpriteFontWrapModeWord &&*/
                                                   !font.includes_whitespace);
             bool const is_leading_whitespace = (character == whitespace_character &&
                                                 character_index == 0);
