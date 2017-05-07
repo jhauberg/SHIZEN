@@ -23,7 +23,7 @@
 static const char * const _shiz_debug_event_primitive = "\xDB";
 #endif
 
-static void _shiz_gfx_clear(void);
+static void _shiz_gfx_clear(SHIZColor const color);
 
 static void _shiz_gfx_post_state(bool const enable);
 
@@ -111,13 +111,13 @@ shiz_gfx_begin()
     shiz_gfx_spritebatch_reset();
 
     SHIZViewport const viewport = shiz_get_viewport();
-    
+
     glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer); {
         glViewport(0, 0,
                    viewport.resolution.width,
                    viewport.resolution.height);
 
-        _shiz_gfx_clear();
+        _shiz_gfx_clear(SHIZColorBlack);
     }
 }
 
@@ -128,13 +128,14 @@ shiz_gfx_end()
 
     SHIZViewport const viewport = shiz_get_viewport();
     SHIZSize const viewport_offset = shiz_get_viewport_offset();
-    
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0); {
         glViewport(viewport_offset.width / 2,
                    viewport_offset.height / 2,
                    viewport.framebuffer.width - viewport_offset.width,
                    viewport.framebuffer.height - viewport_offset.height);
-        
+
+        _shiz_gfx_clear(SHIZColorBlack);
         _shiz_gfx_render_post();
     }
     
@@ -177,9 +178,9 @@ shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
 }
 
 static void
-_shiz_gfx_clear()
+_shiz_gfx_clear(SHIZColor const color)
 {
-    glClearColor(0, 0, 0, 1);
+    glClearColor(color.r, color.g, color.b, color.alpha);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -215,8 +216,8 @@ _shiz_gfx_init_post()
     "    fragment_color = sampled_color;\n"
     "}\n";
 
-    GLuint vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    GLuint const fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
 
     if (!vs && !fs) {
         return false;
@@ -230,6 +231,7 @@ _shiz_gfx_init_post()
     if (!_post.render.program) {
         return false;
     }
+
     SHIZViewport const viewport = shiz_get_viewport();
     
     GLsizei const texture_width = viewport.resolution.width;
@@ -300,7 +302,7 @@ static void
 _shiz_gfx_render_post()
 {
     _shiz_gfx_post_state(true);
-    
+
     glUseProgram(_post.render.program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
@@ -353,8 +355,8 @@ _shiz_gfx_init_primitive()
     "    fragment_color = color;\n"
     "}\n";
     
-    GLuint vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    GLuint const fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
     
     if (!vs && !fs) {
         return false;

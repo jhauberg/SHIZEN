@@ -237,7 +237,8 @@ shiz_gfx_spritebatch_flush()
 #ifdef SHIZ_DEBUG
     // note that this will use the center of the sprite, which may not correlate to the anchor
     // that this sprite was drawn with
-    shiz_debug_add_event_draw(_shiz_debug_event_flush, _shiz_debug_get_last_sprite_origin());
+    shiz_debug_add_event_draw(_shiz_debug_event_flush,
+                              _shiz_debug_get_last_sprite_origin());
 #endif
     
     mat4x4 model;
@@ -257,7 +258,8 @@ shiz_gfx_spritebatch_flush()
     glBindTexture(GL_TEXTURE_2D, _spritebatch.current_texture_id); {
         glBindVertexArray(_spritebatch.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
-                unsigned int const index_count = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
+                unsigned int const index_count =
+                    _spritebatch.current_count * spritebatch_vertex_count_per_quad;
                 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
