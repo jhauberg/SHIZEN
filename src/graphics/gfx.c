@@ -137,7 +137,7 @@ shiz_gfx_end()
         // every pixel every frame anyway (with the opaque texture of the post framebuffer)
         // however; if we wanted to apply color to the letter/pillar-boxed bars,
         // we could do that here by clearing the color buffer
-        
+
         _shiz_gfx_render_post();
     }
 

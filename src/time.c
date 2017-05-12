@@ -85,7 +85,9 @@ shiz_ticking_end()
 
     _is_ticking = false;
 
-    return _time_lag / _timeline.time_step;
+    double const interpolation = _time_lag / _timeline.time_step;
+
+    return interpolation;
 }
 
 double
@@ -126,4 +128,12 @@ shiz_get_time_direction()
     }
     
     return 0;
+}
+
+float
+shiz_animate(float const value,
+             float const previous_value,
+             double const interpolation)
+{
+    return _shiz_lerp(previous_value, value, interpolation);
 }

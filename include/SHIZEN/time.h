@@ -29,4 +29,8 @@ void shiz_set_time_scale(double const scale);
 
 float shiz_get_time_direction(void);
 
+float shiz_animate(float const value,
+                   float const previous_value,
+                   double const interpolation);
+
 #endif // time_h
