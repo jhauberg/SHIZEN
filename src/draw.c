@@ -79,8 +79,11 @@ shiz_drawing_end()
         // disable event tracking as well (this is enabled again at the beginning of next frame)
         shiz_debug_set_events_enabled(false);
 
-        _shiz_debug_draw_viewport();
+        // determine intervals, sprite counts etc. prior to drawing any
+        // debug related sprites/text
         _shiz_debug_build_stats();
+
+        _shiz_debug_draw_viewport();
         _shiz_debug_draw_stats();
 
         if (shiz_debug_is_drawing_events()) {
