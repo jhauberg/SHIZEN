@@ -437,7 +437,11 @@ _shiz_present_frame()
 static void
 _shiz_intro(const char * description)
 {
-    const char * mode = SHIZ_DEBUG ? "DEBUG" : "RELEASE";
+#ifdef SHIZ_DEBUG
+    const char * mode = "DEBUG";
+#else
+    const char * mode = "RELEASE";
+#endif
 
     printf("\n");
     printf("  __|  |  | _ _| __  /  __|   \\ |\n");

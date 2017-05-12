@@ -23,8 +23,6 @@
 static const char * const _shiz_debug_event_primitive = "\xDB";
 #endif
 
-static void _shiz_gfx_clear(SHIZColor const color);
-
 static void _shiz_gfx_post_state(bool const enable);
 
 static bool _shiz_gfx_init_post(void);
@@ -116,8 +114,8 @@ shiz_gfx_begin()
         glViewport(0, 0,
                    viewport.resolution.width,
                    viewport.resolution.height);
-
-        _shiz_gfx_clear(SHIZColorBlack);
+        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 }
 
@@ -135,10 +133,14 @@ shiz_gfx_end()
                    viewport.framebuffer.width - viewport_offset.width,
                    viewport.framebuffer.height - viewport_offset.height);
 
-        _shiz_gfx_clear(SHIZColorBlack);
+        // note that we don't need to clear this framebuffer, as we're expecting to overwrite
+        // every pixel every frame anyway (with the opaque texture of the post framebuffer)
+        // however; if we wanted to apply color to the letter/pillar-boxed bars,
+        // we could do that here by clearing the color buffer
+        
         _shiz_gfx_render_post();
     }
-    
+
 #ifdef SHIZ_DEBUG
     shiz_debug_update_frame_stats();
 #endif
@@ -175,14 +177,6 @@ shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
                        GLuint const texture_id)
 {
     shiz_gfx_add_sprite(vertices, origin, angle, texture_id);
-}
-
-static void
-_shiz_gfx_clear(SHIZColor const color)
-{
-    glClearColor(color.r, color.g, color.b, color.alpha);
-    glClearDepth(1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 static void
@@ -233,35 +227,47 @@ _shiz_gfx_init_post()
     }
 
     SHIZViewport const viewport = shiz_get_viewport();
+    SHIZColor const clear_color = SHIZColorBlack;
+    
+    glClearColor(clear_color.r, clear_color.g, clear_color.b, 1);
+    // clear depth should be set once and not changed afterwards
+    glClearDepth(1.0);
     
     GLsizei const texture_width = viewport.resolution.width;
     GLsizei const texture_height = viewport.resolution.height;
     
     glGenFramebuffers(1, &_post.framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer);
-
-    glGenTextures(1, &_post.texture_id);
-    glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer); {
+        glGenTextures(1, &_post.texture_id);
+        glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                         texture_width, texture_height,
+                         0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
         
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                     texture_width, texture_height,
-                     0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glGenRenderbuffers(1, &_post.renderbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, _post.renderbuffer); {
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texture_width, texture_height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _post.renderbuffer);
+            glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _post.texture_id, 0);
+        }
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        GLenum const draw_buffers[1] = {
+            GL_COLOR_ATTACHMENT0
+        };
+
+        glDrawBuffers(1, draw_buffers);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            return false;
+        }
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
-    
-    glGenRenderbuffers(1, &_post.renderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, _post.renderbuffer); {
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texture_width, texture_height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _post.renderbuffer);
-        glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _post.texture_id, 0);
-    }
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        return false;
-    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     static const SHIZVertexPositionTexture vertices[post_vertex_count] = {
         { .position = { -1, -1, 0 }, .texture_coord = { 0, 0 } },

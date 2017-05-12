@@ -18,9 +18,10 @@
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
-#define GLFW_INCLUDE_NONE
-
+// use gl3w to load opengl headers
 #include <GL/gl3w.h>
+// which means GLFW should not do that
+#define GLFW_INCLUDE_NONE
 
 #if defined(__clang__)
  #pragma clang diagnostic push
