@@ -73,7 +73,8 @@ shiz_drawing_end()
     // to ensure consistency with the rendered shapes/sprites
     if (shiz_debug_is_enabled()) {
         bool const previously_drawing_shapes = shiz_debug_is_drawing_shapes();
-        
+        bool const previously_enabled_events = shiz_debug_is_events_enabled();
+
         // disable shapes during drawing of debug things
         shiz_debug_set_drawing_shapes(false);
         // disable event tracking as well (this is enabled again at the beginning of next frame)
@@ -94,8 +95,8 @@ shiz_drawing_end()
         shiz_gfx_flush();
 
         // reset back to previous settings
-        shiz_debug_set_events_enabled(true);
         shiz_debug_set_drawing_shapes(previously_drawing_shapes);
+        shiz_debug_set_events_enabled(previously_enabled_events);
     }
 #endif
 
