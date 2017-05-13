@@ -15,18 +15,15 @@
 #include "type.h"
 
 /**
- * @brief Initiate a drawing/rendering context.
+ * @brief Begin drawing to the screen.
  *
- * Initiate a context for drawing and rendering to the graphics context.
- *
- * Additionally, clear the screen from the previous frame.
+ * Prepare the drawing pipeline for rendering to the graphics context.
  */
-void shiz_drawing_begin(void);
+void shiz_drawing_begin(SHIZColor const background);
 /**
- * @brief Finish a drawing/rendering context.
+ * @brief End drawing to the screen.
  *
- * Finish the current drawing/rendering context and present the
- * current frame to the graphics context.
+ * Flush the drawing pipeline and present the frame to the graphics context.
  */
 void shiz_drawing_end(void);
 

@@ -51,7 +51,7 @@ static char _shiz_debug_stats_buffer[256] = { 0 };
 #endif
 
 void
-shiz_drawing_begin()
+shiz_drawing_begin(SHIZColor const background)
 {
 #ifdef SHIZ_DEBUG
     shiz_debug_reset_events();
@@ -59,7 +59,7 @@ shiz_drawing_begin()
 
     shiz_sprite_reset();
 
-    shiz_gfx_begin();
+    shiz_gfx_begin(background);
 }
 
 void

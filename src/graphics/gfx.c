@@ -100,7 +100,7 @@ shiz_gfx_kill()
 }
 
 void
-shiz_gfx_begin()
+shiz_gfx_begin(SHIZColor const clear)
 {
 #ifdef SHIZ_DEBUG
     shiz_debug_reset_draw_count();
@@ -114,7 +114,8 @@ shiz_gfx_begin()
         glViewport(0, 0,
                    viewport.resolution.width,
                    viewport.resolution.height);
-        
+
+        glClearColor(clear.r, clear.g, clear.b, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 }

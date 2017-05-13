@@ -70,7 +70,7 @@ void shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vert
                             float const angle,
                             GLuint const texture_id);
 
-void shiz_gfx_begin(void);
+void shiz_gfx_begin(SHIZColor const clear);
 void shiz_gfx_end(void);
 
 void shiz_gfx_flush(void);
