@@ -431,10 +431,12 @@ shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
                                           SHIZSpriteNoAngle,
                                           SHIZLayerDefault);
 
-            // draw bounds
-            _shiz_debug_draw_sprite_shape(origin, bounds, SHIZColorYellow, anchor,
-                                          SHIZSpriteNoAngle,
-                                          SHIZLayerDefault);
+            if (bounds.width > 0 && bounds.height > 0) {
+                // draw bounds
+                _shiz_debug_draw_sprite_shape(origin, bounds, SHIZColorYellow, anchor,
+                                              SHIZSpriteNoAngle,
+                                              SHIZLayerDefault);
+            }
         }
 
         shiz_debug_add_event_resource(shiz_res_get_image(font.sprite.resource_id).filename,
