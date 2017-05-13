@@ -10,7 +10,6 @@
 //
 
 #include "spritefont.h"
-
 #include "sprite.h"
 
 #include <math.h>
@@ -65,11 +64,20 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     measurement.character_size_perceived = SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
                                                         measurement.character_size.height);
 
-    measurement.constrain_horizontally = bounds.width != SHIZSpriteFontSizeToFit.width;
-    measurement.constrain_vertically = bounds.height != SHIZSpriteFontSizeToFit.height;
+    measurement.constrain_horizontally = bounds.width > 0;
+    measurement.constrain_vertically = bounds.height > 0;
 
-    measurement.max_characters_per_line = floor(bounds.width / measurement.character_size_perceived.width);
-    measurement.max_lines_in_bounds = floor(bounds.height / measurement.character_size_perceived.height);
+    if (measurement.constrain_horizontally) {
+        measurement.max_characters_per_line = floor(bounds.width / measurement.character_size_perceived.width);
+    } else {
+        measurement.max_characters_per_line = UINT32_MAX;
+    }
+
+    if (measurement.constrain_vertically) {
+        measurement.max_lines_in_bounds = floor(bounds.height / measurement.character_size_perceived.height);
+    } else {
+        measurement.max_lines_in_bounds = UINT32_MAX;
+    }
 
     float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
 
@@ -380,10 +388,14 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                     character_sprite.source.origin.y = (font.sprite.source.origin.y +
                                                         (font.character.height * character_row));
 
+                    SHIZSpriteSize const character_sprite_size = SHIZSpriteSized(measurement.character_size, SHIZSpriteNoScale);
+
                     shiz_sprite_draw(character_sprite, character_origin,
-                                     SHIZSpriteSized(measurement.character_size, SHIZSpriteNoScale),
+                                     character_sprite_size,
                                      SHIZAnchorTopLeft, SHIZSpriteNoAngle,
-                                     highlight_color, SHIZSpriteNoRepeat, false,
+                                     highlight_color,
+                                     SHIZSpriteNoRepeat,
+                                     SHIZSpriteNotOpaque,
                                      layer);
                 }
             }
