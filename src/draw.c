@@ -190,7 +190,7 @@ shiz_draw_rect_ex(SHIZRect const rect,
                   float const angle,
                   SHIZLayer const layer)
 {
-    unsigned int const vertex_count = mode == SHIZDrawModeFill ? 4 : 5; // only drawing the shape requires an additional vertex
+    unsigned int const vertex_count = 4;
 
     SHIZVertexPositionColor vertices[vertex_count];
 
@@ -220,14 +220,12 @@ shiz_draw_rect_ex(SHIZRect const rect,
         // note that the order of the vertices differ from the filled shape
         vertices[2].position = SHIZVector3Make(r, t, 0);
         vertices[3].position = SHIZVector3Make(r, b, 0);
-        // the additional vertex connects to the beginning, to complete the shape
-        vertices[4].position = vertices[0].position;
     }
 
     if (mode == SHIZDrawModeFill) {
         shiz_gfx_render_ex(GL_TRIANGLE_STRIP, vertices, vertex_count, origin, angle);
     } else {
-        shiz_gfx_render_ex(GL_LINE_STRIP, vertices, vertex_count, origin, angle);
+        shiz_gfx_render_ex(GL_LINE_LOOP, vertices, vertex_count, origin, angle);
     }
 }
 
@@ -249,7 +247,7 @@ shiz_draw_circle_ex(SHIZVector2 const center,
                     SHIZColor const color,
                     SHIZLayer const layer)
 {
-    unsigned int const vertex_count = mode == SHIZDrawModeFill ? (segments + 2) : (segments + 1);
+    unsigned int const vertex_count = mode == SHIZDrawModeFill ? (segments + 2) : segments;
 
     SHIZVertexPositionColor vertices[vertex_count];
 
@@ -258,12 +256,14 @@ shiz_draw_circle_ex(SHIZVector2 const center,
 
     SHIZVector3 const origin = SHIZVector3Make(center.x, center.y, z);
 
-    unsigned int const vertex_offset = mode == SHIZDrawModeFill ? 1 : 0;
+    unsigned int vertex_offset = 0;
 
     if (mode == SHIZDrawModeFill) {
         // start at the center
         vertices[0].color = color;
         vertices[0].position = SHIZVector3Zero;
+
+        vertex_offset = 1;
     }
 
     for (unsigned int segment = 0; segment < segments; segment++) {
@@ -277,7 +277,7 @@ shiz_draw_circle_ex(SHIZVector2 const center,
         vertices[vertex_index].color = color;
         vertices[vertex_index].position = SHIZVector3Make(x, y, 0);
 
-        if (segment == 0) {
+        if (mode == SHIZDrawModeFill && segment == 0) {
             // connect the last vertex to the first shape vertex (i.e. not center in case of fill)
             unsigned int const last_vertex_index = vertex_offset + segments;
 
@@ -289,7 +289,7 @@ shiz_draw_circle_ex(SHIZVector2 const center,
     if (mode == SHIZDrawModeFill) {
         shiz_gfx_render_ex(GL_TRIANGLE_FAN, vertices, vertex_count, origin, SHIZSpriteNoAngle);
     } else {
-        shiz_gfx_render_ex(GL_LINE_STRIP, vertices, vertex_count, origin, SHIZSpriteNoAngle);
+        shiz_gfx_render_ex(GL_LINE_LOOP, vertices, vertex_count, origin, SHIZSpriteNoAngle);
     }
 }
 
@@ -727,7 +727,7 @@ _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
     shiz_debug_set_events_enabled(false);
 
     SHIZSize const padded_size = SHIZSizeMake(size.width + 1, size.height + 1);
-    SHIZVector2 const padded_origin = SHIZVector2Make(origin.x - 0, origin.y - 0);
+    SHIZVector2 const padded_origin = SHIZVector2Make(origin.x, origin.y);
     
     SHIZLayer const layer_above = SHIZLayeredAbove(layer);
     
