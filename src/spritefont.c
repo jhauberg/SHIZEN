@@ -52,6 +52,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
     measurement.size = SHIZSizeZero;
     measurement.max_characters = -1; // no truncation
+    measurement.line_count = 0;
 
     SHIZSprite character_sprite = SHIZSpriteEmpty;
 
@@ -96,6 +97,10 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     bool next_line_has_leading_whitespace = false;
 
     const char * text_ptr = text;
+
+    if (!text_ptr) {
+        return measurement;
+    }
 
     while (*text_ptr) {
         char character = *text_ptr;
