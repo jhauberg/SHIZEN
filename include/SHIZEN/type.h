@@ -351,4 +351,11 @@ SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap)
     return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteFontAttributesDefault.scale.x, wrap);
 }
 
+static inline SHIZVector2 const
+SHIZAnchorInverse(SHIZVector2 const anchor)
+{
+    return SHIZVector2Make(anchor.x * -1,
+                           anchor.y * -1);
+}
+
 #endif // type_h
