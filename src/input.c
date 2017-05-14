@@ -36,7 +36,9 @@ shiz_input_update()
         glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS ||
         glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
-        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS;
+        glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_LEFT_SUPER) == GLFW_PRESS ||
+        glfwGetKey(window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS;
 
     down[SHIZInputUp] =
         glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS ||
