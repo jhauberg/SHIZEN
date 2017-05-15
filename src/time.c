@@ -55,7 +55,7 @@ shiz_ticking_begin()
     if (time_elapsed > maximum_frame_time) {
         time_elapsed = maximum_frame_time;
     }
-    
+
     _time_lag += fabs(time_elapsed * _timeline.scale);
     _time_previous = time;
 }
@@ -94,6 +94,12 @@ double
 shiz_get_tick_rate()
 {
     return _timeline.time_step;
+}
+
+double
+shiz_get_time_lag()
+{
+    return _time_lag;
 }
 
 double

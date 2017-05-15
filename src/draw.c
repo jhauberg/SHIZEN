@@ -570,15 +570,19 @@ _shiz_debug_build_stats()
         sprintf(display_size_buffer, "\4%.0fx%.0f\1",
                 viewport.resolution.width, viewport.resolution.height);
     }
+
     
     SHIZDebugFrameStats const frame_stats = shiz_debug_get_frame_stats();
     
     sprintf(_shiz_debug_stats_buffer,
-            "%s\n\n"
+            //µ
+            "%s\n"
+            "─────\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
             "\2%d fps\1 (\3%d↓\1 \4%d↕\1 \5%d↑\1)\n\n"
             "%c%d/%d sprites/frame\1\n"
             "\2%d draws/frame\1\n\n"
+            "\4%0.2fms\1/\2%0.2fms/tick\1\n"
             "\2%.1fx time\1",
             display_size_buffer,
             frame_stats.frame_time,
@@ -589,6 +593,8 @@ _shiz_debug_build_stats()
             frame_stats.frames_per_second_max,
             sprite_count_tint_specifier, shiz_debug_get_sprite_count(), SHIZSpriteInternalMax,
             frame_stats.draw_count,
+            shiz_get_time_lag() * 1000,
+            shiz_get_tick_rate() * 1000,
             shiz_get_time_scale());
 }
 

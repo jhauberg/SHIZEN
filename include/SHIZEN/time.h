@@ -22,6 +22,7 @@ double shiz_ticking_end(void);
 bool shiz_tick(unsigned short const frequency);
 
 double shiz_get_tick_rate(void);
+double shiz_get_time_lag(void);
 double shiz_get_time(void);
 double shiz_get_time_scale(void);
 
