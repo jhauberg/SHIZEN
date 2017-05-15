@@ -32,12 +32,15 @@ static void _shiz_draw_line_3d(SHIZVector3 const from,
                                SHIZVector3 const to,
                                SHIZColor const color);
 
+static void _shiz_drawing_flush(void);
+
 #ifdef SHIZ_DEBUG
 static void _shiz_debug_build_stats(void);
 static void _shiz_debug_draw_stats(void);
 static void _shiz_debug_draw_events(void);
 static void _shiz_debug_draw_viewport(void);
-static void _shiz_debug_draw_sprite_gizmo(SHIZVector2 const anchor,
+static void _shiz_debug_draw_sprite_gizmo(SHIZVector2 const location,
+                                          SHIZVector2 const anchor,
                                           float const angle,
                                           SHIZLayer const layer);
 static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
@@ -53,48 +56,54 @@ static char _shiz_debug_stats_buffer[256] = { 0 };
 void
 shiz_drawing_begin(SHIZColor const background)
 {
-#ifdef SHIZ_DEBUG
-    shiz_debug_reset_events();
-#endif
-
     shiz_sprite_reset();
 
     shiz_gfx_begin(background);
+
+#ifdef SHIZ_DEBUG
+    shiz_debug_reset_events();
+
+    if (shiz_debug_is_enabled()) {
+        bool const previously_drawing_shapes = shiz_debug_is_drawing_shapes();
+        bool const previously_enabled_events = shiz_debug_is_events_enabled();
+
+        shiz_debug_set_drawing_shapes(false);
+        shiz_debug_set_events_enabled(false);
+
+        _shiz_debug_draw_viewport();
+
+        // flush immediately to ensure debug draws are not counted
+        _shiz_drawing_flush();
+
+        // reset back to previous settings
+        shiz_debug_set_drawing_shapes(previously_drawing_shapes);
+        shiz_debug_set_events_enabled(previously_enabled_events);
+    }
+#endif
 }
 
 void
 shiz_drawing_end()
 {
-    shiz_sprite_flush();
-    shiz_gfx_flush();
+    _shiz_drawing_flush();
 
 #ifdef SHIZ_DEBUG
-    // draw debug stuff lastly, but before ending the frame- it becomes part of the post-process
-    // to ensure consistency with the rendered shapes/sprites
     if (shiz_debug_is_enabled()) {
         bool const previously_drawing_shapes = shiz_debug_is_drawing_shapes();
         bool const previously_enabled_events = shiz_debug_is_events_enabled();
 
-        // disable shapes during drawing of debug things
         shiz_debug_set_drawing_shapes(false);
-        // disable event tracking as well (this is enabled again at the beginning of next frame)
         shiz_debug_set_events_enabled(false);
 
-        // determine intervals, sprite counts etc. prior to drawing any
-        // debug related sprites/text
         _shiz_debug_build_stats();
-
-        _shiz_debug_draw_viewport();
         _shiz_debug_draw_stats();
 
         if (shiz_debug_is_drawing_events()) {
             _shiz_debug_draw_events();
         }
 
-        shiz_sprite_flush();
-        shiz_gfx_flush();
+        _shiz_drawing_flush();
 
-        // reset back to previous settings
         shiz_debug_set_drawing_shapes(previously_drawing_shapes);
         shiz_debug_set_events_enabled(previously_enabled_events);
     }
@@ -111,7 +120,9 @@ shiz_drawing_end()
 }
 
 void
-shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color)
+shiz_draw_line(SHIZVector2 const from,
+               SHIZVector2 const to,
+               SHIZColor const color)
 {
     shiz_draw_line_ex(from, to, color, SHIZLayerDefault);
 }
@@ -179,7 +190,8 @@ shiz_draw_rect(SHIZRect const rect, SHIZColor const color, SHIZDrawMode const mo
 {
     shiz_draw_rect_ex(rect, color, mode,
                       SHIZAnchorBottomLeft,
-                      SHIZSpriteNoAngle, SHIZLayerDefault);
+                      SHIZSpriteNoAngle,
+                      SHIZLayerDefault);
 }
 
 void
@@ -236,7 +248,8 @@ shiz_draw_circle(SHIZVector2 const center,
                  SHIZDrawMode const mode,
                  SHIZColor const color)
 {
-    shiz_draw_circle_ex(center, radius, segments, mode, color, SHIZLayerDefault);
+    shiz_draw_circle_ex(center, radius, segments, mode, color,
+                        SHIZLayerDefault);
 }
 
 void
@@ -287,6 +300,64 @@ shiz_draw_circle_ex(SHIZVector2 const center,
     }
 
     if (mode == SHIZDrawModeFill) {
+        shiz_gfx_render_ex(GL_TRIANGLE_FAN, vertices, vertex_count, origin,
+                           SHIZSpriteNoAngle);
+    } else {
+        shiz_gfx_render_ex(GL_LINE_LOOP, vertices, vertex_count, origin,
+                           SHIZSpriteNoAngle);
+    }
+}
+
+void
+shiz_draw_arc(SHIZVector2 const center,
+              float const radius,
+              unsigned int const segments,
+              float const angle,
+              SHIZDrawMode const mode,
+              SHIZColor const color)
+{
+    shiz_draw_arc_ex(center, radius, segments, angle, mode, color,
+                     SHIZLayerDefault);
+}
+
+void
+shiz_draw_arc_ex(SHIZVector2 const center,
+                 float const radius,
+                 unsigned int const segments,
+                 float const angle,
+                 SHIZDrawMode const mode,
+                 SHIZColor const color,
+                 SHIZLayer const layer)
+{
+    unsigned int const vertex_count = segments + 2;
+
+    SHIZVertexPositionColor vertices[vertex_count];
+
+    float const target_angle = fmodf(angle, M_PI * 2.0f);
+
+    float const z = _shiz_layer_get_z(layer);
+    float const step = target_angle / segments;
+
+    SHIZVector3 const origin = SHIZVector3Make(center.x, center.y, z);
+
+    unsigned int vertex_offset = 1;
+
+    vertices[0].color = color;
+    vertices[0].position = SHIZVector3Zero;
+
+    for (unsigned int segment = 0; segment < segments + 1; segment++) {
+        unsigned int const vertex_index = vertex_offset + segment;
+
+        float const step_angle = segment * step;
+
+        float const x = radius * cosf(step_angle);
+        float const y = radius * sinf(step_angle);
+
+        vertices[vertex_index].color = color;
+        vertices[vertex_index].position = SHIZVector3Make(x, y, 0);
+    }
+
+    if (mode == SHIZDrawModeFill) {
         shiz_gfx_render_ex(GL_TRIANGLE_FAN, vertices, vertex_count, origin, SHIZSpriteNoAngle);
     } else {
         shiz_gfx_render_ex(GL_LINE_LOOP, vertices, vertex_count, origin, SHIZSpriteNoAngle);
@@ -326,7 +397,8 @@ shiz_draw_sprite_ex(SHIZSprite const sprite,
     if (shiz_debug_is_enabled()) {
         if (shiz_debug_is_drawing_shapes() &&
             (sprite_size.width > 0 && sprite_size.height > 0)) {
-            _shiz_debug_draw_sprite_shape(origin, sprite_size, SHIZColorRed, anchor, angle, layer);
+            _shiz_debug_draw_sprite_shape(origin, sprite_size, SHIZColorRed,
+                                          anchor, angle, layer);
         }
 
         shiz_debug_add_event_resource(shiz_res_get_image(sprite.resource_id).filename,
@@ -429,13 +501,13 @@ shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
             // draw final size
             _shiz_debug_draw_sprite_shape(origin, text_size, SHIZColorRed, anchor,
                                           SHIZSpriteNoAngle,
-                                          SHIZLayerDefault);
+                                          layer);
 
             if (bounds.width > 0 && bounds.height > 0) {
                 // draw bounds
                 _shiz_debug_draw_sprite_shape(origin, bounds, SHIZColorYellow, anchor,
                                               SHIZSpriteNoAngle,
-                                              SHIZLayerDefault);
+                                              layer);
             }
         }
 
@@ -468,6 +540,13 @@ _shiz_draw_line_3d(SHIZVector3 const from, SHIZVector3 const to, SHIZColor const
     };
     
     _shiz_draw_path_3d(points, 2, color);
+}
+
+static void
+_shiz_drawing_flush()
+{
+    shiz_sprite_flush();
+    shiz_gfx_flush();
 }
 
 #ifdef SHIZ_DEBUG
@@ -619,7 +698,7 @@ _shiz_debug_draw_stats()
 static void
 _shiz_debug_draw_viewport()
 {
-    SHIZLayer const bounds_layer = SHIZLayeredBelow(SHIZLayeredBelow(SHIZLayerTop));
+    SHIZLayer const bounds_layer = SHIZLayerTop;
     
     SHIZViewport const viewport = shiz_get_viewport();
     
@@ -679,39 +758,35 @@ _shiz_debug_draw_viewport()
 }
 
 static void
-_shiz_debug_draw_sprite_gizmo(SHIZVector2 const anchor, float const angle, SHIZLayer const layer)
+_shiz_debug_draw_sprite_gizmo(SHIZVector2 const location,
+                              SHIZVector2 const anchor,
+                              float const angle,
+                              SHIZLayer const layer)
 {
-    float const axis_length = 5;
-    
-    SHIZLayer const layer_above = SHIZLayeredAbove(layer);
-    
-    float const z = _shiz_layer_get_z(layer_above);
-    
-    SHIZVector3 const origin = SHIZVector3Make(anchor.x, anchor.y, z);
-    
-    SHIZVertexPositionColor vertices[2];
-    
-    vertices[0].position = SHIZVector3Zero;
-    
-    // x axis
-    vertices[1].position = SHIZVector3Make(axis_length, 0, 0);
-    vertices[0].color = SHIZColorBlue;
-    vertices[1].color = SHIZColorBlue;
-    
-    shiz_gfx_render_ex(GL_LINE_STRIP, vertices, 2, origin, angle);
-    
-    // y axis
-    vertices[1].position = SHIZVector3Make(0, axis_length, 0);
-    vertices[0].color = SHIZColorGreen;
-    vertices[1].color = SHIZColorGreen;
-    
-    shiz_gfx_render_ex(GL_LINE_STRIP, vertices, 2, origin, angle);
+    if (angle > 0 || angle < 0) {
+        float const radius = 6;
+        unsigned int const segments = 8;
 
-    // anchor
+        SHIZVector2 const circle_center = SHIZVector2Make(location.x + anchor.x,
+                                                          location.y + anchor.y);
+
+        shiz_draw_circle_ex(circle_center, radius, segments,
+                            SHIZDrawModeFill, SHIZColorWithAlpa(SHIZColorWhite, 0.1f),
+                            SHIZLayeredBelow(layer));
+
+        shiz_draw_arc_ex(circle_center, radius, segments, angle,
+                         SHIZDrawModeFill, SHIZColorWithAlpa(SHIZColorWhite, 0.6f),
+                         layer);
+    }
+
     float const anchor_size = 2;
-    
-    shiz_draw_rect_ex(SHIZRectMake(anchor, SHIZSizeMake(anchor_size, anchor_size)),
-                      SHIZColorRed, SHIZDrawModeFill, SHIZAnchorCenter, angle, layer_above);
+
+    SHIZRect const anchor_rect = SHIZRectMake(location, SHIZSizeMake(anchor_size,
+                                                                     anchor_size));
+
+    shiz_draw_rect_ex(anchor_rect, SHIZColorYellow, SHIZDrawModeFill,
+                      SHIZAnchorInverse(anchor), angle,
+                      SHIZLayeredAbove(layer));
 }
 
 static void
@@ -727,14 +802,20 @@ _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
     shiz_debug_set_events_enabled(false);
 
     SHIZSize const padded_size = SHIZSizeMake(size.width + 1, size.height + 1);
-    SHIZVector2 const padded_origin = SHIZVector2Make(origin.x, origin.y);
-    
-    SHIZLayer const layer_above = SHIZLayeredAbove(layer);
-    
-    shiz_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
-                      color, SHIZDrawModeOutline, anchor, angle, layer_above);
+    SHIZVector2 padded_origin = SHIZVector2Make(origin.x, origin.y);
 
-    _shiz_debug_draw_sprite_gizmo(origin, angle, layer_above);
+    if (anchor.x > 0) {
+        padded_origin.x += anchor.x;
+    }
+
+    if (anchor.y > 0) {
+        padded_origin.y += anchor.y;
+    }
+
+    shiz_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
+                      color, SHIZDrawModeOutline, anchor, angle, SHIZLayeredBelow(layer));
+
+    _shiz_debug_draw_sprite_gizmo(origin, anchor, angle, SHIZLayeredAbove(layer));
 
     shiz_debug_set_events_enabled(previously_tracking_events);
 }

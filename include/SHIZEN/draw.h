@@ -75,6 +75,23 @@ void shiz_draw_circle_ex(SHIZVector2 const center,
                          SHIZLayer const layer);
 
 /**
+ * @brief Draw an arc.
+ */
+void shiz_draw_arc(SHIZVector2 const center,
+                   float const radius,
+                   unsigned int const segments,
+                   float const angle,
+                   SHIZDrawMode const mode,
+                   SHIZColor const color);
+void shiz_draw_arc_ex(SHIZVector2 const center,
+                      float const radius,
+                      unsigned int const segments,
+                      float const angle,
+                      SHIZDrawMode const mode,
+                      SHIZColor const color,
+                      SHIZLayer const layer);
+
+/**
  * @brief Draw a sprite.
  *
  * @param sprite
