@@ -55,7 +55,7 @@ static unsigned int _frame_time_sample_count = 0;
 bool
 shiz_debug_init()
 {
-    _context.is_enabled = true;
+    _context.is_enabled = false;
     _context.is_events_enabled = true;
     _context.draw_shapes = false;
     _context.draw_events = false;
