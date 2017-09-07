@@ -15,12 +15,13 @@
 #include <stdbool.h>
 
 typedef enum SHIZInput {
-    SHIZInputAny,
     SHIZInputUp, SHIZInputDown,
     SHIZInputLeft, SHIZInputRight,
     SHIZInputConfirm, SHIZInputEscape,
-    SHIZInputMax
+    SHIZInputAny
 } SHIZInput;
+
+#define SHIZInputMax (SHIZInputAny + 1)
 
 void shiz_input_update(void);
 bool shiz_input_down(SHIZInput const input);

@@ -24,7 +24,7 @@ shiz_input_update()
 {
     bool down_previously[SHIZInputMax];
 
-    for (SHIZInput input = SHIZInputAny; input < SHIZInputMax; input++) {
+    for (SHIZInput input = SHIZInputUp; input < SHIZInputMax; input++) {
         down_previously[input] = down[input];
     }
 
@@ -65,8 +65,8 @@ shiz_input_update()
 
     down[SHIZInputAny] = false;
 
-    for (SHIZInput input = SHIZInputAny; input < SHIZInputMax; input++) {
-        if (!down[SHIZInputAny] && down[input]) {
+    for (SHIZInput input = SHIZInputUp; input < SHIZInputMax; input++) {
+        if (down[input]) {
             down[SHIZInputAny] = true;
         }
 
