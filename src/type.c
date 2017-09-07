@@ -11,6 +11,8 @@
 
 #include <SHIZEN/type.h>
 
+#include <stdlib.h>
+
 SHIZVector2 const SHIZVector2Zero = { 0, 0 };
 SHIZVector2 const SHIZVector2One = { 1, 1 };
 SHIZVector3 const SHIZVector3Zero = { 0, 0, 0 };
@@ -62,6 +64,23 @@ SHIZSpriteSheet const SHIZSpriteSheetEmpty = {
         .width = 0,
         .height = 0
     }
+};
+
+SHIZSpriteFont const SHIZSpriteFontEmpty = {
+    .sprite = {
+        .resource_id = 0,
+        .source = {
+            .origin = { 0, 0 },
+            .size = { 0, 0 }
+        }
+    },
+    .character = { 0, 0 },
+    .table = {
+        .columns = 0,
+        .rows = 0,
+        .codepage = NULL
+    },
+    .includes_whitespace = false
 };
 
 SHIZSpriteSize const SHIZSpriteSizeIntrinsic = {

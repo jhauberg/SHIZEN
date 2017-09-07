@@ -145,6 +145,7 @@ extern SHIZRect const SHIZRectEmpty;
  */
 extern SHIZSprite const SHIZSpriteEmpty;
 extern SHIZSpriteSheet const SHIZSpriteSheetEmpty;
+extern SHIZSpriteFont const SHIZSpriteFontEmpty;
 
 /**
  * @brief Size a sprite to its intrinsic (or natural) size.
