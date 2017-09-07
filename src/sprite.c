@@ -83,10 +83,10 @@ shiz_sprite_draw(SHIZSprite const sprite,
 
     SHIZSize const texture_size = SHIZSizeMake(image.width, image.height);
 
-    SHIZSize const source_size = SHIZSizeMake(size.target.width == SHIZSpriteSizeIntrinsic.target.width ?
-                                                sprite.source.size.width : size.target.width,
-                                              size.target.height == SHIZSpriteSizeIntrinsic.target.height ?
-                                                sprite.source.size.height : size.target.height);
+    SHIZSize const source_size = SHIZSizeMake(size.target.width > 0 ?
+                                                size.target.width : sprite.source.size.width,
+                                              size.target.height > 0 ?
+                                                size.target.height : sprite.source.size.height);
     SHIZSize const destination_size = SHIZSizeMake(source_size.width * size.scale,
                                                    source_size.height * size.scale);
 
