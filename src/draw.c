@@ -727,13 +727,14 @@ _shiz_debug_draw_viewport()
     // axes
     SHIZLayer const axes_layer = SHIZLayerBottom;
 
-    float const padding = 24;
+    float const padding = 2;
+    float const text_padding = 2;
 
-    SHIZVector2 const y_bottom = SHIZVector2Make(center.x, padding);
-    SHIZVector2 const y_top = SHIZVector2Make(center.x, viewport.resolution.height - padding);
+    SHIZVector2 const y_bottom = SHIZVector2Make(center.x, padding + text_padding);
+    SHIZVector2 const y_top = SHIZVector2Make(center.x, viewport.resolution.height - (padding + text_padding));
 
-    SHIZVector2 const x_left = SHIZVector2Make(padding, center.y);
-    SHIZVector2 const x_right = SHIZVector2Make(viewport.resolution.width - padding, center.y);
+    SHIZVector2 const x_left = SHIZVector2Make(padding + text_padding, center.y);
+    SHIZVector2 const x_right = SHIZVector2Make(viewport.resolution.width - (padding + text_padding), center.y);
 
     shiz_draw_line_ex(y_top, y_bottom,
                       y_color, axes_layer);
@@ -748,17 +749,17 @@ _shiz_debug_draw_viewport()
     sprintf(y_max, "Y=%.0f", viewport.resolution.height);
     sprintf(x_max, "X=%.0f", viewport.resolution.width);
 
-    shiz_draw_sprite_text_ex(spritefont, y_max, SHIZVector2Make(y_top.x, y_top.y + spritefont.character.height / 2),
-                             SHIZSpriteFontAlignmentCenter|SHIZSpriteFontAlignmentBottom,
+    shiz_draw_sprite_text_ex(spritefont, y_max, SHIZVector2Make(y_top.x - spritefont.character.width / 2, y_top.y),
+                             SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentTop,
                              SHIZSpriteFontSizeToFit, y_color, SHIZSpriteFontAttributesDefault, axes_layer);
-    shiz_draw_sprite_text_ex(spritefont, "Y=0", SHIZVector2Make(y_bottom.x, y_bottom.y - spritefont.character.height / 2),
-                             SHIZSpriteFontAlignmentCenter|SHIZSpriteFontAlignmentTop,
+    shiz_draw_sprite_text_ex(spritefont, "Y=0", SHIZVector2Make(y_bottom.x + spritefont.character.width / 2, y_bottom.y),
+                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
                              SHIZSpriteFontSizeToFit, y_color, SHIZSpriteFontAttributesDefault, axes_layer);
 
-    shiz_draw_sprite_text_ex(spritefont, x_max, SHIZVector2Make(x_right.x, x_right.y + spritefont.character.width / 2),
+    shiz_draw_sprite_text_ex(spritefont, x_max, SHIZVector2Make(x_right.x, x_right.y + spritefont.character.height / 2),
                              SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentBottom,
                              SHIZSpriteFontSizeToFit, x_color, SHIZSpriteFontAttributesDefault, axes_layer);
-    shiz_draw_sprite_text_ex(spritefont, "X=0", SHIZVector2Make(x_left.x, x_left.y - spritefont.character.width / 2),
+    shiz_draw_sprite_text_ex(spritefont, "X=0", SHIZVector2Make(x_left.x, x_left.y - spritefont.character.height / 2),
                              SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentTop,
                              SHIZSpriteFontSizeToFit, x_color, SHIZSpriteFontAttributesDefault, axes_layer);
 }
