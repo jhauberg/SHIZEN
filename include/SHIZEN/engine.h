@@ -25,14 +25,17 @@
 typedef struct SHIZWindowSettings {
     /** The title of the window */
     const char * title;
+    /** A description of the game that is printed to the log */
     const char * description;
     /** Determines whether the window should be fullscreen initially */
     bool fullscreen;
     /** Determines whether v-sync should be enabled */
     bool vsync;
-    /** The size of the world within the window; the actual window size is determined by pixel size */
-    SHIZSize world_size;
-    /** The size of each pixel; defaults to 1; a higher pixel size results in a larger window size */
+    /** The size of the display within the window in pixels; the actual window 
+      * size is determined by pixel-size and may be larger than the display */
+    SHIZSize size;
+    /** The size of each pixel; defaults to 1; a higher pixel size results in 
+      * a larger window */
     unsigned int pixel_size;
 } SHIZWindowSettings;
 
@@ -96,6 +99,11 @@ void shiz_request_finish(void);
  * @return `true` if SHIZEN should finish up, `false` otherwise
  */
 bool shiz_should_finish(void);
+
+/**
+ * @brief Return the display size within the window.
+ */
+SHIZSize shiz_get_display_size(void);
 
 /**
  * @brief Load a resource.

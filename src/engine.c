@@ -26,7 +26,7 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .description = NULL,
     .fullscreen = false,
     .vsync = true,
-    .world_size = { 320, 240 },
+    .size = { 320, 240 },
     .pixel_size = 1
 };
 
@@ -107,7 +107,7 @@ shiz_startup(SHIZWindowSettings const settings)
 
     _shiz_intro(settings.description);
     
-    _context.native_size = settings.world_size;
+    _context.native_size = settings.size;
     _context.pixel_size = 1;
     
     if (settings.pixel_size > 0) {
@@ -222,6 +222,12 @@ bool
 shiz_unload(unsigned int const resource_id)
 {
     return shiz_res_unload(resource_id);
+}
+
+SHIZSize
+shiz_get_display_size()
+{
+    return _context.native_size;
 }
 
 SHIZSprite
