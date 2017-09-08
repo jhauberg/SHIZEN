@@ -38,10 +38,9 @@
 #endif
 
 #include <stdlib.h>
+#include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
-
-#include <SHIZEN/type.h>
 
 #ifdef SHIZ_DEBUG
  #include "debug.h"
