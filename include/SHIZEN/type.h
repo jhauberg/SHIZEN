@@ -9,6 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
+#pragma once
+
 #ifndef type_h
 #define type_h
 
