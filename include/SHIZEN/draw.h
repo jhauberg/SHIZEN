@@ -63,32 +63,32 @@ void shiz_draw_rect_ex(SHIZRect const rect,
  * @brief Draw a circle.
  */
 void shiz_draw_circle(SHIZVector2 const center,
-                      float const radius,
-                      unsigned int const segments,
+                      SHIZColor const color,
                       SHIZDrawMode const mode,
-                      SHIZColor const color);
+                      float const radius,
+                      unsigned int const segments);
 void shiz_draw_circle_ex(SHIZVector2 const center,
+                         SHIZColor const color,
+                         SHIZDrawMode const mode,
                          float const radius,
                          unsigned int const segments,
-                         SHIZDrawMode const mode,
-                         SHIZColor const color,
                          SHIZLayer const layer);
 
 /**
  * @brief Draw an arc.
  */
 void shiz_draw_arc(SHIZVector2 const center,
+                   SHIZColor const color,
+                   SHIZDrawMode const mode,
                    float const radius,
                    unsigned int const segments,
-                   float const angle,
-                   SHIZDrawMode const mode,
-                   SHIZColor const color);
+                   float const angle);
 void shiz_draw_arc_ex(SHIZVector2 const center,
+                      SHIZColor const color,
+                      SHIZDrawMode const mode,
                       float const radius,
                       unsigned int const segments,
                       float const angle,
-                      SHIZDrawMode const mode,
-                      SHIZColor const color,
                       SHIZLayer const layer);
 
 /**

@@ -243,21 +243,21 @@ shiz_draw_rect_ex(SHIZRect const rect,
 
 void
 shiz_draw_circle(SHIZVector2 const center,
-                 float const radius,
-                 unsigned int const segments,
+                 SHIZColor const color,
                  SHIZDrawMode const mode,
-                 SHIZColor const color)
+                 float const radius,
+                 unsigned int const segments)
 {
-    shiz_draw_circle_ex(center, radius, segments, mode, color,
+    shiz_draw_circle_ex(center, color, mode, radius, segments,
                         SHIZLayerDefault);
 }
 
 void
 shiz_draw_circle_ex(SHIZVector2 const center,
+                    SHIZColor const color,
+                    SHIZDrawMode const mode,
                     float const radius,
                     unsigned int const segments,
-                    SHIZDrawMode const mode,
-                    SHIZColor const color,
                     SHIZLayer const layer)
 {
     unsigned int const vertex_count = mode == SHIZDrawModeFill ? (segments + 2) : segments;
@@ -310,23 +310,23 @@ shiz_draw_circle_ex(SHIZVector2 const center,
 
 void
 shiz_draw_arc(SHIZVector2 const center,
+              SHIZColor const color,
+              SHIZDrawMode const mode,
               float const radius,
               unsigned int const segments,
-              float const angle,
-              SHIZDrawMode const mode,
-              SHIZColor const color)
+              float const angle)
 {
-    shiz_draw_arc_ex(center, radius, segments, angle, mode, color,
+    shiz_draw_arc_ex(center, color, mode, radius, segments, angle,
                      SHIZLayerDefault);
 }
 
 void
 shiz_draw_arc_ex(SHIZVector2 const center,
+                 SHIZColor const color,
+                 SHIZDrawMode const mode,
                  float const radius,
                  unsigned int const segments,
                  float const angle,
-                 SHIZDrawMode const mode,
-                 SHIZColor const color,
                  SHIZLayer const layer)
 {
     unsigned int const vertex_count = segments + 2;
@@ -807,13 +807,11 @@ _shiz_debug_draw_sprite_gizmo(SHIZVector2 const location,
         SHIZVector2 const circle_center = SHIZVector2Make(location.x + anchor.x,
                                                           location.y + anchor.y);
 
-        shiz_draw_circle_ex(circle_center, radius, segments,
-                            SHIZDrawModeFill, SHIZColorWithAlpa(SHIZColorWhite, 0.1f),
-                            SHIZLayeredBelow(layer));
+        shiz_draw_circle_ex(circle_center, SHIZColorWithAlpa(SHIZColorWhite, 0.1f), SHIZDrawModeFill,
+                            radius, segments, SHIZLayeredBelow(layer));
 
-        shiz_draw_arc_ex(circle_center, radius, segments, angle,
-                         SHIZDrawModeFill, SHIZColorWithAlpa(SHIZColorWhite, 0.6f),
-                         layer);
+        shiz_draw_arc_ex(circle_center, SHIZColorWithAlpa(SHIZColorWhite, 0.6f), SHIZDrawModeFill,
+                         radius, segments, angle, layer);
     }
 
     float const anchor_size = 2;
