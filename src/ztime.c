@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/time.h>
+#include <SHIZEN/ztime.h>
 
 #include <math.h>
 
@@ -68,7 +68,9 @@ shiz_tick(unsigned short const frequency)
     if (_time_lag >= _timeline.time_step) {
         _time_lag -= _timeline.time_step;
         
-        _timeline.time += _timeline.time_step * shiz_get_time_direction();
+        SHIZTimeDirection const direction = shiz_get_time_direction();
+        
+        _timeline.time += _timeline.time_step * direction;
         
         return true;
     }
@@ -124,16 +126,16 @@ shiz_set_time_scale(double const scale)
     }
 }
 
-float
+SHIZTimeDirection
 shiz_get_time_direction()
 {
     if (_timeline.scale > 0) {
-        return 1;
+        return SHIZTimeDirectionForward;
     } else if (_timeline.scale < 0) {
-        return -1;
+        return SHIZTimeDirectionBackward;
     }
     
-    return 0;
+    return SHIZTimeDirectionStill;
 }
 
 float

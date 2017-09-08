@@ -10,7 +10,7 @@
 //
 
 #include <SHIZEN/draw.h>
-#include <SHIZEN/time.h>
+#include <SHIZEN/ztime.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -695,9 +695,9 @@ _shiz_debug_draw_stats()
 
     shiz_draw_sprite_text_ex(spritefont,
                              version_buffer,
-                             SHIZVector2Make(margin / 2, margin / 2),
-                             SHIZSpriteFontAlignmentBottom | SHIZSpriteFontAlignmentLeft,
-                             SHIZSpriteFontSizeToFit, SHIZSpriteTintDefaultWithAlpa(0.25f),
+                             SHIZVector2Make(display_size.width - margin / 2, margin / 2),
+                             SHIZSpriteFontAlignmentBottom | SHIZSpriteFontAlignmentRight,
+                             SHIZSpriteFontSizeToFit, SHIZSpriteTintDefaultWithAlpa(0.15f),
                              attrs, layer);
 }
 
@@ -742,26 +742,56 @@ _shiz_debug_draw_viewport()
                       x_color, axes_layer);
 
     SHIZSpriteFont const spritefont = shiz_debug_get_font();
-
+    
+    SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
+        attrs.character_spread = SHIZSpriteFontSpreadTight;
+    }
+    
+    SHIZColor point_color = bounds_color;
+    
+    shiz_draw_sprite_text_ex(spritefont, "0,0",
+                             SHIZVector2Make(spritefont.character.width / 2,
+                                             (spritefont.character.height / 2) - 1),
+                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                             SHIZSpriteFontSizeToFit, point_color, attrs, axes_layer);
+    
+    char center_text[32] = { 0 };
+    
+    sprintf(center_text, "%.0f,%.0f", center.x, center.y);
+    
+    shiz_draw_sprite_text_ex(spritefont, center_text,
+                             SHIZVector2Make(center.x + spritefont.character.width / 2,
+                                             center.y + (spritefont.character.height / 2) - 1),
+                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                             SHIZSpriteFontSizeToFit, point_color, attrs, axes_layer);
+    
     char y_max[32] = { 0 };
     char x_max[32] = { 0 };
 
     sprintf(y_max, "Y=%.0f", viewport.resolution.height);
     sprintf(x_max, "X=%.0f", viewport.resolution.width);
 
-    shiz_draw_sprite_text_ex(spritefont, y_max, SHIZVector2Make(y_top.x - spritefont.character.width / 2, y_top.y),
+    shiz_draw_sprite_text_ex(spritefont, y_max,
+                             SHIZVector2Make(y_top.x - spritefont.character.width / 2,
+                                             y_top.y),
                              SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentTop,
-                             SHIZSpriteFontSizeToFit, y_color, SHIZSpriteFontAttributesDefault, axes_layer);
-    shiz_draw_sprite_text_ex(spritefont, "Y=0", SHIZVector2Make(y_bottom.x + spritefont.character.width / 2, y_bottom.y),
+                             SHIZSpriteFontSizeToFit, y_color, attrs, axes_layer);
+    shiz_draw_sprite_text_ex(spritefont, "Y=0",
+                             SHIZVector2Make(y_bottom.x + spritefont.character.width / 2,
+                                             y_bottom.y),
                              SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
-                             SHIZSpriteFontSizeToFit, y_color, SHIZSpriteFontAttributesDefault, axes_layer);
+                             SHIZSpriteFontSizeToFit, y_color, attrs, axes_layer);
 
-    shiz_draw_sprite_text_ex(spritefont, x_max, SHIZVector2Make(x_right.x, x_right.y + spritefont.character.height / 2),
+    shiz_draw_sprite_text_ex(spritefont, x_max,
+                             SHIZVector2Make(x_right.x,
+                                             x_right.y + (spritefont.character.height / 2) - 1),
                              SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentBottom,
-                             SHIZSpriteFontSizeToFit, x_color, SHIZSpriteFontAttributesDefault, axes_layer);
-    shiz_draw_sprite_text_ex(spritefont, "X=0", SHIZVector2Make(x_left.x, x_left.y - spritefont.character.height / 2),
+                             SHIZSpriteFontSizeToFit, x_color, attrs, axes_layer);
+    shiz_draw_sprite_text_ex(spritefont, "X=0",
+                             SHIZVector2Make(x_left.x,
+                                             x_left.y - spritefont.character.height / 2),
                              SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentTop,
-                             SHIZSpriteFontSizeToFit, x_color, SHIZSpriteFontAttributesDefault, axes_layer);
+                             SHIZSpriteFontSizeToFit, x_color, attrs, axes_layer);
 }
 
 static void

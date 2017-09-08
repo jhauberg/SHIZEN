@@ -16,7 +16,7 @@
 
 #include "type.h"
 #include "draw.h"
-#include "time.h"
+#include "ztime.h"
 #include "input.h"
 
 /**

@@ -9,10 +9,20 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef time_h
-#define time_h
+#ifdef ztime_h
+#error this header is already defined
+#endif
+
+#ifndef ztime_h
+#define ztime_h
 
 #include <stdbool.h>
+
+typedef enum SHIZTimeDirection {
+    SHIZTimeDirectionBackward = -1,
+    SHIZTimeDirectionStill = 0,
+    SHIZTimeDirectionForward = 1
+} SHIZTimeDirection;
 
 void shiz_time_reset(void);
 
@@ -28,7 +38,13 @@ double shiz_get_time_scale(void);
 
 void shiz_set_time_scale(double const scale);
 
-float shiz_get_time_direction(void);
+/**
+ * @brief Determine the direction of passing time.
+ *
+ * The direction is ultimately determined by the time scale, and is always
+ * one of three possible values: Backward, Still or Forward.
+ */
+SHIZTimeDirection shiz_get_time_direction(void);
 
 float shiz_animate(float const value,
                    float const previous_value,
