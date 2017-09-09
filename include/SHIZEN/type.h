@@ -220,9 +220,6 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
  */
 #define SHIZSpriteFontNoPadding 0
 
-// rule of thumb: small functions that do basic things (such as the make functions) and called frequently
-// can be inlined at a benefit; think of it as the body of the function being put in place of the call
-// so larger functions that do more than just initialize a struct shold not be inlined
 static inline SHIZVector2 const
 SHIZVector2Make(float const x, float const y)
 {
@@ -264,7 +261,8 @@ SHIZRectMake(SHIZVector2 origin, SHIZSize size)
 }
 
 static inline SHIZRect const
-SHIZRectMakeEx(float const x, float const y, float const width, float const height)
+SHIZRectMakeEx(float const x, float const y,
+               float const width, float const height)
 {
     return SHIZRectMake(SHIZVector2Make(x, y),
                         SHIZSizeMake(width, height));

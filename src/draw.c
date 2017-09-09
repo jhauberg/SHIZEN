@@ -575,7 +575,6 @@ _shiz_debug_build_stats()
     SHIZDebugFrameStats const frame_stats = shiz_debug_get_frame_stats();
     
     sprintf(_shiz_debug_stats_buffer,
-            //µ
             "%s\n"
             "─────\n\n"
             "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"

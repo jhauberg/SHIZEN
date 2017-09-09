@@ -30,20 +30,31 @@ void shiz_drawing_end(void);
 /**
  * @brief Draw a line.
  */
-void shiz_draw_line(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color);
-void shiz_draw_line_ex(SHIZVector2 const from, SHIZVector2 const to, SHIZColor const color,
+void shiz_draw_line(SHIZVector2 const from,
+                    SHIZVector2 const to,
+                    SHIZColor const color);
+void shiz_draw_line_ex(SHIZVector2 const from,
+                       SHIZVector2 const to,
+                       SHIZColor const color,
                        SHIZLayer const layer);
 /**
  * @brief Draw a path.
  */
-void shiz_draw_path(SHIZVector2 const points[], unsigned int const count, SHIZColor const color);
-void shiz_draw_path_ex(SHIZVector2 const points[], unsigned int const count, SHIZColor const color,
+void shiz_draw_path(SHIZVector2 const points[],
+                    unsigned int const count,
+                    SHIZColor const color);
+void shiz_draw_path_ex(SHIZVector2 const points[],
+                       unsigned int const count,
+                       SHIZColor const color,
                        SHIZLayer const layer);
 /**
  * @brief Draw a point.
  */
-void shiz_draw_point(SHIZVector2 const point, SHIZColor const color);
-void shiz_draw_point_ex(SHIZVector2 const point, SHIZColor const color, SHIZLayer const layer);
+void shiz_draw_point(SHIZVector2 const point,
+                     SHIZColor const color);
+void shiz_draw_point_ex(SHIZVector2 const point,
+                        SHIZColor const color,
+                        SHIZLayer const layer);
 /**
  * @brief Draw a rectangle.
  */
@@ -101,7 +112,8 @@ void shiz_draw_arc_ex(SHIZVector2 const center,
  *
  * @return a SHIZSize with the bounding width and height of the drawn sprite
  */
-SHIZSize shiz_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin);
+SHIZSize shiz_draw_sprite(SHIZSprite const sprite,
+                          SHIZVector2 const origin);
 /**
  * @brief Draw a sprite.
  *

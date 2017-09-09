@@ -109,6 +109,9 @@ _shiz_str_to_upper(char * string)
     }
 }
 
+/**
+ * @brief Determine whether two floats are approximately equal.
+ */
 static inline bool
 _shiz_fequal(float const a, float const b)
 {
