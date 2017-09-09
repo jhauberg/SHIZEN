@@ -26,6 +26,8 @@ typedef enum SHIZTimeDirection {
 
 void shiz_time_reset(void);
 
+double shiz_time_since(double const time);
+
 void shiz_ticking_begin(void);
 double shiz_ticking_end(void);
 

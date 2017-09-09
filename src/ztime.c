@@ -40,6 +40,14 @@ shiz_time_reset()
     _time_previous = glfwGetTime();
 }
 
+double
+shiz_time_since(double const time)
+{
+    double const time_passed_since = shiz_get_time() - time;
+    
+    return time_passed_since;
+}
+
 void
 shiz_ticking_begin()
 {
