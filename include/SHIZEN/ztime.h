@@ -48,8 +48,12 @@ void shiz_set_time_scale(double const scale);
  */
 SHIZTimeDirection shiz_get_time_direction(void);
 
-float shiz_animate(float const value,
-                   float const previous_value,
-                   double const interpolation);
+typedef struct SHIZAnimatable {
+    float value;
+    float previous_result;
+    float result;
+} SHIZAnimatable;
+
+void shiz_animate(SHIZAnimatable * animatable, double interpolation);
 
 #endif // time_h

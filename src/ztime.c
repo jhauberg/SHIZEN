@@ -146,10 +146,11 @@ shiz_get_time_direction()
     return SHIZTimeDirectionStill;
 }
 
-float
-shiz_animate(float const value,
-             float const previous_value,
-             double const interpolation)
+void shiz_animate(SHIZAnimatable * const animatable,
+                  double const interpolation)
 {
-    return _shiz_lerp(previous_value, value, interpolation);
+    animatable->previous_result = animatable->result;
+    animatable->result = _shiz_lerp(animatable->value,
+                                    animatable->previous_result,
+                                    interpolation);
 }
