@@ -26,19 +26,19 @@ typedef enum SHIZTimeDirection {
 
 void shiz_time_reset(void);
 
-double shiz_time_since(double const time);
+double shiz_time_since(double time);
 
 void shiz_ticking_begin(void);
 double shiz_ticking_end(void);
 
-bool shiz_tick(unsigned short const frequency);
+bool shiz_tick(unsigned short frequency);
 
 double shiz_get_tick_rate(void);
 double shiz_get_time_lag(void);
 double shiz_get_time(void);
 double shiz_get_time_scale(void);
 
-void shiz_set_time_scale(double const scale);
+void shiz_set_time_scale(double scale);
 
 /**
  * @brief Determine the direction of passing time.
@@ -54,6 +54,6 @@ typedef struct SHIZAnimatable {
     float result;
 } SHIZAnimatable;
 
-void shiz_animate(SHIZAnimatable * animatable, double interpolation);
+void shiz_animate(SHIZAnimatable *, double interpolation);
 
 #endif // time_h

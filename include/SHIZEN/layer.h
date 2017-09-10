@@ -28,9 +28,11 @@ extern SHIZLayer const SHIZLayerBottom; // min
 
 #define SHIZLayerDefault SHIZLayerBottom
 
-static inline SHIZLayer const
+static inline
+SHIZLayer const
 SHIZLayeredWithDepth(unsigned char const layer,
-                     unsigned short const depth) {
+                     unsigned short const depth)
+{
     SHIZLayer result;
 
     result.layer = layer;
@@ -39,13 +41,16 @@ SHIZLayeredWithDepth(unsigned char const layer,
     return result;
 }
 
-static inline SHIZLayer const
-SHIZLayered(unsigned char const layer) {
+static inline
+SHIZLayer const
+SHIZLayered(unsigned char const layer)
+{
     return SHIZLayeredWithDepth(layer, SHIZLayerDefault.depth);
 }
 
 static inline SHIZLayer const
-SHIZLayeredBelow(SHIZLayer const layer) {
+SHIZLayeredBelow(SHIZLayer const layer)
+{
     SHIZLayer layer_below = layer;
 
     if (layer.depth > SHIZLayerDepthMin) {
@@ -58,7 +63,8 @@ SHIZLayeredBelow(SHIZLayer const layer) {
 }
 
 static inline SHIZLayer const
-SHIZLayeredAbove(SHIZLayer const layer) {
+SHIZLayeredAbove(SHIZLayer const layer)
+{
     SHIZLayer layer_above = layer;
 
     if (layer.depth < SHIZLayerDepthMax) {
