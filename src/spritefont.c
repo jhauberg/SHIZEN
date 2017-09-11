@@ -74,13 +74,13 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         measurement.max_characters_per_line = UINT32_MAX;
     }
 
+    float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
+    
     if (measurement.constrain_vertically) {
-        measurement.max_lines_in_bounds = floor(bounds.height / measurement.character_size_perceived.height);
+        measurement.max_lines_in_bounds = floor(bounds.height / line_height);
     } else {
         measurement.max_lines_in_bounds = UINT32_MAX;
     }
-
-    float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
 
     unsigned int character_count = 0;
     unsigned int line_index = 0;
