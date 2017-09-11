@@ -56,4 +56,19 @@ typedef struct SHIZAnimatable {
 
 void shiz_animate(SHIZAnimatable *, double interpolation);
 
+static inline
+SHIZAnimatable
+SHIZAnimated(float value)
+{
+    SHIZAnimatable animatable = {
+        .value = value,
+        .previous_result = 0,
+        .result = 0
+    };
+    
+    shiz_animate(&animatable, 1);
+    
+    return animatable;
+}
+
 #endif // time_h
