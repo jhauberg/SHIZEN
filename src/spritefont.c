@@ -128,7 +128,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
                     character = *text_ptr;
 
-                    if (character == whitespace_character) {
+                    if (character == whitespace_character && !break_line_explicit) {
                         next_line_has_leading_whitespace = true;
 
                         break;
@@ -150,7 +150,9 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             unsigned int character_count_perceived = line_character_count - line_character_ignored_count;
 
             if (skip_leading_whitespace && current_line_has_leading_whitespace) {
-                character_count_perceived -= 1;
+                if (line_index > 0 || break_line_explicit) {
+                    character_count_perceived -= 1;
+                }
             }
 
             measurement.lines[line_index].size.width = character_count_perceived * measurement.character_size_perceived.width;
@@ -192,7 +194,9 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         unsigned int character_count_perceived = line_character_count - line_character_ignored_count;
 
         if (skip_leading_whitespace && current_line_has_leading_whitespace) {
-            character_count_perceived -= 1;
+            if (line_index > 0) {
+                character_count_perceived -= 1;
+            }
         }
 
         measurement.lines[line_index].size.width = character_count_perceived * measurement.character_size_perceived.width;
@@ -348,7 +352,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             }
 
             bool const skip_leading_whitespace = (/*attributes.wrap == SHIZSpriteFontWrapModeWord &&*/
-                                                  !font.includes_whitespace);
+                                                  !font.includes_whitespace && line_index > 0);
             bool const is_leading_whitespace = (character == whitespace_character &&
                                                 character_index == 0);
 
