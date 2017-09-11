@@ -111,13 +111,25 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         text_ptr += character_size;
 
         bool const break_line_explicit = character == newline_character;
+        
+        unsigned int line_character_count_perceived = line_character_count - line_character_ignored_count;
+        
+        if (skip_leading_whitespace && current_line_has_leading_whitespace) {
+            if (line_index > 0 || break_line_explicit) {
+                if (line_character_count_perceived > 0) {
+                    line_character_count_perceived -= 1;
+                }
+            }
+        }
+        
         bool const break_line_required = (measurement.constrain_horizontally &&
-                                          line_character_count >= measurement.max_characters_per_line);
+                                          line_character_count_perceived >= measurement.max_characters_per_line);
 
         if (break_line_explicit || break_line_required) {
             next_line_has_leading_whitespace = false;
 
-            if (break_line_required && attributes.wrap == SHIZSpriteFontWrapModeWord) {
+            if (break_line_required &&
+                attributes.wrap == SHIZSpriteFontWrapModeWord) {
                 // backtrack until finding a whitespace
                 while (*text_ptr) {
                     text_ptr -= character_size;
@@ -128,7 +140,8 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
                     character = *text_ptr;
 
-                    if (character == whitespace_character && !break_line_explicit) {
+                    if (character == whitespace_character &&
+                        !break_line_explicit) {
                         next_line_has_leading_whitespace = true;
 
                         break;
@@ -147,15 +160,17 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
                 }
             }
 
-            unsigned int character_count_perceived = line_character_count - line_character_ignored_count;
+            line_character_count_perceived = line_character_count - line_character_ignored_count;
 
             if (skip_leading_whitespace && current_line_has_leading_whitespace) {
                 if (line_index > 0 || break_line_explicit) {
-                    character_count_perceived -= 1;
+                    if (line_character_count_perceived > 0) {
+                        line_character_count_perceived -= 1;
+                    }
                 }
             }
 
-            measurement.lines[line_index].size.width = character_count_perceived * measurement.character_size_perceived.width;
+            measurement.lines[line_index].size.width = line_character_count_perceived * measurement.character_size_perceived.width;
             measurement.lines[line_index].size.height = line_height;
             measurement.lines[line_index].character_count = line_character_count;
 
@@ -191,15 +206,17 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         line_character_count += 1;
         character_count += 1;
         
-        unsigned int character_count_perceived = line_character_count - line_character_ignored_count;
+        line_character_count_perceived = line_character_count - line_character_ignored_count;
 
         if (skip_leading_whitespace && current_line_has_leading_whitespace) {
-            if (line_index > 0) {
-                character_count_perceived -= 1;
+            if (line_index > 0 || break_line_explicit) {
+                if (line_character_count_perceived > 0) {
+                    line_character_count_perceived -= 1;
+                }
             }
         }
 
-        measurement.lines[line_index].size.width = character_count_perceived * measurement.character_size_perceived.width;
+        measurement.lines[line_index].size.width = line_character_count_perceived * measurement.character_size_perceived.width;
         measurement.lines[line_index].size.height = line_height;
         measurement.lines[line_index].character_count = line_character_count;
     }
@@ -278,11 +295,11 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
              character_index < (int)line.character_count;
              character_index++) {
             bool const should_truncate =
-                (measurement.max_characters != -1 &&
+                (measurement.max_characters > 0 &&
                  character_count > (measurement.max_characters - truncation_length));
 
             break_from_truncation =
-                measurement.max_characters != -1 &&
+                measurement.max_characters > 0 &&
                 (unsigned int)measurement.max_characters == character_count;
 
             char const character = should_truncate ?
