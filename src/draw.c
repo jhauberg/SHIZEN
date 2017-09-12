@@ -62,23 +62,6 @@ shiz_drawing_begin(SHIZColor const background)
 
 #ifdef SHIZ_DEBUG
     shiz_debug_reset_events();
-
-    if (shiz_debug_is_enabled()) {
-        bool const previously_drawing_shapes = shiz_debug_is_drawing_shapes();
-        bool const previously_enabled_events = shiz_debug_is_events_enabled();
-
-        shiz_debug_set_drawing_shapes(false);
-        shiz_debug_set_events_enabled(false);
-
-        _shiz_debug_draw_viewport();
-
-        // flush immediately to ensure debug draws are not counted
-        _shiz_drawing_flush();
-
-        // reset back to previous settings
-        shiz_debug_set_drawing_shapes(previously_drawing_shapes);
-        shiz_debug_set_events_enabled(previously_enabled_events);
-    }
 #endif
 }
 
@@ -95,6 +78,7 @@ shiz_drawing_end()
         shiz_debug_set_drawing_shapes(false);
         shiz_debug_set_events_enabled(false);
 
+        _shiz_debug_draw_viewport();
         _shiz_debug_build_stats();
         _shiz_debug_draw_stats();
 
@@ -724,7 +708,7 @@ _shiz_debug_draw_viewport()
                       SHIZDrawModeOutline, SHIZAnchorCenter, 0, bounds_layer);
     
     // axes
-    SHIZLayer const axes_layer = SHIZLayerBottom;
+    SHIZLayer const axes_layer = SHIZLayeredBelow(SHIZLayerTop);
 
     float const padding = 2;
     float const text_padding = 2;
@@ -847,7 +831,7 @@ _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
     }
 
     shiz_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
-                      color, SHIZDrawModeOutline, anchor, angle, SHIZLayeredBelow(layer));
+                      color, SHIZDrawModeOutline, anchor, angle, SHIZLayeredAbove(layer));
 
     _shiz_debug_draw_sprite_gizmo(origin, anchor, angle, SHIZLayeredAbove(layer));
 
