@@ -26,13 +26,15 @@ typedef struct SHIZSpriteFontLine {
 typedef struct SHIZSpriteFontMeasurement {
     /** The measured size of the entire text as a whole */
     SHIZSize size;
-    /** A buffer holding the measured size of each line */
-    SHIZSpriteFontLine lines[SHIZSpriteFontMaxLines];
     /** The size of a character sprite as it should appear when drawn (may be scaled) */
     SHIZSize character_size;
     /** The size of a character sprite after applying any size-altering attributes (may be sized with
      offsets/padding, so these values are not suitable for drawing; use `character_size` instead) */
     SHIZSize character_size_perceived;
+    /** A buffer holding the measured size of each line */
+    SHIZSpriteFontLine lines[SHIZSpriteFontMaxLines];
+    /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
+    int max_characters;
     /** The number of lines */
     unsigned int line_count;
     /** The max number of characters per line before a linebreak is forced */
@@ -44,8 +46,6 @@ typedef struct SHIZSpriteFontMeasurement {
     /** Determines whether to keep text within vertical bounds,
      forcing linebreaks if possible; truncates otherwise */
     bool constrain_vertically;
-    /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
-    int max_characters;
 } SHIZSpriteFontMeasurement;
 
 SHIZSpriteFontMeasurement const shiz_sprite_measure_text(SHIZSpriteFont const font,

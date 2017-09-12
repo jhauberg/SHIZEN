@@ -42,6 +42,25 @@ utf8_decode(const char * str, unsigned int * i)
     return u;
 }
 
+static bool _shiz_sprite_is_special_character(char);
+static unsigned int _shiz_sprite_perceived_count(unsigned int const line_character_count,
+                                                 unsigned int const line_character_ignored_count,
+                                                 bool const should_skip_leading_whitespace);
+static void _shiz_sprite_set_line(SHIZSpriteFontLine *,
+                                  SHIZSpriteFontMeasurement const *,
+                                  float const line_height,
+                                  unsigned int const line_character_count,
+                                  unsigned int const line_character_ignored_count,
+                                  bool const should_skip_leading_whitespace);
+static int _shiz_sprite_character_table_index(char, unsigned int decimal,
+                                              SHIZSpriteFont const *);
+static void _shiz_sprite_draw_character_index(SHIZSpriteFont const *,
+                                              SHIZSpriteFontMeasurement const *,
+                                              SHIZVector2 const character_origin,
+                                              unsigned int const character_table_index,
+                                              SHIZColor const highlight_color,
+                                              SHIZLayer const layer);
+
 SHIZSpriteFontMeasurement const
 shiz_sprite_measure_text(SHIZSpriteFont const font,
                          const char * const text,
@@ -54,14 +73,9 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     measurement.max_characters = -1; // no truncation
     measurement.line_count = 0;
 
-    SHIZSprite character_sprite = SHIZSpriteEmpty;
-
-    character_sprite.resource_id = font.sprite.resource_id;
-    character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
-
-    measurement.character_size = SHIZSizeMake(character_sprite.source.size.width * attributes.scale.x,
-                                              character_sprite.source.size.height * attributes.scale.y);
-
+    measurement.character_size = SHIZSizeMake(font.character.width * attributes.scale.x,
+                                              font.character.height * attributes.scale.y);
+    
     measurement.character_size_perceived = SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
                                                         measurement.character_size.height);
 
@@ -78,6 +92,10 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     
     if (measurement.constrain_vertically) {
         measurement.max_lines_in_bounds = floor(bounds.height / line_height);
+        
+        if (measurement.max_lines_in_bounds > SHIZSpriteFontMaxLines) {
+            measurement.max_lines_in_bounds = SHIZSpriteFontMaxLines;
+        }
     } else {
         measurement.max_lines_in_bounds = UINT32_MAX;
     }
@@ -90,8 +108,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     char const whitespace_character = ' ';
     char const newline_character = '\n';
 
-    bool const skip_leading_whitespace = (/*attributes.wrap == SHIZSpriteFontWrapModeWord &&*/
-                                          !font.includes_whitespace);
+    bool const skip_leading_whitespace = !font.includes_whitespace;
 
     bool current_line_has_leading_whitespace = false;
     bool next_line_has_leading_whitespace = false;
@@ -111,69 +128,74 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         text_ptr += character_size;
 
         bool const break_line_explicit = character == newline_character;
+        // don't skip leading whitespace on the first line or if intentionally breaking
+        bool const can_skip_leading_whitespace = (line_index > 0 &&
+                                                  !break_line_explicit);
         
-        unsigned int line_character_count_perceived = line_character_count - line_character_ignored_count;
+        bool should_skip_leading_whitespace = can_skip_leading_whitespace &&
+            (skip_leading_whitespace &&
+             current_line_has_leading_whitespace);
         
-        if (skip_leading_whitespace && current_line_has_leading_whitespace) {
-            if (line_index > 0 || break_line_explicit) {
-                if (line_character_count_perceived > 0) {
-                    line_character_count_perceived -= 1;
-                }
-            }
-        }
-        
+        unsigned int const line_character_count_perceived = _shiz_sprite_perceived_count(line_character_count,
+                                                                                         line_character_ignored_count,
+                                                                                         should_skip_leading_whitespace);
+
         bool const break_line_required = (measurement.constrain_horizontally &&
                                           line_character_count_perceived >= measurement.max_characters_per_line);
 
         if (break_line_explicit || break_line_required) {
             next_line_has_leading_whitespace = false;
 
-            if (break_line_required &&
-                attributes.wrap == SHIZSpriteFontWrapModeWord) {
-                // backtrack until finding a whitespace
-                while (*text_ptr) {
+            if (break_line_required) {
+                if (attributes.wrap == SHIZSpriteFontWrapModeWord) {
+                    // backtrack until finding a whitespace
+                    while (*text_ptr) {
+                        text_ptr -= character_size;
+                        
+                        character_count -= 1;
+
+                        utf8_decode(text_ptr, &character_size);
+
+                        character = *text_ptr;
+
+                        if (character == whitespace_character &&
+                            !break_line_explicit) {
+                            next_line_has_leading_whitespace = true;
+
+                            break;
+                        }
+
+                        if (line_character_count > 0) {
+                            line_character_count -= 1;
+                        } else {
+                            break;
+                        }
+                        
+                        if (character_count == 0) {
+                            // additional safety measure
+                            break;
+                        }
+                    }
+                } else {
                     text_ptr -= character_size;
                     
-                    character_count -= 1;
-
-                    utf8_decode(text_ptr, &character_size);
-
-                    character = *text_ptr;
-
-                    if (character == whitespace_character &&
-                        !break_line_explicit) {
-                        next_line_has_leading_whitespace = true;
-
-                        break;
-                    }
-
-                    if (line_character_count > 0) {
-                        line_character_count -= 1;
-                    } else {
-                        break;
-                    }
+                    char const breaking_character = *text_ptr;
                     
-                    if (character_count == 0) {
-                        // additional safety measure
-                        break;
+                    next_line_has_leading_whitespace = breaking_character == whitespace_character;
+                    
+                    if (next_line_has_leading_whitespace) {
+                        text_ptr -= character_size;
                     }
                 }
             }
-
-            line_character_count_perceived = line_character_count - line_character_ignored_count;
-
-            if (skip_leading_whitespace && current_line_has_leading_whitespace) {
-                if (line_index > 0 || break_line_explicit) {
-                    if (line_character_count_perceived > 0) {
-                        line_character_count_perceived -= 1;
-                    }
-                }
-            }
-
-            measurement.lines[line_index].size.width = line_character_count_perceived * measurement.character_size_perceived.width;
-            measurement.lines[line_index].size.height = line_height;
-            measurement.lines[line_index].character_count = line_character_count;
-
+            
+            _shiz_sprite_set_line(&measurement.lines[line_index],
+                                  &measurement,
+                                  line_height,
+                                  line_character_count,
+                                  line_character_ignored_count,
+                                  should_skip_leading_whitespace);
+            
             line_character_ignored_count = 0;
             line_character_count = 0;
 
@@ -189,7 +211,8 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
             line_index += 1;
 
-            if (line_index > SHIZSpriteFontMaxLines) {
+            if (line_index >= SHIZSpriteFontMaxLines) {
+                line_index -= 1;
                 // this is bad
                 break;
             }
@@ -197,8 +220,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             continue;
         }
 
-        if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
-            character == '\5' || character == '\6' || character == '\7') {
+        if (_shiz_sprite_is_special_character(character)) {
             // increment ignored characters, but otherwise proceed as usual
             line_character_ignored_count += 1;
         }
@@ -206,19 +228,12 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         line_character_count += 1;
         character_count += 1;
         
-        line_character_count_perceived = line_character_count - line_character_ignored_count;
-
-        if (skip_leading_whitespace && current_line_has_leading_whitespace) {
-            if (line_index > 0 || break_line_explicit) {
-                if (line_character_count_perceived > 0) {
-                    line_character_count_perceived -= 1;
-                }
-            }
-        }
-
-        measurement.lines[line_index].size.width = line_character_count_perceived * measurement.character_size_perceived.width;
-        measurement.lines[line_index].size.height = line_height;
-        measurement.lines[line_index].character_count = line_character_count;
+        _shiz_sprite_set_line(&measurement.lines[line_index],
+                              &measurement,
+                              line_height,
+                              line_character_count,
+                              line_character_ignored_count,
+                              should_skip_leading_whitespace);
     }
 
     measurement.line_count = line_index + 1;
@@ -248,11 +263,6 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                       SHIZColor * const highlight_colors,
                       unsigned int const highlight_color_count)
 {
-    SHIZSprite character_sprite = SHIZSpriteEmpty;
-
-    character_sprite.resource_id = font.sprite.resource_id;
-    character_sprite.source = SHIZRectMake(font.sprite.source.origin, font.character);
-
     SHIZSpriteFontMeasurement const measurement = shiz_sprite_measure_text(font, text, bounds,
                                                                            attributes);
 
@@ -289,7 +299,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             character_origin.x -= line.size.width;
         }
 
-        int character_index;
+        int character_index = 0;
 
         for (character_index = 0;
              character_index < (int)line.character_count;
@@ -316,8 +326,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             
             character_count += 1;
 
-            if (character == '\1' || character == '\2' || character == '\3' || character == '\4' ||
-                character == '\5' || character == '\6' || character == '\7') {
+            if (_shiz_sprite_is_special_character(character)) {
                 // these characters are only used for tinting purposes and will be ignored/skipped otherwise
                 if (highlight_colors && highlight_color_count > 0) {
                     // at this point, we know that 'character' is one of the numeric tint specifiers
@@ -347,29 +356,12 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 continue;
             }
 
-            unsigned int const table_size = font.table.columns * font.table.rows;
+            int const character_table_index = _shiz_sprite_character_table_index(character,
+                                                                                 character_decimal,
+                                                                                 &font);
 
-            int character_table_index = -1;
-            
-            if (font.table.codepage != 0) {
-                for (unsigned int i = 0; i < table_size; i++) {
-                    if (font.table.codepage[i] == character_decimal) {
-                        character_table_index = i;
-                        
-                        break;
-                    }
-                }
-            } else {
-                character_table_index = (unsigned char)character;
-            }
-
-            if (character_table_index < 0 ||
-                character_table_index > (int)table_size) {
-                character_table_index = -1;
-            }
-
-            bool const skip_leading_whitespace = (/*attributes.wrap == SHIZSpriteFontWrapModeWord &&*/
-                                                  !font.includes_whitespace && line_index > 0);
+            bool const skip_leading_whitespace = (!font.includes_whitespace &&
+                                                  line_index > 0);
             bool const is_leading_whitespace = (character == whitespace_character &&
                                                 character_index == 0);
 
@@ -402,27 +394,15 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             }
 
             if (character_table_index != -1) {
-                bool can_draw_character = (character != whitespace_character ||
-                                           font.includes_whitespace);
+                bool const can_draw_character = (character != whitespace_character ||
+                                                 font.includes_whitespace);
 
                 if (can_draw_character) {
-                    unsigned int const character_row = (int)(character_table_index / font.table.columns);
-                    unsigned int const character_column = character_table_index % font.table.columns;
-
-                    character_sprite.source.origin.x = (font.sprite.source.origin.x +
-                                                        (font.character.width * character_column));
-                    character_sprite.source.origin.y = (font.sprite.source.origin.y +
-                                                        (font.character.height * character_row));
-
-                    SHIZSpriteSize const character_sprite_size = SHIZSpriteSized(measurement.character_size, SHIZSpriteNoScale);
-
-                    shiz_sprite_draw(character_sprite, character_origin,
-                                     character_sprite_size,
-                                     SHIZAnchorTopLeft, SHIZSpriteNoAngle,
-                                     highlight_color,
-                                     SHIZSpriteNoRepeat,
-                                     SHIZSpriteNotOpaque,
-                                     layer);
+                    _shiz_sprite_draw_character_index(&font, &measurement,
+                                                      character_origin,
+                                                      character_table_index,
+                                                      highlight_color,
+                                                      layer);
                 }
             }
 
@@ -445,4 +425,119 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
     }
     
     return measurement.size;
+}
+
+static
+void
+_shiz_sprite_draw_character_index(SHIZSpriteFont const * font,
+                                  SHIZSpriteFontMeasurement const * measurement,
+                                  SHIZVector2 const character_origin,
+                                  unsigned int const character_table_index,
+                                  SHIZColor const highlight_color,
+                                  SHIZLayer const layer)
+{
+    unsigned int const character_row = (int)(character_table_index / font->table.columns);
+    unsigned int const character_column = character_table_index % font->table.columns;
+    
+    SHIZSprite character_sprite = SHIZSpriteEmpty;
+    
+    character_sprite.resource_id = font->sprite.resource_id;
+    character_sprite.source = SHIZRectMake(font->sprite.source.origin,
+                                           font->character);
+    
+    character_sprite.source.origin.x = (font->sprite.source.origin.x +
+                                        (font->character.width * character_column));
+    character_sprite.source.origin.y = (font->sprite.source.origin.y +
+                                        (font->character.height * character_row));
+    
+    SHIZSpriteSize const character_sprite_size = SHIZSpriteSized(measurement->character_size,
+                                                                 SHIZSpriteNoScale);
+    
+    shiz_sprite_draw(character_sprite, character_origin,
+                     character_sprite_size,
+                     SHIZAnchorTopLeft, SHIZSpriteNoAngle,
+                     highlight_color,
+                     SHIZSpriteNoRepeat,
+                     SHIZSpriteNotOpaque,
+                     layer);
+}
+
+static
+int
+_shiz_sprite_character_table_index(char const character,
+                                   unsigned int const decimal,
+                                   SHIZSpriteFont const * font)
+{
+    unsigned int const table_size = font->table.columns * font->table.rows;
+    
+    int character_table_index = -1;
+    
+    if (font->table.codepage != 0) {
+        for (unsigned int i = 0; i < table_size; i++) {
+            if (font->table.codepage[i] == decimal) {
+                character_table_index = i;
+                
+                break;
+            }
+        }
+    } else {
+        character_table_index = (unsigned char)character;
+    }
+    
+    if (character_table_index < 0 ||
+        character_table_index > (int)table_size) {
+        character_table_index = -1;
+    }
+    
+    return character_table_index;
+}
+
+static
+void
+_shiz_sprite_set_line(SHIZSpriteFontLine * const line,
+                      SHIZSpriteFontMeasurement const * measurement,
+                      float const line_height,
+                      unsigned int const line_character_count,
+                      unsigned int const line_character_ignored_count,
+                      bool const should_skip_leading_whitespace)
+{
+    unsigned int const line_character_count_perceived = _shiz_sprite_perceived_count(line_character_count,
+                                                                                     line_character_ignored_count,
+                                                                                     should_skip_leading_whitespace);
+    
+    line->size.width = line_character_count_perceived * measurement->character_size_perceived.width;
+    line->size.height = line_height;
+    line->character_count = line_character_count;
+}
+
+static
+bool
+_shiz_sprite_is_special_character(char character)
+{
+    return (character == '\1' ||
+            character == '\2' || character == '\3' || character == '\4' ||
+            character == '\5' || character == '\6' || character == '\7');
+}
+
+static
+unsigned int
+_shiz_sprite_perceived_count(unsigned int const line_character_count,
+                             unsigned int const line_character_ignored_count,
+                             bool const should_skip_leading_whitespace)
+{
+    unsigned int line_character_count_perceived = line_character_count;
+    
+    if (line_character_count_perceived >= line_character_ignored_count) {
+        line_character_count_perceived -= line_character_ignored_count;
+    } else {
+        line_character_count_perceived = 0;
+    }
+    
+    if (should_skip_leading_whitespace) {
+        if (line_character_count_perceived > 0) {
+            line_character_count_perceived -= 1;
+        }
+    }
+    
+    return line_character_count_perceived;
 }
