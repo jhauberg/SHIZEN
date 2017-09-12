@@ -17,26 +17,34 @@
 #define SHIZSpriteInternalVertexCount 6
 
 typedef struct SHIZSpriteInternal {
-    unsigned long key; // packed SHIZSpriteInternalKey
-    unsigned int order; // literal call order; used as a last resort to ensure stable sorting
     SHIZVertexPositionColorTexture vertices[SHIZSpriteInternalVertexCount];
     SHIZVector3 origin;
+    unsigned long key; // packed SHIZSpriteInternalKey
+    unsigned int order; // literal call order; used as a last resort to ensure stable sorting
     float angle;
 } SHIZSpriteInternal;
 
 typedef struct SHIZSpriteInternalKey {
-    bool is_transparent: 1; // the least significant bit
-    unsigned short texture_id: 7;
-    // note that we can't just put a SHIZLayer field here as it would break the sorting
-    unsigned short layer_depth: 16;
+    // note that the order of these fields affect the sorting,
+    // where fields at the top weigh heavier than ones at the bottom
+    bool is_transparent: 1;
     unsigned short layer: 8;
-} SHIZSpriteInternalKey; // total 32 bits (unsigned long)
+    unsigned short layer_depth: 16;
+    unsigned short texture_id: 7;
+} SHIZSpriteInternalKey;
 
-static int _shiz_sprite_compare(const void * a, const void * b);
+static int _shiz_sprite_compare(void const * a, void const * b);
 static void _shiz_sprite_sort(void);
 
-static void _shiz_sprite_set_position(SHIZSpriteInternal * sprite_internal, SHIZSize const size, SHIZVector2 const anchor);
-static void _shiz_sprite_set_uv(SHIZSpriteInternal * sprite_internal, SHIZSize const size, SHIZSize const texture_size, SHIZRect const source, SHIZColor const tint, bool const repeat);
+static void _shiz_sprite_set_position(SHIZSpriteInternal *,
+                                      SHIZSize const destination_size,
+                                      SHIZVector2 const anchor);
+static void _shiz_sprite_set_uv(SHIZSpriteInternal *,
+                                SHIZSize const destination_size,
+                                SHIZSize const texture_size,
+                                SHIZRect const source,
+                                SHIZColor const tint,
+                                bool const repeat);
 
 static unsigned int _sprites_count = 0;
 static unsigned int _sprites_count_total = 0;
@@ -67,14 +75,14 @@ shiz_sprite_draw(SHIZSprite const sprite,
     
     unsigned long sort_key = 0;
     
-    SHIZSpriteInternalKey * sprite_key = (SHIZSpriteInternalKey *)&sort_key;
+    SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sort_key;
 
     sprite_key->layer = layer.layer;
     sprite_key->layer_depth = layer.depth;
     sprite_key->texture_id = image.texture_id;
     sprite_key->is_transparent = !opaque;
     
-    SHIZSpriteInternal * sprite_internal = &_sprites[_sprites_count];
+    SHIZSpriteInternal * const sprite_internal = &_sprites[_sprites_count];
     
     sprite_internal->key = sort_key;
     sprite_internal->angle = angle;
@@ -153,19 +161,19 @@ shiz_sprite_flush()
 }
 
 static int
-_shiz_sprite_compare(const void * a, const void * b)
+_shiz_sprite_compare(void const * const a, void const * const b)
 {
     SHIZSpriteInternal const * lhs = (SHIZSpriteInternal *)a;
     SHIZSpriteInternal const * rhs = (SHIZSpriteInternal *)b;
     
-    if (lhs->key < rhs->key) {
+    if (lhs->key > rhs->key) {
         return -1;
-    } else if (lhs->key > rhs->key) {
+    } else if (lhs->key < rhs->key) {
         return 1;
-    } else if (lhs->order < rhs->order) {
+    } else if (lhs->order > rhs->order) {
         // fall back to using order of drawing if both keys are equal
         return -1;
-    } else if (lhs->order > rhs->order) {
+    } else if (lhs->order < rhs->order) {
         return 1;
     }
     
@@ -173,7 +181,7 @@ _shiz_sprite_compare(const void * a, const void * b)
 }
 
 static void
-_shiz_sprite_sort(void)
+_shiz_sprite_sort()
 {
     // sort sprites based on their layer parameters, but also optimized for reduced state switching
     qsort(_sprites, _sprites_count,
@@ -185,7 +193,7 @@ _shiz_sprite_sort(void)
 }
 
 static void
-_shiz_sprite_set_position(SHIZSpriteInternal * sprite_internal,
+_shiz_sprite_set_position(SHIZSpriteInternal * const sprite_internal,
                           SHIZSize const size,
                           SHIZVector2 const anchor)
 {
@@ -211,7 +219,7 @@ _shiz_sprite_set_position(SHIZSpriteInternal * sprite_internal,
 }
 
 static void
-_shiz_sprite_set_uv(SHIZSpriteInternal * sprite_internal,
+_shiz_sprite_set_uv(SHIZSpriteInternal * const sprite_internal,
                     SHIZSize const size,
                     SHIZSize const texture_size,
                     SHIZRect const source,
