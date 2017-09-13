@@ -26,11 +26,11 @@ typedef struct SHIZSpriteInternal {
 
 typedef struct SHIZSpriteInternalKey {
     // note that the order of these fields affect the sorting,
-    // where fields at the top weigh heavier than ones at the bottom
-    bool is_transparent: 1;
-    unsigned short layer: 8;
+    // where fields at the bottom weigh heavier than ones at the top
     unsigned short layer_depth: 16;
+    unsigned short layer: 8;
     unsigned short texture_id: 7;
+    bool is_transparent: 1;
 } SHIZSpriteInternalKey;
 
 static int _shiz_sprite_compare(void const * a, void const * b);
@@ -145,7 +145,7 @@ shiz_sprite_flush()
     }
 
     _shiz_sprite_sort();
-
+    
     for (unsigned int sprite_index = 0; sprite_index < _sprites_count; sprite_index++) {
         SHIZSpriteInternal const sprite = _sprites[sprite_index];
         SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
@@ -166,14 +166,14 @@ _shiz_sprite_compare(void const * const a, void const * const b)
     SHIZSpriteInternal const * lhs = (SHIZSpriteInternal *)a;
     SHIZSpriteInternal const * rhs = (SHIZSpriteInternal *)b;
     
-    if (lhs->key > rhs->key) {
+    if (lhs->key < rhs->key) {
         return -1;
-    } else if (lhs->key < rhs->key) {
+    } else if (lhs->key > rhs->key) {
         return 1;
-    } else if (lhs->order > rhs->order) {
+    } else if (lhs->order < rhs->order) {
         // fall back to using order of drawing if both keys are equal
         return -1;
-    } else if (lhs->order < rhs->order) {
+    } else if (lhs->order > rhs->order) {
         return 1;
     }
     
@@ -183,13 +183,13 @@ _shiz_sprite_compare(void const * const a, void const * const b)
 static void
 _shiz_sprite_sort()
 {
-    // sort sprites based on their layer parameters, but also optimized for reduced state switching
-    qsort(_sprites, _sprites_count,
-          sizeof(SHIZSpriteInternal),
+    // sort sprites based on their layer parameters,
+    // but also optimized for reduced state switching
+    qsort(_sprites, _sprites_count, sizeof(SHIZSpriteInternal),
           _shiz_sprite_compare);
     
-    // note that sorting can not guarantee correct order in cases where flushing is required due to
-    // reaching sprite capacity (though the z-buffer should help)
+    // note that sorting can not guarantee correct order in cases where
+    // flushing is required due to reaching sprite capacity
 }
 
 static void
