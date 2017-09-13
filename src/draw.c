@@ -555,30 +555,41 @@ _shiz_debug_build_stats()
                 viewport.resolution.width, viewport.resolution.height);
     }
 
-    
     SHIZDebugFrameStats const frame_stats = shiz_debug_get_frame_stats();
     
-    sprintf(_shiz_debug_stats_buffer,
-            "%s\n"
-            "─────\n\n"
-            "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
-            "\2%d fps\1 (\3%d↓\1 \4%d↕\1 \5%d↑\1)\n\n"
-            "%c%d/%d sprites/frame\1\n"
-            "\2%d draws/frame\1\n\n"
-            "\4%0.2fms\1/\2%0.2fms/tick\1\n"
-            "\2%.1fx time\1",
-            display_size_buffer,
-            frame_stats.frame_time,
-            frame_stats.frame_time_avg,
+    char framerate_buffer[64] = { 0 };
+    
+    sprintf(framerate_buffer,
+            "\2%d fps\1 (\3%d↓\1 \4%d↕\1 \5%d↑\1)",
             frame_stats.frames_per_second,
             frame_stats.frames_per_second_min,
             frame_stats.frames_per_second_avg,
-            frame_stats.frames_per_second_max,
-            sprite_count_tint_specifier, shiz_debug_get_sprite_count(), SHIZSpriteInternalMax,
-            frame_stats.draw_count,
-            shiz_get_time_lag() * 1000,
-            shiz_get_tick_rate() * 1000,
-            shiz_get_time_scale());
+            frame_stats.frames_per_second_max);
+    
+    if (shiz_debug_is_expanded()) {
+        sprintf(_shiz_debug_stats_buffer,
+                "%s\n"
+                "─────\n\n"
+                "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
+                "%s\n\n"
+                "%c%d/%d sprites/frame\1\n"
+                "\2%d draws/frame\1\n\n"
+                "\4%0.2fms\1/\2%0.2fms/tick\1\n"
+                "\2%.1fx time\1",
+                display_size_buffer,
+                frame_stats.frame_time,
+                frame_stats.frame_time_avg,
+                framerate_buffer,
+                sprite_count_tint_specifier, shiz_debug_get_sprite_count(), SHIZSpriteInternalMax,
+                frame_stats.draw_count,
+                shiz_get_time_lag() * 1000,
+                shiz_get_tick_rate() * 1000,
+                shiz_get_time_scale());
+    } else {
+        sprintf(_shiz_debug_stats_buffer,
+                "%s",
+                framerate_buffer);
+    }
 }
 
 static void
@@ -732,49 +743,51 @@ _shiz_debug_draw_viewport()
     
     SHIZColor point_color = bounds_color;
     
-    shiz_draw_sprite_text_ex(spritefont, "0,0",
-                             SHIZVector2Make(spritefont.character.width / 2,
-                                             (spritefont.character.height / 2) - 1),
-                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
-                             SHIZSpriteFontSizeToFit, point_color, attrs, axes_layer);
-    
-    char center_text[32] = { 0 };
-    
-    sprintf(center_text, "%.0f,%.0f", center.x, center.y);
-    
-    shiz_draw_sprite_text_ex(spritefont, center_text,
-                             SHIZVector2Make(center.x + spritefont.character.width / 2,
-                                             center.y + (spritefont.character.height / 2) - 1),
-                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
-                             SHIZSpriteFontSizeToFit, point_color, attrs, axes_layer);
-    
-    char y_max[32] = { 0 };
-    char x_max[32] = { 0 };
+    if (shiz_debug_is_expanded()) {
+        shiz_draw_sprite_text_ex(spritefont, "0,0",
+                                 SHIZVector2Make(spritefont.character.width / 2,
+                                                 (spritefont.character.height / 2) - 1),
+                                 SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                                 SHIZSpriteFontSizeToFit, point_color, attrs, axes_layer);
+        
+        char center_text[32] = { 0 };
+        
+        sprintf(center_text, "%.0f,%.0f", center.x, center.y);
+        
+        shiz_draw_sprite_text_ex(spritefont, center_text,
+                                 SHIZVector2Make(center.x + spritefont.character.width / 2,
+                                                 center.y + (spritefont.character.height / 2) - 1),
+                                 SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                                 SHIZSpriteFontSizeToFit, point_color, attrs, axes_layer);
+        
+        char y_max[32] = { 0 };
+        char x_max[32] = { 0 };
 
-    sprintf(y_max, "Y=%.0f", viewport.resolution.height);
-    sprintf(x_max, "X=%.0f", viewport.resolution.width);
+        sprintf(y_max, "Y=%.0f", viewport.resolution.height);
+        sprintf(x_max, "X=%.0f", viewport.resolution.width);
 
-    shiz_draw_sprite_text_ex(spritefont, y_max,
-                             SHIZVector2Make(y_top.x - spritefont.character.width / 2,
-                                             y_top.y),
-                             SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentTop,
-                             SHIZSpriteFontSizeToFit, y_color, attrs, axes_layer);
-    shiz_draw_sprite_text_ex(spritefont, "Y=0",
-                             SHIZVector2Make(y_bottom.x + spritefont.character.width / 2,
-                                             y_bottom.y),
-                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
-                             SHIZSpriteFontSizeToFit, y_color, attrs, axes_layer);
+        shiz_draw_sprite_text_ex(spritefont, y_max,
+                                 SHIZVector2Make(y_top.x - spritefont.character.width / 2,
+                                                 y_top.y),
+                                 SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentTop,
+                                 SHIZSpriteFontSizeToFit, y_color, attrs, axes_layer);
+        shiz_draw_sprite_text_ex(spritefont, "Y=0",
+                                 SHIZVector2Make(y_bottom.x + spritefont.character.width / 2,
+                                                 y_bottom.y),
+                                 SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                                 SHIZSpriteFontSizeToFit, y_color, attrs, axes_layer);
 
-    shiz_draw_sprite_text_ex(spritefont, x_max,
-                             SHIZVector2Make(x_right.x,
-                                             x_right.y + (spritefont.character.height / 2) - 1),
-                             SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentBottom,
-                             SHIZSpriteFontSizeToFit, x_color, attrs, axes_layer);
-    shiz_draw_sprite_text_ex(spritefont, "X=0",
-                             SHIZVector2Make(x_left.x,
-                                             x_left.y - spritefont.character.height / 2),
-                             SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentTop,
-                             SHIZSpriteFontSizeToFit, x_color, attrs, axes_layer);
+        shiz_draw_sprite_text_ex(spritefont, x_max,
+                                 SHIZVector2Make(x_right.x,
+                                                 x_right.y + (spritefont.character.height / 2) - 1),
+                                 SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentBottom,
+                                 SHIZSpriteFontSizeToFit, x_color, attrs, axes_layer);
+        shiz_draw_sprite_text_ex(spritefont, "X=0",
+                                 SHIZVector2Make(x_left.x,
+                                                 x_left.y - spritefont.character.height / 2),
+                                 SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentTop,
+                                 SHIZSpriteFontSizeToFit, x_color, attrs, axes_layer);
+    }
 }
 
 static void

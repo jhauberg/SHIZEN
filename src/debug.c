@@ -24,6 +24,7 @@
 
 typedef struct SHIZDebugContext {
     bool is_enabled;
+    bool is_expanded;
     bool is_events_enabled; // used to disable event/draw call tracking while drawing debug stuff
     bool draw_shapes;
     bool draw_events;
@@ -104,6 +105,11 @@ shiz_debug_toggle_enabled()
     _context.is_enabled = !_context.is_enabled;
 }
 
+void shiz_debug_toggle_expanded(bool const expanded)
+{
+    _context.is_expanded = expanded;
+}
+
 void
 shiz_debug_toggle_events_enabled()
 {
@@ -126,6 +132,12 @@ bool
 shiz_debug_is_enabled()
 {
     return _context.is_enabled;
+}
+
+bool
+shiz_debug_is_expanded()
+{
+    return _context.is_expanded;
 }
 
 bool

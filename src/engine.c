@@ -83,6 +83,8 @@ key_callback(GLFWwindow * const window, int key, int scancode, int action, int m
     }
 
     if (shiz_debug_is_enabled()) {
+        shiz_debug_toggle_expanded(mods == GLFW_MOD_SHIFT);
+        
         if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_1) && action == GLFW_RELEASE) {
             shiz_debug_toggle_draw_shapes();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_2) && action == GLFW_RELEASE) {

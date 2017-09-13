@@ -39,11 +39,13 @@ bool shiz_debug_kill(void);
 void shiz_debug_process_errors(void);
 
 void shiz_debug_toggle_enabled(void);
+void shiz_debug_toggle_expanded(bool expanded);
 void shiz_debug_toggle_events_enabled(void);
 void shiz_debug_toggle_draw_events(void);
 void shiz_debug_toggle_draw_shapes(void);
 
 bool shiz_debug_is_enabled(void);
+bool shiz_debug_is_expanded(void);
 bool shiz_debug_is_events_enabled(void);
 bool shiz_debug_is_drawing_events(void);
 bool shiz_debug_is_drawing_shapes(void);
