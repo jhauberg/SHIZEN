@@ -2,7 +2,7 @@
 
 A low-profile and cross-platform 2D game engine that leaves a small footprint, providing shape, sprite and text-rendering.
 
-It is implemented *purely* in **C99** and requires **OpenGL Core Profile 3.3**.
+It is implemented *purely* in **C99** and requires **OpenGL 3.3 (Core Profile)**.
 
 **This is very much a work-in-progress. Beware.**
 
@@ -26,9 +26,9 @@ A few dependencies are required to keep the scope of the project down:
 
 I've always wanted to make my own videogame. I've never fully succeeded at it, and possibly never will.
 
-This, however, is the first step.
+This, however, is the first step... A step i've taken several times before, *ahem*.
 
-...A step i've taken several times before, *ahem*. But let's not get into that. It's all about the journey anyway, right?
+But let's not get into that. It's all about the journey anyway, right?
 
 ## Inspiration
 
