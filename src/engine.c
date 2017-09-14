@@ -67,7 +67,22 @@ static void _shiz_intro_gl(void);
 
 static SHIZVector2 _shiz_glfw_window_position;
 
-SHIZGraphicsContext _context;
+SHIZGraphicsContext _context = {
+    .window = NULL,
+    .native_size = {
+        .width = 0,
+        .height = 0
+    },
+    .display_size = {
+        .width = 0,
+        .height = 0
+    },
+    .swap_interval = 0,
+    .pixel_size = 1,
+    .is_initialized = false,
+    .is_focused = false,
+    .should_finish = false
+};
 
 static void
 key_callback(GLFWwindow * const window, int key, int scancode, int action, int mods)
