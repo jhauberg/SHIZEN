@@ -119,7 +119,7 @@ bool
 shiz_startup(SHIZWindowSettings const settings)
 {
     if (_context.is_initialized) {
-        return true;
+        return false;
     }
 
     _shiz_intro(settings.description);
