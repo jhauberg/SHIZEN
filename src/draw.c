@@ -554,24 +554,15 @@ _shiz_debug_build_stats()
         sprintf(display_size_buffer, "\4%.0fx%.0f\1",
                 viewport.resolution.width, viewport.resolution.height);
     }
-
+    
     SHIZDebugFrameStats const frame_stats = shiz_debug_get_frame_stats();
-    
-    char framerate_buffer[64] = { 0 };
-    
-    sprintf(framerate_buffer,
-            "\2%d fps\1 (\3%d↓\1 \4%d↕\1 \5%d↑\1)",
-            frame_stats.frames_per_second,
-            frame_stats.frames_per_second_min,
-            frame_stats.frames_per_second_avg,
-            frame_stats.frames_per_second_max);
     
     if (shiz_debug_is_expanded()) {
         sprintf(_shiz_debug_stats_buffer,
                 "%s\n"
                 "─────\n\n"
                 "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
-                "%s\n\n"
+                "\2%d fps\1 (\3%d↓\1 \4%d↕\1 \5%d↑\1%s)\n\n"
                 "%c%d/%d sprites/frame\1\n"
                 "\2%d draws/frame\1\n\n"
                 "\4%0.2fms\1/\2%0.2fms/tick\1\n"
@@ -579,7 +570,11 @@ _shiz_debug_build_stats()
                 display_size_buffer,
                 frame_stats.frame_time,
                 frame_stats.frame_time_avg,
-                framerate_buffer,
+                frame_stats.frames_per_second,
+                frame_stats.frames_per_second_min,
+                frame_stats.frames_per_second_avg,
+                frame_stats.frames_per_second_max,
+                frame_stats.is_vsync_enabled ? " \2V\1" : "",
                 sprite_count_tint_specifier, shiz_debug_get_sprite_count(), SHIZSpriteInternalMax,
                 frame_stats.draw_count,
                 shiz_get_time_lag() * 1000,
@@ -587,8 +582,9 @@ _shiz_debug_build_stats()
                 shiz_get_time_scale());
     } else {
         sprintf(_shiz_debug_stats_buffer,
-                "%s",
-                framerate_buffer);
+                "\2%d fps%s\1",
+                frame_stats.frames_per_second,
+                frame_stats.is_vsync_enabled ? " (V)" : "");
     }
 }
 

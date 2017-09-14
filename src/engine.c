@@ -248,6 +248,12 @@ shiz_get_display_size()
     return _context.native_size;
 }
 
+bool
+shiz_is_vsync_enabled()
+{
+    return _context.swap_interval > 0;
+}
+
 SHIZSprite
 shiz_load_sprite(const char * const filename)
 {
