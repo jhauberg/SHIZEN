@@ -49,7 +49,7 @@ static void _shiz_glfw_window_close_callback(GLFWwindow * const window);
 static void _shiz_glfw_window_focus_callback(GLFWwindow * const window, int focused);
 
 static void _shiz_glfw_framebuffer_size_callback(GLFWwindow * const window, int width, int height);
-static bool _shiz_glfw_create_window(SHIZWindowSettings const settings);
+static bool _shiz_glfw_create_window(bool const fullscreen, char const * title);
 
 static SHIZSize _shiz_glfw_get_window_size(void);
 static SHIZSize _shiz_glfw_get_framebuffer_size(void);
@@ -111,6 +111,7 @@ shiz_startup(SHIZWindowSettings const settings)
     
     _context.native_size = settings.size;
     _context.pixel_size = 1;
+    _context.swap_interval = settings.vsync ? 1 : 0;
     
     if (settings.pixel_size > 0) {
         _context.pixel_size = settings.pixel_size;
@@ -131,7 +132,7 @@ shiz_startup(SHIZWindowSettings const settings)
         printf(" Using GLFW %s\n\n", glfwGetVersionString());
     }
 
-    if (!_shiz_glfw_create_window(settings)) {
+    if (!_shiz_glfw_create_window(settings.fullscreen, settings.title)) {
         shiz_io_error_context("GLFW", "(%s) failed to create window", glfwGetVersionString());
 
         return false;
@@ -497,7 +498,7 @@ _shiz_can_run()
 }
 
 static bool
-_shiz_glfw_create_window(SHIZWindowSettings const settings)
+_shiz_glfw_create_window(bool const fullscreen, char const * title)
 {
     glfwWindowHint(GLFW_SAMPLES, 0);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, SHIZ_MIN_OPENGL_VERSION_MAJOR);
@@ -507,7 +508,7 @@ _shiz_glfw_create_window(SHIZWindowSettings const settings)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
     
-    if (settings.fullscreen) {
+    if (fullscreen) {
         GLFWmonitor * monitor = glfwGetPrimaryMonitor();
         
         if (monitor) {
@@ -517,7 +518,7 @@ _shiz_glfw_create_window(SHIZWindowSettings const settings)
             int const display_height = mode->height;
             
             _context.window = glfwCreateWindow(display_width, display_height,
-                                               settings.title, glfwGetPrimaryMonitor(), NULL);
+                                               title, glfwGetPrimaryMonitor(), NULL);
             
             // prefer centered window if initially fullscreen;
             // otherwise let the OS determine window placement
@@ -527,7 +528,7 @@ _shiz_glfw_create_window(SHIZWindowSettings const settings)
     } else {
         _context.window = glfwCreateWindow(_context.display_size.width,
                                            _context.display_size.height,
-                                           settings.title, NULL, NULL);
+                                           title, NULL, NULL);
     }
     
     if (!_context.window) {
@@ -542,7 +543,7 @@ _shiz_glfw_create_window(SHIZWindowSettings const settings)
     glfwSetKeyCallback(_context.window, key_callback);
     
     glfwMakeContextCurrent(_context.window);
-    glfwSwapInterval(settings.vsync ? 1 : 0);
+    glfwSwapInterval(_context.swap_interval);
     
     return true;
 }

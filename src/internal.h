@@ -49,20 +49,22 @@
 #define SHIZEpsilon (1.0 / 1024)
 
 typedef struct SHIZGraphicsContext {
+    /** A reference to the current window */
+    GLFWwindow * window;
+    /** The operating resolution; the display may be boxed if necessary */
+    SHIZSize native_size;
+    /** The actual display size; essentially operating size ⨉ pixel size */
+    SHIZSize display_size;
+    /** The number of screen updates between buffer swaps */
+    int swap_interval;
+    /** The size of each pixel; must be higher than 0 */
+    unsigned int pixel_size;
     /** Determines whether the context has been initialized */
     bool is_initialized;
     /** Determines whether the context has focus */
     bool is_focused;
     /** Determines whether a shutdown should be initiated */
     bool should_finish;
-    /** The operating resolution; the display may be boxed if necessary */
-    SHIZSize native_size;
-    /** The actual display size; essentially operating size ⨉ pixel size */
-    SHIZSize display_size;
-    /** The size of each pixel; must be higher than 0 */
-    unsigned int pixel_size;
-    /** A reference to the current window */
-    GLFWwindow * window;
 } SHIZGraphicsContext;
 
 typedef struct SHIZTimeLine {
