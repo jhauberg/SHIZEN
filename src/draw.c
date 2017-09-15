@@ -17,10 +17,11 @@
 #include <limits.h>
 #include <math.h>
 
+#include "graphics/gfx.h"
+
 #include "internal.h"
 #include "sprite.h"
 #include "spritefont.h"
-#include "gfx.h"
 #include "res.h"
 #include "io.h"
 

@@ -13,9 +13,10 @@
 
 #include <stdio.h>
 
+#include "graphics/gfx.h"
+
 #include "internal.h"
 #include "viewport.h"
-#include "gfx.h"
 #include "res.h"
 #include "io.h"
 

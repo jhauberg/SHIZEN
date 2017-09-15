@@ -14,10 +14,11 @@
 
 #include "gfx.h"
 
+#include "../transform.h"
+#include "../io.h"
+
 #include "shader.h"
-#include "transform.h"
 #include "spritebatch.h"
-#include "io.h"
 
 #ifdef SHIZ_DEBUG
 static const char * const _shiz_debug_event_primitive = "\xDB";

@@ -11,7 +11,8 @@
 
 #include "sprite.h"
 
-#include "gfx.h"
+#include "graphics/gfx.h"
+
 #include "res.h"
 
 #define SHIZSpriteInternalVertexCount 6
