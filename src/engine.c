@@ -14,6 +14,7 @@
 #include <stdio.h>
 
 #include "internal.h"
+#include "viewport.h"
 #include "gfx.h"
 #include "res.h"
 #include "io.h"
@@ -26,21 +27,11 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .description = NULL,
     .fullscreen = false,
     .vsync = true,
-    .size = { 320, 240 },
+    .size = {
+        .width = 320,
+        .height = 240
+    },
     .pixel_size = 1
-};
-
-static SHIZViewport const SHIZViewportDefault = {
-    .framebuffer = {
-        .width = 0,
-        .height = 0
-    },
-    .resolution = {
-        .width = 0,
-        .height = 0
-    },
-    .scale = 1,
-    .is_fullscreen = false
 };
 
 static void _shiz_glfw_error_callback(int error, char const * description);

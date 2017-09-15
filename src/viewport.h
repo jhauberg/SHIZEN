@@ -27,6 +27,8 @@ typedef enum SHIZViewportMode {
     SHIZViewportModePillarbox
 } SHIZViewportMode;
 
+extern SHIZViewport const SHIZViewportDefault;
+
 void shiz_set_viewport(SHIZViewport viewport);
 
 SHIZViewport shiz_get_viewport(void);
