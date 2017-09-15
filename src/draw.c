@@ -603,7 +603,7 @@ _shiz_debug_draw_events()
 
     SHIZLayer const layer = SHIZLayerTop;
 
-    SHIZSize const display_size = _shiz_get_operating_resolution();
+    SHIZSize const bounds = _context.native_size;
 
     for (unsigned int i = 0; i < shiz_debug_get_event_count(); i++) {
         SHIZDebugEvent const event = shiz_debug_get_event(i);
@@ -611,7 +611,7 @@ _shiz_debug_draw_events()
         float const lane_offset = lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
 
         SHIZVector2 const from = SHIZVector2Make(event.origin.x,
-                                                 display_size.height - lane_offset);
+                                                 bounds.height - lane_offset);
         SHIZVector2 const to = SHIZVector2Make(event.origin.x,
                                                event.origin.y);
 
@@ -663,11 +663,11 @@ _shiz_debug_draw_stats()
         SHIZColorFromHex(0x20b1fc)  // blue
     };
 
-    SHIZSize const display_size = _shiz_get_operating_resolution();
+    SHIZSize const bounds = _context.native_size;
 
     SHIZVector2 stats_text_origin =
-    SHIZVector2Make(display_size.width - margin,
-                    display_size.height - margin);
+    SHIZVector2Make(bounds.width - margin,
+                    bounds.height - margin);
 
     SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
         attrs.character_spread = SHIZSpriteFontSpreadTight;
@@ -689,7 +689,7 @@ _shiz_debug_draw_stats()
 
     shiz_draw_sprite_text_ex(spritefont,
                              version_buffer,
-                             SHIZVector2Make(display_size.width - margin / 2, margin / 2),
+                             SHIZVector2Make(bounds.width - margin / 2, margin / 2),
                              SHIZSpriteFontAlignmentBottom | SHIZSpriteFontAlignmentRight,
                              SHIZSpriteFontSizeToFit, SHIZSpriteTintDefaultWithAlpa(0.15f),
                              attrs, layer);

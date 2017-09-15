@@ -42,15 +42,14 @@ static void _shiz_glfw_key_callback(GLFWwindow * const window, int key, int scan
 
 static void _shiz_glfw_framebuffer_size_callback(GLFWwindow *, int width, int height);
 static bool _shiz_glfw_create_window(bool fullscreen, char const * title);
+static void _shiz_glfw_toggle_windowed(GLFWwindow *);
+
+static float _shiz_glfw_get_pixel_scale(void);
 
 static SHIZSize _shiz_glfw_get_window_size(void);
 static SHIZSize _shiz_glfw_get_framebuffer_size(void);
 
-static void _shiz_glfw_toggle_windowed(GLFWwindow *);
-
 static SHIZViewport _shiz_build_viewport(void);
-
-static float _shiz_glfw_get_pixel_scale(void);
 
 static bool _shiz_can_run(void);
 
@@ -203,7 +202,7 @@ _shiz_build_viewport()
 {
     SHIZViewport viewport = SHIZViewportDefault;
 
-    viewport.resolution = _shiz_get_operating_resolution();
+    viewport.resolution = _context.native_size;
     viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
     viewport.scale = _shiz_glfw_get_pixel_scale();
 
@@ -212,12 +211,6 @@ _shiz_build_viewport()
     }
 
     return viewport;
-}
-
-SHIZSize
-_shiz_get_operating_resolution()
-{
-    return _context.native_size;
 }
 
 void
@@ -465,7 +458,8 @@ _shiz_glfw_window_close_callback(GLFWwindow * const window)
     _context.should_finish = true;
 }
 
-static void
+static
+void
 _shiz_glfw_window_focus_callback(GLFWwindow * const window, int const focused)
 {
     (void)window;
@@ -473,7 +467,8 @@ _shiz_glfw_window_focus_callback(GLFWwindow * const window, int const focused)
     _context.is_focused = focused;
 }
 
-static void
+static
+void
 _shiz_glfw_framebuffer_size_callback(GLFWwindow * const window,
                                      int const width,
                                      int const height)

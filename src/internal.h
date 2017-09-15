@@ -55,7 +55,7 @@ typedef struct SHIZGraphicsContext {
     GLFWwindow * window;
     /** The operating resolution; the display may be boxed if necessary */
     SHIZSize native_size;
-    /** The actual display size; essentially operating size ⨉ pixel size */
+    /** The actual display size; essentially operating resolution ⨉ pixel size */
     SHIZSize display_size;
     /** The number of screen updates between buffer swaps */
     int swap_interval;
@@ -98,8 +98,6 @@ typedef struct SHIZVertexPositionColorTexture {
     SHIZVector2 texture_coord_min;
     SHIZVector2 texture_coord_max;
 } SHIZVertexPositionColorTexture;
-
-SHIZSize _shiz_get_operating_resolution(void);
 
 void _shiz_present_frame(void);
 
