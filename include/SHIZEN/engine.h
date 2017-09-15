@@ -104,11 +104,6 @@ bool shiz_should_finish(void);
  * @brief Return the display size within the window.
  */
 SHIZSize shiz_get_display_size(void);
-/**
- * @brief Determine whether vertical synchronization of screen updates (vsync)
- * is enabled.
- */
-bool shiz_is_vsync_enabled(void);
 
 /**
  * @brief Load a resource.

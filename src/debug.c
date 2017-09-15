@@ -69,7 +69,6 @@ shiz_debug_init()
     _frame_stats.frames_per_second_min = UINT_MAX;
     _frame_stats.frames_per_second_max = 0;
     _frame_stats.frames_per_second_avg = 0;
-    _frame_stats.is_vsync_enabled = shiz_is_vsync_enabled();
 
     if (!_shiz_debug_load_font()) {
         return false;

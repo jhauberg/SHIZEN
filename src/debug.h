@@ -31,7 +31,6 @@ typedef struct SHIZDebugFrameStats {
     unsigned int frames_per_second_avg;
     double frame_time;
     double frame_time_avg;
-    bool is_vsync_enabled;
 } SHIZDebugFrameStats;
 
 bool shiz_debug_init(void);
