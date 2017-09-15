@@ -9,8 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef engine_h
-#define engine_h
+#ifndef shizen_h
+#define shizen_h
 
 #include <stdbool.h>
 
@@ -156,4 +156,4 @@ SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite sprite,
                                        SHIZSize character,
                                        SHIZSpriteFontTable table);
 
-#endif // engine_h
+#endif // shizen_h

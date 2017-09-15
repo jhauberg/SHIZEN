@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/engine.h>
+#include <SHIZEN/shizen.h>
 
 #include <stdio.h>
 
