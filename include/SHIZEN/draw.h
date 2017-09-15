@@ -12,7 +12,7 @@
 #ifndef draw_h
 #define draw_h
 
-#include "type.h"
+#include "ztype.h"
 
 /**
  * @brief Begin drawing to the screen.

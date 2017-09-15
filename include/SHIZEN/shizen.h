@@ -14,9 +14,9 @@
 
 #include <stdbool.h>
 
-#include "type.h"
-#include "draw.h"
+#include "ztype.h"
 #include "ztime.h"
+#include "draw.h"
 #include "input.h"
 #include "loader.h"
 

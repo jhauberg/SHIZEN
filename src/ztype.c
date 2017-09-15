@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/type.h>
+#include <SHIZEN/ztype.h>
 
 #include <stdlib.h>
 

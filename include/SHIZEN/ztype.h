@@ -11,8 +11,8 @@
 
 #pragma once
 
-#ifndef type_h
-#define type_h
+#ifndef ztype_h
+#define ztype_h
 
 #include <stdbool.h>
 
@@ -374,4 +374,4 @@ SHIZAnchorInverse(SHIZVector2 const anchor)
                            anchor.y * -1);
 }
 
-#endif // type_h
+#endif // ztype_h

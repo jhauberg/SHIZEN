@@ -14,7 +14,7 @@
 
 #include <stdbool.h>
 
-#include "type.h"
+#include "ztype.h"
 
 /**
  * @brief Load a resource.

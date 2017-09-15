@@ -42,7 +42,7 @@
 #include <ctype.h>
 #include <math.h>
 
-#include <SHIZEN/type.h>
+#include <SHIZEN/ztype.h>
 
 #ifdef SHIZ_DEBUG
  #include "debug.h"
