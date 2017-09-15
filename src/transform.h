@@ -17,11 +17,11 @@
 
 void shiz_transform_project_ortho(mat4x4 world,
                                   mat4x4 model,
-                                  SHIZViewport const viewport);
+                                  SHIZViewport);
 
 void shiz_transform_translate_rotate_scale(mat4x4 model,
-                                           SHIZVector3 const translation,
-                                           float const angle,
-                                           float const scale);
+                                           SHIZVector3 translation,
+                                           float angle,
+                                           float scale);
 
 #endif // transform_h

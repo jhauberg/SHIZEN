@@ -13,7 +13,6 @@
 #define gfx_h
 
 #include "internal.h"
-
 #include "viewport.h"
 
 /**
@@ -28,7 +27,7 @@
  *
  * @return `true` if the graphics module was initialized successfully, `false` otherwise
  */
-bool shiz_gfx_init(SHIZViewport const viewport);
+bool shiz_gfx_init(SHIZViewport viewport);
 /**
  * @brief Kill any resources created by the graphics module.
  *
@@ -48,14 +47,14 @@ bool shiz_gfx_kill(void);
  * additional buffer allocation and a draw call, and so it is not very efficient. 
  * Take that into consideration before extended use.
  */
-void shiz_gfx_render(GLenum const mode,
+void shiz_gfx_render(GLenum mode,
                      SHIZVertexPositionColor const * restrict vertices,
-                     unsigned int const count);
+                     unsigned int count);
 void shiz_gfx_render_ex(GLenum const mode,
                         SHIZVertexPositionColor const * restrict vertices,
-                        unsigned int const count,
-                        SHIZVector3 const origin,
-                        float const angle);
+                        unsigned int count,
+                        SHIZVector3 origin,
+                        float angle);
 
 /**
  * @brief Render a sprite; a textured quad.
@@ -66,11 +65,11 @@ void shiz_gfx_render_ex(GLenum const mode,
  *         once per frame).
  */
 void shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
-                            SHIZVector3 const origin,
-                            float const angle,
-                            GLuint const texture_id);
+                            SHIZVector3 origin,
+                            float angle,
+                            GLuint texture_id);
 
-void shiz_gfx_begin(SHIZColor const clear);
+void shiz_gfx_begin(SHIZColor clear);
 void shiz_gfx_end(void);
 
 void shiz_gfx_flush(void);

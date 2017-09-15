@@ -23,29 +23,27 @@
 static const char * const _shiz_debug_event_primitive = "\xDB";
 #endif
 
-static void _shiz_gfx_post_state(bool const enable);
-
 static bool _shiz_gfx_init_post(void);
 static bool _shiz_gfx_kill_post(void);
 static void _shiz_gfx_render_post(void);
 
 static bool _shiz_gfx_init_primitive(void);
 static bool _shiz_gfx_kill_primitive(void);
-static void _shiz_gfx_render_primitive(GLenum const mode,
+static void _shiz_gfx_render_primitive(GLenum mode,
                                        SHIZVertexPositionColor const * restrict vertices,
-                                       unsigned int const count,
-                                       SHIZVector3 const origin,
-                                       float const angle);
+                                       unsigned int count,
+                                       SHIZVector3 origin,
+                                       float angle);
 
-static void _shiz_gfx_primitive_state(bool const enable);
+static void _shiz_gfx_primitive_state(bool enable);
 
 static unsigned int const post_vertex_count = 4;
 
 typedef struct SHIZGFXPost {
+    SHIZRenderObject render;
     GLuint texture_id;
     GLuint framebuffer;
     GLuint renderbuffer;
-    SHIZRenderObject render;
 } SHIZGFXPost;
 
 typedef struct SHIZGFXPrimitive {
@@ -155,7 +153,7 @@ shiz_gfx_flush()
 
 void
 shiz_gfx_render(GLenum const mode,
-                SHIZVertexPositionColor const * restrict vertices,
+                SHIZVertexPositionColor const * restrict const vertices,
                 unsigned int const count)
 {
     shiz_gfx_render_ex(mode, vertices, count, SHIZVector3Zero, 0);
@@ -163,7 +161,7 @@ shiz_gfx_render(GLenum const mode,
 
 void
 shiz_gfx_render_ex(GLenum const mode,
-                   SHIZVertexPositionColor const * restrict vertices,
+                   SHIZVertexPositionColor const * restrict const vertices,
                    unsigned int const count,
                    SHIZVector3 const origin,
                    float const angle)
@@ -172,7 +170,7 @@ shiz_gfx_render_ex(GLenum const mode,
 }
 
 void
-shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
+shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
                        SHIZVector3 const origin,
                        float const angle,
                        GLuint const texture_id)
@@ -180,18 +178,11 @@ shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
     shiz_gfx_add_sprite(vertices, origin, angle, texture_id);
 }
 
-static void
-_shiz_gfx_post_state(bool const enable)
-{
-    if (enable) {
-
-    }
-}
-
-static bool
+static
+bool
 _shiz_gfx_init_post()
 {
-    const char * vertex_shader =
+    char const * const vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
     "layout (location = 1) in vec2 vertex_texture_coord;\n"
@@ -201,7 +192,7 @@ _shiz_gfx_init_post()
     "    texture_coord = vertex_texture_coord.st;\n"
     "}\n";
 
-    const char * fragment_shader =
+    char const * const fragment_shader =
     "#version 330 core\n"
     "in vec2 texture_coord;\n"
     "uniform sampler2D sampler;\n"
@@ -270,7 +261,7 @@ _shiz_gfx_init_post()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    static const SHIZVertexPositionTexture vertices[post_vertex_count] = {
+    static SHIZVertexPositionTexture const vertices[post_vertex_count] = {
         { .position = { -1, -1, 0 }, .texture_coord = { 0, 0 } },
         { .position = { -1,  1, 0 }, .texture_coord = { 0, 1 } },
         { .position = {  1, -1, 0 }, .texture_coord = { 1, 0 } },
@@ -305,11 +296,10 @@ _shiz_gfx_init_post()
     return true;
 }
 
-static void
+static
+void
 _shiz_gfx_render_post()
 {
-    _shiz_gfx_post_state(true);
-
     glUseProgram(_post.render.program);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
@@ -323,11 +313,10 @@ _shiz_gfx_render_post()
     }
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
-    
-    _shiz_gfx_post_state(false);
 }
 
-static bool
+static
+bool
 _shiz_gfx_kill_post()
 {
     glDeleteFramebuffers(1, &_post.framebuffer);
@@ -340,10 +329,11 @@ _shiz_gfx_kill_post()
     return true;
 }
 
-static bool
+static
+bool
 _shiz_gfx_init_primitive()
 {
-    const char * vertex_shader =
+    char const * const vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
     "layout (location = 1) in vec4 vertex_color;\n"
@@ -354,7 +344,7 @@ _shiz_gfx_init_primitive()
     "    color = vertex_color;\n"
     "}\n";
     
-    const char * fragment_shader =
+    char const * const fragment_shader =
     "#version 330 core\n"
     "in vec4 color;\n"
     "layout (location = 0) out vec4 fragment_color;\n"
@@ -404,9 +394,10 @@ _shiz_gfx_init_primitive()
     return true;
 }
 
-static void
+static
+void
 _shiz_gfx_render_primitive(GLenum const mode,
-                           SHIZVertexPositionColor const * restrict vertices,
+                           SHIZVertexPositionColor const * restrict const vertices,
                            unsigned int const count,
                            SHIZVector3 const origin,
                            float const angle)
@@ -452,7 +443,8 @@ _shiz_gfx_render_primitive(GLenum const mode,
 #endif
 }
 
-static bool
+static
+bool
 _shiz_gfx_kill_primitive()
 {
     glDeleteProgram(_primitive.render.program);
@@ -462,7 +454,8 @@ _shiz_gfx_kill_primitive()
     return true;
 }
 
-static void
+static
+void
 _shiz_gfx_primitive_state(bool const enable)
 {
     if (enable) {

@@ -51,10 +51,10 @@ typedef enum SHIZDrawMode {
  * The source frame can either be a subset of, or span the entire image.
  */
 typedef struct SHIZSprite {
-    /** The image resource */
-    unsigned int resource_id;
     /* The frame that specifies which part of the image to draw */
     SHIZRect source;
+    /** The image resource */
+    unsigned int resource_id;
 } SHIZSprite;
 
 typedef struct SHIZSpriteSheet {
@@ -85,9 +85,9 @@ typedef enum SHIZSpriteFontWrapMode {
 } SHIZSpriteFontWrapMode;
 
 typedef struct SHIZSpriteFontTable {
+    const unsigned int * codepage;
     unsigned int columns;
     unsigned int rows;
-    const unsigned int * codepage;
 } SHIZSpriteFontTable;
 
 /**
@@ -220,7 +220,8 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
  */
 #define SHIZSpriteFontNoPadding 0
 
-static inline SHIZVector2 const
+static inline
+SHIZVector2 const
 SHIZVector2Make(float const x, float const y)
 {
     SHIZVector2 const vector = {
@@ -230,7 +231,8 @@ SHIZVector2Make(float const x, float const y)
     return vector;
 }
 
-static inline SHIZVector3 const
+static inline
+SHIZVector3 const
 SHIZVector3Make(float const x, float const y, float const z)
 {
     SHIZVector3 const vector = {
@@ -240,7 +242,8 @@ SHIZVector3Make(float const x, float const y, float const z)
     return vector;
 }
 
-static inline SHIZSize const
+static inline
+SHIZSize const
 SHIZSizeMake(float const width, float const height)
 {
     SHIZSize const size = {
@@ -250,7 +253,8 @@ SHIZSizeMake(float const width, float const height)
     return size;
 }
 
-static inline SHIZRect const
+static inline
+SHIZRect const
 SHIZRectMake(SHIZVector2 origin, SHIZSize size)
 {
     SHIZRect const rect = {
@@ -260,7 +264,8 @@ SHIZRectMake(SHIZVector2 origin, SHIZSize size)
     return rect;
 }
 
-static inline SHIZRect const
+static inline
+SHIZRect const
 SHIZRectMakeEx(float const x, float const y,
                float const width, float const height)
 {
@@ -268,7 +273,8 @@ SHIZRectMakeEx(float const x, float const y,
                         SHIZSizeMake(width, height));
 }
 
-static inline SHIZColor const
+static inline
+SHIZColor const
 SHIZColorMake(float const r,
               float const g,
               float const b,
@@ -281,7 +287,8 @@ SHIZColorMake(float const r,
     return color;
 }
 
-static inline SHIZColor const
+static inline
+SHIZColor const
 SHIZColorFromHex(int const value)
 {
     SHIZColor const color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
@@ -291,7 +298,8 @@ SHIZColorFromHex(int const value)
     return color;
 }
 
-static inline SHIZColor const
+static inline
+SHIZColor const
 SHIZColorWithAlpa(SHIZColor const color, float const alpha)
 {
     SHIZColor result_color = color;
@@ -301,13 +309,15 @@ SHIZColorWithAlpa(SHIZColor const color, float const alpha)
     return result_color;
 }
 
-static inline SHIZColor const
+static inline
+SHIZColor const
 SHIZSpriteTintDefaultWithAlpa(float const alpha)
 {
     return SHIZColorWithAlpa(SHIZSpriteNoTint, alpha);
 }
 
-static inline SHIZSpriteSize const
+static inline
+SHIZSpriteSize const
 SHIZSpriteSized(SHIZSize const size, float const scale)
 {
     SHIZSpriteSize sprite_size;
@@ -318,7 +328,8 @@ SHIZSpriteSized(SHIZSize const size, float const scale)
     return sprite_size;
 }
 
-static inline SHIZSpriteSize const
+static inline
+SHIZSpriteSize const
 SHIZSpriteSizedIntrinsicallyWithScale(float const scale)
 {
     SHIZSpriteSize size = SHIZSpriteSizeIntrinsic;
@@ -328,7 +339,8 @@ SHIZSpriteSizedIntrinsicallyWithScale(float const scale)
     return size;
 }
 
-static inline SHIZSpriteFontAttributes const
+static inline
+SHIZSpriteFontAttributes const
 SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
                                          SHIZSpriteFontWrapMode const wrap)
 {
@@ -340,19 +352,22 @@ SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
     return attrs;
 }
 
-static inline SHIZSpriteFontAttributes const
+static inline
+SHIZSpriteFontAttributes const
 SHIZSpriteFontAttributesWithScale(float const scale)
 {
     return SHIZSpriteFontAttributesWithScaleAndWrap(scale, SHIZSpriteFontAttributesDefault.wrap);
 }
 
-static inline SHIZSpriteFontAttributes const
+static inline
+SHIZSpriteFontAttributes const
 SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap)
 {
     return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteFontAttributesDefault.scale.x, wrap);
 }
 
-static inline SHIZVector2 const
+static inline
+SHIZVector2 const
 SHIZAnchorInverse(SHIZVector2 const anchor)
 {
     return SHIZVector2Make(anchor.x * -1,

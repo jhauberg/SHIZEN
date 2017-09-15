@@ -14,8 +14,10 @@
 #include "io.h"
 
 static void _shiz_apply_viewport_boxing_if_necessary(void);
-static void _shiz_determine_viewport_mode(SHIZViewportMode * mode, float * width, float * height);
 static void _shiz_determine_operating_resolution(void);
+static void _shiz_determine_viewport_mode(SHIZViewportMode * mode,
+                                          float * width,
+                                          float * height);
 
 // set to false to let viewport fit framebuffer (pixels will be stretched)
 static bool const enable_boxing_if_necessary = true;
@@ -49,7 +51,8 @@ shiz_set_viewport(SHIZViewport const viewport)
     _shiz_apply_viewport_boxing_if_necessary();
 }
 
-static void
+static
+void
 _shiz_determine_operating_resolution()
 {
     if ((_viewport.resolution.width < _viewport.framebuffer.width ||
@@ -64,7 +67,8 @@ _shiz_determine_operating_resolution()
         }
 }
 
-static void
+static
+void
 _shiz_apply_viewport_boxing_if_necessary()
 {
     _viewport_offset = SHIZSizeZero;
@@ -87,8 +91,11 @@ _shiz_apply_viewport_boxing_if_necessary()
     }
 }
 
-static void
-_shiz_determine_viewport_mode(SHIZViewportMode * mode, float * width, float * height)
+static
+void
+_shiz_determine_viewport_mode(SHIZViewportMode * const mode,
+                              float * const width,
+                              float * const height)
 {
     float const screen_aspect_ratio = _viewport.resolution.width / _viewport.resolution.height;
     float const framebuffer_aspect_ratio = _viewport.framebuffer.width / _viewport.framebuffer.height;

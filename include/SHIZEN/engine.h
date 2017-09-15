@@ -24,9 +24,9 @@
  */
 typedef struct SHIZWindowSettings {
     /** The title of the window */
-    const char * title;
+    char const * title;
     /** A description of the game that is printed to the log */
-    const char * description;
+    char const * description;
     /** Determines whether the window should be fullscreen initially */
     bool fullscreen;
     /** Determines whether v-sync should be enabled */
@@ -63,7 +63,7 @@ extern SHIZWindowSettings const SHIZWindowSettingsDefault;
  *
  * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
-bool shiz_startup(SHIZWindowSettings const settings);
+bool shiz_startup(SHIZWindowSettings settings);
 /**
  * @brief Shutdown the SHIZEN engine core.
  *
@@ -115,50 +115,50 @@ bool shiz_is_vsync_enabled(void);
  *
  * @return A resource id if the resource was loaded successfully, `0` otherwise
  */
-unsigned int shiz_load(const char * const filename);
+unsigned int shiz_load(char const * filename);
 /**
  * @brief Unload a resource.
  *
  * @return `true` if the resource was unloaded successfully, `false` otherwise
  */
-bool shiz_unload(unsigned int const resource_id);
+bool shiz_unload(unsigned int resource_id);
 
-SHIZSprite shiz_load_sprite(const char * const filename);
-SHIZSprite shiz_load_sprite_src(const char * const filename,
-                                SHIZRect const source);
+SHIZSprite shiz_load_sprite(char const * filename);
+SHIZSprite shiz_load_sprite_src(char const * filename,
+                                SHIZRect source);
 
-SHIZSprite shiz_get_sprite(unsigned int const resource_id);
-SHIZSprite shiz_get_sprite_src(unsigned int const resource_id,
-                               SHIZRect const source);
+SHIZSprite shiz_get_sprite(unsigned int resource_id);
+SHIZSprite shiz_get_sprite_src(unsigned int resource_id,
+                               SHIZRect source);
 
-SHIZSpriteSheet shiz_load_sprite_sheet(const char * const filename,
-                                       SHIZSize const sprite_size);
-SHIZSpriteSheet shiz_load_sprite_sheet_src(const char * const filename,
-                                           SHIZSize const sprite_size,
-                                           SHIZRect const source);
+SHIZSpriteSheet shiz_load_sprite_sheet(char const * filename,
+                                       SHIZSize sprite_size);
+SHIZSpriteSheet shiz_load_sprite_sheet_src(char const * filename,
+                                           SHIZSize sprite_size,
+                                           SHIZRect source);
 
-SHIZSpriteSheet shiz_get_sprite_sheet(SHIZSprite const resource,
-                                      SHIZSize const sprite_size);
-SHIZSpriteSheet shiz_get_sprite_sheet_src(SHIZSprite const resource,
-                                          SHIZSize const sprite_size,
-                                          SHIZRect const source);
+SHIZSpriteSheet shiz_get_sprite_sheet(SHIZSprite resource,
+                                      SHIZSize sprite_size);
+SHIZSpriteSheet shiz_get_sprite_sheet_src(SHIZSprite resource,
+                                          SHIZSize sprite_size,
+                                          SHIZRect source);
 
-SHIZSprite shiz_get_sprite_index(SHIZSpriteSheet const spritesheet,
-                                 unsigned int const index);
-SHIZSprite shiz_get_sprite_colrow(SHIZSpriteSheet const spritesheet,
-                                  unsigned int const column,
-                                  unsigned int const row);
+SHIZSprite shiz_get_sprite_index(SHIZSpriteSheet spritesheet,
+                                 unsigned int index);
+SHIZSprite shiz_get_sprite_colrow(SHIZSpriteSheet spritesheet,
+                                  unsigned int column,
+                                  unsigned int row);
 
-SHIZSpriteFont shiz_load_sprite_font(const char * const filename,
-                                     SHIZSize const character);
-SHIZSpriteFont shiz_load_sprite_font_ex(const char * const filename,
-                                        SHIZSize const character,
-                                        SHIZSpriteFontTable const table);
+SHIZSpriteFont shiz_load_sprite_font(char const * filename,
+                                     SHIZSize character);
+SHIZSpriteFont shiz_load_sprite_font_ex(char const * filename,
+                                        SHIZSize character,
+                                        SHIZSpriteFontTable table);
 
-SHIZSpriteFont shiz_get_sprite_font(SHIZSprite const sprite,
-                                    SHIZSize const character);
-SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite const sprite,
-                                       SHIZSize const character,
-                                       SHIZSpriteFontTable const table);
+SHIZSpriteFont shiz_get_sprite_font(SHIZSprite sprite,
+                                    SHIZSize character);
+SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite sprite,
+                                       SHIZSize character,
+                                       SHIZSpriteFontTable table);
 
 #endif // engine_h

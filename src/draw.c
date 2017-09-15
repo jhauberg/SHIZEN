@@ -395,7 +395,7 @@ shiz_draw_sprite_ex(SHIZSprite const sprite,
 
 SHIZSize
 shiz_measure_sprite_text(SHIZSpriteFont const font,
-                         const char * const text,
+                         char const * const text,
                          SHIZSize const bounds,
                          SHIZSpriteFontAttributes const attributes)
 {
@@ -407,7 +407,7 @@ shiz_measure_sprite_text(SHIZSpriteFont const font,
 
 SHIZSize
 shiz_draw_sprite_text(SHIZSpriteFont const font,
-                      const char * const text,
+                      char const * const text,
                       SHIZVector2 const origin,
                       SHIZSpriteFontAlignment const alignment)
 {
@@ -435,14 +435,14 @@ shiz_draw_sprite_text_ex(SHIZSpriteFont const font,
 
 SHIZSize
 shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
-                                 const char * const text,
+                                 char const * const text,
                                  SHIZVector2 const origin,
                                  SHIZSpriteFontAlignment const alignment,
                                  SHIZSize const bounds,
                                  SHIZColor const tint,
                                  SHIZSpriteFontAttributes const attributes,
                                  SHIZLayer const layer,
-                                 SHIZColor * const highlight_colors,
+                                 SHIZColor const * const highlight_colors,
                                  unsigned int const highlight_color_count)
 {
     SHIZSize const text_size = shiz_sprite_draw_text(font, text,

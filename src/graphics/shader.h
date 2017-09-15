@@ -14,7 +14,7 @@
 
 #include "internal.h"
 
-GLuint shiz_gfx_compile_shader(GLenum const type, const GLchar * source);
-GLuint shiz_gfx_link_program(GLuint const vs, GLuint const fs);
+GLuint shiz_gfx_compile_shader(GLenum type, GLchar const * source);
+GLuint shiz_gfx_link_program(GLuint vs, GLuint fs);
 
 #endif // shader_h

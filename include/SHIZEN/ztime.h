@@ -9,10 +9,6 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifdef ztime_h
-#error this header is already defined
-#endif
-
 #ifndef ztime_h
 #define ztime_h
 
@@ -58,7 +54,7 @@ void shiz_animate(SHIZAnimatable *, double interpolation);
 
 static inline
 SHIZAnimatable
-SHIZAnimated(float value)
+SHIZAnimated(float const value)
 {
     SHIZAnimatable animatable = {
         .value = value,

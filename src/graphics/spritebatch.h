@@ -21,8 +21,8 @@ void shiz_gfx_spritebatch_reset(void);
 bool shiz_gfx_spritebatch_flush(void);
 
 void shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
-                         SHIZVector3 const origin,
-                         float const angle,
-                         GLuint const texture_id);
+                         SHIZVector3 origin,
+                         float angle,
+                         GLuint texture_id);
 
 #endif // spritebatch_h

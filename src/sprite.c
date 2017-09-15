@@ -37,14 +37,14 @@ static int _shiz_sprite_compare(void const * a, void const * b);
 static void _shiz_sprite_sort(void);
 
 static void _shiz_sprite_set_position(SHIZSpriteInternal *,
-                                      SHIZSize const destination_size,
-                                      SHIZVector2 const anchor);
+                                      SHIZSize destination_size,
+                                      SHIZVector2 anchor);
 static void _shiz_sprite_set_uv(SHIZSpriteInternal *,
-                                SHIZSize const destination_size,
-                                SHIZSize const texture_size,
-                                SHIZRect const source,
-                                SHIZColor const tint,
-                                bool const repeat);
+                                SHIZSize destination_size,
+                                SHIZSize texture_size,
+                                SHIZRect source,
+                                SHIZColor tint,
+                                bool repeat);
 
 static unsigned int _sprites_count = 0;
 static unsigned int _sprites_count_total = 0;
@@ -116,7 +116,8 @@ shiz_sprite_draw(SHIZSprite const sprite,
 }
 
 SHIZRect const
-shiz_sprite_get_anchored_rect(SHIZSize const size, SHIZVector2 const anchor)
+shiz_sprite_get_anchored_rect(SHIZSize const size,
+                              SHIZVector2 const anchor)
 {
     float const hw = size.width / 2;
     float const hh = size.height / 2;
@@ -192,7 +193,8 @@ _shiz_sprite_sort()
     // flushing is required due to reaching sprite capacity
 }
 
-static void
+static
+void
 _shiz_sprite_set_position(SHIZSpriteInternal * const sprite_internal,
                           SHIZSize const size,
                           SHIZVector2 const anchor)
@@ -218,7 +220,8 @@ _shiz_sprite_set_position(SHIZSpriteInternal * const sprite_internal,
     sprite_internal->vertices[5].position = SHIZVector3Make(br.x, br.y, 0);
 }
 
-static void
+static
+void
 _shiz_sprite_set_uv(SHIZSpriteInternal * const sprite_internal,
                     SHIZSize const size,
                     SHIZSize const texture_size,

@@ -19,21 +19,21 @@
  */
 #define SHIZSpriteInternalMax 2048
 
-SHIZRect const shiz_sprite_get_anchored_rect(SHIZSize const size,
-                                             SHIZVector2 const anchor);
+SHIZRect const shiz_sprite_get_anchored_rect(SHIZSize size,
+                                             SHIZVector2 anchor);
 
 void shiz_sprite_reset(void);
 void shiz_sprite_flush(void);
 
-SHIZSize const shiz_sprite_draw(SHIZSprite const sprite,
-                                SHIZVector2 const origin,
-                                SHIZSpriteSize const size,
-                                SHIZVector2 const anchor,
-                                float const angle,
-                                SHIZColor const tint,
-                                bool const repeat,
-                                bool const opaque,
-                                SHIZLayer const layer);
+SHIZSize const shiz_sprite_draw(SHIZSprite sprite,
+                                SHIZVector2 origin,
+                                SHIZSpriteSize size,
+                                SHIZVector2 anchor,
+                                float angle,
+                                SHIZColor tint,
+                                bool repeat,
+                                bool opaque,
+                                SHIZLayer layer);
 
 #ifdef SHIZ_DEBUG
 unsigned int shiz_debug_get_sprite_count(void);
