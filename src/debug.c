@@ -23,14 +23,14 @@
 #define SHIZDebugEventMax 64
 
 typedef struct SHIZDebugContext {
+    SHIZSpriteFont font;
+    SHIZDebugEvent events[SHIZDebugEventMax];
+    unsigned int event_count;
     bool is_enabled;
     bool is_expanded;
     bool is_events_enabled; // used to disable event/draw call tracking while drawing debug stuff
     bool draw_shapes;
     bool draw_events;
-    unsigned int event_count;
-    SHIZSpriteFont font;
-    SHIZDebugEvent events[SHIZDebugEventMax];
 } SHIZDebugContext;
 
 static void _shiz_debug_update_frame_averages(void);
@@ -69,7 +69,6 @@ shiz_debug_init()
     _frame_stats.frames_per_second_min = UINT_MAX;
     _frame_stats.frames_per_second_max = 0;
     _frame_stats.frames_per_second_avg = 0;
-    _frame_stats.is_vsync_enabled = shiz_is_vsync_enabled();
 
     if (!_shiz_debug_load_font()) {
         return false;
@@ -296,7 +295,8 @@ shiz_debug_get_frame_stats()
     return _frame_stats;
 }
 
-static void
+static
+void
 _shiz_debug_update_frame_averages()
 {
     _frame_stats.frames_per_second_avg = _frame_samples / _frame_sample_count;
@@ -313,7 +313,8 @@ _shiz_debug_update_frame_averages()
     _frame_stats.frames_per_second_max = 0;
 }
 
-static bool
+static
+bool
 _shiz_debug_load_font()
 {
     if (!shiz_res_debug_load_font(IBM8x8, IBM8x8Size)) {

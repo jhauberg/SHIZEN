@@ -15,9 +15,9 @@
 #include <math.h>
 
 static unsigned int
-utf8_decode(const char * str, unsigned int * i)
+utf8_decode(char const * str, unsigned int * i)
 {
-    const unsigned char *s = (const unsigned char *)str;
+    unsigned char const * s = (unsigned char const *)str;
 
     int u = *s, l = 1;
 
@@ -43,27 +43,27 @@ utf8_decode(const char * str, unsigned int * i)
 }
 
 static bool _shiz_sprite_is_special_character(char);
-static unsigned int _shiz_sprite_perceived_count(unsigned int const line_character_count,
-                                                 unsigned int const line_character_ignored_count,
-                                                 bool const should_skip_leading_whitespace);
-static void _shiz_sprite_set_line(SHIZSpriteFontLine *,
-                                  SHIZSpriteFontMeasurement const *,
-                                  float const line_height,
-                                  unsigned int const line_character_count,
-                                  unsigned int const line_character_ignored_count,
-                                  bool const should_skip_leading_whitespace);
+static unsigned int _shiz_sprite_perceived_count(unsigned int line_character_count,
+                                                 unsigned int line_character_ignored_count,
+                                                 bool should_skip_leading_whitespace);
+static void _shiz_sprite_set_line(SHIZSpriteFontLine * line,
+                                  SHIZSpriteFontMeasurement const * measurement,
+                                  float line_height,
+                                  unsigned int line_character_count,
+                                  unsigned int line_character_ignored_count,
+                                  bool should_skip_leading_whitespace);
 static int _shiz_sprite_character_table_index(char, unsigned int decimal,
-                                              SHIZSpriteFont const *);
-static void _shiz_sprite_draw_character_index(SHIZSpriteFont const *,
-                                              SHIZSpriteFontMeasurement const *,
-                                              SHIZVector2 const character_origin,
-                                              unsigned int const character_table_index,
-                                              SHIZColor const highlight_color,
-                                              SHIZLayer const layer);
+                                              SHIZSpriteFont const * font);
+static void _shiz_sprite_draw_character_index(SHIZSpriteFont const * font,
+                                              SHIZSpriteFontMeasurement const * measurement,
+                                              SHIZVector2 character_origin,
+                                              unsigned int character_table_index,
+                                              SHIZColor highlight_color,
+                                              SHIZLayer);
 
 SHIZSpriteFontMeasurement const
 shiz_sprite_measure_text(SHIZSpriteFont const font,
-                         const char * const text,
+                         char const * const text,
                          SHIZSize const bounds,
                          SHIZSpriteFontAttributes const attributes)
 {
@@ -253,14 +253,14 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
 SHIZSize const
 shiz_sprite_draw_text(SHIZSpriteFont const font,
-                      const char * const text,
+                      char const * const text,
                       SHIZVector2 const origin,
                       SHIZSpriteFontAlignment const alignment,
                       SHIZSize const bounds,
                       SHIZColor const tint,
                       SHIZSpriteFontAttributes const attributes,
                       SHIZLayer const layer,
-                      SHIZColor * const highlight_colors,
+                      SHIZColor const * const highlight_colors,
                       unsigned int const highlight_color_count)
 {
     SHIZSpriteFontMeasurement const measurement = shiz_sprite_measure_text(font, text, bounds,
@@ -429,8 +429,8 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
 
 static
 void
-_shiz_sprite_draw_character_index(SHIZSpriteFont const * font,
-                                  SHIZSpriteFontMeasurement const * measurement,
+_shiz_sprite_draw_character_index(SHIZSpriteFont const * const font,
+                                  SHIZSpriteFontMeasurement const * const measurement,
                                   SHIZVector2 const character_origin,
                                   unsigned int const character_table_index,
                                   SHIZColor const highlight_color,
@@ -466,7 +466,7 @@ static
 int
 _shiz_sprite_character_table_index(char const character,
                                    unsigned int const decimal,
-                                   SHIZSpriteFont const * font)
+                                   SHIZSpriteFont const * const font)
 {
     unsigned int const table_size = font->table.columns * font->table.rows;
     
@@ -495,7 +495,7 @@ _shiz_sprite_character_table_index(char const character,
 static
 void
 _shiz_sprite_set_line(SHIZSpriteFontLine * const line,
-                      SHIZSpriteFontMeasurement const * measurement,
+                      SHIZSpriteFontMeasurement const * const measurement,
                       float const line_height,
                       unsigned int const line_character_count,
                       unsigned int const line_character_ignored_count,
@@ -512,7 +512,7 @@ _shiz_sprite_set_line(SHIZSpriteFontLine * const line,
 
 static
 bool
-_shiz_sprite_is_special_character(char character)
+_shiz_sprite_is_special_character(char const character)
 {
     return (character == '\1' ||
             character == '\2' || character == '\3' || character == '\4' ||

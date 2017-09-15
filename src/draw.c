@@ -53,6 +53,8 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
 static char _shiz_debug_stats_buffer[256] = { 0 };
 #endif
 
+extern SHIZGraphicsContext const _context;
+
 void
 shiz_drawing_begin(SHIZColor const background)
 {
@@ -395,7 +397,7 @@ shiz_draw_sprite_ex(SHIZSprite const sprite,
 
 SHIZSize
 shiz_measure_sprite_text(SHIZSpriteFont const font,
-                         const char * const text,
+                         char const * const text,
                          SHIZSize const bounds,
                          SHIZSpriteFontAttributes const attributes)
 {
@@ -407,7 +409,7 @@ shiz_measure_sprite_text(SHIZSpriteFont const font,
 
 SHIZSize
 shiz_draw_sprite_text(SHIZSpriteFont const font,
-                      const char * const text,
+                      char const * const text,
                       SHIZVector2 const origin,
                       SHIZSpriteFontAlignment const alignment)
 {
@@ -435,14 +437,14 @@ shiz_draw_sprite_text_ex(SHIZSpriteFont const font,
 
 SHIZSize
 shiz_draw_sprite_text_ex_colored(SHIZSpriteFont const font,
-                                 const char * const text,
+                                 char const * const text,
                                  SHIZVector2 const origin,
                                  SHIZSpriteFontAlignment const alignment,
                                  SHIZSize const bounds,
                                  SHIZColor const tint,
                                  SHIZSpriteFontAttributes const attributes,
                                  SHIZLayer const layer,
-                                 SHIZColor * const highlight_colors,
+                                 SHIZColor const * const highlight_colors,
                                  unsigned int const highlight_color_count)
 {
     SHIZSize const text_size = shiz_sprite_draw_text(font, text,
@@ -557,6 +559,8 @@ _shiz_debug_build_stats()
     
     SHIZDebugFrameStats const frame_stats = shiz_debug_get_frame_stats();
     
+    bool const is_vsync_enabled = _context.swap_interval > 0;
+    
     if (shiz_debug_is_expanded()) {
         sprintf(_shiz_debug_stats_buffer,
                 "%s\n"
@@ -574,7 +578,7 @@ _shiz_debug_build_stats()
                 frame_stats.frames_per_second_min,
                 frame_stats.frames_per_second_avg,
                 frame_stats.frames_per_second_max,
-                frame_stats.is_vsync_enabled ? " \2V\1" : "",
+                is_vsync_enabled ? " \2V\1" : "",
                 sprite_count_tint_specifier, shiz_debug_get_sprite_count(), SHIZSpriteInternalMax,
                 frame_stats.draw_count,
                 shiz_get_time_lag() * 1000,
@@ -584,7 +588,7 @@ _shiz_debug_build_stats()
         sprintf(_shiz_debug_stats_buffer,
                 "\2%d fps%s\1",
                 frame_stats.frames_per_second,
-                frame_stats.is_vsync_enabled ? " (V)" : "");
+                is_vsync_enabled ? " (V)" : "");
     }
 }
 

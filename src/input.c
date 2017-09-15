@@ -13,7 +13,7 @@
 
 #include "internal.h"
 
-extern SHIZGraphicsContext _context;
+extern SHIZGraphicsContext const _context;
 
 static bool down[SHIZInputMax] = { false };
 static bool pressed[SHIZInputMax] = { false };

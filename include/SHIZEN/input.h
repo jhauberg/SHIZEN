@@ -24,8 +24,8 @@ typedef enum SHIZInput {
 #define SHIZInputMax (SHIZInputAny + 1)
 
 void shiz_input_update(void);
-bool shiz_input_down(SHIZInput const input);
-bool shiz_input_pressed(SHIZInput const input);
-bool shiz_input_released(SHIZInput const input);
+bool shiz_input_down(SHIZInput);
+bool shiz_input_pressed(SHIZInput);
+bool shiz_input_released(SHIZInput);
 
 #endif /* input_h */

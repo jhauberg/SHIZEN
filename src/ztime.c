@@ -15,29 +15,35 @@
 
 #include "internal.h"
 
-static SHIZTimeLine const SHIZTimeLineDefault = {
+static SHIZTimeline const SHIZTimelineDefault = {
     .time = 0,
     .time_step = 0,
     .scale = 1
 };
 
+typedef struct SHIZTimelineState {
+    double time_previous;
+    double time_lag;
+    
+    bool is_ticking;
+} SHIZTimelineState;
+
 static double const maximum_frame_time = 1.0 / 4; // effectively 4 frames per second
 
-static SHIZTimeLine _timeline;
-
-static double _time_previous = 0;
-static double _time_lag = 0;
-
-static bool _is_ticking = false;
+static SHIZTimeline _timeline;
+static SHIZTimelineState _timeline_state = {
+    .time_previous = 0,
+    .time_lag = 0,
+    .is_ticking = false
+};
 
 void
 shiz_time_reset()
 {
-    _timeline = SHIZTimeLineDefault;
+    _timeline = SHIZTimelineDefault;
+    _timeline_state.time_previous = _timeline.time;
     
     glfwSetTime(_timeline.time);
-    
-    _time_previous = glfwGetTime();
 }
 
 double
@@ -51,21 +57,21 @@ shiz_time_since(double const time)
 void
 shiz_ticking_begin()
 {
-    if (_is_ticking) {
+    if (_timeline_state.is_ticking) {
         return;
     }
 
-    _is_ticking = true;
+    _timeline_state.is_ticking = true;
 
     double const time = glfwGetTime();
-    double time_elapsed = time - _time_previous;
+    double time_elapsed = time - _timeline_state.time_previous;
     
     if (time_elapsed > maximum_frame_time) {
         time_elapsed = maximum_frame_time;
     }
 
-    _time_lag += fabs(time_elapsed * _timeline.scale);
-    _time_previous = time;
+    _timeline_state.time_lag += fabs(time_elapsed * _timeline.scale);
+    _timeline_state.time_previous = time;
 }
 
 bool
@@ -73,8 +79,8 @@ shiz_tick(unsigned short const frequency)
 {
     _timeline.time_step = 1.0 / frequency;
     
-    if (_time_lag >= _timeline.time_step) {
-        _time_lag -= _timeline.time_step;
+    if (_timeline_state.time_lag >= _timeline.time_step) {
+        _timeline_state.time_lag -= _timeline.time_step;
         
         SHIZTimeDirection const direction = shiz_get_time_direction();
         
@@ -89,13 +95,13 @@ shiz_tick(unsigned short const frequency)
 double
 shiz_ticking_end()
 {
-    if (!_is_ticking) {
+    if (!_timeline_state.is_ticking) {
         return 0;
     }
 
-    _is_ticking = false;
+    _timeline_state.is_ticking = false;
 
-    double const interpolation = _time_lag / _timeline.time_step;
+    double const interpolation = _timeline_state.time_lag / _timeline.time_step;
 
     return interpolation;
 }
@@ -109,7 +115,7 @@ shiz_get_tick_rate()
 double
 shiz_get_time_lag()
 {
-    return _time_lag;
+    return _timeline_state.time_lag;
 }
 
 double

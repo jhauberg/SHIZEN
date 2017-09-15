@@ -19,7 +19,7 @@
 
 typedef struct SHIZDebugEvent {
     SHIZVector3 origin;
-    const char * name;
+    char const * name;
     unsigned int lane;
 } SHIZDebugEvent;
 
@@ -31,7 +31,6 @@ typedef struct SHIZDebugFrameStats {
     unsigned int frames_per_second_avg;
     double frame_time;
     double frame_time_avg;
-    bool is_vsync_enabled;
 } SHIZDebugFrameStats;
 
 bool shiz_debug_init(void);
@@ -51,18 +50,18 @@ bool shiz_debug_is_events_enabled(void);
 bool shiz_debug_is_drawing_events(void);
 bool shiz_debug_is_drawing_shapes(void);
 
-void shiz_debug_set_drawing_shapes(bool const enabled);
-void shiz_debug_set_events_enabled(bool const enabled);
+void shiz_debug_set_drawing_shapes(bool enabled);
+void shiz_debug_set_events_enabled(bool enabled);
 
 SHIZSpriteFont shiz_debug_get_font(void);
-SHIZDebugEvent shiz_debug_get_event(unsigned int const index);
+SHIZDebugEvent shiz_debug_get_event(unsigned int index);
 
 unsigned int shiz_debug_get_event_count(void);
 
 void shiz_debug_reset_events(void);
-void shiz_debug_add_event(SHIZDebugEvent const event);
-void shiz_debug_add_event_resource(const char * const filename, SHIZVector3 const origin);
-void shiz_debug_add_event_draw(const char * const cause, SHIZVector3 const origin);
+void shiz_debug_add_event(SHIZDebugEvent event);
+void shiz_debug_add_event_resource(char const * filename, SHIZVector3 origin);
+void shiz_debug_add_event_draw(char const * cause, SHIZVector3 origin);
 
 void shiz_debug_reset_draw_count(void);
 void shiz_debug_increment_draw_count(unsigned int amount);

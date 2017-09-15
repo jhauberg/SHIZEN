@@ -48,20 +48,20 @@ typedef struct SHIZSpriteFontMeasurement {
     bool constrain_vertically;
 } SHIZSpriteFontMeasurement;
 
-SHIZSpriteFontMeasurement const shiz_sprite_measure_text(SHIZSpriteFont const font,
-                                                         const char * const text,
-                                                         SHIZSize const bounds,
-                                                         SHIZSpriteFontAttributes const attributes);
+SHIZSpriteFontMeasurement const shiz_sprite_measure_text(SHIZSpriteFont font,
+                                                         char const * text,
+                                                         SHIZSize bounds,
+                                                         SHIZSpriteFontAttributes attrs);
 
-SHIZSize const shiz_sprite_draw_text(SHIZSpriteFont const font,
-                                     const char * const text,
-                                     SHIZVector2 const origin,
-                                     SHIZSpriteFontAlignment const alignment,
-                                     SHIZSize const bounds,
-                                     SHIZColor const tint,
-                                     SHIZSpriteFontAttributes const attributes,
-                                     SHIZLayer const layer,
-                                     SHIZColor * const highlight_colors,
-                                     unsigned int const highlight_color_count);
+SHIZSize const shiz_sprite_draw_text(SHIZSpriteFont font,
+                                     char const * text,
+                                     SHIZVector2 origin,
+                                     SHIZSpriteFontAlignment alignment,
+                                     SHIZSize bounds,
+                                     SHIZColor tint,
+                                     SHIZSpriteFontAttributes attrs,
+                                     SHIZLayer layer,
+                                     SHIZColor const * highlight_colors,
+                                     unsigned int highlight_color_count);
 
 #endif // spritefont_h

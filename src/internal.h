@@ -14,7 +14,7 @@
 
 #define SHIZEN_VERSION_MAJOR 0
 #define SHIZEN_VERSION_MINOR 18
-#define SHIZEN_VERSION_PATCH 1
+#define SHIZEN_VERSION_PATCH 2
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -42,6 +42,8 @@
 #include <ctype.h>
 #include <math.h>
 
+#include <SHIZEN/type.h>
+
 #ifdef SHIZ_DEBUG
  #include "debug.h"
 #endif
@@ -67,11 +69,11 @@ typedef struct SHIZGraphicsContext {
     bool should_finish;
 } SHIZGraphicsContext;
 
-typedef struct SHIZTimeLine {
+typedef struct SHIZTimeline {
     double time;
     double time_step;
     double scale;
-} SHIZTimeLine;
+} SHIZTimeline;
 
 typedef struct SHIZRenderObject {
     GLuint program;
@@ -101,7 +103,8 @@ SHIZSize _shiz_get_operating_resolution(void);
 
 void _shiz_present_frame(void);
 
-static inline void
+static inline
+void
 _shiz_str_to_upper(char * string)
 {
     char * ptr;
@@ -114,37 +117,43 @@ _shiz_str_to_upper(char * string)
 /**
  * @brief Determine whether two floats are approximately equal.
  */
-static inline bool
+static inline
+bool
 _shiz_fequal(float const a, float const b)
 {
     return (fabs(b - a) < SHIZEpsilon);
 }
 
-static inline float
+static inline
+float
 _shiz_lerp(float const a, float const b, float const t)
 {
     return a * (1.0f - t) + b * t;
 }
 
-static inline int
+static inline
+int
 _shiz_random_int_range(int const min, int const max)
 {
     return min + (rand() % (int)((max + 1) - min));
 }
 
-static inline float
+static inline
+float
 _shiz_random_float(void)
 {
     return rand() / (RAND_MAX + 1.0f);
 }
 
-static inline float
+static inline
+float
 _shiz_random_float_range(float const min, float const max)
 {
     return _shiz_lerp(min, max, _shiz_random_float());
 }
 
-static inline float
+static inline
+float
 _shiz_layer_get_z(SHIZLayer const layer)
 {
     float const value = layer.layer + layer.depth;

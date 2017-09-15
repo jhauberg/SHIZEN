@@ -14,7 +14,7 @@
 #include "io.h"
 
 GLuint
-shiz_gfx_compile_shader(GLenum const type, const GLchar * source)
+shiz_gfx_compile_shader(GLenum const type, GLchar const * const source)
 {
     GLuint const shader = glCreateShader(type);
     
@@ -24,8 +24,8 @@ shiz_gfx_compile_shader(GLenum const type, const GLchar * source)
     GLint param;
     
     glGetShaderiv(shader, GL_COMPILE_STATUS, &param);
-    
-    if (!param) {
+
+    if (param != GL_TRUE) {
         GLchar log[4096];
         
         glGetShaderInfoLog(shader, sizeof(log), NULL, log);
@@ -52,7 +52,7 @@ shiz_gfx_link_program(GLuint const vs, GLuint const fs)
     
     glGetProgramiv(program, GL_LINK_STATUS, &param);
     
-    if (!param) {
+    if (param != GL_TRUE) {
         GLchar log[4096];
         
         glGetProgramInfoLog(program, sizeof(log), NULL, log);

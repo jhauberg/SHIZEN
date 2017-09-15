@@ -30,10 +30,10 @@
  #pragma clang pop
 #endif
 
-static bool _shiz_io_handle_image(unsigned char * const image_data,
+static bool _shiz_io_handle_image(unsigned char * image_data,
                                   int width, int height, int components,
                                   shiz_io_image_loaded_handler handler);
-static void _shiz_io_printf(const char * const format, va_list args);
+static void _shiz_io_printf(char const * format, va_list args);
 
 
 #define SHIZIOBufferCapacity 256
@@ -53,7 +53,7 @@ static char _buffer_format[SHIZIOBufferCapacity];
     va_end(args); \
 
 static void
-_shiz_io_printf(const char * const format, va_list args)
+_shiz_io_printf(char const * const format, va_list args)
 {
     vsnprintf(_buffer, SHIZIOBufferCapacity, format, args);
     
@@ -62,31 +62,31 @@ _shiz_io_printf(const char * const format, va_list args)
 
 
 void
-shiz_io_error(const char * const format, ...)
+shiz_io_error(char const * const format, ...)
 {
     SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] %s", SHIZIOContextError, format) )
 }
 
 void
-shiz_io_error_context(const char * const context, const char * const format, ...)
+shiz_io_error_context(char const * const context, char const * const format, ...)
 {
     SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] [%s] %s", SHIZIOContextError, context, format) )
 }
 
 void
-shiz_io_warning(const char * const format, ...)
+shiz_io_warning(char const * const format, ...)
 {
     SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] %s", SHIZIOContextWarning, format) )
 }
 
 void
-shiz_io_warning_context(const char * const context, const char * const format, ...)
+shiz_io_warning_context(char const * const context, char const * const format, ...)
 {
     SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] [%s] %s", SHIZIOContextWarning, context, format) )
 }
 
 bool
-shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handler const handler)
+shiz_io_load_image(char const * const filename, shiz_io_image_loaded_handler const handler)
 {
     int width, height;
     int components;
@@ -95,8 +95,8 @@ shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handler con
     // opengl expects the first pixel to be at the bottom-left of the image, so we need to flip it
     stbi_set_flip_vertically_on_load(true);
     
-    unsigned char * image = stbi_load(filename, &width, &height, &components,
-                                      STBI_rgb_alpha);
+    unsigned char * const image = stbi_load(filename, &width, &height, &components,
+                                            STBI_rgb_alpha);
 
     if (!image) {
         shiz_io_error("failed to load image: '%s'", filename);
@@ -108,16 +108,17 @@ shiz_io_load_image(const char * const filename, shiz_io_image_loaded_handler con
 }
 
 bool
-shiz_io_load_image_data(const unsigned char * const buffer, unsigned int const length,
-                             shiz_io_image_loaded_handler const handler)
+shiz_io_load_image_data(unsigned char const * const buffer,
+                        unsigned int const length,
+                        shiz_io_image_loaded_handler const handler)
 {
     int width, height;
     int components;
 
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned char * image = stbi_load_from_memory(buffer, length, &width, &height, &components,
-                                                  STBI_rgb_alpha);
+    unsigned char * const image = stbi_load_from_memory(buffer, length, &width, &height, &components,
+                                                        STBI_rgb_alpha);
 
     if (!image) {
         shiz_io_error("failed to load image (from memory)");
@@ -128,9 +129,10 @@ shiz_io_load_image_data(const unsigned char * const buffer, unsigned int const l
     return _shiz_io_handle_image(image, width, height, components, handler);
 }
 
-static bool
+static
+bool
 _shiz_io_handle_image(unsigned char * const image_data,
-                      int width, int height, int components,
+                      int const width, int const height, int const components,
                       shiz_io_image_loaded_handler const handler)
 {
     if (handler) {

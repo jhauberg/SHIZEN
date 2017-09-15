@@ -23,30 +23,30 @@ static const char * const _shiz_debug_event_flush_capacity = "fls|cap";
 static const char * const _shiz_debug_event_flush_texture_switch = "fls|tex";
 #endif
 
-static void _shiz_gfx_spritebatch_state(bool const enable);
+static void _shiz_gfx_spritebatch_state(bool enable);
 
 #define SHIZGFXSpriteBatchMax 128 /* flush when reaching this limit */
 
 static unsigned int const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
 static unsigned int const spritebatch_vertex_count = SHIZGFXSpriteBatchMax * spritebatch_vertex_count_per_quad;
 
-typedef struct SHIZGFXSpriteBatch {
-    unsigned int current_count;
-    GLuint current_texture_id;
-    SHIZRenderObject render;
+typedef struct SHIZSpriteBatch {
     SHIZVertexPositionColorTexture vertices[spritebatch_vertex_count];
-} SHIZGFXSpriteBatch;
+    SHIZRenderObject render;
+    GLuint texture_id;
+    unsigned int count;
+} SHIZSpriteBatch;
 
-static SHIZGFXSpriteBatch _spritebatch;
+static SHIZSpriteBatch _spritebatch;
 
 void
-shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
+shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
                     SHIZVector3 const origin,
                     float const angle,
                     GLuint const texture_id)
 {
-    if (_spritebatch.current_texture_id != 0 && /* dont flush if texture is not set yet */
-        _spritebatch.current_texture_id != texture_id) {
+    if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set yet */
+        _spritebatch.texture_id != texture_id) {
         if (shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
             shiz_debug_add_event_draw(_shiz_debug_event_flush_texture_switch, origin);
@@ -54,9 +54,9 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
         }
     }
     
-    _spritebatch.current_texture_id = texture_id;
+    _spritebatch.texture_id = texture_id;
     
-    if (_spritebatch.current_count + 1 > SHIZGFXSpriteBatchMax) {
+    if (_spritebatch.count + 1 > SHIZGFXSpriteBatchMax) {
         if (shiz_gfx_spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
             shiz_debug_add_event_draw(_shiz_debug_event_flush_capacity, origin);
@@ -64,7 +64,7 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
         }
     }
     
-    unsigned int const offset = _spritebatch.current_count * spritebatch_vertex_count_per_quad;
+    unsigned int const offset = _spritebatch.count * spritebatch_vertex_count_per_quad;
     
     mat4x4 transform;
     
@@ -90,13 +90,13 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
         _spritebatch.vertices[offset + i] = vertex;
     }
     
-    _spritebatch.current_count += 1;
+    _spritebatch.count += 1;
 }
 
 bool
 shiz_gfx_init_spritebatch()
 {
-    const char * vertex_shader =
+    char const * const vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 vertex_position;\n"
     "layout (location = 1) in vec4 vertex_color;\n"
@@ -116,7 +116,7 @@ shiz_gfx_init_spritebatch()
     "    tint_color = vertex_color;\n"
     "}\n";
 
-    const char * fragment_shader =
+    char const * const fragment_shader =
     "#version 330 core\n"
     "in vec2 texture_coord;\n"
     "in vec2 texture_coord_min;\n"
@@ -137,8 +137,8 @@ shiz_gfx_init_spritebatch()
     "    }\n"
     "}";
 
-    GLuint vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    GLuint const fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
     
     if (!vs && !fs) {
         return false;
@@ -230,7 +230,7 @@ shiz_gfx_kill_spritebatch()
 bool
 shiz_gfx_spritebatch_flush()
 {
-    if (_spritebatch.current_count == 0) {
+    if (_spritebatch.count == 0) {
         return false;
     }
     
@@ -255,11 +255,11 @@ shiz_gfx_spritebatch_flush()
     glUniform1i(glGetUniformLocation(_spritebatch.render.program, "enable_additive_tint"), false);
     glUniformMatrix4fv(glGetUniformLocation(_spritebatch.render.program, "transform"), 1, GL_FALSE, *transform);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, _spritebatch.current_texture_id); {
+    glBindTexture(GL_TEXTURE_2D, _spritebatch.texture_id); {
         glBindVertexArray(_spritebatch.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
                 unsigned int const index_count =
-                    _spritebatch.current_count * spritebatch_vertex_count_per_quad;
+                    _spritebatch.count * spritebatch_vertex_count_per_quad;
                 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
@@ -279,7 +279,7 @@ shiz_gfx_spritebatch_flush()
     
     _shiz_gfx_spritebatch_state(false);
     
-    _spritebatch.current_count = 0;
+    _spritebatch.count = 0;
     
     return true;
 }
@@ -287,10 +287,12 @@ shiz_gfx_spritebatch_flush()
 void
 shiz_gfx_spritebatch_reset()
 {
-    _spritebatch.current_texture_id = 0;
+    _spritebatch.count = 0;
+    _spritebatch.texture_id = 0;
 }
 
-static void
+static
+void
 _shiz_gfx_spritebatch_state(bool const enable)
 {
     if (enable) {
@@ -311,15 +313,16 @@ _shiz_gfx_spritebatch_state(bool const enable)
 }
 
 #ifdef SHIZ_DEBUG
-static SHIZVector3
+static
+SHIZVector3
 _shiz_debug_get_last_sprite_origin()
 {
-    if (_spritebatch.current_count > 0) {
-        int const offset = (_spritebatch.current_count - 1) * spritebatch_vertex_count_per_quad;
+    if (_spritebatch.count > 0) {
+        int const offset = (_spritebatch.count - 1) * spritebatch_vertex_count_per_quad;
         
         if (offset >= 0) {
-            SHIZVector3 last_sprite_bl_vertex = _spritebatch.vertices[offset + 2].position;
-            SHIZVector3 last_sprite_tr_vertex = _spritebatch.vertices[offset + 4].position;
+            SHIZVector3 const last_sprite_bl_vertex = _spritebatch.vertices[offset + 2].position;
+            SHIZVector3 const last_sprite_tr_vertex = _spritebatch.vertices[offset + 4].position;
             
             SHIZVector3 const mid_point = SHIZVector3Make((last_sprite_bl_vertex.x + last_sprite_tr_vertex.x) / 2,
                                                           (last_sprite_bl_vertex.y + last_sprite_tr_vertex.y) / 2,

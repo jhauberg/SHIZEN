@@ -48,7 +48,8 @@ SHIZLayered(unsigned char const layer)
     return SHIZLayeredWithDepth(layer, SHIZLayerDefault.depth);
 }
 
-static inline SHIZLayer const
+static inline
+SHIZLayer const
 SHIZLayeredBelow(SHIZLayer const layer)
 {
     SHIZLayer layer_below = layer;
@@ -62,7 +63,8 @@ SHIZLayeredBelow(SHIZLayer const layer)
     return layer_below;
 }
 
-static inline SHIZLayer const
+static inline
+SHIZLayer const
 SHIZLayeredAbove(SHIZLayer const layer)
 {
     SHIZLayer layer_above = layer;
