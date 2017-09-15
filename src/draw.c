@@ -53,7 +53,7 @@ static void _shiz_debug_draw_sprite_shape(SHIZVector2 const origin,
 static char _shiz_debug_stats_buffer[256] = { 0 };
 #endif
 
-extern SHIZGraphicsContext _context;
+extern SHIZGraphicsContext const _context;
 
 void
 shiz_drawing_begin(SHIZColor const background)
