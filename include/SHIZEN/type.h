@@ -164,11 +164,11 @@ extern SHIZVector2 const SHIZAnchorTopRight;
 extern SHIZVector2 const SHIZAnchorRight;
 extern SHIZVector2 const SHIZAnchorBottomRight;
 
-#define SHIZSpriteNoScale 1
+#define SHIZSpriteNoScale 1.0f
 /**
  * @brief Do not apply rotation.
  */
-#define SHIZSpriteNoAngle 0
+#define SHIZSpriteNoAngle 0.0f
 /**
  * @brief Do not apply a tint.
  */
@@ -206,19 +206,19 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
 /**
  * @brief Apply normal font spread; characters will be spaced normally.
  */
-#define SHIZSpriteFontSpreadNormal 1.0
+#define SHIZSpriteFontSpreadNormal 1.0f
 /**
  * @brief Apply tight font spread; characters will be spaced with smaller gaps.
  */
-#define SHIZSpriteFontSpreadTight 0.9
+#define SHIZSpriteFontSpreadTight 0.9f
 /**
  * @brief Apply loose font spread; characters will be spaced with larger gaps.
  */
-#define SHIZSpriteFontSpreadLoose 1.1
+#define SHIZSpriteFontSpreadLoose 1.1f
 /**
  * @brief Do not apply.
  */
-#define SHIZSpriteFontNoPadding 0
+#define SHIZSpriteFontNoPadding 0.0f
 
 static inline
 SHIZVector2 const
