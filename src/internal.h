@@ -69,11 +69,11 @@ typedef struct SHIZGraphicsContext {
     bool should_finish;
 } SHIZGraphicsContext;
 
-typedef struct SHIZTimeLine {
+typedef struct SHIZTimeline {
     double time;
     double time_step;
     double scale;
-} SHIZTimeLine;
+} SHIZTimeline;
 
 typedef struct SHIZRenderObject {
     GLuint program;
