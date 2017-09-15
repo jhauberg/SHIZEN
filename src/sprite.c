@@ -36,20 +36,23 @@ typedef struct SHIZSpriteInternalKey {
 static int _shiz_sprite_compare(void const * a, void const * b);
 static void _shiz_sprite_sort(void);
 
-static void _shiz_sprite_set_position(SHIZSpriteInternal *,
+static void _shiz_sprite_set_position(SHIZSpriteInternal * sprite,
                                       SHIZSize destination_size,
                                       SHIZVector2 anchor);
-static void _shiz_sprite_set_uv(SHIZSpriteInternal *,
+static void _shiz_sprite_set_uv(SHIZSpriteInternal * sprite,
                                 SHIZSize destination_size,
                                 SHIZSize texture_size,
                                 SHIZRect source,
                                 SHIZColor tint,
                                 bool repeat);
 
-static unsigned int _sprites_count = 0;
-static unsigned int _sprites_count_total = 0;
+typedef struct SHIZSpriteInternalBatch {
+    SHIZSpriteInternal sprites[SHIZSpriteInternalMax];
+    unsigned int count;
+    unsigned int total;
+} SHIZSpriteInternalBatch;
 
-static SHIZSpriteInternal _sprites[SHIZSpriteInternalMax];
+static SHIZSpriteInternalBatch _spritebatch;
 
 SHIZSize const
 shiz_sprite_draw(SHIZSprite const sprite,
@@ -82,12 +85,12 @@ shiz_sprite_draw(SHIZSprite const sprite,
     sprite_key->texture_id = image.texture_id;
     sprite_key->is_transparent = !opaque;
     
-    SHIZSpriteInternal * const sprite_internal = &_sprites[_sprites_count];
+    SHIZSpriteInternal * const sprite_internal = &_spritebatch.sprites[_spritebatch.count];
     
     sprite_internal->key = sort_key;
     sprite_internal->angle = angle;
     sprite_internal->origin = SHIZVector3Make(origin.x, origin.y, z);
-    sprite_internal->order = _sprites_count_total;
+    sprite_internal->order = _spritebatch.total;
 
     SHIZSize const texture_size = SHIZSizeMake(image.width, image.height);
 
@@ -104,11 +107,11 @@ shiz_sprite_draw(SHIZSprite const sprite,
     _shiz_sprite_set_uv(sprite_internal, destination_size, texture_size, sprite.source, tint, repeat);
 
     // count for current batch
-    _sprites_count += 1;
+    _spritebatch.count += 1;
     // count for total sprites during a frame; i.e. the accumulation of all flushed sprites
-    _sprites_count_total += 1;
+    _spritebatch.total += 1;
 
-    if (_sprites_count >= SHIZSpriteInternalMax) {
+    if (_spritebatch.count >= SHIZSpriteInternalMax) {
         shiz_sprite_flush();
     }
 
@@ -134,21 +137,21 @@ shiz_sprite_get_anchored_rect(SHIZSize const size,
 void
 shiz_sprite_reset()
 {
-    _sprites_count = 0;
-    _sprites_count_total = 0;
+    _spritebatch.count = 0;
+    _spritebatch.total = 0;
 }
 
 void
 shiz_sprite_flush()
 {
-    if (_sprites_count == 0) {
+    if (_spritebatch.count == 0) {
         return;
     }
 
     _shiz_sprite_sort();
     
-    for (unsigned int sprite_index = 0; sprite_index < _sprites_count; sprite_index++) {
-        SHIZSpriteInternal const sprite = _sprites[sprite_index];
+    for (unsigned int sprite_index = 0; sprite_index < _spritebatch.count; sprite_index++) {
+        SHIZSpriteInternal const sprite = _spritebatch.sprites[sprite_index];
         SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
 
         // finally push vertex data to the renderer
@@ -158,10 +161,11 @@ shiz_sprite_flush()
                                sprite_key->texture_id);
     }
 
-    _sprites_count = 0;
+    _spritebatch.count = 0;
 }
 
-static int
+static
+int
 _shiz_sprite_compare(void const * const a, void const * const b)
 {
     SHIZSpriteInternal const * lhs = (SHIZSpriteInternal *)a;
@@ -181,12 +185,14 @@ _shiz_sprite_compare(void const * const a, void const * const b)
     return 0;
 }
 
-static void
+static
+void
 _shiz_sprite_sort()
 {
     // sort sprites based on their layer parameters,
     // but also optimized for reduced state switching
-    qsort(_sprites, _sprites_count, sizeof(SHIZSpriteInternal),
+    qsort(_spritebatch.sprites, _spritebatch.count,
+          sizeof(SHIZSpriteInternal),
           _shiz_sprite_compare);
     
     // note that sorting can not guarantee correct order in cases where
@@ -295,6 +301,6 @@ _shiz_sprite_set_uv(SHIZSpriteInternal * const sprite_internal,
 unsigned int
 shiz_debug_get_sprite_count()
 {
-    return _sprites_count_total;
+    return _spritebatch.total;
 }
 #endif
