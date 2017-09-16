@@ -257,7 +257,7 @@ shiz_draw_circle_ex(SHIZVector2 const center,
     SHIZVertexPositionColor vertices[vertex_count];
 
     float const z = _shiz_layer_get_z(layer);
-    float const step = 2.0f * M_PI / segments;
+    float const step = 2.0f * (float)M_PI / segments;
 
     SHIZVector3 const origin = SHIZVector3Make(center.x, center.y, z);
 
@@ -325,7 +325,7 @@ shiz_draw_arc_ex(SHIZVector2 const center,
 
     SHIZVertexPositionColor vertices[vertex_count];
 
-    float const target_angle = fmodf(angle, M_PI * 2.0f);
+    float const target_angle = fmodf(angle, (float)M_PI * 2.0f);
 
     float const z = _shiz_layer_get_z(layer);
     float const step = target_angle / segments;
@@ -711,10 +711,10 @@ _shiz_debug_draw_viewport()
     SHIZVector2 const center = SHIZVector2Make(viewport.resolution.width / 2,
                                                viewport.resolution.height / 2);
 
-    SHIZColor const bounds_color = SHIZColorWithAlpa(SHIZColorYellow, 0.8);
+    SHIZColor const bounds_color = SHIZColorWithAlpa(SHIZColorYellow, 0.8f);
 
-    SHIZColor const x_color = SHIZColorWithAlpa(SHIZColorFromHex(0x419fff), 0.6);
-    SHIZColor const y_color = SHIZColorWithAlpa(SHIZColorGreen, 0.6);
+    SHIZColor const x_color = SHIZColorWithAlpa(SHIZColorFromHex(0x419fff), 0.6f);
+    SHIZColor const y_color = SHIZColorWithAlpa(SHIZColorGreen, 0.6f);
     
     SHIZRect const viewport_shape = SHIZRectMake(center,
                                                  SHIZSizeMake(viewport.resolution.width - 1,

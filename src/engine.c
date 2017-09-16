@@ -296,6 +296,8 @@ _shiz_glfw_create_window(bool const fullscreen, char const * const title)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
     
+    SHIZSize const visible_size = _context.display_size;
+    
     if (fullscreen) {
         GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
         
@@ -310,12 +312,12 @@ _shiz_glfw_create_window(bool const fullscreen, char const * const title)
             
             // prefer centered window if initially fullscreen;
             // otherwise let the OS determine window placement
-            _shiz_glfw_window_position.x = (display_width / 2) - (_context.display_size.width / 2);
-            _shiz_glfw_window_position.y = (display_height / 2) - (_context.display_size.height / 2);
+            _shiz_glfw_window_position.x = (display_width / 2) - (visible_size.width / 2);
+            _shiz_glfw_window_position.y = (display_height / 2) - (visible_size.height / 2);
         }
     } else {
-        _context.window = glfwCreateWindow(_context.display_size.width,
-                                           _context.display_size.height,
+        _context.window = glfwCreateWindow((int)visible_size.width,
+                                           (int)visible_size.height,
                                            title, NULL, NULL);
     }
     
@@ -380,15 +382,15 @@ _shiz_glfw_toggle_windowed(GLFWwindow * const window)
 {
     bool const is_currently_fullscreen = glfwGetWindowMonitor(window) != NULL;
 
-    int window_position_x = _shiz_glfw_window_position.x;
-    int window_position_y = _shiz_glfw_window_position.y;
+    int window_position_x = (int)_shiz_glfw_window_position.x;
+    int window_position_y = (int)_shiz_glfw_window_position.y;
     
     if (is_currently_fullscreen) {
         // go windowed
         glfwSetWindowMonitor(window, NULL,
                              window_position_x, window_position_y,
-                             _context.display_size.width,
-                             _context.display_size.height,
+                             (int)_context.display_size.width,
+                             (int)_context.display_size.height,
                              0);
     } else {
         // go fullscreen

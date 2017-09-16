@@ -159,5 +159,5 @@ void shiz_animate(SHIZAnimatable * const animatable,
     animatable->previous_result = animatable->result;
     animatable->result = _shiz_lerp(animatable->value,
                                     animatable->previous_result,
-                                    interpolation);
+                                    (float)interpolation);
 }

@@ -85,7 +85,7 @@ shiz_sprite_draw(SHIZSprite const sprite,
 
     sprite_key->layer = layer.layer;
     sprite_key->layer_depth = layer.depth;
-    sprite_key->texture_id = image.texture_id;
+    sprite_key->texture_id = (unsigned short)image.texture_id;
     sprite_key->is_transparent = !opaque;
     
     SHIZSpriteInternal * const sprite_internal = &_spritebatch.sprites[_spritebatch.count];

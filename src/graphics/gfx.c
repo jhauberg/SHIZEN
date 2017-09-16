@@ -109,11 +109,15 @@ shiz_gfx_begin(SHIZColor const clear)
     shiz_gfx_spritebatch_reset();
 
     SHIZViewport const viewport = shiz_get_viewport();
-
+    
+    GLint const x = 0;
+    GLint const y = 0;
+    
+    GLsizei const width = (GLsizei)viewport.resolution.width;
+    GLsizei const height = (GLsizei)viewport.resolution.height;
+    
     glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer); {
-        glViewport(0, 0,
-                   viewport.resolution.width,
-                   viewport.resolution.height);
+        glViewport(x, y, width, height);
 
         glClearColor(clear.r, clear.g, clear.b, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -128,11 +132,14 @@ shiz_gfx_end()
     SHIZViewport const viewport = shiz_get_viewport();
     SHIZSize const viewport_offset = shiz_get_viewport_offset();
 
+    GLint const x = (GLint)(viewport_offset.width / 2);
+    GLint const y = (GLint)(viewport_offset.height / 2);
+    
+    GLsizei const width = (GLsizei)(viewport.framebuffer.width - viewport_offset.width);
+    GLsizei const height = (GLsizei)(viewport.framebuffer.height - viewport_offset.height);
+    
     glBindFramebuffer(GL_FRAMEBUFFER, 0); {
-        glViewport(viewport_offset.width / 2,
-                   viewport_offset.height / 2,
-                   viewport.framebuffer.width - viewport_offset.width,
-                   viewport.framebuffer.height - viewport_offset.height);
+        glViewport(x, y, width, height);
 
         // note that we don't need to clear this framebuffer, as we're expecting to overwrite
         // every pixel every frame anyway (with the opaque texture of the post framebuffer)
@@ -227,8 +234,8 @@ _shiz_gfx_init_post()
     // clear depth should be set once and not changed afterwards
     glClearDepth(1.0);
     
-    GLsizei const texture_width = viewport.resolution.width;
-    GLsizei const texture_height = viewport.resolution.height;
+    GLsizei const texture_width = (GLsizei)viewport.resolution.width;
+    GLsizei const texture_height = (GLsizei)viewport.resolution.height;
     
     glGenFramebuffers(1, &_post.framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer); {
@@ -424,7 +431,7 @@ _shiz_gfx_render_primitive(GLenum const mode,
                          sizeof(SHIZVertexPositionColor) * count,
                          vertices,
                          GL_DYNAMIC_DRAW);
-            glDrawArrays(mode, 0, count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
+            glDrawArrays(mode, 0, (GLsizei)count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
 #ifdef SHIZ_DEBUG
             shiz_debug_increment_draw_count(1);
 #endif

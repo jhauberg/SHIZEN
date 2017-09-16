@@ -39,7 +39,7 @@ unsigned int const SHIZResourceInvalid = 0;
 #define SHIZResourceSoundIdMax (SHIZResourceSoundIdOffset + SHIZResourceSoundMax)
 
 #ifdef SHIZ_DEBUG
-#define SHIZResourceIdMax SHIZResourceSoundIdMax
+ #define SHIZResourceIdMax SHIZResourceSoundIdMax
 #endif
 
 static bool _shiz_load_image_handler(int width, int height, int components,
@@ -238,9 +238,9 @@ _shiz_res_get_index_from_id(unsigned int const resource_id,
                             SHIZResourceType const type)
 {
     if (type == SHIZResourceTypeImage) {
-        return resource_id - SHIZResourceImageIdOffset;
+        return (int)resource_id - SHIZResourceImageIdOffset;
     } else if (type == SHIZResourceTypeSound) {
-        return resource_id - SHIZResourceSoundIdOffset;
+        return (int)resource_id - SHIZResourceSoundIdOffset;
     }
     
     return -1;
@@ -339,8 +339,12 @@ _shiz_load_image_handler(int const width,
         return false;
     }
 
-    _current_image_resource->width = width;
-    _current_image_resource->height = height;
+    if (!(width > 0 && height > 0)) {
+        return false;
+    }
+    
+    _current_image_resource->width = (unsigned int)width;
+    _current_image_resource->height = (unsigned int)height;
 
     glGenTextures(1, &_current_image_resource->texture_id);
     glBindTexture(GL_TEXTURE_2D, _current_image_resource->texture_id); {

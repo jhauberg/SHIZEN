@@ -262,14 +262,14 @@ shiz_gfx_spritebatch_flush()
     glBindTexture(GL_TEXTURE_2D, _spritebatch.texture_id); {
         glBindVertexArray(_spritebatch.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
-                unsigned int const index_count =
+                unsigned int const count =
                     _spritebatch.count * spritebatch_vertex_count_per_quad;
                 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
-                                index_count * sizeof(SHIZVertexPositionColorTexture),
+                                count * sizeof(SHIZVertexPositionColorTexture),
                                 _spritebatch.vertices);
-                glDrawArrays(GL_TRIANGLES, 0, index_count);
+                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)count);
 #ifdef SHIZ_DEBUG
                 shiz_debug_increment_draw_count(1);
 #endif
@@ -322,18 +322,16 @@ SHIZVector3
 _shiz_debug_get_last_sprite_origin()
 {
     if (_spritebatch.count > 0) {
-        int const offset = (_spritebatch.count - 1) * spritebatch_vertex_count_per_quad;
+        unsigned int const offset = (_spritebatch.count - 1) * spritebatch_vertex_count_per_quad;
         
-        if (offset >= 0) {
-            SHIZVector3 const last_sprite_bl_vertex = _spritebatch.vertices[offset + 2].position;
-            SHIZVector3 const last_sprite_tr_vertex = _spritebatch.vertices[offset + 4].position;
-            
-            SHIZVector3 const mid_point = SHIZVector3Make((last_sprite_bl_vertex.x + last_sprite_tr_vertex.x) / 2,
-                                                          (last_sprite_bl_vertex.y + last_sprite_tr_vertex.y) / 2,
-                                                          (last_sprite_bl_vertex.z + last_sprite_tr_vertex.z) / 2);
-            
-            return mid_point;
-        }
+        SHIZVector3 const last_sprite_bl_vertex = _spritebatch.vertices[offset + 2].position;
+        SHIZVector3 const last_sprite_tr_vertex = _spritebatch.vertices[offset + 4].position;
+        
+        SHIZVector3 const mid_point = SHIZVector3Make((last_sprite_bl_vertex.x + last_sprite_tr_vertex.x) / 2,
+                                                      (last_sprite_bl_vertex.y + last_sprite_tr_vertex.y) / 2,
+                                                      (last_sprite_bl_vertex.z + last_sprite_tr_vertex.z) / 2);
+        
+        return mid_point;
     }
     
     return SHIZVector3Zero;

@@ -261,7 +261,7 @@ shiz_debug_update_frame_stats()
     _frame_time = time_since_last_frame;
     _last_frame_time = time;
 
-    _frame_stats.frames_per_second = 1.0 / _frame_time;
+    _frame_stats.frames_per_second = (unsigned int)(1.0 / _frame_time);
 
     if (_frame_stats.frames_per_second < _frame_stats.frames_per_second_min) {
         _frame_stats.frames_per_second_min = _frame_stats.frames_per_second;

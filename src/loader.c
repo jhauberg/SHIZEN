@@ -110,8 +110,20 @@ shiz_get_sprite_sheet(SHIZSprite const resource, SHIZSize const sprite_size)
     spritesheet.resource = resource;
     spritesheet.sprite_size = sprite_size;
     
-    spritesheet.columns = resource.source.size.width / sprite_size.width;
-    spritesheet.rows = resource.source.size.height / sprite_size.height;
+    SHIZSize const source = resource.source.size;
+    
+    if (source.width > sprite_size.width) {
+        spritesheet.columns = (unsigned int)(source.width / sprite_size.width);
+    } else {
+        spritesheet.columns = 1;
+    }
+    
+    if (source.height > sprite_size.height) {
+        spritesheet.rows = (unsigned int)(source.height / sprite_size.height);
+    } else {
+        spritesheet.rows = 1;
+    }
+    
     spritesheet.sprite_padding = SHIZSizeZero;
     
     return spritesheet;
@@ -184,8 +196,20 @@ shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character)
 {
     SHIZSpriteFontTable table;
     
-    table.columns = sprite.source.size.width / character.width;
-    table.rows = sprite.source.size.height / character.height;
+    SHIZSize const source = sprite.source.size;
+    
+    if (source.width > character.width) {
+        table.columns = (unsigned int)(source.width / character.width);
+    } else {
+        table.columns = 1;
+    }
+    
+    if (source.height > character.height) {
+        table.rows = (unsigned int)(source.height / character.height);
+    } else {
+        table.rows = 1;
+    }
+    
     table.codepage = 0;
     
     return shiz_get_sprite_font_ex(sprite, character, table);
