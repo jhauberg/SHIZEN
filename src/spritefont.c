@@ -19,7 +19,7 @@ utf8_decode(char const * str, unsigned int * i)
 {
     unsigned char const * s = (unsigned char const *)str;
 
-    int u = *s, l = 1;
+    unsigned int u = *s, l = 1;
 
     if (((u) & 0xc0) == 0xc0) {
         int a = (u & 0x20) ? ((u & 0x10) ? ((u & 0x08) ? ((u & 0x04) ? 6 : 5) : 4) : 3) : 2;
@@ -76,14 +76,17 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     measurement.character_size = SHIZSizeMake(font.character.width * attributes.scale.x,
                                               font.character.height * attributes.scale.y);
     
-    measurement.character_size_perceived = SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
-                                                        measurement.character_size.height);
+    measurement.character_size_perceived =
+        SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
+                     measurement.character_size.height);
 
     measurement.constrain_horizontally = bounds.width > 0;
     measurement.constrain_vertically = bounds.height > 0;
 
     if (measurement.constrain_horizontally) {
-        measurement.max_characters_per_line = floor(bounds.width / measurement.character_size_perceived.width);
+        measurement.max_characters_per_line =
+            (unsigned int)floor(bounds.width /
+                                measurement.character_size_perceived.width);
     } else {
         measurement.max_characters_per_line = UINT32_MAX;
     }
@@ -91,7 +94,8 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
     float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
     
     if (measurement.constrain_vertically) {
-        measurement.max_lines_in_bounds = floor(bounds.height / line_height);
+        measurement.max_lines_in_bounds =
+            (unsigned int)floor(bounds.height / line_height);
         
         if (measurement.max_lines_in_bounds > SHIZSpriteFontMaxLines) {
             measurement.max_lines_in_bounds = SHIZSpriteFontMaxLines;
@@ -203,7 +207,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 
             if (measurement.constrain_vertically) {
                 if (line_index + 1 >= measurement.max_lines_in_bounds) {
-                    measurement.max_characters = character_count;
+                    measurement.max_characters = (int)character_count;
 
                     break;
                 }
@@ -267,6 +271,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                                                                            attributes);
 
     unsigned int const truncation_length = 3;
+    int const truncation_index = measurement.max_characters - (int)truncation_length;
     
     char const truncation_character = '.';
     char const whitespace_character = ' ';
@@ -289,7 +294,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
     SHIZColor highlight_color = tint;
 
     const char * text_ptr = text;
-
+    
     for (unsigned int line_index = 0; line_index < measurement.line_count; line_index++) {
         SHIZSpriteFontLine const line = measurement.lines[line_index];
 
@@ -306,7 +311,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
              character_index++) {
             bool const should_truncate =
                 (measurement.max_characters > 0 &&
-                 character_count > (measurement.max_characters - truncation_length));
+                 (int)character_count > truncation_index);
 
             break_from_truncation =
                 measurement.max_characters > 0 &&
@@ -320,7 +325,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             // for special characters we need to find the character decimal value
             // so that we can later look up the proper index in the font codepage
             unsigned int character_decimal = should_truncate ?
-                character : utf8_decode(text_ptr, &character_size);
+                (unsigned int)character : utf8_decode(text_ptr, &character_size);
 
             text_ptr += character_size;
             
@@ -375,7 +380,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
 
                 character_takes_space = false;
 
-                int const previous_text_index = character_count - 2;
+                int const previous_text_index = (int)character_count - 2;
 
                 if (previous_text_index >= 0) {
                     // note that we don't care about character byte sizes here;
@@ -393,14 +398,14 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 }
             }
 
-            if (character_table_index != -1) {
+            if (character_table_index >= 0) {
                 bool const can_draw_character = (character != whitespace_character ||
                                                  font.includes_whitespace);
 
                 if (can_draw_character) {
                     _shiz_sprite_draw_character_index(&font, &measurement,
                                                       character_origin,
-                                                      character_table_index,
+                                                      (unsigned int)character_table_index,
                                                       highlight_color,
                                                       layer);
                 }
@@ -436,7 +441,7 @@ _shiz_sprite_draw_character_index(SHIZSpriteFont const * const font,
                                   SHIZColor const highlight_color,
                                   SHIZLayer const layer)
 {
-    unsigned int const character_row = (int)(character_table_index / font->table.columns);
+    unsigned int const character_row = character_table_index / font->table.columns;
     unsigned int const character_column = character_table_index % font->table.columns;
     
     SHIZSprite character_sprite = SHIZSpriteEmpty;
@@ -472,10 +477,10 @@ _shiz_sprite_character_table_index(char const character,
     
     int character_table_index = -1;
     
-    if (font->table.codepage != 0) {
+    if (font->table.codepage != NULL) {
         for (unsigned int i = 0; i < table_size; i++) {
             if (font->table.codepage[i] == decimal) {
-                character_table_index = i;
+                character_table_index = (int)i;
                 
                 break;
             }

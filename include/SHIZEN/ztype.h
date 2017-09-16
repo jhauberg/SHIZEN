@@ -11,8 +11,8 @@
 
 #pragma once
 
-#ifndef type_h
-#define type_h
+#ifndef ztype_h
+#define ztype_h
 
 #include <stdbool.h>
 
@@ -21,10 +21,6 @@
 typedef struct SHIZVector2 {
     float x, y;
 } SHIZVector2;
-
-typedef struct SHIZVector3 {
-    float x, y, z;
-} SHIZVector3;
 
 typedef struct SHIZSize {
     float width;
@@ -129,8 +125,6 @@ extern SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault;
 
 extern SHIZVector2 const SHIZVector2Zero;
 extern SHIZVector2 const SHIZVector2One;
-extern SHIZVector3 const SHIZVector3Zero;
-extern SHIZVector3 const SHIZVector3One;
 
 extern SHIZColor const SHIZColorWhite;
 extern SHIZColor const SHIZColorBlack;
@@ -226,17 +220,6 @@ SHIZVector2Make(float const x, float const y)
 {
     SHIZVector2 const vector = {
         x, y
-    };
-
-    return vector;
-}
-
-static inline
-SHIZVector3 const
-SHIZVector3Make(float const x, float const y, float const z)
-{
-    SHIZVector3 const vector = {
-        x, y, z
     };
 
     return vector;
@@ -374,4 +357,4 @@ SHIZAnchorInverse(SHIZVector2 const anchor)
                            anchor.y * -1);
 }
 
-#endif // type_h
+#endif // ztype_h

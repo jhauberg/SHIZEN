@@ -14,6 +14,7 @@
 #include <math.h>
 
 #include "internal.h"
+#include "internal_type.h"
 
 static SHIZTimeline const SHIZTimelineDefault = {
     .time = 0,
@@ -158,5 +159,5 @@ void shiz_animate(SHIZAnimatable * const animatable,
     animatable->previous_result = animatable->result;
     animatable->result = _shiz_lerp(animatable->value,
                                     animatable->previous_result,
-                                    interpolation);
+                                    (float)interpolation);
 }

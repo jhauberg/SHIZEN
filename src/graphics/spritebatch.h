@@ -12,7 +12,7 @@
 #ifndef spritebatch_h
 #define spritebatch_h
 
-#include "internal.h"
+#include "internal_type.h"
 
 bool shiz_gfx_init_spritebatch(void);
 bool shiz_gfx_kill_spritebatch(void);

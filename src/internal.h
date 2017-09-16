@@ -18,88 +18,12 @@
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
-// use gl3w to load opengl headers
-#include <GL/gl3w.h>
-// which means GLFW should not do that
-#define GLFW_INCLUDE_NONE
-
-#if defined(__clang__)
- #pragma clang diagnostic push
- #pragma clang diagnostic ignored "-Wdocumentation"
- #pragma clang diagnostic ignored "-Wconversion"
-#endif
-
-#include <GLFW/glfw3.h>
-
-#include <linmath.h>
-
-#if defined(__clang__)
- #pragma clang pop
-#endif
-
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <math.h>
 
-#include <SHIZEN/type.h>
-
-#ifdef SHIZ_DEBUG
- #include "debug.h"
-#endif
-
 #define SHIZEpsilon (1.0 / 1024)
-
-typedef struct SHIZGraphicsContext {
-    /** A reference to the current window */
-    GLFWwindow * window;
-    /** The operating resolution; the display may be boxed if necessary */
-    SHIZSize native_size;
-    /** The actual display size; essentially operating size ⨉ pixel size */
-    SHIZSize display_size;
-    /** The number of screen updates between buffer swaps */
-    int swap_interval;
-    /** The size of each pixel; must be higher than 0 */
-    unsigned int pixel_size;
-    /** Determines whether the context has been initialized */
-    bool is_initialized;
-    /** Determines whether the context has focus */
-    bool is_focused;
-    /** Determines whether a shutdown should be initiated */
-    bool should_finish;
-} SHIZGraphicsContext;
-
-typedef struct SHIZTimeline {
-    double time;
-    double time_step;
-    double scale;
-} SHIZTimeline;
-
-typedef struct SHIZRenderObject {
-    GLuint program;
-    GLuint vbo;
-    GLuint vao;
-} SHIZRenderObject;
-
-typedef struct SHIZVertexPositionColor {
-    SHIZVector3 position;
-    SHIZColor color;
-} SHIZVertexPositionColor;
-
-typedef struct SHIZVertexPositionTexture {
-    SHIZVector3 position;
-    SHIZVector2 texture_coord;
-} SHIZVertexPositionTexture;
-
-typedef struct SHIZVertexPositionColorTexture {
-    SHIZVector3 position;
-    SHIZColor color;
-    SHIZVector2 texture_coord;
-    SHIZVector2 texture_coord_min;
-    SHIZVector2 texture_coord_max;
-} SHIZVertexPositionColorTexture;
-
-SHIZSize _shiz_get_operating_resolution(void);
 
 void _shiz_present_frame(void);
 
@@ -115,11 +39,11 @@ _shiz_str_to_upper(char * string)
 }
 
 /**
- * @brief Determine whether two floats are approximately equal.
+ * @brief Determine whether two floating point values are approximately equal.
  */
 static inline
 bool
-_shiz_fequal(float const a, float const b)
+_shiz_fequal(double const a, double const b)
 {
     return (fabs(b - a) < SHIZEpsilon);
 }
@@ -150,18 +74,6 @@ float
 _shiz_random_float_range(float const min, float const max)
 {
     return _shiz_lerp(min, max, _shiz_random_float());
-}
-
-static inline
-float
-_shiz_layer_get_z(SHIZLayer const layer)
-{
-    float const value = layer.layer + layer.depth;
-    
-    float const min = SHIZLayerMin + SHIZLayerDepthMin;
-    float const max = SHIZLayerMax + SHIZLayerDepthMax;
-    
-    return (float)(value - min) / (max - min);
 }
 
 #endif // internal_h

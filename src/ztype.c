@@ -9,9 +9,11 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/type.h>
+#include <SHIZEN/ztype.h>
 
 #include <stdlib.h>
+
+#include "internal_type.h"
 
 SHIZVector2 const SHIZVector2Zero = { 0, 0 };
 SHIZVector2 const SHIZVector2One = { 1, 1 };

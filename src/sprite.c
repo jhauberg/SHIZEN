@@ -11,8 +11,19 @@
 
 #include "sprite.h"
 
-#include "gfx.h"
+#include <stdlib.h>
+
+#include "graphics/gfx.h"
+
 #include "res.h"
+
+#ifdef SHIZ_DEBUG
+ #define SHIZ_DEBUG_PRINT_SORT_ORDER 1
+
+ #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
+ #include <SHIZEN/input.h>
+ #endif
+#endif
 
 #define SHIZSpriteInternalVertexCount 6
 
@@ -27,9 +38,8 @@ typedef struct SHIZSpriteInternal {
 typedef struct SHIZSpriteInternalKey {
     // note that the order of these fields affect the sorting,
     // where fields at the bottom weigh heavier than ones at the top
-    unsigned short layer_depth: 16;
-    unsigned short layer: 8;
     unsigned short texture_id: 7;
+    SHIZLayer layer;
     bool is_transparent: 1;
 } SHIZSpriteInternalKey;
 
@@ -80,9 +90,8 @@ shiz_sprite_draw(SHIZSprite const sprite,
     
     SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sort_key;
 
-    sprite_key->layer = layer.layer;
-    sprite_key->layer_depth = layer.depth;
-    sprite_key->texture_id = image.texture_id;
+    sprite_key->layer = layer;
+    sprite_key->texture_id = (unsigned short)image.texture_id;
     sprite_key->is_transparent = !opaque;
     
     SHIZSpriteInternal * const sprite_internal = &_spritebatch.sprites[_spritebatch.count];
@@ -147,6 +156,16 @@ shiz_sprite_flush()
     if (_spritebatch.count == 0) {
         return;
     }
+    
+#ifdef SHIZ_DEBUG
+ #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
+    bool const should_print_order = shiz_input_pressed(SHIZInputDown);
+    
+    if (should_print_order) {
+        printf("-------- Z  LAYER ----- TEXTURE --------\n");
+    }
+ #endif
+#endif
 
     _shiz_sprite_sort();
     
@@ -154,6 +173,19 @@ shiz_sprite_flush()
         SHIZSpriteInternal const sprite = _spritebatch.sprites[sprite_index];
         SHIZSpriteInternalKey * const sprite_key = (SHIZSpriteInternalKey *)&sprite.key;
 
+#ifdef SHIZ_DEBUG
+ #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
+        if (should_print_order) {
+            printf("%.8f  [%03d,%05d] @%d (%s)\n",
+                   sprite.origin.z,
+                   sprite_key->layer.layer,
+                   sprite_key->layer.depth,
+                   sprite_key->texture_id,
+                   sprite_key->is_transparent ? "transparent" : "opaque");
+        }
+ #endif
+#endif
+        
         // finally push vertex data to the renderer
         shiz_gfx_render_sprite(sprite.vertices,
                                sprite.origin,

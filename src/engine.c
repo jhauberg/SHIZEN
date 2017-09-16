@@ -9,14 +9,20 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/engine.h>
+#include <SHIZEN/shizen.h>
 
 #include <stdio.h>
 
+#include "graphics/gfx.h"
+
 #include "internal.h"
-#include "gfx.h"
+#include "viewport.h"
 #include "res.h"
 #include "io.h"
+
+#ifdef SHIZ_DEBUG
+ #include "debug.h"
+#endif
 
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
 #define SHIZ_MIN_OPENGL_VERSION_MINOR 3
@@ -26,21 +32,11 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .description = NULL,
     .fullscreen = false,
     .vsync = true,
-    .size = { 320, 240 },
+    .size = {
+        .width = 320,
+        .height = 240
+    },
     .pixel_size = 1
-};
-
-static SHIZViewport const SHIZViewportDefault = {
-    .framebuffer = {
-        .width = 0,
-        .height = 0
-    },
-    .resolution = {
-        .width = 0,
-        .height = 0
-    },
-    .scale = 1,
-    .is_fullscreen = false
 };
 
 static void _shiz_glfw_error_callback(int error, char const * description);
@@ -51,15 +47,14 @@ static void _shiz_glfw_key_callback(GLFWwindow * const window, int key, int scan
 
 static void _shiz_glfw_framebuffer_size_callback(GLFWwindow *, int width, int height);
 static bool _shiz_glfw_create_window(bool fullscreen, char const * title);
+static void _shiz_glfw_toggle_windowed(GLFWwindow *);
+
+static float _shiz_glfw_get_pixel_scale(void);
 
 static SHIZSize _shiz_glfw_get_window_size(void);
 static SHIZSize _shiz_glfw_get_framebuffer_size(void);
 
-static void _shiz_glfw_toggle_windowed(GLFWwindow *);
-
 static SHIZViewport _shiz_build_viewport(void);
-
-static float _shiz_glfw_get_pixel_scale(void);
 
 static bool _shiz_can_run(void);
 
@@ -200,203 +195,10 @@ shiz_should_finish()
     return _context.should_finish;
 }
 
-unsigned int
-shiz_load(char const * const filename)
-{
-    return shiz_res_load(shiz_res_get_type(filename), filename);
-}
-
-bool
-shiz_unload(unsigned int const resource_id)
-{
-    return shiz_res_unload(resource_id);
-}
-
 SHIZSize
 shiz_get_display_size()
 {
     return _context.native_size;
-}
-
-SHIZSprite
-shiz_load_sprite(char const * const filename)
-{
-    unsigned int const resource_id = shiz_load(filename);
-
-    if (resource_id == SHIZResourceInvalid) {
-        return SHIZSpriteEmpty;
-    }
-
-    return shiz_get_sprite(resource_id);
-}
-
-SHIZSprite
-shiz_load_sprite_src(char const * const filename, SHIZRect const source)
-{
-    SHIZSprite const sprite = shiz_load_sprite(filename);
-
-    if (sprite.resource_id == SHIZResourceInvalid) {
-        return SHIZSpriteEmpty;
-    }
-
-    return shiz_get_sprite_src(sprite.resource_id, source);
-}
-
-SHIZSpriteSheet
-shiz_load_sprite_sheet(char const * const filename, SHIZSize const sprite_size)
-{
-    SHIZSprite const sprite = shiz_load_sprite(filename);
-    
-    if (sprite.resource_id == SHIZResourceInvalid) {
-        return SHIZSpriteSheetEmpty;
-    }
-    
-    return shiz_get_sprite_sheet(sprite, sprite_size);
-}
-
-SHIZSpriteSheet
-shiz_load_sprite_sheet_src(char const * const filename,
-                           SHIZSize const sprite_size,
-                           SHIZRect const source)
-{
-    SHIZSpriteSheet const sprite_sheet = shiz_load_sprite_sheet(filename, sprite_size);
-    
-    if (sprite_sheet.resource.resource_id == SHIZResourceInvalid) {
-        return SHIZSpriteSheetEmpty;
-    }
-    
-    return shiz_get_sprite_sheet_src(sprite_sheet.resource, sprite_size, source);
-}
-
-SHIZSprite
-shiz_get_sprite(unsigned int const resource_id)
-{
-    SHIZResourceImage const image = shiz_res_get_image(resource_id);
-
-    if (image.resource_id == SHIZResourceInvalid) {
-        return SHIZSpriteEmpty;
-    }
-    
-    SHIZRect const source = SHIZRectMake(SHIZVector2Zero,
-                                         SHIZSizeMake(image.width, image.height));
-
-    return shiz_get_sprite_src(resource_id, source);
-}
-
-SHIZSprite
-shiz_get_sprite_src(unsigned int const resource_id, SHIZRect const source)
-{
-    SHIZSprite sprite;
-
-    sprite.resource_id = resource_id;
-    sprite.source = source;
-
-    return sprite;
-}
-
-SHIZSpriteSheet
-shiz_get_sprite_sheet(SHIZSprite const resource, SHIZSize const sprite_size)
-{
-    SHIZSpriteSheet spritesheet;
-    
-    spritesheet.resource = resource;
-    spritesheet.sprite_size = sprite_size;
-    
-    spritesheet.columns = resource.source.size.width / sprite_size.width;
-    spritesheet.rows = resource.source.size.height / sprite_size.height;
-    spritesheet.sprite_padding = SHIZSizeZero;
-
-    return spritesheet;
-}
-
-SHIZSpriteSheet
-shiz_get_sprite_sheet_src(SHIZSprite const resource,
-                          SHIZSize const sprite_size,
-                          SHIZRect const source)
-{
-    return shiz_get_sprite_sheet(shiz_get_sprite_src(resource.resource_id, source), sprite_size);
-}
-
-SHIZSprite
-shiz_get_sprite_index(SHIZSpriteSheet const spritesheet, unsigned int const index)
-{
-    unsigned int const row = (unsigned int)(index / spritesheet.columns);
-    unsigned int const column = index % spritesheet.columns;
-    
-    SHIZVector2 const source_origin = SHIZVector2Make(spritesheet.resource.source.origin.x +
-                                                      spritesheet.sprite_padding.width,
-                                                      spritesheet.resource.source.origin.y +
-                                                      spritesheet.sprite_padding.height);
-    
-    SHIZVector2 const origin = SHIZVector2Make(source_origin.x +
-                                               (column * spritesheet.sprite_size.width),
-                                               source_origin.y +
-                                               (row * spritesheet.sprite_size.height));
-    
-    SHIZSize const size = SHIZSizeMake(spritesheet.sprite_size.width -
-                                       (spritesheet.sprite_padding.width * 2),
-                                       spritesheet.sprite_size.height -
-                                       (spritesheet.sprite_padding.height * 2));
-    
-    SHIZRect const sprite_frame = SHIZRectMake(origin, size);
-    
-    return shiz_get_sprite_src(spritesheet.resource.resource_id, sprite_frame);
-}
-
-SHIZSprite
-shiz_get_sprite_colrow(SHIZSpriteSheet const spritesheet,
-                       unsigned int const column,
-                       unsigned int const row)
-{
-    unsigned int const index = row * spritesheet.columns + column;
-    
-    return shiz_get_sprite_index(spritesheet, index);
-}
-
-SHIZSpriteFont
-shiz_load_sprite_font(char const * const filename, SHIZSize const character)
-{
-    SHIZSprite const sprite = shiz_load_sprite(filename);
-    
-    return shiz_get_sprite_font(sprite, character);
-}
-
-SHIZSpriteFont
-shiz_load_sprite_font_ex(char const * const filename,
-                         SHIZSize const character,
-                         SHIZSpriteFontTable const table)
-{
-    SHIZSpriteFont const spritefont = shiz_load_sprite_font(filename, character);
-    
-    return shiz_get_sprite_font_ex(spritefont.sprite, spritefont.character, table);
-}
-
-SHIZSpriteFont
-shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character)
-{
-    SHIZSpriteFontTable table;
-
-    table.columns = sprite.source.size.width / character.width;
-    table.rows = sprite.source.size.height / character.height;
-    table.codepage = 0;
-    
-    return shiz_get_sprite_font_ex(sprite, character, table);
-}
-
-SHIZSpriteFont
-shiz_get_sprite_font_ex(SHIZSprite const sprite,
-                        SHIZSize const character,
-                        SHIZSpriteFontTable const table)
-{
-    SHIZSpriteFont spritefont;
-    
-    spritefont.sprite = sprite;
-    spritefont.character = character;
-    spritefont.table = table;
-    // default to skip whitespaces; this will reduce the number of sprites drawn
-    spritefont.includes_whitespace = false;
-    
-    return spritefont;
 }
 
 static
@@ -405,7 +207,7 @@ _shiz_build_viewport()
 {
     SHIZViewport viewport = SHIZViewportDefault;
 
-    viewport.resolution = _shiz_get_operating_resolution();
+    viewport.resolution = _context.native_size;
     viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
     viewport.scale = _shiz_glfw_get_pixel_scale();
 
@@ -414,12 +216,6 @@ _shiz_build_viewport()
     }
 
     return viewport;
-}
-
-SHIZSize
-_shiz_get_operating_resolution()
-{
-    return _context.native_size;
 }
 
 void
@@ -500,6 +296,8 @@ _shiz_glfw_create_window(bool const fullscreen, char const * const title)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
     
+    SHIZSize const visible_size = _context.display_size;
+    
     if (fullscreen) {
         GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
         
@@ -514,12 +312,12 @@ _shiz_glfw_create_window(bool const fullscreen, char const * const title)
             
             // prefer centered window if initially fullscreen;
             // otherwise let the OS determine window placement
-            _shiz_glfw_window_position.x = (display_width / 2) - (_context.display_size.width / 2);
-            _shiz_glfw_window_position.y = (display_height / 2) - (_context.display_size.height / 2);
+            _shiz_glfw_window_position.x = (display_width / 2) - (visible_size.width / 2);
+            _shiz_glfw_window_position.y = (display_height / 2) - (visible_size.height / 2);
         }
     } else {
-        _context.window = glfwCreateWindow(_context.display_size.width,
-                                           _context.display_size.height,
+        _context.window = glfwCreateWindow((int)visible_size.width,
+                                           (int)visible_size.height,
                                            title, NULL, NULL);
     }
     
@@ -584,15 +382,15 @@ _shiz_glfw_toggle_windowed(GLFWwindow * const window)
 {
     bool const is_currently_fullscreen = glfwGetWindowMonitor(window) != NULL;
 
-    int window_position_x = _shiz_glfw_window_position.x;
-    int window_position_y = _shiz_glfw_window_position.y;
+    int window_position_x = (int)_shiz_glfw_window_position.x;
+    int window_position_y = (int)_shiz_glfw_window_position.y;
     
     if (is_currently_fullscreen) {
         // go windowed
         glfwSetWindowMonitor(window, NULL,
                              window_position_x, window_position_y,
-                             _context.display_size.width,
-                             _context.display_size.height,
+                             (int)_context.display_size.width,
+                             (int)_context.display_size.height,
                              0);
     } else {
         // go fullscreen
@@ -667,7 +465,8 @@ _shiz_glfw_window_close_callback(GLFWwindow * const window)
     _context.should_finish = true;
 }
 
-static void
+static
+void
 _shiz_glfw_window_focus_callback(GLFWwindow * const window, int const focused)
 {
     (void)window;
@@ -675,7 +474,8 @@ _shiz_glfw_window_focus_callback(GLFWwindow * const window, int const focused)
     _context.is_focused = focused;
 }
 
-static void
+static
+void
 _shiz_glfw_framebuffer_size_callback(GLFWwindow * const window,
                                      int const width,
                                      int const height)

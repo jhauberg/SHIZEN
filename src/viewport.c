@@ -9,6 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
+#include <math.h>
+
 #include "viewport.h"
 
 #include "io.h"
@@ -18,6 +20,19 @@ static void _shiz_determine_operating_resolution(void);
 static void _shiz_determine_viewport_mode(SHIZViewportMode * mode,
                                           float * width,
                                           float * height);
+
+SHIZViewport const SHIZViewportDefault = {
+    .framebuffer = {
+        .width = 0,
+        .height = 0
+    },
+    .resolution = {
+        .width = 0,
+        .height = 0
+    },
+    .scale = 1,
+    .is_fullscreen = false
+};
 
 // set to false to let viewport fit framebuffer (pixels will be stretched)
 static bool const enable_boxing_if_necessary = true;

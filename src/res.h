@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "internal.h"
+#include "internal_type.h"
 
 typedef enum SHIZResourceType {
     SHIZResourceTypeNotSupported,
