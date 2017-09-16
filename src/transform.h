@@ -12,7 +12,7 @@
 #ifndef transform_h
 #define transform_h
 
-#include "internal.h"
+#include "internal_type.h"
 #include "viewport.h"
 
 void shiz_transform_project_ortho(mat4x4 world,

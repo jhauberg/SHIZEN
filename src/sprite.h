@@ -12,7 +12,7 @@
 #ifndef sprite_h
 #define sprite_h
 
-#include "internal.h"
+#include <SHIZEN/ztype.h>
 
 /**
  * The amount of sprites that can be batched until a draw call is issued.

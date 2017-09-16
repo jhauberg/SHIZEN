@@ -12,7 +12,7 @@
 #ifndef viewport_h
 #define viewport_h
 
-#include "internal.h"
+#include <SHIZEN/ztype.h>
 
 typedef struct SHIZViewport {
     SHIZSize framebuffer;

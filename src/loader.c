@@ -12,7 +12,6 @@
 #include <SHIZEN/loader.h>
 
 #include "res.h"
-#include "io.h"
 
 unsigned int
 shiz_load(char const * const filename)

@@ -14,6 +14,7 @@
 #include <math.h>
 
 #include "internal.h"
+#include "internal_type.h"
 
 static SHIZTimeline const SHIZTimelineDefault = {
     .time = 0,

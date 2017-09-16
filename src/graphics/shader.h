@@ -12,7 +12,7 @@
 #ifndef shader_h
 #define shader_h
 
-#include "internal.h"
+#include "internal_type.h"
 
 GLuint shiz_gfx_compile_shader(GLenum type, GLchar const * source);
 GLuint shiz_gfx_link_program(GLuint vs, GLuint fs);

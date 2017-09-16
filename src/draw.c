@@ -10,20 +10,25 @@
 //
 
 #include <SHIZEN/draw.h>
-#include <SHIZEN/ztime.h>
 
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <math.h>
 
-#include "graphics/gfx.h"
-
 #include "internal.h"
+
 #include "sprite.h"
 #include "spritefont.h"
-#include "res.h"
-#include "io.h"
+
+#include "graphics/gfx.h"
+
+#ifdef SHIZ_DEBUG
+ #include <SHIZEN/ztime.h>
+
+ #include "debug.h"
+ #include "res.h"
+#endif
 
 static void _shiz_draw_path_3d(SHIZVector3 const points[],
                                unsigned int const count,

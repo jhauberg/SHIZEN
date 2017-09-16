@@ -9,9 +9,6 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <stdio.h>
-#include <stdarg.h>
-
 #include "io.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -29,6 +26,9 @@
 #if defined(__clang__)
  #pragma clang pop
 #endif
+
+#include <stdio.h>
+#include <stdarg.h>
 
 static bool _shiz_io_handle_image(unsigned char * image_data,
                                   int width, int height, int components,

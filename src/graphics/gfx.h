@@ -12,7 +12,7 @@
 #ifndef gfx_h
 #define gfx_h
 
-#include "internal.h"
+#include "internal_type.h"
 #include "viewport.h"
 
 /**

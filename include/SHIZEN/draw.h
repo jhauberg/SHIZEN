@@ -13,6 +13,7 @@
 #define draw_h
 
 #include "ztype.h"
+#include "layer.h"
 
 /**
  * @brief Begin drawing to the screen.

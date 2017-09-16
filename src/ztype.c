@@ -13,6 +13,8 @@
 
 #include <stdlib.h>
 
+#include "internal_type.h"
+
 SHIZVector2 const SHIZVector2Zero = { 0, 0 };
 SHIZVector2 const SHIZVector2One = { 1, 1 };
 SHIZVector3 const SHIZVector3Zero = { 0, 0, 0 };

@@ -10,7 +10,7 @@
 //
 
 #ifdef SHIZ_DEBUG
-#include <SHIZEN/shizen.h>
+#include <SHIZEN/loader.h>
 
 #include <limits.h>
 

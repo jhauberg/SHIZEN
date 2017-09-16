@@ -12,7 +12,7 @@
 #ifndef debug_h
 #define debug_h
 
-#include <SHIZEN/ztype.h>
+#include "internal_type.h"
 
 #define SHIZDebugEventLaneDraws 0
 #define SHIZDebugEventLaneResources 1

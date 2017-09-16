@@ -12,7 +12,7 @@
 #ifndef spritefont_h
 #define spritefont_h
 
-#include "internal.h"
+#include <SHIZEN/ztype.h>
 
 #define SHIZSpriteFontMaxLines 16
 

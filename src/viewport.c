@@ -9,6 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
+#include <math.h>
+
 #include "viewport.h"
 
 #include "io.h"

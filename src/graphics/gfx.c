@@ -21,6 +21,7 @@
 #include "spritebatch.h"
 
 #ifdef SHIZ_DEBUG
+ #include "debug.h"
 static const char * const _shiz_debug_event_primitive = "\xDB";
 #endif
 

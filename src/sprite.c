@@ -11,6 +11,8 @@
 
 #include "sprite.h"
 
+#include <stdlib.h>
+
 #include "graphics/gfx.h"
 
 #include "res.h"

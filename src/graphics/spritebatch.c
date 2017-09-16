@@ -16,6 +16,10 @@
 #include "transform.h"
 
 #ifdef SHIZ_DEBUG
+ #include "debug.h"
+#endif
+
+#ifdef SHIZ_DEBUG
 static SHIZVector3 _shiz_debug_get_last_sprite_origin(void);
 
 static const char * const _shiz_debug_event_flush = "fls";

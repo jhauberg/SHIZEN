@@ -11,7 +11,7 @@
 
 #include <SHIZEN/input.h>
 
-#include "internal.h"
+#include "internal_type.h"
 
 extern SHIZGraphicsContext const _context;
 

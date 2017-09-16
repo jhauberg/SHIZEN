@@ -20,6 +20,10 @@
 #include "res.h"
 #include "io.h"
 
+#ifdef SHIZ_DEBUG
+ #include "debug.h"
+#endif
+
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
 #define SHIZ_MIN_OPENGL_VERSION_MINOR 3
 
