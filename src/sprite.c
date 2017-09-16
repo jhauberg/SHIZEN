@@ -21,7 +21,7 @@
  #define SHIZ_DEBUG_PRINT_SORT_ORDER 1
 
  #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
-static unsigned int _flushes_since_print = 0;
+ #include <SHIZEN/input.h>
  #endif
 #endif
 
@@ -159,14 +159,10 @@ shiz_sprite_flush()
     
 #ifdef SHIZ_DEBUG
  #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
-    _flushes_since_print += 1;
-    
-    bool const should_print_order = _flushes_since_print > 120;
+    bool const should_print_order = shiz_input_pressed(SHIZInputDown);
     
     if (should_print_order) {
-        _flushes_since_print = 0;
-        
-        printf("------ Z  LAYER ----- TEXTURE --------\n");
+        printf("-------- Z  LAYER ----- TEXTURE --------\n");
     }
  #endif
 #endif
@@ -180,7 +176,7 @@ shiz_sprite_flush()
 #ifdef SHIZ_DEBUG
  #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
         if (should_print_order) {
-            printf("%.6f\t[%03d,%05d] @%d (%s)\n",
+            printf("%.8f  [%03d,%05d] @%d (%s)\n",
                    sprite.origin.z,
                    sprite_key->layer.layer,
                    sprite_key->layer.depth,
