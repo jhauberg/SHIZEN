@@ -33,6 +33,8 @@
 
 #include <SHIZEN/ztype.h>
 
+#include "internal.h"
+
 typedef struct SHIZGraphicsContext {
     /** A reference to the current window */
     GLFWwindow * window;
@@ -101,16 +103,26 @@ SHIZVector3Make(float const x, float const y, float const z)
 }
 
 static inline
-float
-_shiz_layer_get_z(SHIZLayer const layer)
+float const
+_shiz_layer_get_z_between(float const value, float const min, float const max)
 {
-    float const value = layer.layer + layer.depth;
-    
-    float const min = SHIZLayerMin + SHIZLayerDepthMin;
-    float const max = SHIZLayerMax + SHIZLayerDepthMax;
-    
-    return (float)(value - min) / (max - min);
+    return (value - min) / (max - min);
 }
 
+static inline
+float const
+_shiz_layer_get_z(SHIZLayer const layer)
+{
+    // to provide a depth range for the top-most layer (e.g. 255),
+    // we add an "additional" layer just above
+    float const layer_max = SHIZLayerMax + 1;
+    
+    float const z = _shiz_layer_get_z_between(layer.layer, SHIZLayerMin, layer_max);
+    float const z_above = _shiz_layer_get_z_between(layer.layer + 1, SHIZLayerMin, layer_max);
+    
+    float const depth_z = _shiz_layer_get_z_between(layer.depth, SHIZLayerDepthMin, SHIZLayerDepthMax);
+    
+    return _shiz_lerp(z, z_above, depth_z);
+}
 
 #endif /* internal_type_h */
