@@ -28,7 +28,7 @@
 #include <linmath.h>
 
 #if defined(__clang__)
- #pragma clang pop
+ #pragma clang diagnostic pop
 #endif
 
 #include <SHIZEN/ztype.h>
