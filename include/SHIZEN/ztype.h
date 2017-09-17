@@ -112,7 +112,8 @@ typedef struct SHIZSpriteFont {
     SHIZSize character;
     /** The ASCII table that aligns with the font sprite */
     SHIZSpriteFontTable table;
-    /** Determines whether the font resource includes a sprite for the whitespace character */
+    /** Determines whether the font resource includes a sprite for the
+      * whitespace character */
     bool includes_whitespace;
 } SHIZSpriteFont;
 
@@ -339,14 +340,16 @@ static inline
 SHIZSpriteFontAttributes const
 SHIZSpriteFontAttributesWithScale(float const scale)
 {
-    return SHIZSpriteFontAttributesWithScaleAndWrap(scale, SHIZSpriteFontAttributesDefault.wrap);
+    SHIZSpriteFontWrapMode const wrap = SHIZSpriteFontAttributesDefault.wrap;
+    
+    return SHIZSpriteFontAttributesWithScaleAndWrap(scale, wrap);
 }
 
 static inline
 SHIZSpriteFontAttributes const
 SHIZSpriteFontAttributesWithWrap(SHIZSpriteFontWrapMode const wrap)
 {
-    return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteFontAttributesDefault.scale.x, wrap);
+    return SHIZSpriteFontAttributesWithScaleAndWrap(SHIZSpriteNoScale, wrap);
 }
 
 static inline
