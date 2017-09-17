@@ -15,6 +15,7 @@
 
 #include "graphics/gfx.h"
 
+#include "internal_type.h"
 #include "res.h"
 
 #ifdef SHIZ_DEBUG

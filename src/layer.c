@@ -11,6 +11,11 @@
 
 #include <SHIZEN/layer.h>
 
+#include "internal.h"
+#include "internal_type.h"
+
+static float const _shiz_layer_get_z_between(float value, float min, float max);
+
 SHIZLayer const SHIZLayerTop = {
     .layer = SHIZLayerMax,
     .depth = SHIZLayerDepthMax
@@ -20,3 +25,31 @@ SHIZLayer const SHIZLayerBottom = {
     .layer = SHIZLayerMin,
     .depth = SHIZLayerDepthMin
 };
+
+static
+float const
+_shiz_layer_get_z_between(float const value, float const min, float const max)
+{
+    return (value - min) / (max - min);
+}
+
+float const
+_shiz_layer_get_z(SHIZLayer const layer)
+{
+    // to provide a depth range for the top-most layer (e.g. 255),
+    // we add an "additional" layer just above
+    float const layer_max = SHIZLayerMax + 1;
+    
+    float const z = _shiz_layer_get_z_between(layer.layer,
+                                              SHIZLayerMin,
+                                              layer_max);
+    float const z_above = _shiz_layer_get_z_between(layer.layer + 1,
+                                                    SHIZLayerMin,
+                                                    layer_max);
+    
+    float const depth_z = _shiz_layer_get_z_between(layer.depth,
+                                                    SHIZLayerDepthMin,
+                                                    SHIZLayerDepthMax);
+    
+    return _shiz_lerp(z, z_above, depth_z);
+}
