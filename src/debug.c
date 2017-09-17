@@ -95,7 +95,7 @@ shiz_debug_process_errors()
     GLenum error;
     
     while ((error = glGetError()) != GL_NO_ERROR) {
-        shiz_io_error_context("OPENGL", "%d", error);
+        z_io__error_context("OPENGL", "%d", error);
     }
 }
 
@@ -321,10 +321,10 @@ _shiz_debug_load_font()
         return false;
     }
 
-    SHIZSprite const sprite = shiz_get_sprite(shiz_res_debug_get_font());
+    SHIZSprite const sprite = z_load_sprite_from(shiz_res_debug_get_font());
 
     if (sprite.resource_id != SHIZResourceInvalid) {
-        SHIZSpriteFont const spritefont = shiz_get_sprite_font(sprite, SHIZSizeMake(IBM8x8TileSize, IBM8x8TileSize));
+        SHIZSpriteFont const spritefont = z_load_spritefont_from(sprite, SHIZSizeMake(IBM8x8TileSize, IBM8x8TileSize));
 
         _context.font = spritefont;
         _context.font.table.codepage = IBM8x8Codepage;

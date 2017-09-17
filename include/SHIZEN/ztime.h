@@ -20,21 +20,21 @@ typedef enum SHIZTimeDirection {
     SHIZTimeDirectionForward = 1
 } SHIZTimeDirection;
 
-void shiz_time_reset(void);
+// see, now we have an issue... z_draw is an action, z_time is not...
+// but we want to keep accessible by "time", i.e. z_reset_time will not do
+// should it then be z_draw__sprite? z_time__reset?
+void z_time_reset(void);
 
-double shiz_time_since(double time);
+void z_timing_begin(void);
+double z_timing_end(void);
 
-void shiz_ticking_begin(void);
-double shiz_ticking_end(void);
+bool z_time_tick(unsigned short frequency);
 
-bool shiz_tick(unsigned short frequency);
+double z_time_since(double time);
+double z_time_passed(void);
 
-double shiz_get_tick_rate(void);
-double shiz_get_time_lag(void);
-double shiz_get_time(void);
-double shiz_get_time_scale(void);
-
-void shiz_set_time_scale(double scale);
+double z_time_get_scale(void);
+void z_time_set_scale(double scale);
 
 /**
  * @brief Determine the direction of passing time.
@@ -42,7 +42,7 @@ void shiz_set_time_scale(double scale);
  * The direction is ultimately determined by the time scale, and is always
  * one of three possible values: Backward, Still or Forward.
  */
-SHIZTimeDirection shiz_get_time_direction(void);
+SHIZTimeDirection z_time_get_direction(void);
 
 typedef struct SHIZAnimatable {
     float value;
@@ -50,7 +50,7 @@ typedef struct SHIZAnimatable {
     float result;
 } SHIZAnimatable;
 
-void shiz_animate(SHIZAnimatable *, double interpolation);
+void z_animate(SHIZAnimatable *, double interpolation);
 
 static inline
 SHIZAnimatable
@@ -62,7 +62,7 @@ SHIZAnimated(float const value)
         .result = 0
     };
     
-    shiz_animate(&animatable, 1);
+    z_animate(&animatable, 1);
     
     return animatable;
 }

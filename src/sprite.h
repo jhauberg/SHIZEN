@@ -15,25 +15,25 @@
 #include <SHIZEN/ztype.h>
 
 /**
- * The amount of sprites that can be batched until a draw call is issued.
+ * The amount of sprites that can be sorted per frame before a batch is issued.
  */
-#define SHIZSpriteInternalMax 2048
+#define SHIZSpriteMax 2048
 
-SHIZRect const shiz_sprite_get_anchored_rect(SHIZSize size,
-                                             SHIZVector2 anchor);
+SHIZRect const z_sprite__anchor_rect(SHIZSize size,
+                                     SHIZVector2 anchor);
 
-void shiz_sprite_reset(void);
-void shiz_sprite_flush(void);
+void z_sprite__reset(void);
+void z_sprite__flush(void);
 
-SHIZSize const shiz_sprite_draw(SHIZSprite sprite,
-                                SHIZVector2 origin,
-                                SHIZSpriteSize size,
-                                SHIZVector2 anchor,
-                                float angle,
-                                SHIZColor tint,
-                                bool repeat,
-                                bool opaque,
-                                SHIZLayer layer);
+SHIZSize const z_sprite__draw(SHIZSprite sprite,
+                              SHIZVector2 origin,
+                              SHIZSpriteSize size,
+                              SHIZVector2 anchor,
+                              float angle,
+                              SHIZColor tint,
+                              bool repeat,
+                              bool opaque,
+                              SHIZLayer layer);
 
 #ifdef SHIZ_DEBUG
 unsigned int shiz_debug_get_sprite_count(void);

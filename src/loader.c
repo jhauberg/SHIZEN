@@ -14,72 +14,77 @@
 #include "res.h"
 
 unsigned int
-shiz_load(char const * const filename)
+z_load(char const * const filename)
 {
-    return shiz_res_load(shiz_res_get_type(filename), filename);
+    return z_res__load(z_res__type(filename), filename);
 }
 
 bool
-shiz_unload(unsigned int const resource_id)
+z_unload(unsigned int const resource_id)
 {
-    return shiz_res_unload(resource_id);
+    return z_res__unload(resource_id);
 }
 
 
 SHIZSprite
-shiz_load_sprite(char const * const filename)
+z_load_sprite(char const * const filename)
 {
-    unsigned int const resource_id = shiz_load(filename);
+    unsigned int const resource_id = z_load(filename);
     
     if (resource_id == SHIZResourceInvalid) {
         return SHIZSpriteEmpty;
     }
     
-    return shiz_get_sprite(resource_id);
+    return z_load_sprite_from(resource_id);
 }
 
 SHIZSprite
-shiz_load_sprite_src(char const * const filename, SHIZRect const source)
+z_load_sprite_src(char const * const filename,
+                  SHIZRect const source)
 {
-    SHIZSprite const sprite = shiz_load_sprite(filename);
+    SHIZSprite const sprite = z_load_sprite(filename);
     
     if (sprite.resource_id == SHIZResourceInvalid) {
         return SHIZSpriteEmpty;
     }
     
-    return shiz_get_sprite_src(sprite.resource_id, source);
+    return z_load_sprite_from_src(sprite.resource_id, source);
 }
 
 SHIZSpriteSheet
-shiz_load_sprite_sheet(char const * const filename, SHIZSize const sprite_size)
+z_load_spritesheet(char const * const filename,
+                   SHIZSize const sprite_size)
 {
-    SHIZSprite const sprite = shiz_load_sprite(filename);
+    SHIZSprite const sprite = z_load_sprite(filename);
     
     if (sprite.resource_id == SHIZResourceInvalid) {
         return SHIZSpriteSheetEmpty;
     }
     
-    return shiz_get_sprite_sheet(sprite, sprite_size);
+    return z_load_spritesheet_from(sprite, sprite_size);
 }
 
 SHIZSpriteSheet
-shiz_load_sprite_sheet_src(char const * const filename,
-                           SHIZSize const sprite_size,
-                           SHIZRect const source)
+z_load_spritesheet_src(char const * const filename,
+                       SHIZSize const sprite_size,
+                       SHIZRect const source)
 {
-    SHIZSpriteSheet const sprite_sheet = shiz_load_sprite_sheet(filename, sprite_size);
+    SHIZSpriteSheet const sprite_sheet =
+        z_load_spritesheet(filename, sprite_size);
     
     if (sprite_sheet.resource.resource_id == SHIZResourceInvalid) {
         return SHIZSpriteSheetEmpty;
     }
     
-    return shiz_get_sprite_sheet_src(sprite_sheet.resource, sprite_size, source);
+    return z_load_spritesheet_from_src(sprite_sheet.resource,
+                                       sprite_size,
+                                       source);
 }
 
 SHIZSprite
-shiz_get_sprite(unsigned int const resource_id)
+z_load_sprite_from(unsigned int const resource_id)
 {
-    SHIZResourceImage const image = shiz_res_get_image(resource_id);
+    SHIZResourceImage const image = z_res__image(resource_id);
     
     if (image.resource_id == SHIZResourceInvalid) {
         return SHIZSpriteEmpty;
@@ -88,11 +93,12 @@ shiz_get_sprite(unsigned int const resource_id)
     SHIZRect const source = SHIZRectMake(SHIZVector2Zero,
                                          SHIZSizeMake(image.width, image.height));
     
-    return shiz_get_sprite_src(resource_id, source);
+    return z_load_sprite_from_src(resource_id, source);
 }
 
 SHIZSprite
-shiz_get_sprite_src(unsigned int const resource_id, SHIZRect const source)
+z_load_sprite_from_src(unsigned int const resource_id,
+                       SHIZRect const source)
 {
     SHIZSprite sprite;
     
@@ -103,7 +109,8 @@ shiz_get_sprite_src(unsigned int const resource_id, SHIZRect const source)
 }
 
 SHIZSpriteSheet
-shiz_get_sprite_sheet(SHIZSprite const resource, SHIZSize const sprite_size)
+z_load_spritesheet_from(SHIZSprite const resource,
+                        SHIZSize const sprite_size)
 {
     SHIZSpriteSheet spritesheet;
     
@@ -130,15 +137,19 @@ shiz_get_sprite_sheet(SHIZSprite const resource, SHIZSize const sprite_size)
 }
 
 SHIZSpriteSheet
-shiz_get_sprite_sheet_src(SHIZSprite const resource,
-                          SHIZSize const sprite_size,
-                          SHIZRect const source)
+z_load_spritesheet_from_src(SHIZSprite const resource,
+                            SHIZSize const sprite_size,
+                            SHIZRect const source)
 {
-    return shiz_get_sprite_sheet(shiz_get_sprite_src(resource.resource_id, source), sprite_size);
+    SHIZSprite const sprite = z_load_sprite_from_src(resource.resource_id,
+                                                     source);
+    
+    return z_load_spritesheet_from(sprite, sprite_size);
 }
 
 SHIZSprite
-shiz_get_sprite_index(SHIZSpriteSheet const spritesheet, unsigned int const index)
+z_load_sprite_from_index(SHIZSpriteSheet const spritesheet,
+                         unsigned int const index)
 {
     unsigned int const row = (unsigned int)(index / spritesheet.columns);
     unsigned int const column = index % spritesheet.columns;
@@ -160,39 +171,44 @@ shiz_get_sprite_index(SHIZSpriteSheet const spritesheet, unsigned int const inde
     
     SHIZRect const sprite_frame = SHIZRectMake(origin, size);
     
-    return shiz_get_sprite_src(spritesheet.resource.resource_id, sprite_frame);
+    return z_load_sprite_from_src(spritesheet.resource.resource_id,
+                                  sprite_frame);
 }
 
 SHIZSprite
-shiz_get_sprite_colrow(SHIZSpriteSheet const spritesheet,
-                       unsigned int const column,
-                       unsigned int const row)
+z_load_sprite_from_cell(SHIZSpriteSheet const spritesheet,
+                        unsigned int const column,
+                        unsigned int const row)
 {
     unsigned int const index = row * spritesheet.columns + column;
     
-    return shiz_get_sprite_index(spritesheet, index);
+    return z_load_sprite_from_index(spritesheet, index);
 }
 
 SHIZSpriteFont
-shiz_load_sprite_font(char const * const filename, SHIZSize const character)
+z_load_spritefont(char const * const filename,
+                  SHIZSize const character)
 {
-    SHIZSprite const sprite = shiz_load_sprite(filename);
+    SHIZSprite const sprite = z_load_sprite(filename);
     
-    return shiz_get_sprite_font(sprite, character);
+    return z_load_spritefont_from(sprite, character);
 }
 
 SHIZSpriteFont
-shiz_load_sprite_font_ex(char const * const filename,
-                         SHIZSize const character,
-                         SHIZSpriteFontTable const table)
+z_load_spritefont_ex(char const * const filename,
+                     SHIZSize const character,
+                     SHIZSpriteFontTable const table)
 {
-    SHIZSpriteFont const spritefont = shiz_load_sprite_font(filename, character);
+    SHIZSpriteFont const spritefont = z_load_spritefont(filename, character);
     
-    return shiz_get_sprite_font_ex(spritefont.sprite, spritefont.character, table);
+    return z_load_spritefont_from_ex(spritefont.sprite,
+                                     spritefont.character,
+                                     table);
 }
 
 SHIZSpriteFont
-shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character)
+z_load_spritefont_from(SHIZSprite const sprite,
+                       SHIZSize const character)
 {
     SHIZSpriteFontTable table;
     
@@ -212,13 +228,13 @@ shiz_get_sprite_font(SHIZSprite const sprite, SHIZSize const character)
     
     table.codepage = 0;
     
-    return shiz_get_sprite_font_ex(sprite, character, table);
+    return z_load_spritefont_from_ex(sprite, character, table);
 }
 
 SHIZSpriteFont
-shiz_get_sprite_font_ex(SHIZSprite const sprite,
-                        SHIZSize const character,
-                        SHIZSpriteFontTable const table)
+z_load_spritefont_from_ex(SHIZSprite const sprite,
+                          SHIZSize const character,
+                          SHIZSpriteFontTable const table)
 {
     SHIZSpriteFont spritefont;
     

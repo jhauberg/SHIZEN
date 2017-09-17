@@ -14,7 +14,8 @@
 
 #include <math.h>
 
-static unsigned int
+static
+unsigned int
 utf8_decode(char const * str, unsigned int * i)
 {
     unsigned char const * s = (unsigned char const *)str;
@@ -42,30 +43,30 @@ utf8_decode(char const * str, unsigned int * i)
     return u;
 }
 
-static bool _shiz_sprite_is_special_character(char);
-static unsigned int _shiz_sprite_perceived_count(unsigned int line_character_count,
-                                                 unsigned int line_character_ignored_count,
-                                                 bool should_skip_leading_whitespace);
-static void _shiz_sprite_set_line(SHIZSpriteFontLine * line,
-                                  SHIZSpriteFontMeasurement const * measurement,
-                                  float line_height,
-                                  unsigned int line_character_count,
-                                  unsigned int line_character_ignored_count,
-                                  bool should_skip_leading_whitespace);
-static int _shiz_sprite_character_table_index(char, unsigned int decimal,
-                                              SHIZSpriteFont const * font);
-static void _shiz_sprite_draw_character_index(SHIZSpriteFont const * font,
-                                              SHIZSpriteFontMeasurement const * measurement,
-                                              SHIZVector2 character_origin,
-                                              unsigned int character_table_index,
-                                              SHIZColor highlight_color,
-                                              SHIZLayer);
+static bool z_sprite__is_special_character(char);
+static unsigned int z_sprite__perceived_count(unsigned int line_character_count,
+                                              unsigned int line_character_ignored_count,
+                                              bool should_skip_leading_whitespace);
+static void z_sprite__set_line(SHIZSpriteFontLine * line,
+                               SHIZSpriteFontMeasurement const * measurement,
+                               float line_height,
+                               unsigned int line_character_count,
+                               unsigned int line_character_ignored_count,
+                               bool should_skip_leading_whitespace);
+static int z_sprite__character_table_index(char, unsigned int decimal,
+                                           SHIZSpriteFont const * font);
+static void z_sprite__draw_character_index(SHIZSpriteFont const * font,
+                                           SHIZSpriteFontMeasurement const * measurement,
+                                           SHIZVector2 character_origin,
+                                           unsigned int character_table_index,
+                                           SHIZColor highlight_color,
+                                           SHIZLayer);
 
 SHIZSpriteFontMeasurement const
-shiz_sprite_measure_text(SHIZSpriteFont const font,
-                         char const * const text,
-                         SHIZSize const bounds,
-                         SHIZSpriteFontAttributes const attributes)
+z_sprite__measure_text(SHIZSpriteFont const font,
+                       char const * const text,
+                       SHIZSize const bounds,
+                       SHIZSpriteFontAttributes const attributes)
 {
     SHIZSpriteFontMeasurement measurement;
 
@@ -140,9 +141,10 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             (skip_leading_whitespace &&
              current_line_has_leading_whitespace);
         
-        unsigned int const line_character_count_perceived = _shiz_sprite_perceived_count(line_character_count,
-                                                                                         line_character_ignored_count,
-                                                                                         should_skip_leading_whitespace);
+        unsigned int const line_character_count_perceived =
+            z_sprite__perceived_count(line_character_count,
+                                      line_character_ignored_count,
+                                      should_skip_leading_whitespace);
 
         bool const break_line_required = (measurement.constrain_horizontally &&
                                           line_character_count_perceived >= measurement.max_characters_per_line);
@@ -193,12 +195,12 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
                 }
             }
             
-            _shiz_sprite_set_line(&measurement.lines[line_index],
-                                  &measurement,
-                                  line_height,
-                                  line_character_count,
-                                  line_character_ignored_count,
-                                  should_skip_leading_whitespace);
+            z_sprite__set_line(&measurement.lines[line_index],
+                               &measurement,
+                               line_height,
+                               line_character_count,
+                               line_character_ignored_count,
+                               should_skip_leading_whitespace);
             
             line_character_ignored_count = 0;
             line_character_count = 0;
@@ -224,7 +226,7 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
             continue;
         }
 
-        if (_shiz_sprite_is_special_character(character)) {
+        if (z_sprite__is_special_character(character)) {
             // increment ignored characters, but otherwise proceed as usual
             line_character_ignored_count += 1;
         }
@@ -232,12 +234,12 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
         line_character_count += 1;
         character_count += 1;
         
-        _shiz_sprite_set_line(&measurement.lines[line_index],
-                              &measurement,
-                              line_height,
-                              line_character_count,
-                              line_character_ignored_count,
-                              should_skip_leading_whitespace);
+        z_sprite__set_line(&measurement.lines[line_index],
+                           &measurement,
+                           line_height,
+                           line_character_count,
+                           line_character_ignored_count,
+                           should_skip_leading_whitespace);
     }
 
     measurement.line_count = line_index + 1;
@@ -256,19 +258,19 @@ shiz_sprite_measure_text(SHIZSpriteFont const font,
 }
 
 SHIZSize const
-shiz_sprite_draw_text(SHIZSpriteFont const font,
-                      char const * const text,
-                      SHIZVector2 const origin,
-                      SHIZSpriteFontAlignment const alignment,
-                      SHIZSize const bounds,
-                      SHIZColor const tint,
-                      SHIZSpriteFontAttributes const attributes,
-                      SHIZLayer const layer,
-                      SHIZColor const * const highlight_colors,
-                      unsigned int const highlight_color_count)
+z_sprite__draw_text(SHIZSpriteFont const font,
+                    char const * const text,
+                    SHIZVector2 const origin,
+                    SHIZSpriteFontAlignment const alignment,
+                    SHIZSize const bounds,
+                    SHIZColor const tint,
+                    SHIZSpriteFontAttributes const attributes,
+                    SHIZLayer const layer,
+                    SHIZColor const * const highlight_colors,
+                    unsigned int const highlight_color_count)
 {
-    SHIZSpriteFontMeasurement const measurement = shiz_sprite_measure_text(font, text, bounds,
-                                                                           attributes);
+    SHIZSpriteFontMeasurement const measurement =
+        z_sprite__measure_text(font, text, bounds, attributes);
 
     unsigned int const truncation_length = 3;
     int const truncation_index = measurement.max_characters - (int)truncation_length;
@@ -331,7 +333,7 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
             
             character_count += 1;
 
-            if (_shiz_sprite_is_special_character(character)) {
+            if (z_sprite__is_special_character(character)) {
                 // these characters are only used for tinting purposes and will be ignored/skipped otherwise
                 if (highlight_colors && highlight_color_count > 0) {
                     // at this point, we know that 'character' is one of the numeric tint specifiers
@@ -361,9 +363,10 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                 continue;
             }
 
-            int const character_table_index = _shiz_sprite_character_table_index(character,
-                                                                                 character_decimal,
-                                                                                 &font);
+            int const character_table_index =
+                z_sprite__character_table_index(character,
+                                                character_decimal,
+                                                &font);
 
             bool const skip_leading_whitespace = (!font.includes_whitespace &&
                                                   line_index > 0);
@@ -403,11 +406,11 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
                                                  font.includes_whitespace);
 
                 if (can_draw_character) {
-                    _shiz_sprite_draw_character_index(&font, &measurement,
-                                                      character_origin,
-                                                      (unsigned int)character_table_index,
-                                                      highlight_color,
-                                                      layer);
+                    z_sprite__draw_character_index(&font, &measurement,
+                                                   character_origin,
+                                                   (unsigned int)character_table_index,
+                                                   highlight_color,
+                                                   layer);
                 }
             }
 
@@ -434,12 +437,12 @@ shiz_sprite_draw_text(SHIZSpriteFont const font,
 
 static
 void
-_shiz_sprite_draw_character_index(SHIZSpriteFont const * const font,
-                                  SHIZSpriteFontMeasurement const * const measurement,
-                                  SHIZVector2 const character_origin,
-                                  unsigned int const character_table_index,
-                                  SHIZColor const highlight_color,
-                                  SHIZLayer const layer)
+z_sprite__draw_character_index(SHIZSpriteFont const * const font,
+                               SHIZSpriteFontMeasurement const * const measurement,
+                               SHIZVector2 const character_origin,
+                               unsigned int const character_table_index,
+                               SHIZColor const highlight_color,
+                               SHIZLayer const layer)
 {
     unsigned int const character_row = character_table_index / font->table.columns;
     unsigned int const character_column = character_table_index % font->table.columns;
@@ -458,20 +461,23 @@ _shiz_sprite_draw_character_index(SHIZSpriteFont const * const font,
     SHIZSpriteSize const character_sprite_size = SHIZSpriteSized(measurement->character_size,
                                                                  SHIZSpriteNoScale);
     
-    shiz_sprite_draw(character_sprite, character_origin,
-                     character_sprite_size,
-                     SHIZAnchorTopLeft, SHIZSpriteNoAngle,
-                     highlight_color,
-                     SHIZSpriteNoRepeat,
-                     SHIZSpriteNotOpaque,
-                     layer);
+    // todo: optimization; we already know the Z because the layer does not change per character
+    // todo: optimization; we don't need to calculate anchored rect each time either
+    z_sprite__draw(character_sprite,
+                   character_origin,
+                   character_sprite_size,
+                   SHIZAnchorTopLeft, SHIZSpriteNoAngle,
+                   highlight_color,
+                   SHIZSpriteNoRepeat,
+                   SHIZSpriteNotOpaque,
+                   layer);
 }
 
 static
 int
-_shiz_sprite_character_table_index(char const character,
-                                   unsigned int const decimal,
-                                   SHIZSpriteFont const * const font)
+z_sprite__character_table_index(char const character,
+                                unsigned int const decimal,
+                                SHIZSpriteFont const * const font)
 {
     unsigned int const table_size = font->table.columns * font->table.rows;
     
@@ -499,16 +505,17 @@ _shiz_sprite_character_table_index(char const character,
 
 static
 void
-_shiz_sprite_set_line(SHIZSpriteFontLine * const line,
-                      SHIZSpriteFontMeasurement const * const measurement,
-                      float const line_height,
-                      unsigned int const line_character_count,
-                      unsigned int const line_character_ignored_count,
-                      bool const should_skip_leading_whitespace)
+z_sprite__set_line(SHIZSpriteFontLine * const line,
+                   SHIZSpriteFontMeasurement const * const measurement,
+                   float const line_height,
+                   unsigned int const line_character_count,
+                   unsigned int const line_character_ignored_count,
+                   bool const should_skip_leading_whitespace)
 {
-    unsigned int const line_character_count_perceived = _shiz_sprite_perceived_count(line_character_count,
-                                                                                     line_character_ignored_count,
-                                                                                     should_skip_leading_whitespace);
+    unsigned int const line_character_count_perceived =
+        z_sprite__perceived_count(line_character_count,
+                                  line_character_ignored_count,
+                                  should_skip_leading_whitespace);
     
     line->size.width = line_character_count_perceived * measurement->character_size_perceived.width;
     line->size.height = line_height;
@@ -517,7 +524,7 @@ _shiz_sprite_set_line(SHIZSpriteFontLine * const line,
 
 static
 bool
-_shiz_sprite_is_special_character(char const character)
+z_sprite__is_special_character(char const character)
 {
     return (character == '\1' ||
             character == '\2' || character == '\3' || character == '\4' ||
@@ -526,9 +533,9 @@ _shiz_sprite_is_special_character(char const character)
 
 static
 unsigned int
-_shiz_sprite_perceived_count(unsigned int const line_character_count,
-                             unsigned int const line_character_ignored_count,
-                             bool const should_skip_leading_whitespace)
+z_sprite__perceived_count(unsigned int const line_character_count,
+                          unsigned int const line_character_ignored_count,
+                          bool const should_skip_leading_whitespace)
 {
     unsigned int line_character_count_perceived = line_character_count;
     

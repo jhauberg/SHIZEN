@@ -13,8 +13,8 @@
 #define internal_h
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 18
-#define SHIZEN_VERSION_PATCH 2
+#define SHIZEN_VERSION_MINOR 19
+#define SHIZEN_VERSION_PATCH 0
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
@@ -25,11 +25,16 @@
 
 #define SHIZEpsilon (1.0 / 1024)
 
-void _shiz_present_frame(void);
+#ifdef SHIZ_DEBUG
+double z_time__get_tick_rate(void);
+double z_time__get_lag(void);
+#endif
+
+void z_engine__present_frame(void);
 
 static inline
 void
-_shiz_str_to_upper(char * string)
+z_str_to_upper(char * string)
 {
     char * ptr;
 
@@ -43,37 +48,37 @@ _shiz_str_to_upper(char * string)
  */
 static inline
 bool
-_shiz_fequal(double const a, double const b)
+z_fequal(double const a, double const b)
 {
     return (fabs(b - a) < SHIZEpsilon);
 }
 
 static inline
 float
-_shiz_lerp(float const a, float const b, float const t)
+z_lerp(float const a, float const b, float const t)
 {
     return a * (1.0f - t) + b * t;
 }
 
 static inline
 int
-_shiz_random_int_range(int const min, int const max)
+z_random_int_range(int const min, int const max)
 {
     return min + (rand() % (int)((max + 1) - min));
 }
 
 static inline
 float
-_shiz_random_float(void)
+z_random_float(void)
 {
     return rand() / (RAND_MAX + 1.0f);
 }
 
 static inline
 float
-_shiz_random_float_range(float const min, float const max)
+z_random_float_range(float const min, float const max)
 {
-    return _shiz_lerp(min, max, _shiz_random_float());
+    return z_lerp(min, max, z_random_float());
 }
 
 #endif // internal_h

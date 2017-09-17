@@ -27,7 +27,7 @@ static const char * const _shiz_debug_event_flush_capacity = "fls|cap";
 static const char * const _shiz_debug_event_flush_texture_switch = "fls|tex";
 #endif
 
-static void _shiz_gfx_spritebatch_state(bool enable);
+static void z_gfx__spritebatch_state(bool enable);
 
 #define SHIZGFXSpriteBatchMax 128 /* flush when reaching this limit */
 
@@ -44,14 +44,14 @@ typedef struct SHIZSpriteBatch {
 static SHIZSpriteBatch _spritebatch;
 
 void
-shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
-                    SHIZVector3 const origin,
-                    float const angle,
-                    GLuint const texture_id)
+z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
+                  SHIZVector3 const origin,
+                  float const angle,
+                  GLuint const texture_id)
 {
     if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.texture_id != texture_id) {
-        if (shiz_gfx_spritebatch_flush()) {
+        if (z_gfx__spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
             shiz_debug_add_event_draw(_shiz_debug_event_flush_texture_switch, origin);
 #endif
@@ -61,7 +61,7 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict const vertic
     _spritebatch.texture_id = texture_id;
     
     if (_spritebatch.count + 1 > SHIZGFXSpriteBatchMax) {
-        if (shiz_gfx_spritebatch_flush()) {
+        if (z_gfx__spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
             shiz_debug_add_event_draw(_shiz_debug_event_flush_capacity, origin);
 #endif
@@ -72,7 +72,7 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict const vertic
     
     mat4x4 transform;
     
-    shiz_transform_translate_rotate_scale(transform, origin, angle, 1);
+    z_transform__translate_rotate_scale(transform, origin, angle, 1);
     
     for (unsigned int i = 0; i < spritebatch_vertex_count_per_quad; i++) {
         SHIZVertexPositionColorTexture vertex = vertices[i];
@@ -98,7 +98,7 @@ shiz_gfx_add_sprite(SHIZVertexPositionColorTexture const * restrict const vertic
 }
 
 bool
-shiz_gfx_init_spritebatch()
+z_gfx__init_spritebatch()
 {
     char const * const vertex_shader =
     "#version 330 core\n"
@@ -141,14 +141,14 @@ shiz_gfx_init_spritebatch()
     "    }\n"
     "}";
 
-    GLuint const vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint const fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = z_gfx__compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    GLuint const fs = z_gfx__compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
     
     if (!vs && !fs) {
         return false;
     }
     
-    _spritebatch.render.program = shiz_gfx_link_program(vs, fs);
+    _spritebatch.render.program = z_gfx__link_program(vs, fs);
     
     glDeleteShader(vs);
     glDeleteShader(fs);
@@ -222,7 +222,7 @@ shiz_gfx_init_spritebatch()
 }
 
 bool
-shiz_gfx_kill_spritebatch()
+z_gfx__kill_spritebatch()
 {
     glDeleteProgram(_spritebatch.render.program);
     glDeleteVertexArrays(1, &_spritebatch.render.vao);
@@ -232,7 +232,7 @@ shiz_gfx_kill_spritebatch()
 }
 
 bool
-shiz_gfx_spritebatch_flush()
+z_gfx__spritebatch_flush()
 {
     if (_spritebatch.count == 0) {
         return false;
@@ -250,9 +250,9 @@ shiz_gfx_spritebatch_flush()
     
     mat4x4 transform;
 
-    shiz_transform_project_ortho(transform, model, shiz_get_viewport());
+    z_transform__project_ortho(transform, model, z_viewport__get());
     
-    _shiz_gfx_spritebatch_state(true);
+    z_gfx__spritebatch_state(true);
     
     glUseProgram(_spritebatch.render.program);
     // todo: a way to provide this flag; problem is that it affects the entire batch
@@ -281,7 +281,7 @@ shiz_gfx_spritebatch_flush()
     glBindTexture(GL_TEXTURE_2D, 0);
     glUseProgram(0);
     
-    _shiz_gfx_spritebatch_state(false);
+    z_gfx__spritebatch_state(false);
     
     _spritebatch.count = 0;
     
@@ -289,7 +289,7 @@ shiz_gfx_spritebatch_flush()
 }
 
 void
-shiz_gfx_spritebatch_reset()
+z_gfx__spritebatch_reset()
 {
     _spritebatch.count = 0;
     _spritebatch.texture_id = 0;
@@ -297,7 +297,7 @@ shiz_gfx_spritebatch_reset()
 
 static
 void
-_shiz_gfx_spritebatch_state(bool const enable)
+z_gfx__spritebatch_state(bool const enable)
 {
     if (enable) {
         glEnable(GL_DEPTH_TEST);

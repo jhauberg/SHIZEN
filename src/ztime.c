@@ -39,7 +39,7 @@ static SHIZTimelineState _timeline_state = {
 };
 
 void
-shiz_time_reset()
+z_time_reset()
 {
     _timeline = SHIZTimelineDefault;
     _timeline_state.time_previous = _timeline.time;
@@ -48,15 +48,15 @@ shiz_time_reset()
 }
 
 double
-shiz_time_since(double const time)
+z_time_since(double const time)
 {
-    double const time_passed_since = shiz_get_time() - time;
+    double const time_passed_since = z_time_passed() - time;
     
     return time_passed_since;
 }
 
 void
-shiz_ticking_begin()
+z_timing_begin()
 {
     if (_timeline_state.is_ticking) {
         return;
@@ -76,14 +76,14 @@ shiz_ticking_begin()
 }
 
 bool
-shiz_tick(unsigned short const frequency)
+z_time_tick(unsigned short const frequency)
 {
     _timeline.time_step = 1.0 / frequency;
     
     if (_timeline_state.time_lag >= _timeline.time_step) {
         _timeline_state.time_lag -= _timeline.time_step;
         
-        SHIZTimeDirection const direction = shiz_get_time_direction();
+        SHIZTimeDirection const direction = z_time_get_direction();
         
         _timeline.time += _timeline.time_step * direction;
         
@@ -94,7 +94,7 @@ shiz_tick(unsigned short const frequency)
 }
 
 double
-shiz_ticking_end()
+z_timing_end()
 {
     if (!_timeline_state.is_ticking) {
         return 0;
@@ -108,41 +108,29 @@ shiz_ticking_end()
 }
 
 double
-shiz_get_tick_rate()
-{
-    return _timeline.time_step;
-}
-
-double
-shiz_get_time_lag()
-{
-    return _timeline_state.time_lag;
-}
-
-double
-shiz_get_time()
+z_time_passed()
 {
     return _timeline.time;
 }
 
 double
-shiz_get_time_scale()
+z_time_get_scale()
 {
     return _timeline.scale;
 }
 
 void
-shiz_set_time_scale(double const scale)
+z_time_set_scale(double const scale)
 {
     _timeline.scale = scale;
     
-    if (_shiz_fequal(_timeline.scale, 0)) {
+    if (z_fequal(_timeline.scale, 0)) {
         _timeline.scale = 0;
     }
 }
 
 SHIZTimeDirection
-shiz_get_time_direction()
+z_time_get_direction()
 {
     if (_timeline.scale > 0) {
         return SHIZTimeDirectionForward;
@@ -153,11 +141,25 @@ shiz_get_time_direction()
     return SHIZTimeDirectionStill;
 }
 
-void shiz_animate(SHIZAnimatable * const animatable,
-                  double const interpolation)
+void z_animate(SHIZAnimatable * const animatable,
+               double const interpolation)
 {
     animatable->previous_result = animatable->result;
-    animatable->result = _shiz_lerp(animatable->value,
-                                    animatable->previous_result,
-                                    (float)interpolation);
+    animatable->result = z_lerp(animatable->value,
+                                animatable->previous_result,
+                                (float)interpolation);
 }
+
+#ifdef SHIZ_DEBUG
+double
+z_time__get_tick_rate()
+{
+    return _timeline.time_step;
+}
+
+double
+z_time__get_lag()
+{
+    return _timeline_state.time_lag;
+}
+#endif

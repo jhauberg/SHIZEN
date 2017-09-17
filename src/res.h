@@ -41,15 +41,15 @@ extern SHIZResourceSound const SHIZResourceSoundEmpty;
 
 extern unsigned int const SHIZResourceInvalid;
 
-unsigned int shiz_res_load(SHIZResourceType type, char const * filename);
+unsigned int z_res__load(SHIZResourceType type, char const * filename);
 
-bool shiz_res_unload(unsigned int resource_id);
-bool shiz_res_unload_all(void);
+bool z_res__unload(unsigned int resource_id);
+bool z_res__unload_all(void);
 
-SHIZResourceType const shiz_res_get_type(char const * const filename);
+SHIZResourceType const z_res__type(char const * const filename);
 
-SHIZResourceImage shiz_res_get_image(unsigned int resource_id);
-SHIZResourceSound shiz_res_get_sound(unsigned int resource_id);
+SHIZResourceImage z_res__image(unsigned int resource_id);
+SHIZResourceSound z_res__sound(unsigned int resource_id);
 
 #ifdef SHIZ_DEBUG
 void shiz_res_debug_print_resources(void);

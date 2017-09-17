@@ -14,7 +14,8 @@
 #include "io.h"
 
 GLuint
-shiz_gfx_compile_shader(GLenum const type, GLchar const * const source)
+z_gfx__compile_shader(GLenum const type,
+                      GLchar const * const source)
 {
     GLuint const shader = glCreateShader(type);
     
@@ -30,7 +31,7 @@ shiz_gfx_compile_shader(GLenum const type, GLchar const * const source)
         
         glGetShaderInfoLog(shader, sizeof(log), NULL, log);
         
-        shiz_io_error_context("GLSL", "compile error: %s", (char *)log);
+        z_io__error_context("GLSL", "compile error: %s", (char *)log);
         
         return 0;
     }
@@ -39,7 +40,8 @@ shiz_gfx_compile_shader(GLenum const type, GLchar const * const source)
 }
 
 GLuint
-shiz_gfx_link_program(GLuint const vs, GLuint const fs)
+z_gfx__link_program(GLuint const vs,
+                    GLuint const fs)
 {
     GLuint const program = glCreateProgram();
     
@@ -57,7 +59,7 @@ shiz_gfx_link_program(GLuint const vs, GLuint const fs)
         
         glGetProgramInfoLog(program, sizeof(log), NULL, log);
         
-        shiz_io_error_context("GLSL", "link error: %s", (char *)log);
+        z_io__error_context("GLSL", "link error: %s", (char *)log);
         
         return 0;
     }

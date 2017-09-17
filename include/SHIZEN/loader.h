@@ -21,50 +21,50 @@
  *
  * @return A resource id if the resource was loaded successfully, `0` otherwise
  */
-unsigned int shiz_load(char const * filename);
+unsigned int z_load(char const * filename);
 /**
  * @brief Unload a resource.
  *
  * @return `true` if the resource was unloaded successfully, `false` otherwise
  */
-bool shiz_unload(unsigned int resource_id);
+bool z_unload(unsigned int resource_id);
 
-SHIZSprite shiz_load_sprite(char const * filename);
-SHIZSprite shiz_load_sprite_src(char const * filename,
-                                SHIZRect source);
+SHIZSprite z_load_sprite(char const * filename);
+SHIZSprite z_load_sprite_src(char const * filename,
+                             SHIZRect source);
 
-SHIZSprite shiz_get_sprite(unsigned int resource_id);
-SHIZSprite shiz_get_sprite_src(unsigned int resource_id,
-                               SHIZRect source);
+SHIZSprite z_load_sprite_from(unsigned int resource_id);
+SHIZSprite z_load_sprite_from_src(unsigned int resource_id,
+                                  SHIZRect source);
 
-SHIZSpriteSheet shiz_load_sprite_sheet(char const * filename,
-                                       SHIZSize sprite_size);
-SHIZSpriteSheet shiz_load_sprite_sheet_src(char const * filename,
-                                           SHIZSize sprite_size,
-                                           SHIZRect source);
+SHIZSpriteSheet z_load_spritesheet(char const * filename,
+                                   SHIZSize sprite_size);
+SHIZSpriteSheet z_load_spritesheet_src(char const * filename,
+                                       SHIZSize sprite_size,
+                                       SHIZRect source);
 
-SHIZSpriteSheet shiz_get_sprite_sheet(SHIZSprite resource,
-                                      SHIZSize sprite_size);
-SHIZSpriteSheet shiz_get_sprite_sheet_src(SHIZSprite resource,
-                                          SHIZSize sprite_size,
-                                          SHIZRect source);
+SHIZSpriteSheet z_load_spritesheet_from(SHIZSprite resource,
+                                        SHIZSize sprite_size);
+SHIZSpriteSheet z_load_spritesheet_from_src(SHIZSprite resource,
+                                            SHIZSize sprite_size,
+                                            SHIZRect source);
 
-SHIZSprite shiz_get_sprite_index(SHIZSpriteSheet spritesheet,
-                                 unsigned int index);
-SHIZSprite shiz_get_sprite_colrow(SHIZSpriteSheet spritesheet,
-                                  unsigned int column,
-                                  unsigned int row);
+SHIZSprite z_load_sprite_from_index(SHIZSpriteSheet spritesheet,
+                                    unsigned int index);
+SHIZSprite z_load_sprite_from_cell(SHIZSpriteSheet spritesheet,
+                                   unsigned int column,
+                                   unsigned int row);
 
-SHIZSpriteFont shiz_load_sprite_font(char const * filename,
-                                     SHIZSize character);
-SHIZSpriteFont shiz_load_sprite_font_ex(char const * filename,
-                                        SHIZSize character,
-                                        SHIZSpriteFontTable table);
+SHIZSpriteFont z_load_spritefont(char const * filename,
+                                 SHIZSize character);
+SHIZSpriteFont z_load_spritefont_ex(char const * filename,
+                                    SHIZSize character,
+                                    SHIZSpriteFontTable table);
 
-SHIZSpriteFont shiz_get_sprite_font(SHIZSprite sprite,
-                                    SHIZSize character);
-SHIZSpriteFont shiz_get_sprite_font_ex(SHIZSprite sprite,
-                                       SHIZSize character,
-                                       SHIZSpriteFontTable table);
+SHIZSpriteFont z_load_spritefont_from(SHIZSprite sprite,
+                                      SHIZSize character);
+SHIZSpriteFont z_load_spritefont_from_ex(SHIZSprite sprite,
+                                         SHIZSize character,
+                                         SHIZSpriteFontTable table);
 
 #endif /* loader_h */

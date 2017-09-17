@@ -15,12 +15,6 @@
 
 #include "io.h"
 
-static void _shiz_apply_viewport_boxing_if_necessary(void);
-static void _shiz_determine_operating_resolution(void);
-static void _shiz_determine_viewport_mode(SHIZViewportMode * mode,
-                                          float * width,
-                                          float * height);
-
 SHIZViewport const SHIZViewportDefault = {
     .framebuffer = {
         .width = 0,
@@ -34,6 +28,12 @@ SHIZViewport const SHIZViewportDefault = {
     .is_fullscreen = false
 };
 
+static void z_viewport__apply_boxing_if_necessary(void);
+static void z_viewport__determine_operating_resolution(void);
+static void z_viewport__determine_mode(SHIZViewportMode * mode,
+                                       float * width,
+                                       float * height);
+
 // set to false to let viewport fit framebuffer (pixels will be stretched)
 static bool const enable_boxing_if_necessary = true;
 
@@ -41,19 +41,19 @@ static SHIZViewport _viewport;
 static SHIZSize _viewport_offset;
 
 SHIZViewport
-shiz_get_viewport()
+z_viewport__get()
 {
     return _viewport;
 }
 
 SHIZSize
-shiz_get_viewport_offset()
+z_viewport__get_offset()
 {
     return _viewport_offset;
 }
 
 void
-shiz_set_viewport(SHIZViewport const viewport)
+z_viewport__set(SHIZViewport const viewport)
 {
     if (viewport.framebuffer.width == _viewport.framebuffer.width ||
         viewport.framebuffer.height == _viewport.framebuffer.height) {
@@ -62,29 +62,29 @@ shiz_set_viewport(SHIZViewport const viewport)
     
     _viewport = viewport;
     
-    _shiz_determine_operating_resolution();
-    _shiz_apply_viewport_boxing_if_necessary();
+    z_viewport__determine_operating_resolution();
+    z_viewport__apply_boxing_if_necessary();
 }
 
 static
 void
-_shiz_determine_operating_resolution()
+z_viewport__determine_operating_resolution()
 {
     if ((_viewport.resolution.width < _viewport.framebuffer.width ||
          _viewport.resolution.width > _viewport.framebuffer.width) ||
         (_viewport.resolution.height < _viewport.framebuffer.height ||
          _viewport.resolution.height > _viewport.framebuffer.height)) {
-            shiz_io_warning_context("GFX", "Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx (%s)",
-                                    _viewport.resolution.width, _viewport.resolution.height,
-                                    _viewport.framebuffer.width, _viewport.framebuffer.height,
-                                    _viewport.scale,
-                                    _viewport.is_fullscreen ? "fullscreen" : "windowed");
+            z_io__warning_context("GFX", "Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx (%s)",
+                                  _viewport.resolution.width, _viewport.resolution.height,
+                                  _viewport.framebuffer.width, _viewport.framebuffer.height,
+                                  _viewport.scale,
+                                  _viewport.is_fullscreen ? "fullscreen" : "windowed");
         }
 }
 
 static
 void
-_shiz_apply_viewport_boxing_if_necessary()
+z_viewport__apply_boxing_if_necessary()
 {
     _viewport_offset = SHIZSizeZero;
     
@@ -94,23 +94,23 @@ _shiz_apply_viewport_boxing_if_necessary()
         float adjusted_width;
         float adjusted_height;
         
-        _shiz_determine_viewport_mode(&mode, &adjusted_width, &adjusted_height);
+        z_viewport__determine_mode(&mode, &adjusted_width, &adjusted_height);
         
         if (mode != SHIZViewportModeNormal) {
             _viewport_offset = SHIZSizeMake(_viewport.framebuffer.width - adjusted_width,
                                             _viewport.framebuffer.height - adjusted_height);
             
-            shiz_io_warning_context("GFX", "Aspect ratio mismatch between the operating resolution and the framebuffer; enabling %s",
-                                    (mode == SHIZViewportModeLetterbox ? "letterboxing" : "pillarboxing"));
+            z_io__warning_context("GFX", "Aspect ratio mismatch between the operating resolution and the framebuffer; enabling %s",
+                                  (mode == SHIZViewportModeLetterbox ? "letterboxing" : "pillarboxing"));
         }
     }
 }
 
 static
 void
-_shiz_determine_viewport_mode(SHIZViewportMode * const mode,
-                              float * const width,
-                              float * const height)
+z_viewport__determine_mode(SHIZViewportMode * const mode,
+                           float * const width,
+                           float * const height)
 {
     float const screen_aspect_ratio = _viewport.resolution.width / _viewport.resolution.height;
     float const framebuffer_aspect_ratio = _viewport.framebuffer.width / _viewport.framebuffer.height;

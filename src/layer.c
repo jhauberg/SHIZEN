@@ -14,7 +14,7 @@
 #include "internal.h"
 #include "internal_type.h"
 
-static float const _shiz_layer_get_z_between(float value, float min, float max);
+static float const z_layer__get_z_between(float value, float min, float max);
 
 SHIZLayer const SHIZLayerTop = {
     .layer = SHIZLayerMax,
@@ -28,28 +28,28 @@ SHIZLayer const SHIZLayerBottom = {
 
 static
 float const
-_shiz_layer_get_z_between(float const value, float const min, float const max)
+z_layer__get_z_between(float const value, float const min, float const max)
 {
     return (value - min) / (max - min);
 }
 
 float const
-_shiz_layer_get_z(SHIZLayer const layer)
+z_layer__get_z(SHIZLayer const layer)
 {
     // to provide a depth range for the top-most layer (e.g. 255),
     // we add an "additional" layer just above
     float const layer_max = SHIZLayerMax + 1;
     
-    float const z = _shiz_layer_get_z_between(layer.layer,
-                                              SHIZLayerMin,
-                                              layer_max);
-    float const z_above = _shiz_layer_get_z_between(layer.layer + 1,
-                                                    SHIZLayerMin,
-                                                    layer_max);
+    float const z = z_layer__get_z_between(layer.layer,
+                                           SHIZLayerMin,
+                                           layer_max);
+    float const z_above = z_layer__get_z_between(layer.layer + 1,
+                                                 SHIZLayerMin,
+                                                 layer_max);
     
-    float const depth_z = _shiz_layer_get_z_between(layer.depth,
-                                                    SHIZLayerDepthMin,
-                                                    SHIZLayerDepthMax);
+    float const depth_z = z_layer__get_z_between(layer.depth,
+                                                 SHIZLayerDepthMin,
+                                                 SHIZLayerDepthMax);
     
-    return _shiz_lerp(z, z_above, depth_z);
+    return z_lerp(z, z_above, depth_z);
 }

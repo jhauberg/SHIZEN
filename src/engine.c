@@ -39,31 +39,33 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .pixel_size = 1
 };
 
-static void _shiz_glfw_error_callback(int error, char const * description);
+static void z_engine__error_callback(int error, char const * description);
 
-static void _shiz_glfw_window_close_callback(GLFWwindow *);
-static void _shiz_glfw_window_focus_callback(GLFWwindow *, int focused);
-static void _shiz_glfw_key_callback(GLFWwindow * const window, int key, int scancode, int action, int mods);
+static void z_engine__window_close_callback(GLFWwindow *);
+static void z_engine__window_focus_callback(GLFWwindow *, int focused);
+static void z_engine__key_callback(GLFWwindow * const window,
+                                   int key, int scancode, int action, int mods);
 
-static void _shiz_glfw_framebuffer_size_callback(GLFWwindow *, int width, int height);
-static bool _shiz_glfw_create_window(bool fullscreen, char const * title);
-static void _shiz_glfw_toggle_windowed(GLFWwindow *);
+static void z_engine__framebuffer_size_callback(GLFWwindow *,
+                                                int width, int height);
+static bool z_engine__create_window(bool fullscreen, char const * title);
+static void z_engine__toggle_windowed(GLFWwindow *);
 
-static float _shiz_glfw_get_pixel_scale(void);
+static float z_engine__get_pixel_scale(void);
 
-static SHIZSize _shiz_glfw_get_window_size(void);
-static SHIZSize _shiz_glfw_get_framebuffer_size(void);
+static SHIZSize z_engine__get_window_size(void);
+static SHIZSize z_engine__get_framebuffer_size(void);
 
-static SHIZViewport _shiz_build_viewport(void);
+static SHIZViewport z_engine__build_viewport(void);
 
-static bool _shiz_can_run(void);
+static bool z_engine__can_run(void);
 
-static void _shiz_intro(char const * description);
-static void _shiz_intro_gl(void);
+static void z_engine__intro(char const * description);
+static void z_engine__intro_gl(void);
 
-static SHIZVector2 _shiz_glfw_window_position;
+static SHIZVector2 _preferred_window_position;
 
-SHIZGraphicsContext _context = {
+SHIZGraphicsContext _graphics_context = {
     .window = NULL,
     .native_size = {
         .width = 0,
@@ -81,68 +83,71 @@ SHIZGraphicsContext _context = {
 };
 
 bool
-shiz_startup(SHIZWindowSettings const settings)
+z_startup(SHIZWindowSettings const settings)
 {
-    if (_context.is_initialized) {
+    if (_graphics_context.is_initialized) {
         return false;
     }
 
-    _shiz_intro(settings.description);
+    z_engine__intro(settings.description);
     
-    _context.native_size = settings.size;
-    _context.pixel_size = 1;
-    _context.swap_interval = settings.vsync ? 1 : 0;
+    _graphics_context.native_size = settings.size;
+    _graphics_context.pixel_size = 1;
+    _graphics_context.swap_interval = settings.vsync ? 1 : 0;
     
     if (settings.pixel_size > 0) {
-        _context.pixel_size = settings.pixel_size;
+        _graphics_context.pixel_size = settings.pixel_size;
     } else {
-        shiz_io_warning("SHIZEN does not support a pixel-size of 0; defaulting to 1");
+        z_io__warning("SHIZEN does not support a pixel-size of 0; defaulting to 1");
     }
     
-    _context.display_size = SHIZSizeMake(_context.native_size.width * _context.pixel_size,
-                                         _context.native_size.height * _context.pixel_size);
+    _graphics_context.display_size =
+        SHIZSizeMake(_graphics_context.native_size.width * _graphics_context.pixel_size,
+                     _graphics_context.native_size.height * _graphics_context.pixel_size);
     
-    glfwSetErrorCallback(_shiz_glfw_error_callback);
+    glfwSetErrorCallback(z_engine__error_callback);
     
     if (!glfwInit()) {
-        shiz_io_error_context("GLFW", "(%s) failed to initialize", glfwGetVersionString());
+        z_io__error_context("GLFW", "(%s) failed to initialize",
+                            glfwGetVersionString());
 
         return false;
     } else {
         printf(" Using GLFW %s\n\n", glfwGetVersionString());
     }
 
-    if (!_shiz_glfw_create_window(settings.fullscreen, settings.title)) {
-        shiz_io_error_context("GLFW", "(%s) failed to create window", glfwGetVersionString());
+    if (!z_engine__create_window(settings.fullscreen, settings.title)) {
+        z_io__error_context("GLFW", "(%s) failed to create window",
+                            glfwGetVersionString());
 
         return false;
     }
 
     if (gl3wInit()) {
-        shiz_io_error_context("gl3w", "failed to initialize");
+        z_io__error_context("gl3w", "failed to initialize");
         
         return false;
     }
     
-    _shiz_intro_gl();
+    z_engine__intro_gl();
     
-    if (!_shiz_can_run()) {
-        shiz_io_error("SHIZEN is not supported on this system");
+    if (!z_engine__can_run()) {
+        z_io__error("SHIZEN is not supported on this system");
 
         return false;
     }
     
-    if (!shiz_gfx_init(_shiz_build_viewport())) {
+    if (!z_gfx__init(z_engine__build_viewport())) {
         return false;
     }
     
-    _context.is_initialized = true;
+    _graphics_context.is_initialized = true;
 
-    shiz_time_reset();
+    z_time_reset();
     
 #ifdef SHIZ_DEBUG
     if (!shiz_debug_init()) {
-        shiz_io_error("SHIZEN could not initialize a debugging state");
+        z_io__error("SHIZEN could not initialize a debugging state");
         
         return false;
     }
@@ -152,13 +157,13 @@ shiz_startup(SHIZWindowSettings const settings)
 }
 
 bool
-shiz_shutdown()
+z_shutdown()
 {
-    if (!_context.is_initialized) {
+    if (!_graphics_context.is_initialized) {
         return false;
     }
 
-    if (!shiz_gfx_kill()) {
+    if (!z_gfx__kill()) {
         return false;
     }
 
@@ -168,66 +173,68 @@ shiz_shutdown()
     }
 #endif
     
-    shiz_res_unload_all();
+    z_res__unload_all();
 
-    glfwSetWindowCloseCallback(_context.window, NULL);
-    glfwSetWindowFocusCallback(_context.window, NULL);
-    glfwSetFramebufferSizeCallback(_context.window, NULL);
-    glfwSetKeyCallback(_context.window, NULL);
+    GLFWwindow * const window = _graphics_context.window;
+    
+    glfwSetWindowCloseCallback(window, NULL);
+    glfwSetWindowFocusCallback(window, NULL);
+    glfwSetFramebufferSizeCallback(window, NULL);
+    glfwSetKeyCallback(window, NULL);
     glfwSetErrorCallback(NULL);
 
     glfwTerminate();
     
-    _context.is_initialized = false;
+    _graphics_context.is_initialized = false;
     
     return true;
 }
 
 void
-shiz_request_finish()
+z_engine__present_frame()
 {
-    _context.should_finish = true;
+    glfwSwapBuffers(_graphics_context.window);
+    glfwPollEvents();
+}
+
+void
+z_request_finish()
+{
+    _graphics_context.should_finish = true;
 }
 
 bool
-shiz_should_finish()
+z_should_finish()
 {
-    return _context.should_finish;
+    return _graphics_context.should_finish;
 }
 
 SHIZSize
-shiz_get_display_size()
+z_get_display_size()
 {
-    return _context.native_size;
+    return _graphics_context.native_size;
 }
 
 static
 SHIZViewport
-_shiz_build_viewport()
+z_engine__build_viewport()
 {
     SHIZViewport viewport = SHIZViewportDefault;
 
-    viewport.resolution = _context.native_size;
-    viewport.framebuffer = _shiz_glfw_get_framebuffer_size();
-    viewport.scale = _shiz_glfw_get_pixel_scale();
+    viewport.resolution = _graphics_context.native_size;
+    viewport.framebuffer = z_engine__get_framebuffer_size();
+    viewport.scale = z_engine__get_pixel_scale();
 
-    if (glfwGetWindowMonitor(_context.window)) {
+    if (glfwGetWindowMonitor(_graphics_context.window)) {
         viewport.is_fullscreen = true;
     }
 
     return viewport;
 }
 
-void
-_shiz_present_frame()
-{
-    glfwSwapBuffers(_context.window);
-    glfwPollEvents();
-}
-
 static
 void
-_shiz_intro(char const * const description)
+z_engine__intro(char const * const description)
 {
     char const * mode = "";
     
@@ -255,7 +262,7 @@ _shiz_intro(char const * const description)
 
 static
 void
-_shiz_intro_gl()
+z_engine__intro_gl()
 {
     printf(" OPENGL VERSION:  %s (GLSL %s)\n",
            glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -267,7 +274,7 @@ _shiz_intro_gl()
 
 static
 bool
-_shiz_can_run()
+z_engine__can_run()
 {
     int major;
     int minor;
@@ -286,7 +293,8 @@ _shiz_can_run()
 
 static
 bool
-_shiz_glfw_create_window(bool const fullscreen, char const * const title)
+z_engine__create_window(bool const fullscreen,
+                        char const * const title)
 {
     glfwWindowHint(GLFW_SAMPLES, 0);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, SHIZ_MIN_OPENGL_VERSION_MAJOR);
@@ -296,7 +304,7 @@ _shiz_glfw_create_window(bool const fullscreen, char const * const title)
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
     
-    SHIZSize const visible_size = _context.display_size;
+    SHIZSize const visible_size = _graphics_context.display_size;
     
     if (fullscreen) {
         GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
@@ -307,52 +315,55 @@ _shiz_glfw_create_window(bool const fullscreen, char const * const title)
             int const display_width = mode->width;
             int const display_height = mode->height;
             
-            _context.window = glfwCreateWindow(display_width, display_height,
-                                               title, glfwGetPrimaryMonitor(), NULL);
+            _graphics_context.window = glfwCreateWindow(display_width, display_height,
+                                                        title, glfwGetPrimaryMonitor(), NULL);
             
             // prefer centered window if initially fullscreen;
             // otherwise let the OS determine window placement
-            _shiz_glfw_window_position.x = (display_width / 2) - (visible_size.width / 2);
-            _shiz_glfw_window_position.y = (display_height / 2) - (visible_size.height / 2);
+            _preferred_window_position.x = (display_width / 2) - (visible_size.width / 2);
+            _preferred_window_position.y = (display_height / 2) - (visible_size.height / 2);
         }
     } else {
-        _context.window = glfwCreateWindow((int)visible_size.width,
-                                           (int)visible_size.height,
-                                           title, NULL, NULL);
+        _graphics_context.window = glfwCreateWindow((int)visible_size.width,
+                                                    (int)visible_size.height,
+                                                    title, NULL, NULL);
     }
     
-    if (!_context.window) {
+    if (!_graphics_context.window) {
         return false;
     }
     
-    glfwSetWindowCloseCallback(_context.window, _shiz_glfw_window_close_callback);
-    glfwSetWindowFocusCallback(_context.window, _shiz_glfw_window_focus_callback);
+    GLFWwindow * const window = _graphics_context.window;
     
-    glfwSetFramebufferSizeCallback(_context.window, _shiz_glfw_framebuffer_size_callback);
+    glfwSetWindowCloseCallback(window, z_engine__window_close_callback);
+    glfwSetWindowFocusCallback(window, z_engine__window_focus_callback);
     
-    glfwSetKeyCallback(_context.window, _shiz_glfw_key_callback);
+    glfwSetFramebufferSizeCallback(window, z_engine__framebuffer_size_callback);
     
-    glfwMakeContextCurrent(_context.window);
-    glfwSwapInterval(_context.swap_interval);
+    glfwSetKeyCallback(window, z_engine__key_callback);
+    
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(_graphics_context.swap_interval);
     
     return true;
 }
 
 static
 SHIZSize
-_shiz_glfw_get_window_size()
+z_engine__get_window_size()
 {
     int window_width;
     int window_height;
     
-    glfwGetWindowSize(_context.window, &window_width, &window_height);
+    glfwGetWindowSize(_graphics_context.window,
+                      &window_width, &window_height);
     
     return SHIZSizeMake(window_width, window_height);
 }
 
 static
 SHIZSize
-_shiz_glfw_get_framebuffer_size()
+z_engine__get_framebuffer_size()
 {
     int framebuffer_width;
     int framebuffer_height;
@@ -360,17 +371,18 @@ _shiz_glfw_get_framebuffer_size()
     // determine pixel size of the framebuffer for the window
     // this size is not necesarilly equal to the size of the window, as some
     // platforms may increase the pixel count (e.g. doubling on retina screens)
-    glfwGetFramebufferSize(_context.window, &framebuffer_width, &framebuffer_height);
+    glfwGetFramebufferSize(_graphics_context.window,
+                           &framebuffer_width, &framebuffer_height);
     
     return SHIZSizeMake(framebuffer_width, framebuffer_height);
 }
 
 static
 float
-_shiz_glfw_get_pixel_scale()
+z_engine__get_pixel_scale()
 {
-    SHIZSize const framebuffer = _shiz_glfw_get_framebuffer_size();
-    SHIZSize const window = _shiz_glfw_get_window_size();
+    SHIZSize const framebuffer = z_engine__get_framebuffer_size();
+    SHIZSize const window = z_engine__get_window_size();
     
     return (framebuffer.width + framebuffer.height) /
         (window.width + window.height);
@@ -378,19 +390,19 @@ _shiz_glfw_get_pixel_scale()
 
 static
 void
-_shiz_glfw_toggle_windowed(GLFWwindow * const window)
+z_engine__toggle_windowed(GLFWwindow * const window)
 {
     bool const is_currently_fullscreen = glfwGetWindowMonitor(window) != NULL;
 
-    int window_position_x = (int)_shiz_glfw_window_position.x;
-    int window_position_y = (int)_shiz_glfw_window_position.y;
+    int window_position_x = (int)_preferred_window_position.x;
+    int window_position_y = (int)_preferred_window_position.y;
     
     if (is_currently_fullscreen) {
         // go windowed
         glfwSetWindowMonitor(window, NULL,
                              window_position_x, window_position_y,
-                             (int)_context.display_size.width,
-                             (int)_context.display_size.height,
+                             (int)_graphics_context.display_size.width,
+                             (int)_graphics_context.display_size.height,
                              0);
     } else {
         // go fullscreen
@@ -403,8 +415,8 @@ _shiz_glfw_toggle_windowed(GLFWwindow * const window)
                              &window_position_x,
                              &window_position_y);
          
-            _shiz_glfw_window_position.x = window_position_x;
-            _shiz_glfw_window_position.y = window_position_y;
+            _preferred_window_position.x = window_position_x;
+            _preferred_window_position.y = window_position_y;
             
             glfwSetWindowMonitor(window, monitor, 0, 0,
                                  mode->width, mode->height,
@@ -415,16 +427,16 @@ _shiz_glfw_toggle_windowed(GLFWwindow * const window)
 
 static
 void
-_shiz_glfw_key_callback(GLFWwindow * const window,
-                        int const key,
-                        int const scancode,
-                        int const action,
-                        int const mods)
+z_engine__key_callback(GLFWwindow * const window,
+                       int const key,
+                       int const scancode,
+                       int const action,
+                       int const mods)
 {
     (void)scancode;
     
     if ((mods == GLFW_MOD_ALT && key == GLFW_KEY_ENTER) && action == GLFW_RELEASE) {
-        _shiz_glfw_toggle_windowed(window);
+        z_engine__toggle_windowed(window);
     }
 #ifdef SHIZ_DEBUG
     else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
@@ -440,10 +452,10 @@ _shiz_glfw_key_callback(GLFWwindow * const window,
             shiz_debug_toggle_draw_events();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_MINUS) && (action == GLFW_PRESS ||
                                                                          action == GLFW_REPEAT)) {
-            shiz_set_time_scale(shiz_get_time_scale() - 0.1);
+            z_time_set_scale(z_time_get_scale() - 0.1);
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_EQUAL) && (action == GLFW_PRESS ||
                                                                          action == GLFW_REPEAT)) {
-            shiz_set_time_scale(shiz_get_time_scale() + 0.1);
+            z_time_set_scale(z_time_get_scale() + 0.1);
         }
     }
 #endif
@@ -451,40 +463,41 @@ _shiz_glfw_key_callback(GLFWwindow * const window,
 
 static
 void
-_shiz_glfw_error_callback(int const error, char const * const description)
+z_engine__error_callback(int const error, char const * const description)
 {
-    shiz_io_error_context("GLFW", "%d %s", error, description);
+    z_io__error_context("GLFW", "%d %s", error, description);
 }
 
 static
 void
-_shiz_glfw_window_close_callback(GLFWwindow * const window)
-{
-    (void)window;
-
-    _context.should_finish = true;
-}
-
-static
-void
-_shiz_glfw_window_focus_callback(GLFWwindow * const window, int const focused)
+z_engine__window_close_callback(GLFWwindow * const window)
 {
     (void)window;
 
-    _context.is_focused = focused;
+    _graphics_context.should_finish = true;
 }
 
 static
 void
-_shiz_glfw_framebuffer_size_callback(GLFWwindow * const window,
-                                     int const width,
-                                     int const height)
+z_engine__window_focus_callback(GLFWwindow * const window,
+                                int const focused)
+{
+    (void)window;
+
+    _graphics_context.is_focused = focused;
+}
+
+static
+void
+z_engine__framebuffer_size_callback(GLFWwindow * const window,
+                                    int const width,
+                                    int const height)
 {
     (void)window;
     (void)width;
     (void)height;
 
-    SHIZViewport const viewport = _shiz_build_viewport();
+    SHIZViewport const viewport = z_engine__build_viewport();
 
-    shiz_set_viewport(viewport);
+    z_viewport__set(viewport);
 }
