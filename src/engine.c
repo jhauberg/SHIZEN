@@ -21,7 +21,7 @@
 #include "io.h"
 
 #ifdef SHIZ_DEBUG
- #include "debug.h"
+ #include "debug/debug.h"
 #endif
 
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
@@ -146,7 +146,7 @@ z_startup(SHIZWindowSettings const settings)
     z_time_reset();
     
 #ifdef SHIZ_DEBUG
-    if (!shiz_debug_init()) {
+    if (!z_debug__init()) {
         z_io__error("SHIZEN could not initialize a debugging state");
         
         return false;
@@ -168,7 +168,7 @@ z_shutdown()
     }
 
 #ifdef SHIZ_DEBUG
-    if (!shiz_debug_kill()) {
+    if (!z_debug__kill()) {
         return false;
     }
 #endif
@@ -434,25 +434,25 @@ z_engine__key_callback(GLFWwindow * const window,
                        int const mods)
 {
     (void)scancode;
-
+    // todo: we should use input to handle this stuff; i.e. create specialized input key that trigger this stuff
     if ((mods == GLFW_MOD_ALT && key == GLFW_KEY_ENTER) && action == GLFW_RELEASE) {
         z_engine__toggle_windowed(window);
     }
 #ifdef SHIZ_DEBUG
     else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
-        shiz_debug_toggle_enabled();
+        z_debug__toggle_enabled();
     }
     
-    if (shiz_debug_is_enabled()) {
-        shiz_debug_toggle_expanded(mods == GLFW_MOD_SHIFT);
-        shiz_debug_set_is_printing_sprite_order((mods == GLFW_MOD_SHIFT &&
-                                                 key == GLFW_KEY_Z) &&
-                                                action == GLFW_PRESS);
+    if (z_debug__is_enabled()) {
+        z_debug__toggle_expanded(mods == GLFW_MOD_SHIFT);
+        z_debug__set_is_printing_sprite_order((mods == GLFW_MOD_SHIFT &&
+                                               key == GLFW_KEY_Z) &&
+                                              action == GLFW_PRESS);
         
         if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_1) && action == GLFW_RELEASE) {
-            shiz_debug_toggle_draw_shapes();
+            z_debug__toggle_draw_shapes();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_2) && action == GLFW_RELEASE) {
-            shiz_debug_toggle_draw_events();
+            z_debug__toggle_draw_events();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_MINUS) && (action == GLFW_PRESS ||
                                                                          action == GLFW_REPEAT)) {
             z_time_set_scale(z_time_get_scale() - 0.1);

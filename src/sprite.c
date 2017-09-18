@@ -19,7 +19,7 @@
 #include "res.h"
 
 #ifdef SHIZ_DEBUG
- #include "debug.h"
+ #include "debug/debug.h"
 #endif
 
 #define SHIZSpriteVertexCount 6
@@ -158,7 +158,7 @@ z_sprite__flush()
     }
     
 #ifdef SHIZ_DEBUG
-    bool const should_print_order = shiz_debug_is_printing_sprite_order();
+    bool const should_print_order = z_debug__is_printing_sprite_order();
     
     if (should_print_order) {
         printf("-------- Z  LAYER ----- TEXTURE --------\n");
@@ -327,9 +327,11 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
 }
 
 #ifdef SHIZ_DEBUG
+
 unsigned int
-shiz_debug_get_sprite_count()
+z_debug__get_sprite_count()
 {
     return _sprite_list.total;
 }
+
 #endif

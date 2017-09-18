@@ -10,17 +10,24 @@
 //
 
 #ifdef SHIZ_DEBUG
+
 #include <SHIZEN/loader.h>
 
 #include <limits.h>
 
 #include "debug.h"
-#include "res.h"
-#include "io.h"
 
-#include "spritefont.8x8.h"
+#include "../res.h"
+#include "../io.h"
+
+#include "../spritefont.8x8.h"
 
 #define SHIZDebugEventMax 64
+
+char const * const SHIZDebugEventNamePrimitive = "\xDB";
+char const * const SHIZDebugEventNameFlush = "fls";
+char const * const SHIZDebugEventNameFlushByCapacity = "fls|cap";
+char const * const SHIZDebugEventNameFlushByTextureSwitch = "fls|tex";
 
 typedef struct SHIZDebugContext {
     SHIZSpriteFont font;
@@ -34,8 +41,8 @@ typedef struct SHIZDebugContext {
     bool print_sprite_order;
 } SHIZDebugContext;
 
-static void _shiz_debug_update_frame_averages(void);
-static bool _shiz_debug_load_font(void);
+static void z_debug__update_frame_averages(void);
+static bool z_debug__prepare_font(void);
 
 static SHIZDebugContext _context;
 static SHIZDebugFrameStats _frame_stats;
@@ -55,7 +62,7 @@ static double _frame_time_samples = 0; // sample frames to calculate average
 static unsigned int _frame_time_sample_count = 0;
 
 bool
-shiz_debug_init()
+z_debug__init()
 {
     _context.is_enabled = false;
     _context.is_events_enabled = true;
@@ -72,7 +79,7 @@ shiz_debug_init()
     _frame_stats.frames_per_second_max = 0;
     _frame_stats.frames_per_second_avg = 0;
 
-    if (!_shiz_debug_load_font()) {
+    if (!z_debug__prepare_font()) {
         return false;
     }
 
@@ -80,11 +87,11 @@ shiz_debug_init()
 }
 
 bool
-shiz_debug_kill()
+z_debug__kill()
 {
     _context.is_enabled = false;
 
-    if (!shiz_res_debug_unload_font()) {
+    if (!z_debug__unload_font()) {
         return false;
     }
     
@@ -92,7 +99,7 @@ shiz_debug_kill()
 }
 
 void
-shiz_debug_process_errors()
+z_debug__process_errors()
 {
     GLenum error;
     
@@ -102,111 +109,112 @@ shiz_debug_process_errors()
 }
 
 void
-shiz_debug_toggle_enabled()
+z_debug__toggle_enabled()
 {
     _context.is_enabled = !_context.is_enabled;
 }
 
-void shiz_debug_toggle_expanded(bool const expanded)
+void
+z_debug__toggle_expanded(bool const expanded)
 {
     _context.is_expanded = expanded;
 }
 
 void
-shiz_debug_toggle_events_enabled()
+z_debug__toggle_events_enabled()
 {
-    shiz_debug_set_events_enabled(!_context.is_events_enabled);
+    z_debug__set_events_enabled(!_context.is_events_enabled);
 }
 
 void
-shiz_debug_toggle_draw_events()
+z_debug__toggle_draw_events()
 {
     _context.draw_events = !_context.draw_events;
 }
 
 void
-shiz_debug_toggle_draw_shapes()
+z_debug__toggle_draw_shapes()
 {
     _context.draw_shapes = !_context.draw_shapes;
 }
 
 bool
-shiz_debug_is_enabled()
+z_debug__is_enabled()
 {
     return _context.is_enabled;
 }
 
 bool
-shiz_debug_is_expanded()
+z_debug__is_expanded()
 {
     return _context.is_expanded;
 }
 
 bool
-shiz_debug_is_events_enabled()
+z_debug__is_events_enabled()
 {
     return _context.is_events_enabled;
 }
 
 bool
-shiz_debug_is_drawing_events()
+z_debug__is_drawing_events()
 {
     return _context.draw_events;
 }
 
 bool
-shiz_debug_is_drawing_shapes()
+z_debug__is_drawing_shapes()
 {
     return _context.draw_shapes;
 }
 
 bool
-shiz_debug_is_printing_sprite_order()
+z_debug__is_printing_sprite_order()
 {
     return _context.print_sprite_order;
 }
 
 void
-shiz_debug_set_drawing_shapes(bool const enabled)
+z_debug__set_drawing_shapes(bool const enabled)
 {
     _context.draw_shapes = enabled;
 }
 
 void
-shiz_debug_set_events_enabled(bool const enabled)
+z_debug__set_events_enabled(bool const enabled)
 {
     _context.is_events_enabled = enabled;
 }
 
 void
-shiz_debug_set_is_printing_sprite_order(bool const enabled)
+z_debug__set_is_printing_sprite_order(bool const enabled)
 {
     _context.print_sprite_order = enabled;
 }
 
 SHIZSpriteFont
-shiz_debug_get_font()
+z_debug__get_font()
 {
     return _context.font;
 }
 
 unsigned int
-shiz_debug_get_event_count()
+z_debug__get_event_count()
 {
     return _context.event_count;
 }
 
 void
-shiz_debug_reset_events()
+z_debug__reset_events()
 {
     _context.event_count = 0;
 }
 
 void
-shiz_debug_add_event(SHIZDebugEvent const event)
+z_debug__add_event(SHIZDebugEvent const event)
 {
-    if (shiz_debug_is_events_enabled()) {
-        if (shiz_debug_get_event_count() < SHIZDebugEventMax) {
+    if (z_debug__is_events_enabled()) {
+        if (z_debug__get_event_count() < SHIZDebugEventMax) {
             _context.events[_context.event_count].name = event.name;
             _context.events[_context.event_count].lane = event.lane;
             _context.events[_context.event_count].origin = event.origin;
@@ -219,7 +227,7 @@ shiz_debug_add_event(SHIZDebugEvent const event)
 }
 
 void
-shiz_debug_add_event_resource(const char * const filename, SHIZVector3 const origin)
+z_debug__add_event_resource(const char * const filename, SHIZVector3 const origin)
 {
     if (filename) {
         SHIZDebugEvent event;
@@ -228,12 +236,12 @@ shiz_debug_add_event_resource(const char * const filename, SHIZVector3 const ori
         event.origin = origin;
         event.lane = SHIZDebugEventLaneResources;
 
-        shiz_debug_add_event(event);
+        z_debug__add_event(event);
     }
 }
 
 void
-shiz_debug_add_event_draw(const char * const cause, SHIZVector3 const origin)
+z_debug__add_event_draw(const char * const cause, SHIZVector3 const origin)
 {
     if (cause) {
         SHIZDebugEvent event;
@@ -242,32 +250,32 @@ shiz_debug_add_event_draw(const char * const cause, SHIZVector3 const origin)
         event.origin = origin;
         event.lane = SHIZDebugEventLaneDraws;
 
-        shiz_debug_add_event(event);
+        z_debug__add_event(event);
     }
 }
 
 SHIZDebugEvent
-shiz_debug_get_event(unsigned int const index)
+z_debug__get_event(unsigned int const index)
 {
     return _context.events[index];
 }
 
 void
-shiz_debug_reset_draw_count()
+z_debug__reset_draw_count()
 {
     _frame_stats.draw_count = 0;
 }
 
 void
-shiz_debug_increment_draw_count(unsigned int amount)
+z_debug__increment_draw_count(unsigned int amount)
 {
-    if (shiz_debug_is_events_enabled()) {
+    if (z_debug__is_events_enabled()) {
         _frame_stats.draw_count += amount;
     }
 }
 
 void
-shiz_debug_update_frame_stats()
+z_debug__update_frame_stats()
 {
     double const time = glfwGetTime();
     double const time_since_last_frame = time - _last_frame_time;
@@ -296,7 +304,7 @@ shiz_debug_update_frame_stats()
     if (time_since_last_average >= _frame_average_interval) {
         _last_average_time = time;
 
-        _shiz_debug_update_frame_averages();
+        z_debug__update_frame_averages();
     }
 
     _frame_stats.frame_time = _frame_time * 1000;
@@ -304,14 +312,14 @@ shiz_debug_update_frame_stats()
 }
 
 SHIZDebugFrameStats
-shiz_debug_get_frame_stats()
+z_debug__get_frame_stats()
 {
     return _frame_stats;
 }
 
 static
 void
-_shiz_debug_update_frame_averages()
+z_debug__update_frame_averages()
 {
     _frame_stats.frames_per_second_avg = _frame_samples / _frame_sample_count;
     _frame_sample_count = 0;
@@ -329,16 +337,20 @@ _shiz_debug_update_frame_averages()
 
 static
 bool
-_shiz_debug_load_font()
+z_debug__prepare_font()
 {
-    if (!shiz_res_debug_load_font(IBM8x8, IBM8x8Size)) {
+    if (!z_debug__load_font(IBM8x8, IBM8x8Size)) {
         return false;
     }
 
-    SHIZSprite const sprite = z_load_sprite_from(shiz_res_debug_get_font());
+    SHIZSprite const sprite = z_load_sprite_from(z_debug__get_font_resource());
 
     if (sprite.resource_id != SHIZResourceInvalid) {
-        SHIZSpriteFont const spritefont = z_load_spritefont_from(sprite, SHIZSizeMake(IBM8x8TileSize, IBM8x8TileSize));
+        SHIZSize const character_size = SHIZSizeMake(IBM8x8TileSize,
+                                                     IBM8x8TileSize);
+        
+        SHIZSpriteFont const spritefont = z_load_spritefont_from(sprite,
+                                                                 character_size);
 
         _context.font = spritefont;
         _context.font.table.codepage = IBM8x8Codepage;
@@ -346,4 +358,5 @@ _shiz_debug_load_font()
 
     return true;
 }
+
 #endif

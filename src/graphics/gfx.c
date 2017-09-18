@@ -21,8 +21,7 @@
 #include "spritebatch.h"
 
 #ifdef SHIZ_DEBUG
- #include "debug.h"
-static const char * const _shiz_debug_event_primitive = "\xDB";
+ #include "../debug/debug.h"
 #endif
 
 static bool z_gfx__init_post(void);
@@ -103,7 +102,7 @@ void
 z_gfx__begin(SHIZColor const clear)
 {
 #ifdef SHIZ_DEBUG
-    shiz_debug_reset_draw_count();
+    z_debug__reset_draw_count();
 #endif
 
     z_gfx__spritebatch_reset();
@@ -150,7 +149,7 @@ z_gfx__end()
     }
 
 #ifdef SHIZ_DEBUG
-    shiz_debug_update_frame_stats();
+    z_debug__update_frame_stats();
 #endif
 }
 
@@ -433,7 +432,7 @@ z_gfx__render_primitive(GLenum const mode,
                          GL_DYNAMIC_DRAW);
             glDrawArrays(mode, 0, (GLsizei)count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
 #ifdef SHIZ_DEBUG
-            shiz_debug_increment_draw_count(1);
+            z_debug__increment_draw_count(1);
 #endif
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -445,9 +444,9 @@ z_gfx__render_primitive(GLenum const mode,
     
 #ifdef SHIZ_DEBUG
     if (origin.x == 0 && origin.y == 0 && origin.z == 0 && count > 0) {
-        shiz_debug_add_event_draw(_shiz_debug_event_primitive, vertices[0].position);
+        z_debug__add_event_draw(SHIZDebugEventNamePrimitive, vertices[0].position);
     } else {
-        shiz_debug_add_event_draw(_shiz_debug_event_primitive, origin);
+        z_debug__add_event_draw(SHIZDebugEventNamePrimitive, origin);
     }
 #endif
 }

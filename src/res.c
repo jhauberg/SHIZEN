@@ -15,6 +15,10 @@
 #include "res.h"
 #include "io.h"
 
+#ifdef SHIZ_DEBUG
+ #include "debug/debug.h"
+#endif
+
 SHIZResourceImage const SHIZResourceImageEmpty = {
     .resource_id = 0,
     .width = 0,
@@ -229,7 +233,7 @@ z_res__unload_all()
 
 #ifdef SHIZ_DEBUG
     if (_font_resource.resource_id != SHIZResourceInvalid) {
-        if (!shiz_res_debug_unload_font()) {
+        if (!z_debug__unload_font()) {
             something_failed = true;
         }
     }
@@ -388,8 +392,9 @@ z_res__filename_ext(char const * const filename)
 }
 
 #ifdef SHIZ_DEBUG
+
 void
-shiz_res_debug_print_resources()
+z_debug__print_resources()
 {
     printf("  IDX  ID  RESOURCE\n");
     printf("  -----------------\n");
@@ -420,8 +425,8 @@ shiz_res_debug_print_resources()
 }
 
 bool
-shiz_res_debug_load_font(unsigned char const * const buffer,
-                         unsigned int const length)
+z_debug__load_font(unsigned char const * const buffer,
+                   unsigned int const length)
 {
     if (_font_resource.resource_id != SHIZResourceInvalid) {
         return false;
@@ -440,7 +445,7 @@ shiz_res_debug_load_font(unsigned char const * const buffer,
 }
 
 bool
-shiz_res_debug_unload_font()
+z_debug__unload_font()
 {
     if (_font_resource.texture_id == 0) {
         return false;
@@ -458,8 +463,9 @@ shiz_res_debug_unload_font()
 }
 
 unsigned int
-shiz_res_debug_get_font()
+z_debug__get_font_resource()
 {
     return _font_resource.resource_id;
 }
+
 #endif

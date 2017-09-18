@@ -20,9 +20,6 @@ typedef enum SHIZTimeDirection {
     SHIZTimeDirectionForward = 1
 } SHIZTimeDirection;
 
-// see, now we have an issue... z_draw is an action, z_time is not...
-// but we want to keep accessible by "time", i.e. z_reset_time will not do
-// should it then be z_draw__sprite? z_time__reset?
 void z_time_reset(void);
 
 void z_timing_begin(void);

@@ -16,23 +16,15 @@
 #include "transform.h"
 
 #ifdef SHIZ_DEBUG
- #include "debug.h"
+ #include "../debug/debug.h"
 #endif
-
-#ifdef SHIZ_DEBUG
-static SHIZVector3 _shiz_debug_get_last_sprite_origin(void);
-
-static const char * const _shiz_debug_event_flush = "fls";
-static const char * const _shiz_debug_event_flush_capacity = "fls|cap";
-static const char * const _shiz_debug_event_flush_texture_switch = "fls|tex";
-#endif
-
-static void z_gfx__spritebatch_state(bool enable);
 
 #define SHIZGFXSpriteBatchMax 128 /* flush when reaching this limit */
 
 static unsigned int const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
 static unsigned int const spritebatch_vertex_count = SHIZGFXSpriteBatchMax * spritebatch_vertex_count_per_quad;
+
+static void z_gfx__spritebatch_state(bool enable);
 
 typedef struct SHIZSpriteBatch {
     SHIZVertexPositionColorTexture vertices[spritebatch_vertex_count];
@@ -53,7 +45,7 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
         _spritebatch.texture_id != texture_id) {
         if (z_gfx__spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-            shiz_debug_add_event_draw(_shiz_debug_event_flush_texture_switch, origin);
+            z_debug__add_event_draw(SHIZDebugEventNameFlushByTextureSwitch, origin);
 #endif
         }
     }
@@ -63,7 +55,7 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
     if (_spritebatch.count + 1 > SHIZGFXSpriteBatchMax) {
         if (z_gfx__spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
-            shiz_debug_add_event_draw(_shiz_debug_event_flush_capacity, origin);
+            z_debug__add_event_draw(SHIZDebugEventNameFlushByCapacity, origin);
 #endif
         }
     }
@@ -241,8 +233,8 @@ z_gfx__spritebatch_flush()
 #ifdef SHIZ_DEBUG
     // note that this will use the center of the sprite, which may not correlate to the anchor
     // that this sprite was drawn with
-    shiz_debug_add_event_draw(_shiz_debug_event_flush,
-                              _shiz_debug_get_last_sprite_origin());
+    z_debug__add_event_draw(SHIZDebugEventNameFlush,
+                            z_debug__get_last_sprite_origin());
 #endif
     
     mat4x4 model;
@@ -271,7 +263,7 @@ z_gfx__spritebatch_flush()
                                 _spritebatch.vertices);
                 glDrawArrays(GL_TRIANGLES, 0, (GLsizei)count);
 #ifdef SHIZ_DEBUG
-                shiz_debug_increment_draw_count(1);
+                z_debug__increment_draw_count(1);
 #endif
             }
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -317,9 +309,9 @@ z_gfx__spritebatch_state(bool const enable)
 }
 
 #ifdef SHIZ_DEBUG
-static
+
 SHIZVector3
-_shiz_debug_get_last_sprite_origin()
+z_debug__get_last_sprite_origin()
 {
     if (_spritebatch.count > 0) {
         unsigned int const offset = (_spritebatch.count - 1) * spritebatch_vertex_count_per_quad;
@@ -336,4 +328,5 @@ _shiz_debug_get_last_sprite_origin()
     
     return SHIZVector3Zero;
 }
+
 #endif

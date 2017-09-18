@@ -25,7 +25,6 @@ z_unload(unsigned int const resource_id)
     return z_res__unload(resource_id);
 }
 
-
 SHIZSprite
 z_load_sprite(char const * const filename)
 {

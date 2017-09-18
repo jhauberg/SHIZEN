@@ -35,8 +35,4 @@ SHIZSize const z_sprite__draw(SHIZSprite sprite,
                               bool opaque,
                               SHIZLayer layer);
 
-#ifdef SHIZ_DEBUG
-unsigned int shiz_debug_get_sprite_count(void);
-#endif
-
 #endif // sprite_h

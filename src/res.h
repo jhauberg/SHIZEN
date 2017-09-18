@@ -51,13 +51,4 @@ SHIZResourceType const z_res__type(char const * const filename);
 SHIZResourceImage z_res__image(unsigned int resource_id);
 SHIZResourceSound z_res__sound(unsigned int resource_id);
 
-#ifdef SHIZ_DEBUG
-void shiz_res_debug_print_resources(void);
-
-bool shiz_res_debug_load_font(unsigned char const * buffer, unsigned int length);
-bool shiz_res_debug_unload_font(void);
-
-unsigned int shiz_res_debug_get_font(void);
-#endif
-
 #endif // res_h
