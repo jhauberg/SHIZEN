@@ -434,7 +434,7 @@ z_engine__key_callback(GLFWwindow * const window,
                        int const mods)
 {
     (void)scancode;
-    
+
     if ((mods == GLFW_MOD_ALT && key == GLFW_KEY_ENTER) && action == GLFW_RELEASE) {
         z_engine__toggle_windowed(window);
     }
@@ -445,6 +445,9 @@ z_engine__key_callback(GLFWwindow * const window,
     
     if (shiz_debug_is_enabled()) {
         shiz_debug_toggle_expanded(mods == GLFW_MOD_SHIFT);
+        shiz_debug_set_is_printing_sprite_order((mods == GLFW_MOD_SHIFT &&
+                                                 key == GLFW_KEY_Z) &&
+                                                action == GLFW_PRESS);
         
         if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_1) && action == GLFW_RELEASE) {
             shiz_debug_toggle_draw_shapes();

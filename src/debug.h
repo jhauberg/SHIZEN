@@ -49,9 +49,11 @@ bool shiz_debug_is_expanded(void);
 bool shiz_debug_is_events_enabled(void);
 bool shiz_debug_is_drawing_events(void);
 bool shiz_debug_is_drawing_shapes(void);
+bool shiz_debug_is_printing_sprite_order(void);
 
 void shiz_debug_set_drawing_shapes(bool enabled);
 void shiz_debug_set_events_enabled(bool enabled);
+void shiz_debug_set_is_printing_sprite_order(bool enabled);
 
 SHIZSpriteFont shiz_debug_get_font(void);
 SHIZDebugEvent shiz_debug_get_event(unsigned int index);

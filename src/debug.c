@@ -31,6 +31,7 @@ typedef struct SHIZDebugContext {
     bool is_events_enabled; // used to disable event/draw call tracking while drawing debug stuff
     bool draw_shapes;
     bool draw_events;
+    bool print_sprite_order;
 } SHIZDebugContext;
 
 static void _shiz_debug_update_frame_averages(void);
@@ -60,6 +61,7 @@ shiz_debug_init()
     _context.is_events_enabled = true;
     _context.draw_shapes = false;
     _context.draw_events = false;
+    _context.print_sprite_order = false;
     _context.event_count = 0;
 
     _frame_stats.draw_count = 0;
@@ -158,6 +160,12 @@ shiz_debug_is_drawing_shapes()
     return _context.draw_shapes;
 }
 
+bool
+shiz_debug_is_printing_sprite_order()
+{
+    return _context.print_sprite_order;
+}
+
 void
 shiz_debug_set_drawing_shapes(bool const enabled)
 {
@@ -168,6 +176,12 @@ void
 shiz_debug_set_events_enabled(bool const enabled)
 {
     _context.is_events_enabled = enabled;
+}
+
+void
+shiz_debug_set_is_printing_sprite_order(bool const enabled)
+{
+    _context.print_sprite_order = enabled;
 }
 
 SHIZSpriteFont

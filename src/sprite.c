@@ -19,11 +19,7 @@
 #include "res.h"
 
 #ifdef SHIZ_DEBUG
- #define SHIZ_DEBUG_PRINT_SORT_ORDER 1
-
- #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
- #include <SHIZEN/input.h>
- #endif
+ #include "debug.h"
 #endif
 
 #define SHIZSpriteVertexCount 6
@@ -162,13 +158,11 @@ z_sprite__flush()
     }
     
 #ifdef SHIZ_DEBUG
- #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
-    bool const should_print_order = z_input_pressed(SHIZInputDown);
+    bool const should_print_order = shiz_debug_is_printing_sprite_order();
     
     if (should_print_order) {
         printf("-------- Z  LAYER ----- TEXTURE --------\n");
     }
- #endif
 #endif
 
     z_sprite__sort();
@@ -178,7 +172,6 @@ z_sprite__flush()
         SHIZSpriteKey const * const sprite_key = (SHIZSpriteKey *)&sprite.key;
 
 #ifdef SHIZ_DEBUG
- #ifdef SHIZ_DEBUG_PRINT_SORT_ORDER
         if (should_print_order) {
             printf("%.8f  [%03d,%05d] @%d (%s)\n",
                    sprite.origin.z,
@@ -187,7 +180,6 @@ z_sprite__flush()
                    sprite_key->texture_id,
                    sprite_key->is_transparent ? "transparent" : "opaque");
         }
- #endif
 #endif
 
         // finally push vertex data to the renderer
