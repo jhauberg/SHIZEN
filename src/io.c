@@ -24,7 +24,7 @@
 #include <stb_image.h>
 
 #if defined(__clang__)
- #pragma clang pop
+ #pragma clang diagnostic pop
 #endif
 
 #include <stdio.h>
@@ -119,7 +119,7 @@ z_io__load_image_data(unsigned char const * const buffer,
     stbi_set_flip_vertically_on_load(true);
 
     unsigned char * const image =
-        stbi_load_from_memory(buffer, length, &width, &height, &components,
+        stbi_load_from_memory(buffer, (int)length, &width, &height, &components,
                               STBI_rgb_alpha);
 
     if (!image) {
