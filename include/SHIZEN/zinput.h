@@ -9,8 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef input_h
-#define input_h
+#ifndef zinput_h
+#define zinput_h
 
 #include <stdbool.h>
 
@@ -33,4 +33,4 @@ bool z_input_down(SHIZInput);
 bool z_input_pressed(SHIZInput);
 bool z_input_released(SHIZInput);
 
-#endif /* input_h */
+#endif /* zinput_h */

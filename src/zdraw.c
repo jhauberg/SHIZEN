@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/draw.h>
+#include <SHIZEN/zdraw.h>
 
 #include <stdlib.h>
 #include <string.h>

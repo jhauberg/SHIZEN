@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/layer.h>
+#include <SHIZEN/zlayer.h>
 
 #include "internal.h"
 #include "internal_type.h"

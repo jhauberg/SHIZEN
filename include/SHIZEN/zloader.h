@@ -9,8 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef loader_h
-#define loader_h
+#ifndef zloader_h
+#define zloader_h
 
 #include <stdbool.h>
 
@@ -67,4 +67,4 @@ SHIZSpriteFont z_load_spritefont_from_ex(SHIZSprite sprite,
                                          SHIZSize character,
                                          SHIZSpriteFontTable table);
 
-#endif /* loader_h */
+#endif /* zloader_h */

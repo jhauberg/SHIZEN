@@ -16,9 +16,9 @@
 
 #include "ztype.h"
 #include "ztime.h"
-#include "loader.h"
-#include "input.h"
-#include "draw.h"
+#include "zloader.h"
+#include "zinput.h"
+#include "zdraw.h"
 
 /**
  * Provides settings and flags for the creation of the window.

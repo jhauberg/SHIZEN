@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/input.h>
+#include <SHIZEN/zinput.h>
 
 #include "internal_type.h"
 

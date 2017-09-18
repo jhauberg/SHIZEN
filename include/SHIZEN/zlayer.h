@@ -9,8 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef layer_h
-#define layer_h
+#ifndef zlayer_h
+#define zlayer_h
 
 typedef struct SHIZLayer {
     unsigned short depth: 16;
@@ -78,4 +78,4 @@ SHIZLayeredAbove(SHIZLayer const layer)
     return layer_above;
 }
 
-#endif // layer_h
+#endif // zlayer_h

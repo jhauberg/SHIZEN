@@ -16,7 +16,7 @@
 
 #include <stdbool.h>
 
-#include "layer.h"
+#include "zlayer.h"
 
 typedef struct SHIZVector2 {
     float x, y;

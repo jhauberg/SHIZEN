@@ -11,7 +11,7 @@
 
 #ifdef SHIZ_DEBUG
 
-#include <SHIZEN/loader.h>
+#include <SHIZEN/zloader.h>
 
 #include <limits.h>
 

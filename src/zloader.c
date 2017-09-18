@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/loader.h>
+#include <SHIZEN/zloader.h>
 
 #include "res.h"
 

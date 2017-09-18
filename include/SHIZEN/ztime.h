@@ -64,4 +64,4 @@ SHIZAnimated(float const value)
     return animatable;
 }
 
-#endif // time_h
+#endif // ztime_h

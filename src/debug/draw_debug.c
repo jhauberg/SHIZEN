@@ -16,7 +16,7 @@
 #include <string.h>
 
 #include <SHIZEN/ztime.h>
-#include <SHIZEN/draw.h>
+#include <SHIZEN/zdraw.h>
 
 #include "debug.h"
 

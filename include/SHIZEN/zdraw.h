@@ -9,11 +9,11 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef draw_h
-#define draw_h
+#ifndef zdraw_h
+#define zdraw_h
 
 #include "ztype.h"
-#include "layer.h"
+#include "zlayer.h"
 
 /**
  * @brief Begin drawing to the screen.
@@ -263,4 +263,4 @@ SHIZSize z_draw_text_ex_colored(SHIZSpriteFont font,
                                 SHIZColor const * highlight_colors,
                                 unsigned int highlight_color_count);
 
-#endif // draw_h
+#endif // zdraw_h
