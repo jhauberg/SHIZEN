@@ -35,7 +35,7 @@ static void z_viewport__determine_mode(SHIZViewportMode * mode,
                                        float * height);
 
 // set to false to let viewport fit framebuffer (pixels will be stretched)
-static bool const enable_boxing_if_necessary = true;
+#define SHIZViewportEnableBoxing true
 
 static SHIZViewport _viewport;
 static SHIZSize _viewport_offset;
@@ -88,7 +88,7 @@ z_viewport__apply_boxing_if_necessary()
 {
     _viewport_offset = SHIZSizeZero;
     
-    if (enable_boxing_if_necessary) {
+    if (SHIZViewportEnableBoxing) {
         SHIZViewportMode mode;
         
         float adjusted_width;
