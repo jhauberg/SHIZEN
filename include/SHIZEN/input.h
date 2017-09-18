@@ -15,9 +15,14 @@
 #include <stdbool.h>
 
 typedef enum SHIZInput {
-    SHIZInputUp, SHIZInputDown,
-    SHIZInputLeft, SHIZInputRight,
-    SHIZInputConfirm, SHIZInputEscape,
+    SHIZInputUp,
+    SHIZInputDown,
+    SHIZInputLeft,
+    SHIZInputRight,
+    SHIZInputConfirm,
+    SHIZInputEscape,
+    SHIZInputX,
+    SHIZInputZ,
     SHIZInputAny
 } SHIZInput;
 

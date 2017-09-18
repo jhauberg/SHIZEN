@@ -62,6 +62,9 @@ z_input_update()
 
     _down[SHIZInputEscape] =
         glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !is_modified;
+    
+    _down[SHIZInputX] = glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS;
+    _down[SHIZInputZ] = glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS;
 
     _down[SHIZInputAny] = false;
 
