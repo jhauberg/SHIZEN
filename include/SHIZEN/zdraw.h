@@ -15,6 +15,14 @@
 #include "ztype.h"
 #include "zlayer.h"
 
+typedef struct SHIZSpriteDrawParameters {
+    SHIZVector2 anchor;
+    SHIZLayer layer;
+    SHIZColor tint;
+    float angle; // in radians
+    bool is_opaque;
+} SHIZSpriteDrawParameters;
+
 /**
  * @brief Begin drawing to the screen.
  *
@@ -112,7 +120,18 @@ void z_draw_arc_ex(SHIZVector2 center,
  * @return a SHIZSize with the bounding width and height of the drawn sprite
  */
 SHIZSize z_draw_sprite(SHIZSprite sprite,
-                       SHIZVector2 origin);
+                       SHIZVector2 origin,
+                       SHIZSpriteDrawParameters params);
+
+SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
+                             SHIZVector2 origin,
+                             SHIZSpriteSize size,
+                             SHIZSpriteDrawParameters params);
+SHIZSize z_draw_sprite_tiled(SHIZSprite sprite,
+                             SHIZVector2 origin,
+                             SHIZSpriteSize size,
+                             SHIZSpriteDrawParameters params);
+
 /**
  * @brief Draw a sprite.
  *
@@ -124,6 +143,9 @@ SHIZSize z_draw_sprite(SHIZSprite sprite,
  *        The size to draw the sprite with (unless `repeat` is true, the sprite
  *        is scaled to fit). Use `SHIZSpriteSizeIntrinsic` to draw this sprite
  *        at its default size
+ * @param repeat
+ *        Specify whether the sprite should repeat (only applies if the `size`
+ *        parameter sets a size larger than the intrinsic size of the sprite)
  * @param anchor
  *        Sets an anchor that defines where on the sprite the origin is.
  *        The anchor also defines the pivot point for any applied rotation.
@@ -138,9 +160,6 @@ SHIZSize z_draw_sprite(SHIZSprite sprite,
  * @param tint
  *        The color to tint the sprite with (default blending mode is
  *        multiplicative)
- * @param repeat
- *        Specify whether the sprite should repeat (only applies if the `size`
- *        parameter sets a size larger than the intrinsic size of the sprite)
  * @param opaque
  *        Specify whether the sprite does not draw transparent pixels
  * @param layer
@@ -151,10 +170,10 @@ SHIZSize z_draw_sprite(SHIZSprite sprite,
 SHIZSize z_draw_sprite_ex(SHIZSprite sprite,
                           SHIZVector2 origin,
                           SHIZSpriteSize size,
+                          bool repeat,
                           SHIZVector2 anchor,
                           float angle,
                           SHIZColor tint,
-                          bool repeat,
                           bool opaque,
                           SHIZLayer layer);
 
@@ -262,5 +281,55 @@ SHIZSize z_draw_text_ex_colored(SHIZSpriteFont font,
                                 SHIZLayer layer,
                                 SHIZColor const * highlight_colors,
                                 unsigned int highlight_color_count);
+
+static inline
+SHIZSpriteDrawParameters const
+SHIZSpriteDrawParametersMake(SHIZVector2 const anchor,
+                             SHIZLayer const layer,
+                             SHIZColor const tint,
+                             float const angle,
+                             bool const is_opaque)
+{
+    SHIZSpriteDrawParameters const params = {
+        .anchor = anchor,
+        .layer = layer,
+        .tint = tint,
+        .angle = angle,
+        .is_opaque = is_opaque
+    };
+    
+    return params;
+}
+
+static inline
+SHIZSpriteDrawParameters const
+SHIZSpriteDrawParametersDefaults(void)
+{
+    return SHIZSpriteDrawParametersMake(SHIZAnchorCenter,
+                                        SHIZLayerDefault,
+                                        SHIZSpriteNoTint,
+                                        SHIZSpriteNoAngle,
+                                        SHIZSpriteNotOpaque);
+}
+
+static inline
+SHIZSpriteDrawParameters const
+SHIZSpriteDrawParametersLayered(SHIZSpriteDrawParameters params,
+                                SHIZLayer const layer)
+{
+    params.layer = layer;
+    
+    return params;
+}
+
+static inline
+SHIZSpriteDrawParameters const
+SHIZSpriteDrawParametersAnchored(SHIZSpriteDrawParameters params,
+                                 SHIZVector2 const anchor)
+{
+    params.anchor = anchor;
+    
+    return params;
+}
 
 #endif // zdraw_h

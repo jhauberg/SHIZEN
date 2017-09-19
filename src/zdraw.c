@@ -356,32 +356,63 @@ z_draw_arc_ex(SHIZVector2 const center,
 }
 
 SHIZSize
-z_draw_sprite(SHIZSprite const sprite, SHIZVector2 const origin)
+z_draw_sprite(SHIZSprite const sprite,
+              SHIZVector2 const origin,
+              SHIZSpriteDrawParameters const params)
 {
     return z_draw_sprite_ex(sprite, origin,
                             SHIZSpriteSizeIntrinsic,
-                            SHIZAnchorCenter,
-                            SHIZSpriteNoAngle,
-                            SHIZSpriteNoTint,
                             SHIZSpriteNoRepeat,
-                            SHIZSpriteNotOpaque,
-                            SHIZLayerDefault);
+                            params.anchor,
+                            params.angle,
+                            params.tint,
+                            params.is_opaque,
+                            params.layer);
+}
+
+SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
+                             SHIZVector2 origin,
+                             SHIZSpriteSize size,
+                             SHIZSpriteDrawParameters params)
+{
+    return z_draw_sprite_ex(sprite, origin,
+                            size,
+                            SHIZSpriteNoRepeat,
+                            params.anchor,
+                            params.angle,
+                            params.tint,
+                            params.is_opaque,
+                            params.layer);
+}
+
+SHIZSize z_draw_sprite_tiled(SHIZSprite sprite,
+                             SHIZVector2 origin,
+                             SHIZSpriteSize size,
+                             SHIZSpriteDrawParameters params)
+{
+    return z_draw_sprite_ex(sprite, origin,
+                            size,
+                            SHIZSpriteRepeat,
+                            params.anchor,
+                            params.angle,
+                            params.tint,
+                            params.is_opaque,
+                            params.layer);
 }
 
 SHIZSize
 z_draw_sprite_ex(SHIZSprite const sprite,
                  SHIZVector2 const origin,
                  SHIZSpriteSize const size,
+                 bool const repeat,
                  SHIZVector2 const anchor,
                  float const angle,
                  SHIZColor const tint,
-                 bool const repeat,
                  bool const opaque,
                  SHIZLayer const layer)
 {
-    SHIZSize const sprite_size = z_sprite__draw(sprite, origin, size,
-                                                anchor, angle, tint,
-                                                repeat, opaque,
+    SHIZSize const sprite_size = z_sprite__draw(sprite, origin, size, repeat,
+                                                anchor, angle, tint, opaque,
                                                 layer);
 
 #ifdef SHIZ_DEBUG

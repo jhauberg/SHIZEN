@@ -66,10 +66,10 @@ SHIZSize const
 z_sprite__draw(SHIZSprite const sprite,
                SHIZVector2 const origin,
                SHIZSpriteSize const size,
+               bool const repeat,
                SHIZVector2 const anchor,
                float const angle,
                SHIZColor const tint,
-               bool const repeat,
                bool const opaque,
                SHIZLayer const layer)
 {
