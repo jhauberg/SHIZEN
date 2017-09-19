@@ -30,8 +30,8 @@ extern SHIZLayer const SHIZLayerBottom; // min
 
 static inline
 SHIZLayer const
-SHIZLayeredWithDepth(unsigned char const layer,
-                     unsigned short const depth)
+SHIZLayeredAtDepth(unsigned char const layer,
+                   unsigned short const depth)
 {
     SHIZLayer result;
 
@@ -45,7 +45,7 @@ static inline
 SHIZLayer const
 SHIZLayered(unsigned char const layer)
 {
-    return SHIZLayeredWithDepth(layer, SHIZLayerDefault.depth);
+    return SHIZLayeredAtDepth(layer, SHIZLayerDefault.depth);
 }
 
 static inline
