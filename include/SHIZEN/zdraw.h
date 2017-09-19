@@ -23,6 +23,12 @@ typedef struct SHIZSpriteDrawParameters {
     bool is_opaque;
 } SHIZSpriteDrawParameters;
 
+typedef struct SHIZSpriteFontDrawParameters {
+    SHIZSpriteFontAlignment alignment;
+    SHIZLayer layer;
+    SHIZColor tint;
+} SHIZSpriteFontDrawParameters;
+
 /**
  * @brief Begin drawing to the screen.
  *
@@ -187,11 +193,26 @@ SHIZSize z_draw_sprite_ex(SHIZSprite sprite,
  *        the text with
  * @param text
  *        The string of text to measure
+ *
+ * @return a SHIZSize with the bounding width and height
+ */
+SHIZSize z_measure_text(SHIZSpriteFont font,
+                        char const * text);
+/**
+ * @brief Measure the size of text before rendering it.
+ *
+ * Measure the bounding width and height of a text when rendered.
+ *
+ * @param font
+ *        A SHIZSpriteFont defining the resource that would be used to draw
+ *        the text with
+ * @param text
+ *        The string of text to measure
  * @param bounds
  *        A SHIZSize with bounds that the text must not exceed; text that would
  *        exceed these bounds will be truncated instead (use
  *        `SHIZSpriteFontSizeToFit` to disable bounds entirely, or e.g.
- *        `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only 
+ *        `SHIZSizeMake(200, SHIZSpriteFontSizeToFitVertically)` to only
  *        apply horizontal bounds- or vice versa)
  * @param attributes
  *        A SHIZSpriteFontAttributes containing any additional attributes
@@ -199,11 +220,10 @@ SHIZSize z_draw_sprite_ex(SHIZSprite sprite,
  *
  * @return a SHIZSize with the bounding width and height
  */
-SHIZSize z_measure_text(SHIZSpriteFont font,
-                        char const * text,
-                        SHIZSize bounds,
-                        SHIZSpriteFontAttributes attributes);
-
+SHIZSize z_measure_text_attributed(SHIZSpriteFont font,
+                                   char const * text,
+                                   SHIZSize bounds,
+                                   SHIZSpriteFontAttributes attributes);
 /**
  * @brief Draw text at a location.
  *
@@ -215,16 +235,27 @@ SHIZSize z_measure_text(SHIZSpriteFont font,
  *        The string of text to draw
  * @param origin
  *        The location where the text will be drawn
- * @param alignment
- *        A SHIZSpriteFontAlignment defining the orientation of the text
- *        (defaults to `SHIZSpriteFontAlignmentTop|SHIZSpriteFontAlignmentLeft`)
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
 SHIZSize z_draw_text(SHIZSpriteFont font,
                      char const * text,
                      SHIZVector2 origin,
-                     SHIZSpriteFontAlignment alignment);
+                     SHIZSpriteFontDrawParameters params);
+
+SHIZSize z_draw_text_bounded(SHIZSpriteFont font,
+                             char const * text,
+                             SHIZVector2 origin,
+                             SHIZSize bounds,
+                             SHIZSpriteFontDrawParameters params);
+
+SHIZSize z_draw_text_attributed(SHIZSpriteFont font,
+                                char const * text,
+                                SHIZVector2 origin,
+                                SHIZSize bounds,
+                                SHIZSpriteFontAttributes attribs,
+                                SHIZSpriteFontDrawParameters params);
+
 /**
  * @brief Draw text at a location.
  *
@@ -263,24 +294,11 @@ SHIZSize z_draw_text(SHIZSpriteFont font,
 SHIZSize z_draw_text_ex(SHIZSpriteFont font,
                         char const * text,
                         SHIZVector2 origin,
-                        SHIZSpriteFontAlignment alignment,
                         SHIZSize bounds,
-                        SHIZColor tint,
                         SHIZSpriteFontAttributes attributes,
+                        SHIZSpriteFontAlignment alignment,
+                        SHIZColor tint,
                         SHIZLayer layer);
-/**
- * @brief Draw highlighted text at a location.
- */
-SHIZSize z_draw_text_ex_colored(SHIZSpriteFont font,
-                                char const * text,
-                                SHIZVector2 origin,
-                                SHIZSpriteFontAlignment alignment,
-                                SHIZSize bounds,
-                                SHIZColor tint,
-                                SHIZSpriteFontAttributes attributes,
-                                SHIZLayer layer,
-                                SHIZColor const * highlight_colors,
-                                unsigned int highlight_color_count);
 
 static inline
 SHIZSpriteDrawParameters const
@@ -328,6 +346,80 @@ SHIZSpriteDrawParametersAnchored(SHIZSpriteDrawParameters params,
                                  SHIZVector2 const anchor)
 {
     params.anchor = anchor;
+    
+    return params;
+}
+
+static inline
+SHIZSpriteDrawParameters const
+SHIZSpriteDrawParametersColored(SHIZSpriteDrawParameters params,
+                                SHIZColor const color)
+{
+    params.tint = color;
+    
+    return params;
+}
+
+static inline
+SHIZSpriteDrawParameters const
+SHIZSpriteDrawParametersRotated(SHIZSpriteDrawParameters params,
+                                float const angle)
+{
+    params.angle = angle;
+    
+    return params;
+}
+
+static inline
+SHIZSpriteFontDrawParameters const
+SHIZSpriteFontDrawParametersMake(SHIZSpriteFontAlignment const alignment,
+                                 SHIZLayer const layer,
+                                 SHIZColor const tint)
+{
+    SHIZSpriteFontDrawParameters const params = {
+        .alignment = alignment,
+        .layer = layer,
+        .tint = tint
+    };
+    
+    return params;
+}
+
+static inline
+SHIZSpriteFontDrawParameters const
+SHIZSpriteFontDrawParametersDefaults(void)
+{
+    return SHIZSpriteFontDrawParametersMake(SHIZSpriteFontAlignmentDefault,
+                                            SHIZLayerDefault,
+                                            SHIZSpriteNoTint);
+}
+
+static inline
+SHIZSpriteFontDrawParameters const
+SHIZSpriteFontDrawParametersAligned(SHIZSpriteFontDrawParameters params,
+                                    SHIZSpriteFontAlignment alignment)
+{
+    params.alignment = alignment;
+    
+    return params;
+}
+
+static inline
+SHIZSpriteFontDrawParameters const
+SHIZSpriteFontDrawParametersLayered(SHIZSpriteFontDrawParameters params,
+                                    SHIZLayer const layer)
+{
+    params.layer = layer;
+    
+    return params;
+}
+
+static inline
+SHIZSpriteFontDrawParameters const
+SHIZSpriteFontDrawParametersColored(SHIZSpriteFontDrawParameters params,
+                                    SHIZColor const color)
+{
+    params.tint = color;
     
     return params;
 }

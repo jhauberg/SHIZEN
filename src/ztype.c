@@ -95,5 +95,7 @@ SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault = {
     .wrap = SHIZSpriteFontWrapModeWord,
     .character_spread = SHIZSpriteFontSpreadNormal,
     .character_padding = SHIZSpriteFontNoPadding,
-    .line_padding = SHIZSpriteFontNoPadding
+    .line_padding = SHIZSpriteFontNoPadding,
+    .colors = NULL,
+    .colors_count = 0
 };

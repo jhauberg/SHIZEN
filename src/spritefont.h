@@ -58,10 +58,8 @@ SHIZSize const z_sprite__draw_text(SHIZSpriteFont font,
                                    SHIZVector2 origin,
                                    SHIZSpriteFontAlignment alignment,
                                    SHIZSize bounds,
-                                   SHIZColor tint,
                                    SHIZSpriteFontAttributes attrs,
-                                   SHIZLayer layer,
-                                   SHIZColor const * highlight_colors,
-                                   unsigned int highlight_color_count);
+                                   SHIZColor tint,
+                                   SHIZLayer layer);
 
 #endif // spritefont_h

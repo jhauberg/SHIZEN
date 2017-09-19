@@ -90,6 +90,7 @@ typedef struct SHIZSpriteFontTable {
  * Represents a set of attributes that specify how text should be drawn.
  */
 typedef struct SHIZSpriteFontAttributes {
+    SHIZColor const * colors;
     /** The word-wrapping mode */
     SHIZSpriteFontWrapMode wrap;
     /** A scale defining the final size of the text */
@@ -100,6 +101,7 @@ typedef struct SHIZSpriteFontAttributes {
     float character_padding;
     /** A value that adds padding to each line */
     float line_padding;
+    unsigned int colors_count;
 } SHIZSpriteFontAttributes;
 
 /**
@@ -185,6 +187,7 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
  */
 #define SHIZSpriteIsOpaque true
 
+#define SHIZSpriteFontAlignmentDefault (SHIZSpriteFontAlignmentTop|SHIZSpriteFontAlignmentLeft)
 /**
  * @brief Do not constrain text to bounds.
  */

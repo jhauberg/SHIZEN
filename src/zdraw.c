@@ -433,13 +433,22 @@ z_draw_sprite_ex(SHIZSprite const sprite,
 
 SHIZSize
 z_measure_text(SHIZSpriteFont const font,
-               char const * const text,
-               SHIZSize const bounds,
-               SHIZSpriteFontAttributes const attributes)
+               char const * const text)
+{
+    return z_measure_text_attributed(font, text,
+                                     SHIZSpriteFontSizeToFit,
+                                     SHIZSpriteFontAttributesDefault);
+}
+
+SHIZSize
+z_measure_text_attributed(SHIZSpriteFont const font,
+                          char const * const text,
+                          SHIZSize const bounds,
+                          SHIZSpriteFontAttributes const attributes)
 {
     SHIZSpriteFontMeasurement const measurement =
         z_sprite__measure_text(font, text, bounds, attributes);
-
+    
     return measurement.size;
 }
 
@@ -447,54 +456,56 @@ SHIZSize
 z_draw_text(SHIZSpriteFont const font,
             char const * const text,
             SHIZVector2 const origin,
-            SHIZSpriteFontAlignment const alignment)
+            SHIZSpriteFontDrawParameters const params)
 {
-    return z_draw_text_ex(font, text, origin, alignment,
-                          SHIZSpriteFontSizeToFit,
-                          SHIZSpriteNoTint,
-                          SHIZSpriteFontAttributesDefault,
-                          SHIZLayerDefault);
+    SHIZSize const bounds = SHIZSpriteFontSizeToFit;
+    
+    return z_draw_text_bounded(font, text, origin, bounds, params);
+}
+
+SHIZSize z_draw_text_bounded(SHIZSpriteFont font,
+                             char const * text,
+                             SHIZVector2 origin,
+                             SHIZSize bounds,
+                             SHIZSpriteFontDrawParameters params)
+{
+    return z_draw_text_attributed(font, text, origin, bounds,
+                                  SHIZSpriteFontAttributesDefault,
+                                  params);
+}
+
+SHIZSize z_draw_text_attributed(SHIZSpriteFont font,
+                                char const * text,
+                                SHIZVector2 origin,
+                                SHIZSize bounds,
+                                SHIZSpriteFontAttributes attribs,
+                                SHIZSpriteFontDrawParameters params)
+{
+    return z_draw_text_ex(font, text, origin, bounds, attribs,
+                          params.alignment, params.tint, params.layer);
 }
 
 SHIZSize
 z_draw_text_ex(SHIZSpriteFont const font,
                const char * const text,
                SHIZVector2 const origin,
-               SHIZSpriteFontAlignment const alignment,
                SHIZSize const bounds,
-               SHIZColor const tint,
                SHIZSpriteFontAttributes const attributes,
+               SHIZSpriteFontAlignment const alignment,
+               SHIZColor const tint,
                SHIZLayer const layer)
-{
-    return z_draw_text_ex_colored(font, text,
-                                  origin, alignment, bounds,
-                                  tint, attributes, layer, NULL, 0);
-}
-
-SHIZSize
-z_draw_text_ex_colored(SHIZSpriteFont const font,
-                       char const * const text,
-                       SHIZVector2 const origin,
-                       SHIZSpriteFontAlignment const alignment,
-                       SHIZSize const bounds,
-                       SHIZColor const tint,
-                       SHIZSpriteFontAttributes const attributes,
-                       SHIZLayer const layer,
-                       SHIZColor const * const highlight_colors,
-                       unsigned int const highlight_color_count)
 {
     SHIZSize const text_size =
         z_sprite__draw_text(font, text,
                             origin, alignment, bounds,
-                            tint, attributes, layer,
-                            highlight_colors, highlight_color_count);
-
+                            attributes, tint, layer);
+    
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {
         if (z_debug__is_drawing_shapes() &&
             (text_size.width > 0 && text_size.height > 0)) {
             SHIZVector2 anchor = SHIZAnchorCenter;
-
+            
             if ((alignment & SHIZSpriteFontAlignmentTop) == SHIZSpriteFontAlignmentTop) {
                 if ((alignment & SHIZSpriteFontAlignmentLeft) == SHIZSpriteFontAlignmentLeft) {
                     anchor = SHIZAnchorTopLeft;
@@ -520,12 +531,12 @@ z_draw_text_ex_colored(SHIZSpriteFont const font,
                     anchor = SHIZAnchorBottomRight;
                 }
             }
-
+            
             // draw final size
             z_debug__draw_sprite_shape(origin, text_size, SHIZColorRed, anchor,
                                        SHIZSpriteNoAngle,
                                        layer);
-
+            
             if (bounds.width > 0 && bounds.height > 0) {
                 // draw bounds
                 z_debug__draw_sprite_shape(origin, bounds, SHIZColorYellow, anchor,
@@ -533,12 +544,12 @@ z_draw_text_ex_colored(SHIZSpriteFont const font,
                                            layer);
             }
         }
-
+        
         z_debug__add_event_resource(z_res__image(font.sprite.resource_id).filename,
                                     SHIZVector3Make(origin.x, origin.y, 0));
     }
 #endif
-
+    
     return text_size;
 }
 

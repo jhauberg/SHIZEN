@@ -132,12 +132,14 @@ z_debug__draw_events()
                        to, tint, layer);
         
         SHIZSize const event_text_size =
-        z_draw_text_ex(z_debug__get_font(),
-                       event_buffer,
-                       from,
-                       SHIZSpriteFontAlignmentCenter|SHIZSpriteFontAlignmentTop,
-                       SHIZSpriteFontSizeToFit, tint,
-                       SHIZSpriteFontAttributesWithScale(1), layer);
+            z_draw_text_ex(z_debug__get_font(),
+                           event_buffer,
+                           from,
+                           SHIZSpriteFontSizeToFit,
+                           SHIZSpriteFontAttributesWithScale(1),
+                           SHIZSpriteFontAlignmentCenter|SHIZSpriteFontAlignmentTop,
+                           tint,
+                           layer);
         
         z_draw_rect_ex(SHIZRectMake(from, event_text_size),
                        SHIZColorBlack,
@@ -157,7 +159,7 @@ z_debug__draw_stats()
     
     unsigned int const margin = 8;
     
-    SHIZColor highlight_colors[] = {
+    SHIZColor const highlight_colors[] = {
         SHIZColorFromHex(0xefec0d), // yellow
         SHIZColorFromHex(0xe5152d), // red
         SHIZColorFromHex(0x36cd33), // green
@@ -172,15 +174,18 @@ z_debug__draw_stats()
     
     SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
         attrs.character_spread = SHIZSpriteFontSpreadTight;
+        attrs.colors = highlight_colors;
+        attrs.colors_count = 4;
     }
     
-    z_draw_text_ex_colored(spritefont,
+    z_draw_text_attributed(spritefont,
                            _shiz_debug_stats_buffer,
                            stats_text_origin,
-                           SHIZSpriteFontAlignmentTop|SHIZSpriteFontAlignmentRight,
-                           SHIZSpriteFontSizeToFit, SHIZSpriteNoTint,
-                           attrs, layer,
-                           highlight_colors, 4);
+                           SHIZSpriteFontSizeToFit,
+                           attrs,
+                           SHIZSpriteFontDrawParametersMake(SHIZSpriteFontAlignmentTop|SHIZSpriteFontAlignmentRight,
+                                                            layer,
+                                                            SHIZSpriteNoTint));
     
     char version_buffer[128] = { 0 };
     
@@ -192,10 +197,11 @@ z_debug__draw_stats()
                    version_buffer,
                    SHIZVector2Make(bounds.width - margin / 2,
                                    margin / 2),
-                   SHIZSpriteFontAlignmentBottom|SHIZSpriteFontAlignmentRight,
                    SHIZSpriteFontSizeToFit,
+                   attrs,
+                   SHIZSpriteFontAlignmentBottom|SHIZSpriteFontAlignmentRight,
                    SHIZSpriteTintDefaultWithAlpa(0.15f),
-                   attrs, layer);
+                   layer);
 }
 
 void
@@ -254,9 +260,10 @@ z_debug__draw_viewport()
         z_draw_text_ex(spritefont, "0,0",
                        SHIZVector2Make(spritefont.character.width / 2,
                                        (spritefont.character.height / 2) - 1),
-                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
                        SHIZSpriteFontSizeToFit,
-                       point_color, attrs, axes_layer);
+                       attrs,
+                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                       point_color, axes_layer);
         
         char center_text[32] = { 0 };
         
@@ -265,9 +272,10 @@ z_debug__draw_viewport()
         z_draw_text_ex(spritefont, center_text,
                        SHIZVector2Make(center.x + spritefont.character.width / 2,
                                        center.y + (spritefont.character.height / 2) - 1),
-                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
                        SHIZSpriteFontSizeToFit,
-                       point_color, attrs, axes_layer);
+                       attrs,
+                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                       point_color, axes_layer);
         
         char y_max[32] = { 0 };
         char x_max[32] = { 0 };
@@ -278,28 +286,32 @@ z_debug__draw_viewport()
         z_draw_text_ex(spritefont, y_max,
                        SHIZVector2Make(y_top.x - spritefont.character.width / 2,
                                        y_top.y),
-                       SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentTop,
                        SHIZSpriteFontSizeToFit,
-                       y_color, attrs, axes_layer);
+                       attrs,
+                       SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentTop,
+                       y_color, axes_layer);
         z_draw_text_ex(spritefont, "Y=0",
                        SHIZVector2Make(y_bottom.x + spritefont.character.width / 2,
                                        y_bottom.y),
-                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
                        SHIZSpriteFontSizeToFit,
-                       y_color, attrs, axes_layer);
+                       attrs,
+                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentBottom,
+                       y_color, axes_layer);
         
         z_draw_text_ex(spritefont, x_max,
                        SHIZVector2Make(x_right.x,
                                        x_right.y + (spritefont.character.height / 2) - 1),
-                       SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentBottom,
                        SHIZSpriteFontSizeToFit,
-                       x_color, attrs, axes_layer);
+                       attrs,
+                       SHIZSpriteFontAlignmentRight|SHIZSpriteFontAlignmentBottom,
+                       x_color, axes_layer);
         z_draw_text_ex(spritefont, "X=0",
                        SHIZVector2Make(x_left.x,
                                        x_left.y - spritefont.character.height / 2),
-                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentTop,
                        SHIZSpriteFontSizeToFit,
-                       x_color, attrs, axes_layer);
+                       attrs,
+                       SHIZSpriteFontAlignmentLeft|SHIZSpriteFontAlignmentTop,
+                       x_color, axes_layer);
     }
 }
 

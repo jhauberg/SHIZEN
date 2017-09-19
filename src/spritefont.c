@@ -66,7 +66,7 @@ SHIZSpriteFontMeasurement const
 z_sprite__measure_text(SHIZSpriteFont const font,
                        char const * const text,
                        SHIZSize const bounds,
-                       SHIZSpriteFontAttributes const attributes)
+                       SHIZSpriteFontAttributes const attribs)
 {
     SHIZSpriteFontMeasurement measurement;
 
@@ -74,11 +74,11 @@ z_sprite__measure_text(SHIZSpriteFont const font,
     measurement.max_characters = -1; // no truncation
     measurement.line_count = 0;
 
-    measurement.character_size = SHIZSizeMake(font.character.width * attributes.scale.x,
-                                              font.character.height * attributes.scale.y);
+    measurement.character_size = SHIZSizeMake(font.character.width * attribs.scale.x,
+                                              font.character.height * attribs.scale.y);
     
     measurement.character_size_perceived =
-        SHIZSizeMake((measurement.character_size.width * attributes.character_spread) + attributes.character_padding,
+        SHIZSizeMake((measurement.character_size.width * attribs.character_spread) + attribs.character_padding,
                      measurement.character_size.height);
 
     measurement.constrain_horizontally = bounds.width > 0;
@@ -92,7 +92,7 @@ z_sprite__measure_text(SHIZSpriteFont const font,
         measurement.max_characters_per_line = UINT32_MAX;
     }
 
-    float const line_height = measurement.character_size_perceived.height + attributes.line_padding;
+    float const line_height = measurement.character_size_perceived.height + attribs.line_padding;
     
     if (measurement.constrain_vertically) {
         measurement.max_lines_in_bounds =
@@ -153,7 +153,7 @@ z_sprite__measure_text(SHIZSpriteFont const font,
             next_line_has_leading_whitespace = false;
 
             if (break_line_required) {
-                if (attributes.wrap == SHIZSpriteFontWrapModeWord) {
+                if (attribs.wrap == SHIZSpriteFontWrapModeWord) {
                     // backtrack until finding a whitespace
                     while (*text_ptr) {
                         text_ptr -= character_size;
@@ -263,14 +263,12 @@ z_sprite__draw_text(SHIZSpriteFont const font,
                     SHIZVector2 const origin,
                     SHIZSpriteFontAlignment const alignment,
                     SHIZSize const bounds,
+                    SHIZSpriteFontAttributes const attribs,
                     SHIZColor const tint,
-                    SHIZSpriteFontAttributes const attributes,
-                    SHIZLayer const layer,
-                    SHIZColor const * const highlight_colors,
-                    unsigned int const highlight_color_count)
+                    SHIZLayer const layer)
 {
     SHIZSpriteFontMeasurement const measurement =
-        z_sprite__measure_text(font, text, bounds, attributes);
+        z_sprite__measure_text(font, text, bounds, attribs);
 
     unsigned int const truncation_length = 3;
     int const truncation_index = measurement.max_characters - (int)truncation_length;
@@ -335,7 +333,7 @@ z_sprite__draw_text(SHIZSpriteFont const font,
 
             if (z_sprite__is_special_character(character)) {
                 // these characters are only used for tinting purposes and will be ignored/skipped otherwise
-                if (highlight_colors && highlight_color_count > 0) {
+                if (attribs.colors && attribs.colors_count > 0) {
                     // at this point, we know that 'character' is one of the numeric tint specifiers
                     // so we can determine the index like below, where a tint specifier of 1 results
                     // in an index of -1, which we then use to reset any highlight
@@ -345,8 +343,8 @@ z_sprite__draw_text(SHIZSpriteFont const font,
                         // reset to original tint
                         highlight_color = tint;
                     } else {
-                        if (highlight_color_index < (int)highlight_color_count) {
-                            highlight_color = highlight_colors[highlight_color_index];
+                        if (highlight_color_index < (int)attribs.colors_count) {
+                            highlight_color = attribs.colors[highlight_color_index];
                         }
                     }
                 }
