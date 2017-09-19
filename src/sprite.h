@@ -28,10 +28,10 @@ void z_sprite__flush(void);
 SHIZSize const z_sprite__draw(SHIZSprite sprite,
                               SHIZVector2 origin,
                               SHIZSpriteSize size,
+                              bool repeat,
                               SHIZVector2 anchor,
                               float angle,
                               SHIZColor tint,
-                              bool repeat,
                               bool opaque,
                               SHIZLayer layer);
 

@@ -466,9 +466,10 @@ z_sprite__draw_character_index(SHIZSpriteFont const * const font,
     z_sprite__draw(character_sprite,
                    character_origin,
                    character_sprite_size,
-                   SHIZAnchorTopLeft, SHIZSpriteNoAngle,
-                   highlight_color,
                    SHIZSpriteNoRepeat,
+                   SHIZAnchorTopLeft,
+                   SHIZSpriteNoAngle,
+                   highlight_color,
                    SHIZSpriteNotOpaque,
                    layer);
 }
