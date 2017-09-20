@@ -12,6 +12,7 @@
 #include "spritefont.h"
 #include "sprite.h"
 
+#include <stdlib.h>
 #include <math.h>
 
 static
