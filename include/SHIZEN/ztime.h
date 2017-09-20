@@ -27,11 +27,13 @@ double z_timing_end(void);
 
 bool z_time_tick(unsigned short frequency);
 
-double z_time_since(double time);
+double z_time_passed_since(double time);
 double z_time_passed(void);
 
 double z_time_get_scale(void);
 void z_time_set_scale(double scale);
+
+double z_time_get_tick_rate(void);
 
 /**
  * @brief Determine the direction of passing time.

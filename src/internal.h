@@ -26,7 +26,6 @@
 #define SHIZEpsilon (1.0 / 1024)
 
 #ifdef SHIZ_DEBUG
-double z_time__get_tick_rate(void);
 double z_time__get_lag(void);
 #endif
 

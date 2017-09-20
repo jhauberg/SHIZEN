@@ -47,14 +47,6 @@ z_time_reset()
     glfwSetTime(_timeline.time);
 }
 
-double
-z_time_since(double const time)
-{
-    double const time_passed_since = z_time_passed() - time;
-    
-    return time_passed_since;
-}
-
 void
 z_timing_begin()
 {
@@ -114,6 +106,14 @@ z_time_passed()
 }
 
 double
+z_time_passed_since(double const time)
+{
+    double const time_passed_since = z_time_passed() - time;
+    
+    return time_passed_since;
+}
+
+double
 z_time_get_scale()
 {
     return _timeline.scale;
@@ -127,6 +127,12 @@ z_time_set_scale(double const scale)
     if (z_fequal(_timeline.scale, 0)) {
         _timeline.scale = 0;
     }
+}
+
+double
+z_time_get_tick_rate()
+{
+    return _timeline.time_step;
 }
 
 SHIZTimeDirection
@@ -151,12 +157,6 @@ void z_animate(SHIZAnimatable * const animatable,
 }
 
 #ifdef SHIZ_DEBUG
-double
-z_time__get_tick_rate()
-{
-    return _timeline.time_step;
-}
-
 double
 z_time__get_lag()
 {
