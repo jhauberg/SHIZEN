@@ -447,7 +447,7 @@ z_measure_text_attributed(SHIZSpriteFont const font,
                           SHIZSpriteFontAttributes const attributes)
 {
     SHIZSpriteFontMeasurement const measurement =
-        z_sprite__measure_text(font, text, bounds, attributes);
+        z_spritefont__measure_text(font, text, bounds, attributes);
     
     return measurement.size;
 }
@@ -496,9 +496,9 @@ z_draw_text_ex(SHIZSpriteFont const font,
                SHIZLayer const layer)
 {
     SHIZSize const text_size =
-        z_sprite__draw_text(font, text,
-                            origin, alignment, bounds,
-                            attributes, tint, layer);
+        z_spritefont__draw_text(font, text,
+                                origin, alignment, bounds,
+                                attributes, tint, layer);
     
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {
