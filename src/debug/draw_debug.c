@@ -28,7 +28,7 @@
 
 extern SHIZGraphicsContext const _graphics_context;
 
-static char _shiz_debug_stats_buffer[256] = { 0 };
+static char _stats_buffer[256] = { 0 };
 
 void
 z_debug__build_stats()
@@ -57,7 +57,7 @@ z_debug__build_stats()
     bool const is_vsync_enabled = _graphics_context.swap_interval > 0;
     
     if (z_debug__is_expanded()) {
-        sprintf(_shiz_debug_stats_buffer,
+        sprintf(_stats_buffer,
                 "%s\n"
                 "─────\n\n"
                 "\2%0.2fms/frame\1 (\4%0.2fms\1)\n"
@@ -80,7 +80,7 @@ z_debug__build_stats()
                 z_time_get_tick_rate() * 1000,
                 z_time_get_scale());
     } else {
-        sprintf(_shiz_debug_stats_buffer,
+        sprintf(_stats_buffer,
                 "\2%d fps%s\1",
                 frame_stats.frames_per_second,
                 is_vsync_enabled ? " (V)" : "");
@@ -179,7 +179,7 @@ z_debug__draw_stats()
     }
     
     z_draw_text_attributed(spritefont,
-                           _shiz_debug_stats_buffer,
+                           _stats_buffer,
                            stats_text_origin,
                            SHIZSpriteFontSizeToFit,
                            attrs,

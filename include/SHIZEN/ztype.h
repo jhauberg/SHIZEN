@@ -43,7 +43,8 @@ typedef enum SHIZDrawMode {
 } SHIZDrawMode;
 
 /**
- * Represents a 2-dimensional frame of an image resource.
+ * @brief Represents a 2-dimensional frame of an image resource.
+ *
  * The source frame can either be a subset of, or span the entire image.
  */
 typedef struct SHIZSprite {
@@ -87,7 +88,7 @@ typedef struct SHIZSpriteFontTable {
 } SHIZSpriteFontTable;
 
 /**
- * Represents a set of attributes that specify how text should be drawn.
+ * @brief Represents a set of attributes that specify how text should be drawn.
  */
 typedef struct SHIZSpriteFontAttributes {
     SHIZColor const * colors;
@@ -105,7 +106,7 @@ typedef struct SHIZSpriteFontAttributes {
 } SHIZSpriteFontAttributes;
 
 /**
- Represents a set of sprite characters aligned to an ASCII table.
+ * @brief Represents a set of sprite characters aligned to an ASCII table.
  */
 typedef struct SHIZSpriteFont {
     /** A sprite that defines the font resource */
@@ -161,6 +162,9 @@ extern SHIZVector2 const SHIZAnchorTopRight;
 extern SHIZVector2 const SHIZAnchorRight;
 extern SHIZVector2 const SHIZAnchorBottomRight;
 
+/**
+ * @brief Do not apply scaling (scale = 1).
+ */
 #define SHIZSpriteNoScale 1.0f
 /**
  * @brief Do not apply rotation.

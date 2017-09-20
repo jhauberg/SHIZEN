@@ -21,7 +21,7 @@
 #include "zdraw.h"
 
 /**
- * Provides settings and flags for the creation of the window.
+ * @brief Provides settings and flags for the creation of a window.
  */
 typedef struct SHIZWindowSettings {
     /** The title of the window */

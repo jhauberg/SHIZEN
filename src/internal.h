@@ -52,6 +52,9 @@ z_fequal(double const a, double const b)
     return (fabs(b - a) < SHIZEpsilon);
 }
 
+/**
+ * @brief Linearly interpolate between two values.
+ */
 static inline
 float
 z_lerp(float const a, float const b, float const t)
