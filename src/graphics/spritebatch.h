@@ -14,15 +14,22 @@
 
 #include "internal_type.h"
 
-bool z_gfx__init_spritebatch(void);
-bool z_gfx__kill_spritebatch(void);
+bool
+z_gfx__init_spritebatch(void);
 
-void z_gfx__spritebatch_reset(void);
-bool z_gfx__spritebatch_flush(void);
+bool
+z_gfx__kill_spritebatch(void);
 
-void z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
-                       SHIZVector3 origin,
-                       float angle,
-                       GLuint texture_id);
+void
+z_gfx__spritebatch_reset(void);
+
+bool
+z_gfx__spritebatch_flush(void);
+
+void
+z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
+                  SHIZVector3 origin,
+                  float angle,
+                  GLuint texture_id);
 
 #endif // spritebatch_h

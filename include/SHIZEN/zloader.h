@@ -21,50 +21,74 @@
  *
  * @return A resource id if the resource was loaded successfully, `0` otherwise
  */
-unsigned int z_load(char const * filename);
+unsigned int
+z_load(char const * filename);
+
 /**
  * @brief Unload a resource.
  *
  * @return `true` if the resource was unloaded successfully, `false` otherwise
  */
-bool z_unload(unsigned int resource_id);
+bool
+z_unload(unsigned int resource_id);
 
-SHIZSprite z_load_sprite(char const * filename);
-SHIZSprite z_load_sprite_src(char const * filename,
-                             SHIZRect source);
+SHIZSprite
+z_load_sprite(char const * filename);
 
-SHIZSprite z_load_sprite_from(unsigned int resource_id);
-SHIZSprite z_load_sprite_from_src(unsigned int resource_id,
-                                  SHIZRect source);
+SHIZSprite
+z_load_sprite_src(char const * filename,
+                  SHIZRect source);
 
-SHIZSpriteSheet z_load_spritesheet(char const * filename,
-                                   SHIZSize sprite_size);
-SHIZSpriteSheet z_load_spritesheet_src(char const * filename,
-                                       SHIZSize sprite_size,
-                                       SHIZRect source);
+SHIZSprite
+z_load_sprite_from(unsigned int resource_id);
 
-SHIZSpriteSheet z_load_spritesheet_from(SHIZSprite resource,
-                                        SHIZSize sprite_size);
-SHIZSpriteSheet z_load_spritesheet_from_src(SHIZSprite resource,
-                                            SHIZSize sprite_size,
-                                            SHIZRect source);
+SHIZSprite
+z_load_sprite_from_src(unsigned int resource_id,
+                       SHIZRect source);
 
-SHIZSprite z_load_sprite_from_index(SHIZSpriteSheet spritesheet,
-                                    unsigned int index);
-SHIZSprite z_load_sprite_from_cell(SHIZSpriteSheet spritesheet,
-                                   unsigned int column,
-                                   unsigned int row);
+SHIZSpriteSheet
+z_load_spritesheet(char const * filename,
+                   SHIZSize sprite_size);
 
-SHIZSpriteFont z_load_spritefont(char const * filename,
-                                 SHIZSize character);
-SHIZSpriteFont z_load_spritefont_ex(char const * filename,
-                                    SHIZSize character,
-                                    SHIZSpriteFontTable table);
+SHIZSpriteSheet
+z_load_spritesheet_src(char const * filename,
+                       SHIZSize sprite_size,
+                       SHIZRect source);
 
-SHIZSpriteFont z_load_spritefont_from(SHIZSprite sprite,
-                                      SHIZSize character);
-SHIZSpriteFont z_load_spritefont_from_ex(SHIZSprite sprite,
-                                         SHIZSize character,
-                                         SHIZSpriteFontTable table);
+SHIZSpriteSheet
+z_load_spritesheet_from(SHIZSprite resource,
+                        SHIZSize sprite_size);
+
+SHIZSpriteSheet
+z_load_spritesheet_from_src(SHIZSprite resource,
+                            SHIZSize sprite_size,
+                            SHIZRect source);
+
+SHIZSprite
+z_load_sprite_from_index(SHIZSpriteSheet spritesheet,
+                         unsigned int index);
+
+SHIZSprite
+z_load_sprite_from_cell(SHIZSpriteSheet spritesheet,
+                        unsigned int column,
+                        unsigned int row);
+
+SHIZSpriteFont
+z_load_spritefont(char const * filename,
+                  SHIZSize character);
+
+SHIZSpriteFont
+z_load_spritefont_ex(char const * filename,
+                     SHIZSize character,
+                     SHIZSpriteFontTable table);
+
+SHIZSpriteFont
+z_load_spritefont_from(SHIZSprite sprite,
+                       SHIZSize character);
+
+SHIZSpriteFont
+z_load_spritefont_from_ex(SHIZSprite sprite,
+                          SHIZSize character,
+                          SHIZSpriteFontTable table);
 
 #endif /* zloader_h */

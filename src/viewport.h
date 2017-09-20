@@ -29,9 +29,13 @@ typedef enum SHIZViewportMode {
 
 extern SHIZViewport const SHIZViewportDefault;
 
-void z_viewport__set(SHIZViewport viewport);
+void
+z_viewport__set(SHIZViewport viewport);
 
-SHIZViewport z_viewport__get(void);
-SHIZSize z_viewport__get_offset(void);
+SHIZViewport
+z_viewport__get(void);
+
+SHIZSize
+z_viewport__get_offset(void);
 
 #endif // viewport_h

@@ -14,7 +14,8 @@
 
 #ifdef SHIZ_DEBUG
 
-SHIZVector3 z_debug__get_last_sprite_origin(void);
+SHIZVector3
+z_debug__get_last_sprite_origin(void);
 
 #endif
 

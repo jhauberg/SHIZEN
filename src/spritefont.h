@@ -48,18 +48,20 @@ typedef struct SHIZSpriteFontMeasurement {
     bool constrain_vertically;
 } SHIZSpriteFontMeasurement;
 
-SHIZSpriteFontMeasurement const z_spritefont__measure_text(SHIZSpriteFont font,
-                                                           char const * text,
-                                                           SHIZSize bounds,
-                                                           SHIZSpriteFontAttributes attrs);
+SHIZSpriteFontMeasurement const
+z_spritefont__measure_text(SHIZSpriteFont font,
+                           char const * text,
+                           SHIZSize bounds,
+                           SHIZSpriteFontAttributes attrs);
 
-SHIZSize const z_spritefont__draw_text(SHIZSpriteFont font,
-                                       char const * text,
-                                       SHIZVector2 origin,
-                                       SHIZSpriteFontAlignment alignment,
-                                       SHIZSize bounds,
-                                       SHIZSpriteFontAttributes attrs,
-                                       SHIZColor tint,
-                                       SHIZLayer layer);
+SHIZSize const
+z_spritefont__draw_text(SHIZSpriteFont font,
+                        char const * text,
+                        SHIZVector2 origin,
+                        SHIZSpriteFontAlignment alignment,
+                        SHIZSize bounds,
+                        SHIZSpriteFontAttributes attrs,
+                        SHIZColor tint,
+                        SHIZLayer layer);
 
 #endif // spritefont_h

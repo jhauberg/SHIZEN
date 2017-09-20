@@ -41,8 +41,13 @@ typedef struct SHIZDebugContext {
     bool print_sprite_order;
 } SHIZDebugContext;
 
-static void z_debug__update_frame_averages(void);
-static bool z_debug__prepare_font(void);
+static
+void
+z_debug__update_frame_averages(void);
+
+static
+bool
+z_debug__prepare_font(void);
 
 static SHIZDebugContext _context;
 static SHIZDebugFrameStats _frame_stats;

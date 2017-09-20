@@ -28,11 +28,19 @@ SHIZViewport const SHIZViewportDefault = {
     .is_fullscreen = false
 };
 
-static void z_viewport__apply_boxing_if_necessary(void);
-static void z_viewport__determine_operating_resolution(void);
-static void z_viewport__determine_mode(SHIZViewportMode * mode,
-                                       float * width,
-                                       float * height);
+static
+void
+z_viewport__apply_boxing_if_necessary(void);
+
+static
+void
+z_viewport__determine_operating_resolution(void);
+
+static
+void
+z_viewport__determine_mode(SHIZViewportMode * mode,
+                           float * width,
+                           float * height);
 
 // set to false to let viewport fit framebuffer (pixels will be stretched)
 #define SHIZViewportEnableBoxing true

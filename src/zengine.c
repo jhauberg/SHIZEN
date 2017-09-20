@@ -39,29 +39,64 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .pixel_size = 1
 };
 
-static void z_engine__error_callback(int error, char const * description);
+static
+void
+z_engine__error_callback(int error, char const * description);
 
-static void z_engine__window_close_callback(GLFWwindow *);
-static void z_engine__window_focus_callback(GLFWwindow *, int focused);
-static void z_engine__key_callback(GLFWwindow * const window,
-                                   int key, int scancode, int action, int mods);
+static
+void
+z_engine__window_close_callback(GLFWwindow *);
 
-static void z_engine__framebuffer_size_callback(GLFWwindow *,
-                                                int width, int height);
-static bool z_engine__create_window(bool fullscreen, char const * title);
-static void z_engine__toggle_windowed(GLFWwindow *);
+static
+void
+z_engine__window_focus_callback(GLFWwindow *, int focused);
 
-static float z_engine__get_pixel_scale(void);
+static
+void
+z_engine__key_callback(GLFWwindow * const window,
+                       int key, int scancode, int action, int mods);
 
-static SHIZSize z_engine__get_window_size(void);
-static SHIZSize z_engine__get_framebuffer_size(void);
+static
+void
+z_engine__framebuffer_size_callback(GLFWwindow *,
+                                    int width, int height);
 
-static SHIZViewport z_engine__build_viewport(void);
+static
+bool
+z_engine__create_window(bool fullscreen,
+                        char const * title);
 
-static bool z_engine__can_run(void);
+static
+void
+z_engine__toggle_windowed(GLFWwindow *);
 
-static void z_engine__intro(char const * description);
-static void z_engine__intro_gl(void);
+static
+float
+z_engine__get_pixel_scale(void);
+
+static
+SHIZSize
+z_engine__get_window_size(void);
+
+static
+SHIZSize
+z_engine__get_framebuffer_size(void);
+
+static
+SHIZViewport
+z_engine__build_viewport(void);
+
+static
+bool
+z_engine__can_run(void);
+
+static
+void
+z_engine__intro(char const * description);
+
+static
+void
+z_engine__intro_gl(void);
 
 static SHIZVector2 _preferred_window_position;
 

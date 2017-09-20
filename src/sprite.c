@@ -46,19 +46,28 @@ typedef struct SHIZSpriteList {
     unsigned int total;
 } SHIZSpriteList;
 
-static int z_sprite__compare(void const * sprite,
-                             void const * other_sprite);
-static void z_sprite__sort(void);
+static
+int
+z_sprite__compare(void const * sprite,
+                  void const * other_sprite);
 
-static void z_sprite__set_position(SHIZSpriteObject * sprite,
-                                   SHIZSize destination_size,
-                                   SHIZVector2 anchor);
-static void z_sprite__set_uv(SHIZSpriteObject * sprite,
-                             SHIZSize destination_size,
-                             SHIZSize texture_size,
-                             SHIZRect source,
-                             SHIZColor tint,
-                             bool repeat);
+static
+void
+z_sprite__sort(void);
+
+static
+void
+z_sprite__set_position(SHIZSpriteObject * sprite,
+                       SHIZSize destination_size,
+                       SHIZVector2 anchor);
+static
+void
+z_sprite__set_uv(SHIZSpriteObject * sprite,
+                 SHIZSize destination_size,
+                 SHIZSize texture_size,
+                 SHIZRect source,
+                 SHIZColor tint,
+                 bool repeat);
 
 static struct SHIZSpriteList _sprite_list;
 

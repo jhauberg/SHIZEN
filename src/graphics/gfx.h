@@ -29,7 +29,9 @@
  * @return `true` if the graphics module was initialized successfully,
  *         `false` otherwise
  */
-bool z_gfx__init(SHIZViewport viewport);
+bool
+z_gfx__init(SHIZViewport viewport);
+
 /**
  * @brief Kill any resources created by the graphics module.
  *
@@ -39,12 +41,13 @@ bool z_gfx__init(SHIZViewport viewport);
  * @return `true` if the graphics module was cleared successfully,
  *         `false` otherwise
  */
-bool z_gfx__kill(void);
+bool
+z_gfx__kill(void);
 
 /**
  * @brief Render vertex data.
  *
- * Render pre-transformed vertex data by first allocating a buffer on the GPU, 
+ * Render pre-transformed vertex data by first allocating a buffer on the GPU,
  * then uploading vertex data to it and finally drawing primitives of the
  * specified type.
  *
@@ -52,14 +55,17 @@ bool z_gfx__kill(void);
  * an additional buffer allocation and a draw call, and so it is not very
  * efficient. Take that into consideration before extended use.
  */
-void z_gfx__render(GLenum mode,
-                   SHIZVertexPositionColor const * restrict vertices,
-                   unsigned int count);
-void z_gfx__render_ex(GLenum const mode,
-                      SHIZVertexPositionColor const * restrict vertices,
-                      unsigned int count,
-                      SHIZVector3 origin,
-                      float angle);
+void
+z_gfx__render(GLenum mode,
+              SHIZVertexPositionColor const * restrict vertices,
+              unsigned int count);
+
+void
+z_gfx__render_ex(GLenum const mode,
+                 SHIZVertexPositionColor const * restrict vertices,
+                 unsigned int count,
+                 SHIZVector3 origin,
+                 float angle);
 
 /**
  * @brief Render a sprite; a textured quad.
@@ -69,14 +75,19 @@ void z_gfx__render_ex(GLenum const mode,
  * @remark This function batches vertex data, and is only flushed when
  *         necessary (but at least once per frame).
  */
-void z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
-                          SHIZVector3 origin,
-                          float angle,
-                          GLuint texture_id);
+void
+z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
+                     SHIZVector3 origin,
+                     float angle,
+                     GLuint texture_id);
 
-void z_gfx__begin(SHIZColor clear);
-void z_gfx__end(void);
+void
+z_gfx__begin(SHIZColor clear);
 
-void z_gfx__flush(void);
+void
+z_gfx__end(void);
+
+void
+z_gfx__flush(void);
 
 #endif // gfx_h

@@ -26,10 +26,12 @@
 #define SHIZEpsilon (1.0 / 1024)
 
 #ifdef SHIZ_DEBUG
-double z_time__get_lag(void);
+double
+z_time__get_lag(void);
 #endif
 
-void z_engine__present_frame(void);
+void
+z_engine__present_frame(void);
 
 static inline
 void

@@ -34,86 +34,108 @@ typedef struct SHIZSpriteFontDrawParameters {
  *
  * Prepare the drawing pipeline for rendering to the graphics context.
  */
-void z_drawing_begin(SHIZColor background);
+void
+z_drawing_begin(SHIZColor background);
+
 /**
  * @brief End drawing to the screen.
  *
  * Flush the drawing pipeline and present the frame to the graphics context.
  */
-void z_drawing_end(void);
+void
+z_drawing_end(void);
 
 /**
  * @brief Draw a line.
  */
-void z_draw_line(SHIZVector2 from,
-                 SHIZVector2 to,
-                 SHIZColor color);
-void z_draw_line_ex(SHIZVector2 from,
-                    SHIZVector2 to,
-                    SHIZColor color,
-                    SHIZLayer layer);
+void
+z_draw_line(SHIZVector2 from,
+            SHIZVector2 to,
+            SHIZColor color);
+
+void
+z_draw_line_ex(SHIZVector2 from,
+               SHIZVector2 to,
+               SHIZColor color,
+               SHIZLayer layer);
+
 /**
  * @brief Draw a path.
  */
-void z_draw_path(SHIZVector2 const points[], unsigned int count,
-                 SHIZColor color);
-void z_draw_path_ex(SHIZVector2 const points[], unsigned int count,
-                    SHIZColor color,
-                    SHIZLayer layer);
+void
+z_draw_path(SHIZVector2 const points[], unsigned int count,
+            SHIZColor color);
+
+void
+z_draw_path_ex(SHIZVector2 const points[], unsigned int count,
+               SHIZColor color,
+               SHIZLayer layer);
 /**
  * @brief Draw a point.
  */
-void z_draw_point(SHIZVector2 point,
-                  SHIZColor color);
-void z_draw_point_ex(SHIZVector2 point,
-                     SHIZColor color,
-                     SHIZLayer layer);
+void
+z_draw_point(SHIZVector2 point,
+             SHIZColor color);
+
+void
+z_draw_point_ex(SHIZVector2 point,
+                SHIZColor color,
+                SHIZLayer layer);
 /**
  * @brief Draw a rectangle.
  */
-void z_draw_rect(SHIZRect rect,
-                 SHIZColor color,
-                 SHIZDrawMode mode);
+void
+z_draw_rect(SHIZRect rect,
+            SHIZColor color,
+            SHIZDrawMode mode);
 /**
  * @brief Draw a rectangle.
  */
-void z_draw_rect_ex(SHIZRect rect,
-                    SHIZColor color,
-                    SHIZDrawMode mode,
-                    SHIZVector2 anchor,
-                    float angle,
-                    SHIZLayer layer);
+void
+z_draw_rect_ex(SHIZRect rect,
+               SHIZColor color,
+               SHIZDrawMode mode,
+               SHIZVector2 anchor,
+               float angle,
+               SHIZLayer layer);
+
 /**
  * @brief Draw a circle.
  */
-void z_draw_circle(SHIZVector2 center,
-                   SHIZColor color,
-                   SHIZDrawMode mode,
-                   float radius,
-                   unsigned int segments);
-void z_draw_circle_ex(SHIZVector2 center,
-                      SHIZColor color,
-                      SHIZDrawMode mode,
-                      float radius,
-                      unsigned int segments,
-                      SHIZLayer layer);
+void
+z_draw_circle(SHIZVector2 center,
+              SHIZColor color,
+              SHIZDrawMode mode,
+              float radius,
+              unsigned int segments);
+
+void
+z_draw_circle_ex(SHIZVector2 center,
+                 SHIZColor color,
+                 SHIZDrawMode mode,
+                 float radius,
+                 unsigned int segments,
+                 SHIZLayer layer);
 
 /**
  * @brief Draw an arc.
  */
-void z_draw_arc(SHIZVector2 center,
-                SHIZColor color,
-                SHIZDrawMode mode,
-                float radius,
-                unsigned int segments,
-                float angle);
-void z_draw_arc_ex(SHIZVector2 center,
-                   SHIZColor color,
-                   SHIZDrawMode,
-                   float radius,
-                   unsigned int segments,
-                   float angle,
-                   SHIZLayer layer);
+void
+z_draw_arc(SHIZVector2 center,
+           SHIZColor color,
+           SHIZDrawMode mode,
+           float radius,
+           unsigned int segments,
+           float angle);
+
+void
+z_draw_arc_ex(SHIZVector2 center,
+              SHIZColor color,
+              SHIZDrawMode,
+              float radius,
+              unsigned int segments,
+              float angle,
+              SHIZLayer layer);
 
 /**
  * @brief Draw a sprite.
@@ -125,18 +147,22 @@ void z_draw_arc_ex(SHIZVector2 center,
  *
  * @return a SHIZSize with the bounding width and height of the drawn sprite
  */
-SHIZSize z_draw_sprite(SHIZSprite sprite,
-                       SHIZVector2 origin,
-                       SHIZSpriteDrawParameters params);
+SHIZSize
+z_draw_sprite(SHIZSprite sprite,
+              SHIZVector2 origin,
+              SHIZSpriteDrawParameters params);
 
-SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
-                             SHIZVector2 origin,
-                             SHIZSpriteSize size,
-                             SHIZSpriteDrawParameters params);
-SHIZSize z_draw_sprite_tiled(SHIZSprite sprite,
-                             SHIZVector2 origin,
-                             SHIZSpriteSize size,
-                             SHIZSpriteDrawParameters params);
+SHIZSize
+z_draw_sprite_sized(SHIZSprite sprite,
+                    SHIZVector2 origin,
+                    SHIZSpriteSize size,
+                    SHIZSpriteDrawParameters params);
+
+SHIZSize
+z_draw_sprite_tiled(SHIZSprite sprite,
+                    SHIZVector2 origin,
+                    SHIZSpriteSize size,
+                    SHIZSpriteDrawParameters params);
 
 /**
  * @brief Draw a sprite.
@@ -173,15 +199,16 @@ SHIZSize z_draw_sprite_tiled(SHIZSprite sprite,
  *
  * @return a SHIZSize with the bounding width and height of the drawn sprite
  */
-SHIZSize z_draw_sprite_ex(SHIZSprite sprite,
-                          SHIZVector2 origin,
-                          SHIZSpriteSize size,
-                          bool repeat,
-                          SHIZVector2 anchor,
-                          float angle,
-                          SHIZColor tint,
-                          bool opaque,
-                          SHIZLayer layer);
+SHIZSize
+z_draw_sprite_ex(SHIZSprite sprite,
+                 SHIZVector2 origin,
+                 SHIZSpriteSize size,
+                 bool repeat,
+                 SHIZVector2 anchor,
+                 float angle,
+                 SHIZColor tint,
+                 bool opaque,
+                 SHIZLayer layer);
 
 /**
  * @brief Measure the size of text before rendering it.
@@ -196,8 +223,10 @@ SHIZSize z_draw_sprite_ex(SHIZSprite sprite,
  *
  * @return a SHIZSize with the bounding width and height
  */
-SHIZSize z_measure_text(SHIZSpriteFont font,
-                        char const * text);
+SHIZSize
+z_measure_text(SHIZSpriteFont font,
+               char const * text);
+
 /**
  * @brief Measure the size of text before rendering it.
  *
@@ -220,10 +249,12 @@ SHIZSize z_measure_text(SHIZSpriteFont font,
  *
  * @return a SHIZSize with the bounding width and height
  */
-SHIZSize z_measure_text_attributed(SHIZSpriteFont font,
-                                   char const * text,
-                                   SHIZSize bounds,
-                                   SHIZSpriteFontAttributes attributes);
+SHIZSize
+z_measure_text_attributed(SHIZSpriteFont font,
+                          char const * text,
+                          SHIZSize bounds,
+                          SHIZSpriteFontAttributes attributes);
+
 /**
  * @brief Draw text at a location.
  *
@@ -238,23 +269,26 @@ SHIZSize z_measure_text_attributed(SHIZSpriteFont font,
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
-SHIZSize z_draw_text(SHIZSpriteFont font,
-                     char const * text,
-                     SHIZVector2 origin,
-                     SHIZSpriteFontDrawParameters params);
+SHIZSize
+z_draw_text(SHIZSpriteFont font,
+            char const * text,
+            SHIZVector2 origin,
+            SHIZSpriteFontDrawParameters params);
 
-SHIZSize z_draw_text_bounded(SHIZSpriteFont font,
-                             char const * text,
-                             SHIZVector2 origin,
-                             SHIZSize bounds,
-                             SHIZSpriteFontDrawParameters params);
+SHIZSize
+z_draw_text_bounded(SHIZSpriteFont font,
+                    char const * text,
+                    SHIZVector2 origin,
+                    SHIZSize bounds,
+                    SHIZSpriteFontDrawParameters params);
 
-SHIZSize z_draw_text_attributed(SHIZSpriteFont font,
-                                char const * text,
-                                SHIZVector2 origin,
-                                SHIZSize bounds,
-                                SHIZSpriteFontAttributes attribs,
-                                SHIZSpriteFontDrawParameters params);
+SHIZSize
+z_draw_text_attributed(SHIZSpriteFont font,
+                       char const * text,
+                       SHIZVector2 origin,
+                       SHIZSize bounds,
+                       SHIZSpriteFontAttributes attribs,
+                       SHIZSpriteFontDrawParameters params);
 
 /**
  * @brief Draw text at a location.
@@ -291,14 +325,15 @@ SHIZSize z_draw_text_attributed(SHIZSpriteFont font,
  *
  * @return a SHIZSize with the bounding width and height of the drawn text
  */
-SHIZSize z_draw_text_ex(SHIZSpriteFont font,
-                        char const * text,
-                        SHIZVector2 origin,
-                        SHIZSize bounds,
-                        SHIZSpriteFontAttributes attributes,
-                        SHIZSpriteFontAlignment alignment,
-                        SHIZColor tint,
-                        SHIZLayer layer);
+SHIZSize
+z_draw_text_ex(SHIZSpriteFont font,
+               char const * text,
+               SHIZVector2 origin,
+               SHIZSize bounds,
+               SHIZSpriteFontAttributes attributes,
+               SHIZSpriteFontAlignment alignment,
+               SHIZColor tint,
+               SHIZLayer layer);
 
 static inline
 SHIZSpriteDrawParameters const

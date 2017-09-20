@@ -24,19 +24,36 @@
  #include "../debug/debug.h"
 #endif
 
-static bool z_gfx__init_post(void);
-static bool z_gfx__kill_post(void);
-static void z_gfx__render_post(void);
+static
+bool
+z_gfx__init_post(void);
 
-static bool z_gfx__init_primitive(void);
-static bool z_gfx__kill_primitive(void);
-static void z_gfx__render_primitive(GLenum mode,
-                                    SHIZVertexPositionColor const * restrict vertices,
-                                    unsigned int count,
-                                    SHIZVector3 origin,
-                                    float angle);
+static
+bool
+z_gfx__kill_post(void);
 
-static void z_gfx__primitive_state(bool enable);
+static
+void
+z_gfx__render_post(void);
+
+static
+bool z_gfx__init_primitive(void);
+
+static
+bool
+z_gfx__kill_primitive(void);
+
+static
+void
+z_gfx__render_primitive(GLenum mode,
+                        SHIZVertexPositionColor const * restrict vertices,
+                        unsigned int count,
+                        SHIZVector3 origin,
+                        float angle);
+
+static
+void
+z_gfx__primitive_state(bool enable);
 
 static unsigned int const post_vertex_count = 4;
 

@@ -100,6 +100,7 @@ SHIZVector3Make(float const x, float const y, float const z)
     return vector;
 }
 
-float const z_layer__get_z(SHIZLayer layer);
+float const
+z_layer__get_z(SHIZLayer layer);
 
 #endif /* internal_type_h */

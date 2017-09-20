@@ -44,26 +44,39 @@ utf8_decode(char const * str, unsigned int * i)
     return u;
 }
 
-static bool z_spritefont__is_tint_character(char);
-static unsigned int z_spritefont__perceived_count(unsigned int count,
-                                                  unsigned int ignored_count,
-                                                  bool skipping_leading_whitespace);
+static
+bool
+z_spritefont__is_tint_character(char);
 
-static void z_spritefont__set_line(SHIZSpriteFontLine * line,
+static
+unsigned int
+z_spritefont__perceived_count(unsigned int count,
+                              unsigned int ignored_count,
+                              bool skipping_leading_whitespace);
+
+static
+void
+z_spritefont__set_line(SHIZSpriteFontLine * line,
+                       SHIZSpriteFontMeasurement const * measurement,
+                       float line_height,
+                       unsigned int character_count,
+                       unsigned int character_ignored_count,
+                       bool skipping_leading_whitespace);
+
+static
+int
+z_spritefont__character_table_index(SHIZSpriteFont const * font,
+                                    char character,
+                                    unsigned int character_decimal);
+
+static
+void
+z_spritefont__draw_character_index(SHIZSpriteFont const * font,
                                    SHIZSpriteFontMeasurement const * measurement,
-                                   float line_height,
-                                   unsigned int character_count,
-                                   unsigned int character_ignored_count,
-                                   bool skipping_leading_whitespace);
-static int z_spritefont__character_table_index(SHIZSpriteFont const * font,
-                                               char character,
-                                               unsigned int character_decimal);
-static void z_spritefont__draw_character_index(SHIZSpriteFont const * font,
-                                               SHIZSpriteFontMeasurement const * measurement,
-                                               SHIZVector2 character_origin,
-                                               unsigned int character_table_index,
-                                               SHIZColor highlight_color,
-                                               SHIZLayer layer);
+                                   SHIZVector2 character_origin,
+                                   unsigned int character_table_index,
+                                   SHIZColor highlight_color,
+                                   SHIZLayer layer);
 
 SHIZSpriteFontMeasurement const
 z_spritefont__measure_text(SHIZSpriteFont const font,

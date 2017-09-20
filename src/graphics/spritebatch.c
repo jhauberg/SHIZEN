@@ -21,10 +21,12 @@
 
 #define SHIZGFXSpriteBatchMax 128 /* flush when reaching this limit */
 
+static
+void
+z_gfx__spritebatch_state(bool enable);
+
 static unsigned int const spritebatch_vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
 static unsigned int const spritebatch_vertex_count = SHIZGFXSpriteBatchMax * spritebatch_vertex_count_per_quad;
-
-static void z_gfx__spritebatch_state(bool enable);
 
 typedef struct SHIZSpriteBatch {
     SHIZVertexPositionColorTexture vertices[spritebatch_vertex_count];

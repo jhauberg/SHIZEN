@@ -45,22 +45,38 @@ unsigned int const SHIZResourceInvalid = 0;
 #define SHIZResourceSoundIdMax (SHIZResourceSoundIdOffset + SHIZResourceSoundMax)
 
 #ifdef SHIZ_DEBUG
- #define SHIZResourceIdMax SHIZResourceSoundIdMax
+#define SHIZResourceIdMax SHIZResourceSoundIdMax
 #endif
 
-static bool z_res__image_loaded_callback(int width, int height, int components,
-                                         unsigned char * data);
+static
+bool
+z_res__image_loaded_callback(int width, int height, int components,
+                             unsigned char * data);
 
-static bool z_res__is_image(unsigned int resource_id);
-static bool z_res__is_sound(unsigned int resource_id);
+static
+bool
+z_res__is_image(unsigned int resource_id);
 
-static SHIZResourceType z_res__type_from_id(unsigned int resource_id);
-static const int z_res__index_from_id(unsigned int resource_id,
-                                      SHIZResourceType type);
+static
+bool
+z_res__is_sound(unsigned int resource_id);
 
-static unsigned int z_res__next_id(SHIZResourceType, unsigned int * index);
-static bool z_res__is_index_free(unsigned int resource_index,
-                                 SHIZResourceType type);
+static
+SHIZResourceType
+z_res__type_from_id(unsigned int resource_id);
+
+static
+int const
+z_res__index_from_id(unsigned int resource_id,
+                     SHIZResourceType type);
+
+static
+unsigned int z_res__next_id(SHIZResourceType,
+                            unsigned int * index);
+
+static
+bool z_res__is_index_free(unsigned int resource_index,
+                          SHIZResourceType type);
 
 static const char * z_res__filename_ext(char const * filename);
 
@@ -100,13 +116,13 @@ z_res__image(unsigned int const resource_id)
 #endif
         return SHIZResourceImageEmpty;
     }
-
+    
     int const index = z_res__index_from_id(resource_id, SHIZResourceTypeImage);
-
+    
     if (index < 0) {
         return SHIZResourceImageEmpty;
     }
-
+    
     return _images[index];
 }
 
@@ -116,18 +132,19 @@ z_res__sound(unsigned int const resource_id)
     if (resource_id > SHIZResourceSoundIdMax) {
         return SHIZResourceSoundEmpty;
     }
-
+    
     int const index = z_res__index_from_id(resource_id, SHIZResourceTypeSound);
-
+    
     if (index < 0) {
         return SHIZResourceSoundEmpty;
     }
-
+    
     return _sounds[index];
 }
 
 unsigned int
-z_res__load(SHIZResourceType const type, char const * const filename)
+z_res__load(SHIZResourceType const type,
+            char const * const filename)
 {
     if (type == SHIZResourceTypeNotSupported) {
         z_io__error("resource not loaded ('%s'); unsupported type (%s)",
@@ -151,7 +168,7 @@ z_res__load(SHIZResourceType const type, char const * const filename)
                 
                 resource_id = expected_id;
             }
-
+            
             _current_image_resource = NULL;
         } else if (type == SHIZResourceTypeSound) {
             // todo: actual loading left blank for future implementation
@@ -172,11 +189,11 @@ z_res__unload(unsigned int const resource_id)
     if (resource_id == SHIZResourceInvalid) {
         return false;
     }
-
+    
     SHIZResourceType const type = z_res__type_from_id(resource_id);
-
+    
     int const index = z_res__index_from_id(resource_id, type);
-
+    
     if (index < 0) {
         z_io__error("could not unload resource (%d); index out of bounds (%d)",
                     resource_id, index);
@@ -230,7 +247,7 @@ z_res__unload_all()
             }
         }
     }
-
+    
 #ifdef SHIZ_DEBUG
     if (_font_resource.resource_id != SHIZResourceInvalid) {
         if (!z_debug__unload_font()) {
@@ -245,7 +262,7 @@ z_res__unload_all()
 static
 int const
 z_res__index_from_id(unsigned int const resource_id,
-                            SHIZResourceType const type)
+                     SHIZResourceType const type)
 {
     if (type == SHIZResourceTypeImage) {
         return (int)resource_id - SHIZResourceImageIdOffset;
@@ -281,7 +298,7 @@ bool
 z_res__is_sound(unsigned int const resource_id)
 {
     return !z_res__is_image(resource_id) &&
-        resource_id < SHIZResourceSoundIdMax;
+    resource_id < SHIZResourceSoundIdMax;
 }
 
 static
@@ -349,22 +366,22 @@ z_res__image_loaded_callback(int const width,
     if (_current_image_resource == NULL) {
         return false;
     }
-
+    
     if (!(width > 0 && height > 0)) {
         return false;
     }
     
     _current_image_resource->width = (unsigned int)width;
     _current_image_resource->height = (unsigned int)height;
-
+    
     glGenTextures(1, &_current_image_resource->texture_id);
     glBindTexture(GL_TEXTURE_2D, _current_image_resource->texture_id); {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+        
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
+        
         if (components == 3) {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
                          width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -431,16 +448,16 @@ z_debug__load_font(unsigned char const * const buffer,
     if (_font_resource.resource_id != SHIZResourceInvalid) {
         return false;
     }
-
+    
     _current_image_resource = &_font_resource;
-
+    
     if (z_io__load_image_data(buffer, length, z_res__image_loaded_callback)) {
         // offset by 1 to ensure the id won't be occupied by any other resource
         _font_resource.resource_id = SHIZResourceIdMax + 1;
     }
-
+    
     _current_image_resource = NULL;
-
+    
     return true;
 }
 
@@ -452,13 +469,13 @@ z_debug__unload_font()
     }
     
     glDeleteTextures(1, &_font_resource.texture_id);
-
+    
     _font_resource.width = 0;
     _font_resource.height = 0;
     _font_resource.resource_id = SHIZResourceInvalid;
     _font_resource.filename = NULL;
     _font_resource.texture_id = 0;
-
+    
     return true;
 }
 

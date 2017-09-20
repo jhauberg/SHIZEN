@@ -30,15 +30,21 @@
 
 extern SHIZGraphicsContext const _graphics_context;
 
-static void z_draw__path_3d(SHIZVector3 const points[],
-                            unsigned int const count,
-                            SHIZColor const color);
+static
+void
+z_draw__path_3d(SHIZVector3 const points[],
+                unsigned int const count,
+                SHIZColor const color);
 
-static void z_draw__line_3d(SHIZVector3 const from,
-                               SHIZVector3 const to,
-                               SHIZColor const color);
+static
+void
+z_draw__line_3d(SHIZVector3 const from,
+                SHIZVector3 const to,
+                SHIZColor const color);
 
-static void z_draw__flush(void);
+static
+void
+z_draw__flush(void);
 
 void
 z_drawing_begin(SHIZColor const background)

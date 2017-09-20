@@ -19,20 +19,25 @@
  */
 #define SHIZSpriteMax 2048
 
-SHIZRect const z_sprite__anchor_rect(SHIZSize size,
-                                     SHIZVector2 anchor);
+SHIZRect const
+z_sprite__anchor_rect(SHIZSize size,
+                      SHIZVector2 anchor);
 
-void z_sprite__reset(void);
-void z_sprite__flush(void);
+void
+z_sprite__reset(void);
 
-SHIZSize const z_sprite__draw(SHIZSprite sprite,
-                              SHIZVector2 origin,
-                              SHIZSpriteSize size,
-                              bool repeat,
-                              SHIZVector2 anchor,
-                              float angle,
-                              SHIZColor tint,
-                              bool opaque,
-                              SHIZLayer layer);
+void
+z_sprite__flush(void);
+
+SHIZSize const
+z_sprite__draw(SHIZSprite sprite,
+               SHIZVector2 origin,
+               SHIZSpriteSize size,
+               bool repeat,
+               SHIZVector2 anchor,
+               float angle,
+               SHIZColor tint,
+               bool opaque,
+               SHIZLayer layer);
 
 #endif // sprite_h

@@ -30,11 +30,15 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-static bool z_io__handle_image(unsigned char * image_data,
-                               int width, int height, int components,
-                               z_io__load_image_handler handler);
+static
+bool
+z_io__handle_image(unsigned char * image_data,
+                   int width, int height, int components,
+                   z_io__load_image_handler handler);
 
-static void z_io__printf(char const * format, va_list args);
+static
+void
+z_io__printf(char const * format, va_list args);
 
 
 #define SHIZIOBufferCapacity 256

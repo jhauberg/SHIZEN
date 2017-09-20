@@ -14,7 +14,8 @@
 
 #ifdef SHIZ_DEBUG
 
-unsigned int z_debug__get_sprite_count(void);
+unsigned int
+z_debug__get_sprite_count(void);
 
 #endif
 

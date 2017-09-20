@@ -14,7 +14,11 @@
 #include "internal.h"
 #include "internal_type.h"
 
-static float const z_layer__get_z_between(float value, float min, float max);
+static
+float const
+z_layer__get_z_between(float value,
+                       float min,
+                       float max);
 
 SHIZLayer const SHIZLayerTop = {
     .layer = SHIZLayerMax,
@@ -28,7 +32,9 @@ SHIZLayer const SHIZLayerBottom = {
 
 static
 float const
-z_layer__get_z_between(float const value, float const min, float const max)
+z_layer__get_z_between(float const value,
+                       float const min,
+                       float const max)
 {
     return (value - min) / (max - min);
 }
