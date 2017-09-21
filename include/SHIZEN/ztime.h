@@ -14,27 +14,40 @@
 
 #include <stdbool.h>
 
+#include "zint.h"
+
 typedef enum SHIZTimeDirection {
     SHIZTimeDirectionBackward = -1,
     SHIZTimeDirectionStill = 0,
     SHIZTimeDirectionForward = 1
 } SHIZTimeDirection;
 
-void shiz_time_reset(void);
+void
+z_time_reset(void);
 
-double shiz_time_since(double time);
+void
+z_timing_begin(void);
 
-void shiz_ticking_begin(void);
-double shiz_ticking_end(void);
+f64
+z_timing_end(void);
 
-bool shiz_tick(unsigned short frequency);
+bool
+z_time_tick(u8 frequency);
 
-double shiz_get_tick_rate(void);
-double shiz_get_time_lag(void);
-double shiz_get_time(void);
-double shiz_get_time_scale(void);
+f64
+z_time_passed_since(f64 time);
 
-void shiz_set_time_scale(double scale);
+f64
+z_time_passed(void);
+
+f64
+z_time_get_scale(void);
+
+void
+z_time_set_scale(f64 scale);
+
+f64
+z_time_get_tick_rate(void);
 
 /**
  * @brief Determine the direction of passing time.
@@ -42,19 +55,22 @@ void shiz_set_time_scale(double scale);
  * The direction is ultimately determined by the time scale, and is always
  * one of three possible values: Backward, Still or Forward.
  */
-SHIZTimeDirection shiz_get_time_direction(void);
+SHIZTimeDirection
+z_time_get_direction(void);
 
 typedef struct SHIZAnimatable {
-    float value;
-    float previous_result;
-    float result;
+    f32 value;
+    f32 previous_result;
+    f32 result;
 } SHIZAnimatable;
 
-void shiz_animate(SHIZAnimatable *, double interpolation);
+void
+z_animate(SHIZAnimatable *,
+          f64 interpolation);
 
 static inline
 SHIZAnimatable
-SHIZAnimated(float const value)
+SHIZAnimated(f32 const value)
 {
     SHIZAnimatable animatable = {
         .value = value,
@@ -62,9 +78,9 @@ SHIZAnimated(float const value)
         .result = 0
     };
     
-    shiz_animate(&animatable, 1);
+    z_animate(&animatable, 1);
     
     return animatable;
 }
 
-#endif // time_h
+#endif // ztime_h

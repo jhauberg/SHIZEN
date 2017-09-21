@@ -21,23 +21,39 @@
 #include "spritebatch.h"
 
 #ifdef SHIZ_DEBUG
- #include "debug.h"
-static const char * const _shiz_debug_event_primitive = "\xDB";
+ #include "../debug/debug.h"
 #endif
 
-static bool _shiz_gfx_init_post(void);
-static bool _shiz_gfx_kill_post(void);
-static void _shiz_gfx_render_post(void);
+static
+bool
+z_gfx__init_post(void);
 
-static bool _shiz_gfx_init_primitive(void);
-static bool _shiz_gfx_kill_primitive(void);
-static void _shiz_gfx_render_primitive(GLenum mode,
-                                       SHIZVertexPositionColor const * restrict vertices,
-                                       unsigned int count,
-                                       SHIZVector3 origin,
-                                       float angle);
+static
+bool
+z_gfx__kill_post(void);
 
-static void _shiz_gfx_primitive_state(bool enable);
+static
+void
+z_gfx__render_post(void);
+
+static
+bool z_gfx__init_primitive(void);
+
+static
+bool
+z_gfx__kill_primitive(void);
+
+static
+void
+z_gfx__render_primitive(GLenum mode,
+                        SHIZVertexPositionColor const * restrict vertices,
+                        u32 count,
+                        SHIZVector3 origin,
+                        f32 angle);
+
+static
+void
+z_gfx__primitive_state(bool enable);
 
 static unsigned int const post_vertex_count = 4;
 
@@ -56,24 +72,24 @@ static SHIZGFXPrimitive _primitive;
 static SHIZGFXPost _post;
 
 bool
-shiz_gfx_init(SHIZViewport const viewport)
+z_gfx__init(SHIZViewport const viewport)
 {
-    shiz_set_viewport(viewport);
+    z_viewport__set(viewport);
 
-    if (!_shiz_gfx_init_primitive()) {
-        shiz_io_error_context("GFX", "Could not initialize primitive");
+    if (!z_gfx__init_primitive()) {
+        z_io__error_context("GFX", "Could not initialize primitive");
         
         return false;
     }
 
-    if (!shiz_gfx_init_spritebatch()) {
-        shiz_io_error_context("GFX", "Could not initialize spritebatch");
+    if (!z_gfx__init_spritebatch()) {
+        z_io__error_context("GFX", "Could not initialize spritebatch");
         
         return false;
     }
 
-    if (!_shiz_gfx_init_post()) {
-        shiz_io_error_context("GFX", "Could not initialize post");
+    if (!z_gfx__init_post()) {
+        z_io__error_context("GFX", "Could not initialize post");
         
         return false;
     }
@@ -82,17 +98,17 @@ shiz_gfx_init(SHIZViewport const viewport)
 }
 
 bool
-shiz_gfx_kill()
+z_gfx__kill()
 {
-    if (!_shiz_gfx_kill_primitive()) {
+    if (!z_gfx__kill_primitive()) {
         return false;
     }
 
-    if (!shiz_gfx_kill_spritebatch()) {
+    if (!z_gfx__kill_spritebatch()) {
         return false;
     }
 
-    if (!_shiz_gfx_kill_post()) {
+    if (!z_gfx__kill_post()) {
         return false;
     }
 
@@ -100,15 +116,15 @@ shiz_gfx_kill()
 }
 
 void
-shiz_gfx_begin(SHIZColor const clear)
+z_gfx__begin(SHIZColor const clear)
 {
 #ifdef SHIZ_DEBUG
-    shiz_debug_reset_draw_count();
+    z_debug__reset_draw_count();
 #endif
 
-    shiz_gfx_spritebatch_reset();
+    z_gfx__spritebatch_reset();
 
-    SHIZViewport const viewport = shiz_get_viewport();
+    SHIZViewport const viewport = z_viewport__get();
     
     GLint const x = 0;
     GLint const y = 0;
@@ -125,12 +141,12 @@ shiz_gfx_begin(SHIZColor const clear)
 }
 
 void
-shiz_gfx_end()
+z_gfx__end()
 {
-    shiz_gfx_flush();
+    z_gfx__flush();
 
-    SHIZViewport const viewport = shiz_get_viewport();
-    SHIZSize const viewport_offset = shiz_get_viewport_offset();
+    SHIZViewport const viewport = z_viewport__get();
+    SHIZSize const viewport_offset = z_viewport__get_offset();
 
     GLint const x = (GLint)(viewport_offset.width / 2);
     GLint const y = (GLint)(viewport_offset.height / 2);
@@ -146,50 +162,50 @@ shiz_gfx_end()
         // however; if we wanted to apply color to the letter/pillar-boxed bars,
         // we could do that here by clearing the color buffer
 
-        _shiz_gfx_render_post();
+        z_gfx__render_post();
     }
 
 #ifdef SHIZ_DEBUG
-    shiz_debug_update_frame_stats();
+    z_debug__update_frame_stats();
 #endif
 }
 
 void
-shiz_gfx_flush()
+z_gfx__flush()
 {
-    shiz_gfx_spritebatch_flush();
+    z_gfx__spritebatch_flush();
 }
 
 void
-shiz_gfx_render(GLenum const mode,
-                SHIZVertexPositionColor const * restrict const vertices,
-                unsigned int const count)
+z_gfx__render(GLenum const mode,
+              SHIZVertexPositionColor const * restrict const vertices,
+              u32 const count)
 {
-    shiz_gfx_render_ex(mode, vertices, count, SHIZVector3Zero, 0);
+    z_gfx__render_ex(mode, vertices, count, SHIZVector3Zero, 0);
 }
 
 void
-shiz_gfx_render_ex(GLenum const mode,
-                   SHIZVertexPositionColor const * restrict const vertices,
-                   unsigned int const count,
-                   SHIZVector3 const origin,
-                   float const angle)
+z_gfx__render_ex(GLenum const mode,
+                 SHIZVertexPositionColor const * restrict const vertices,
+                 u32 const count,
+                 SHIZVector3 const origin,
+                 f32 const angle)
 {
-    _shiz_gfx_render_primitive(mode, vertices, count, origin, angle);
+    z_gfx__render_primitive(mode, vertices, count, origin, angle);
 }
 
 void
-shiz_gfx_render_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
-                       SHIZVector3 const origin,
-                       float const angle,
-                       GLuint const texture_id)
+z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
+                     SHIZVector3 const origin,
+                     f32 const angle,
+                     GLuint const texture_id)
 {
-    shiz_gfx_add_sprite(vertices, origin, angle, texture_id);
+    z_gfx__add_sprite(vertices, origin, angle, texture_id);
 }
 
 static
 bool
-_shiz_gfx_init_post()
+z_gfx__init_post()
 {
     char const * const vertex_shader =
     "#version 330 core\n"
@@ -211,14 +227,14 @@ _shiz_gfx_init_post()
     "    fragment_color = sampled_color;\n"
     "}\n";
 
-    GLuint const vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint const fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = z_gfx__compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    GLuint const fs = z_gfx__compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
 
     if (!vs && !fs) {
         return false;
     }
 
-    _post.render.program = shiz_gfx_link_program(vs, fs);
+    _post.render.program = z_gfx__link_program(vs, fs);
 
     glDeleteShader(vs);
     glDeleteShader(fs);
@@ -227,7 +243,7 @@ _shiz_gfx_init_post()
         return false;
     }
 
-    SHIZViewport const viewport = shiz_get_viewport();
+    SHIZViewport const viewport = z_viewport__get();
     SHIZColor const clear_color = SHIZColorBlack;
     
     glClearColor(clear_color.r, clear_color.g, clear_color.b, 1);
@@ -307,7 +323,7 @@ _shiz_gfx_init_post()
 
 static
 void
-_shiz_gfx_render_post()
+z_gfx__render_post()
 {
     glUseProgram(_post.render.program);
     glActiveTexture(GL_TEXTURE0);
@@ -326,7 +342,7 @@ _shiz_gfx_render_post()
 
 static
 bool
-_shiz_gfx_kill_post()
+z_gfx__kill_post()
 {
     glDeleteFramebuffers(1, &_post.framebuffer);
     glDeleteRenderbuffers(1, &_post.renderbuffer);
@@ -340,7 +356,7 @@ _shiz_gfx_kill_post()
 
 static
 bool
-_shiz_gfx_init_primitive()
+z_gfx__init_primitive()
 {
     char const * const vertex_shader =
     "#version 330 core\n"
@@ -361,14 +377,14 @@ _shiz_gfx_init_primitive()
     "    fragment_color = color;\n"
     "}\n";
     
-    GLuint const vs = shiz_gfx_compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint const fs = shiz_gfx_compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = z_gfx__compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    GLuint const fs = z_gfx__compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
     
     if (!vs && !fs) {
         return false;
     }
     
-    _primitive.render.program = shiz_gfx_link_program(vs, fs);
+    _primitive.render.program = z_gfx__link_program(vs, fs);
     
     glDeleteShader(vs);
     glDeleteShader(fs);
@@ -405,23 +421,23 @@ _shiz_gfx_init_primitive()
 
 static
 void
-_shiz_gfx_render_primitive(GLenum const mode,
-                           SHIZVertexPositionColor const * restrict const vertices,
-                           unsigned int const count,
-                           SHIZVector3 const origin,
-                           float const angle)
+z_gfx__render_primitive(GLenum const mode,
+                        SHIZVertexPositionColor const * restrict const vertices,
+                        u32 const count,
+                        SHIZVector3 const origin,
+                        f32 const angle)
 {
     mat4x4 model;
     mat4x4_identity(model);
     
-    shiz_transform_translate_rotate_scale(model, origin, angle, 1);
+    z_transform__translate_rotate_scale(model, origin, angle, 1);
     
     mat4x4 transform;
     mat4x4_identity(transform);
     
-    shiz_transform_project_ortho(transform, model, shiz_get_viewport());
+    z_transform__project_ortho(transform, model, z_viewport__get());
     
-    _shiz_gfx_primitive_state(true);
+    z_gfx__primitive_state(true);
     
     glUseProgram(_primitive.render.program);
     glUniformMatrix4fv(glGetUniformLocation(_primitive.render.program, "transform"), 1, GL_FALSE, *transform);
@@ -433,7 +449,7 @@ _shiz_gfx_render_primitive(GLenum const mode,
                          GL_DYNAMIC_DRAW);
             glDrawArrays(mode, 0, (GLsizei)count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
 #ifdef SHIZ_DEBUG
-            shiz_debug_increment_draw_count(1);
+            z_debug__increment_draw_count(1);
 #endif
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -441,20 +457,20 @@ _shiz_gfx_render_primitive(GLenum const mode,
     glBindVertexArray(0);
     glUseProgram(0);
     
-    _shiz_gfx_primitive_state(false);
+    z_gfx__primitive_state(false);
     
 #ifdef SHIZ_DEBUG
     if (origin.x == 0 && origin.y == 0 && origin.z == 0 && count > 0) {
-        shiz_debug_add_event_draw(_shiz_debug_event_primitive, vertices[0].position);
+        z_debug__add_event_draw(SHIZDebugEventNamePrimitive, vertices[0].position);
     } else {
-        shiz_debug_add_event_draw(_shiz_debug_event_primitive, origin);
+        z_debug__add_event_draw(SHIZDebugEventNamePrimitive, origin);
     }
 #endif
 }
 
 static
 bool
-_shiz_gfx_kill_primitive()
+z_gfx__kill_primitive()
 {
     glDeleteProgram(_primitive.render.program);
     glDeleteVertexArrays(1, &_primitive.render.vao);
@@ -465,7 +481,7 @@ _shiz_gfx_kill_primitive()
 
 static
 void
-_shiz_gfx_primitive_state(bool const enable)
+z_gfx__primitive_state(bool const enable)
 {
     if (enable) {
         glEnable(GL_DEPTH_TEST);

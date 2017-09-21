@@ -33,8 +33,6 @@
 
 #include <SHIZEN/ztype.h>
 
-#include "internal.h"
-
 typedef struct SHIZGraphicsContext {
     /** A reference to the current window */
     GLFWwindow * window;
@@ -43,9 +41,9 @@ typedef struct SHIZGraphicsContext {
     /** The actual display size; essentially operating resolution ⨉ pixel size */
     SHIZSize display_size;
     /** The number of screen updates between buffer swaps */
-    int swap_interval;
+    u8 swap_interval;
     /** The size of each pixel; must be higher than 0 */
-    unsigned int pixel_size;
+    u8 pixel_size;
     /** Determines whether the context has been initialized */
     bool is_initialized;
     /** Determines whether the context has focus */
@@ -55,9 +53,9 @@ typedef struct SHIZGraphicsContext {
 } SHIZGraphicsContext;
 
 typedef struct SHIZTimeline {
-    double time;
-    double time_step;
-    double scale;
+    f64 time;
+    f64 time_step;
+    f64 scale;
 } SHIZTimeline;
 
 typedef struct SHIZRenderObject {
@@ -67,7 +65,7 @@ typedef struct SHIZRenderObject {
 } SHIZRenderObject;
 
 typedef struct SHIZVector3 {
-    float x, y, z;
+    f32 x, y, z;
 } SHIZVector3;
 
 extern SHIZVector3 const SHIZVector3Zero;
@@ -93,7 +91,7 @@ typedef struct SHIZVertexPositionColorTexture {
 
 static inline
 SHIZVector3 const
-SHIZVector3Make(float const x, float const y, float const z)
+SHIZVector3Make(f32 const x, f32 const y, f32 const z)
 {
     SHIZVector3 const vector = {
         x, y, z
@@ -102,27 +100,7 @@ SHIZVector3Make(float const x, float const y, float const z)
     return vector;
 }
 
-static inline
-float const
-_shiz_layer_get_z_between(float const value, float const min, float const max)
-{
-    return (value - min) / (max - min);
-}
-
-static inline
-float const
-_shiz_layer_get_z(SHIZLayer const layer)
-{
-    // to provide a depth range for the top-most layer (e.g. 255),
-    // we add an "additional" layer just above
-    float const layer_max = SHIZLayerMax + 1;
-    
-    float const z = _shiz_layer_get_z_between(layer.layer, SHIZLayerMin, layer_max);
-    float const z_above = _shiz_layer_get_z_between(layer.layer + 1, SHIZLayerMin, layer_max);
-    
-    float const depth_z = _shiz_layer_get_z_between(layer.depth, SHIZLayerDepthMin, SHIZLayerDepthMax);
-    
-    return _shiz_lerp(z, z_above, depth_z);
-}
+f32 const
+z_layer__get_z(SHIZLayer layer);
 
 #endif /* internal_type_h */

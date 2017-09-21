@@ -9,17 +9,16 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef shader_h
-#define shader_h
+#ifndef sprite_debug_h
+#define sprite_debug_h
 
-#include "internal_type.h"
+#ifdef SHIZ_DEBUG
 
-GLuint
-z_gfx__compile_shader(GLenum type,
-                      GLchar const * source);
+#include <SHIZEN/zint.h>
 
-GLuint
-z_gfx__link_program(GLuint vs,
-                    GLuint fs);
+u32
+z_debug__get_sprite_count(void);
 
-#endif // shader_h
+#endif
+
+#endif /* sprite_debug_h */

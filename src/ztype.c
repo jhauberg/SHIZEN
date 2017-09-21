@@ -91,9 +91,11 @@ SHIZSpriteSize const SHIZSpriteSizeIntrinsic = {
 };
 
 SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault = {
-    .scale = { 1, 1 },
+    .scale = { SHIZSpriteNoScale, SHIZSpriteNoScale },
     .wrap = SHIZSpriteFontWrapModeWord,
     .character_spread = SHIZSpriteFontSpreadNormal,
     .character_padding = SHIZSpriteFontNoPadding,
-    .line_padding = SHIZSpriteFontNoPadding
+    .line_padding = SHIZSpriteFontNoPadding,
+    .colors = NULL,
+    .colors_count = 0
 };

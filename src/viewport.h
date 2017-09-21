@@ -17,7 +17,7 @@
 typedef struct SHIZViewport {
     SHIZSize framebuffer;
     SHIZSize resolution;
-    float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
+    f32 scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
     bool is_fullscreen;
 } SHIZViewport;
 
@@ -29,9 +29,13 @@ typedef enum SHIZViewportMode {
 
 extern SHIZViewport const SHIZViewportDefault;
 
-void shiz_set_viewport(SHIZViewport viewport);
+void
+z_viewport__set(SHIZViewport viewport);
 
-SHIZViewport shiz_get_viewport(void);
-SHIZSize shiz_get_viewport_offset(void);
+SHIZViewport
+z_viewport__get(void);
+
+SHIZSize
+z_viewport__get_offset(void);
 
 #endif // viewport_h

@@ -24,40 +24,40 @@ typedef enum SHIZResourceType {
 } SHIZResourceType;
 
 typedef struct SHIZResourceImage {
+    char const * filename;
     GLuint texture_id;
-    unsigned int resource_id;
-    unsigned int width;
-    unsigned int height;
-    const char * filename;
+    u16 width;
+    u16 height;
+    u8 resource_id;
 } SHIZResourceImage;
 
 typedef struct SHIZResourceSound {
-    unsigned int resource_id;
-    const char * filename;
+    char const * filename;
+    u8 resource_id;
 } SHIZResourceSound;
 
 extern SHIZResourceImage const SHIZResourceImageEmpty;
 extern SHIZResourceSound const SHIZResourceSoundEmpty;
 
-extern unsigned int const SHIZResourceInvalid;
+extern u8 const SHIZResourceInvalid;
 
-unsigned int shiz_res_load(SHIZResourceType type, char const * filename);
+u8
+z_res__load(SHIZResourceType type,
+            char const * filename);
 
-bool shiz_res_unload(unsigned int resource_id);
-bool shiz_res_unload_all(void);
+bool
+z_res__unload(u8 resource_id);
 
-SHIZResourceType const shiz_res_get_type(char const * const filename);
+bool
+z_res__unload_all(void);
 
-SHIZResourceImage shiz_res_get_image(unsigned int resource_id);
-SHIZResourceSound shiz_res_get_sound(unsigned int resource_id);
+SHIZResourceType const
+z_res__type(char const * const filename);
 
-#ifdef SHIZ_DEBUG
-void shiz_res_debug_print_resources(void);
+SHIZResourceImage
+z_res__image(u8 resource_id);
 
-bool shiz_res_debug_load_font(unsigned char const * buffer, unsigned int length);
-bool shiz_res_debug_unload_font(void);
-
-unsigned int shiz_res_debug_get_font(void);
-#endif
+SHIZResourceSound
+z_res__sound(u8 resource_id);
 
 #endif // res_h

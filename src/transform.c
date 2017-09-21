@@ -12,9 +12,9 @@
 #include "transform.h"
 
 void
-shiz_transform_project_ortho(mat4x4 world,
-                             mat4x4 model,
-                             SHIZViewport const viewport)
+z_transform__project_ortho(mat4x4 world,
+                           mat4x4 model,
+                           SHIZViewport const viewport)
 {
     mat4x4 view;
     mat4x4_identity(view);
@@ -33,10 +33,10 @@ shiz_transform_project_ortho(mat4x4 world,
 }
 
 void
-shiz_transform_translate_rotate_scale(mat4x4 model,
-                                      SHIZVector3 const translation,
-                                      float const angle,
-                                      float const scale)
+z_transform__translate_rotate_scale(mat4x4 model,
+                                    SHIZVector3 const translation,
+                                    f32 const angle,
+                                    f32 const scale)
 {
     mat4x4 translated;
     mat4x4_translate(translated, translation.x, translation.y, translation.z);

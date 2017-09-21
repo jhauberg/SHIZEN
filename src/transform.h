@@ -15,13 +15,15 @@
 #include "internal_type.h"
 #include "viewport.h"
 
-void shiz_transform_project_ortho(mat4x4 world,
-                                  mat4x4 model,
-                                  SHIZViewport);
+void
+z_transform__project_ortho(mat4x4 world,
+                           mat4x4 model,
+                           SHIZViewport viewport);
 
-void shiz_transform_translate_rotate_scale(mat4x4 model,
-                                           SHIZVector3 translation,
-                                           float angle,
-                                           float scale);
+void
+z_transform__translate_rotate_scale(mat4x4 model,
+                                    SHIZVector3 translation,
+                                    f32 angle,
+                                    f32 scale);
 
 #endif // transform_h

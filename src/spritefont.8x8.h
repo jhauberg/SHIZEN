@@ -12,6 +12,8 @@
 #ifndef spritefont_8x8_h
 #define spritefont_8x8_h
 
+#ifdef SHIZ_DEBUG
+
 #define IBM8x8Size 3648
 #define IBM8x8TileSize 8
 #define IBM8x8Columns 16
@@ -298,5 +300,7 @@ static const unsigned char IBM8x8[IBM8x8Size] = {
     0x36, 0xD1, 0x03, 0x6C, 0xDD, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60,
     0x82
 };
+
+#endif
 
 #endif // spritefont_8x8_h

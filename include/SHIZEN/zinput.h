@@ -9,23 +9,35 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef input_h
-#define input_h
+#ifndef zinput_h
+#define zinput_h
 
 #include <stdbool.h>
 
 typedef enum SHIZInput {
-    SHIZInputUp, SHIZInputDown,
-    SHIZInputLeft, SHIZInputRight,
-    SHIZInputConfirm, SHIZInputEscape,
+    SHIZInputUp,
+    SHIZInputDown,
+    SHIZInputLeft,
+    SHIZInputRight,
+    SHIZInputConfirm,
+    SHIZInputEscape,
+    SHIZInputX,
+    SHIZInputZ,
     SHIZInputAny
 } SHIZInput;
 
 #define SHIZInputMax (SHIZInputAny + 1)
 
-void shiz_input_update(void);
-bool shiz_input_down(SHIZInput);
-bool shiz_input_pressed(SHIZInput);
-bool shiz_input_released(SHIZInput);
+void
+z_input_update(void);
 
-#endif /* input_h */
+bool
+z_input_down(SHIZInput);
+
+bool
+z_input_pressed(SHIZInput);
+
+bool
+z_input_released(SHIZInput);
+
+#endif /* zinput_h */

@@ -14,16 +14,29 @@
 
 #include <stdbool.h>
 
-typedef bool (* shiz_io_image_loaded_handler)(int width, int height, int components, unsigned char * data);
+typedef bool (* z_io__load_image_handler)(int width, int height, int components, unsigned char * data);
 
-void shiz_io_error(char const * format, ...);
-void shiz_io_warning(char const * format, ...);
-void shiz_io_error_context(char const * context, char const * format, ...);
-void shiz_io_warning_context(char const * context, char const * format, ...);
+void
+z_io__error(char const * format, ...);
 
-bool shiz_io_load_image(char const * filename,
-                        shiz_io_image_loaded_handler handler);
-bool shiz_io_load_image_data(unsigned char const * buffer, unsigned int length,
-                             shiz_io_image_loaded_handler handler);
+void
+z_io__warning(char const * format, ...);
+
+void
+z_io__error_context(char const * context,
+                    char const * format, ...);
+
+void
+z_io__warning_context(char const * context,
+                      char const * format, ...);
+
+bool
+z_io__load_image(char const * filename,
+                 z_io__load_image_handler handler);
+
+bool
+z_io__load_image_data(unsigned char const * buffer,
+                      unsigned int length,
+                      z_io__load_image_handler handler);
 
 #endif // io_h

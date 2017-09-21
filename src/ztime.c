@@ -23,23 +23,22 @@ static SHIZTimeline const SHIZTimelineDefault = {
 };
 
 typedef struct SHIZTimelineState {
-    double time_previous;
-    double time_lag;
-    
-    bool is_ticking;
+    f64 time_previous;
+    f64 time_lag;
 } SHIZTimelineState;
 
-static double const maximum_frame_time = 1.0 / 4; // effectively 4 frames per second
+static f64 const maximum_frame_time = 1.0 / 4; // effectively 4 frames per second
 
 static SHIZTimeline _timeline;
 static SHIZTimelineState _timeline_state = {
     .time_previous = 0,
-    .time_lag = 0,
-    .is_ticking = false
+    .time_lag = 0
 };
 
+static bool _is_ticking = false;
+
 void
-shiz_time_reset()
+z_time_reset()
 {
     _timeline = SHIZTimelineDefault;
     _timeline_state.time_previous = _timeline.time;
@@ -47,25 +46,17 @@ shiz_time_reset()
     glfwSetTime(_timeline.time);
 }
 
-double
-shiz_time_since(double const time)
-{
-    double const time_passed_since = shiz_get_time() - time;
-    
-    return time_passed_since;
-}
-
 void
-shiz_ticking_begin()
+z_timing_begin()
 {
-    if (_timeline_state.is_ticking) {
+    if (_is_ticking) {
         return;
     }
 
-    _timeline_state.is_ticking = true;
+    _is_ticking = true;
 
-    double const time = glfwGetTime();
-    double time_elapsed = time - _timeline_state.time_previous;
+    f64 const time = glfwGetTime();
+    f64 time_elapsed = time - _timeline_state.time_previous;
     
     if (time_elapsed > maximum_frame_time) {
         time_elapsed = maximum_frame_time;
@@ -76,14 +67,14 @@ shiz_ticking_begin()
 }
 
 bool
-shiz_tick(unsigned short const frequency)
+z_time_tick(u8 const frequency)
 {
     _timeline.time_step = 1.0 / frequency;
     
     if (_timeline_state.time_lag >= _timeline.time_step) {
         _timeline_state.time_lag -= _timeline.time_step;
         
-        SHIZTimeDirection const direction = shiz_get_time_direction();
+        SHIZTimeDirection const direction = z_time_get_direction();
         
         _timeline.time += _timeline.time_step * direction;
         
@@ -93,56 +84,58 @@ shiz_tick(unsigned short const frequency)
     return false;
 }
 
-double
-shiz_ticking_end()
+f64
+z_timing_end()
 {
-    if (!_timeline_state.is_ticking) {
+    if (!_is_ticking) {
         return 0;
     }
 
-    _timeline_state.is_ticking = false;
+    _is_ticking = false;
 
-    double const interpolation = _timeline_state.time_lag / _timeline.time_step;
+    f64 const interpolation = _timeline_state.time_lag / _timeline.time_step;
 
     return interpolation;
 }
 
-double
-shiz_get_tick_rate()
-{
-    return _timeline.time_step;
-}
-
-double
-shiz_get_time_lag()
-{
-    return _timeline_state.time_lag;
-}
-
-double
-shiz_get_time()
+f64
+z_time_passed()
 {
     return _timeline.time;
 }
 
-double
-shiz_get_time_scale()
+f64
+z_time_passed_since(f64 const time)
+{
+    f64 const time_passed_since = z_time_passed() - time;
+    
+    return time_passed_since;
+}
+
+f64
+z_time_get_scale()
 {
     return _timeline.scale;
 }
 
 void
-shiz_set_time_scale(double const scale)
+z_time_set_scale(f64 const scale)
 {
     _timeline.scale = scale;
     
-    if (_shiz_fequal(_timeline.scale, 0)) {
+    if (z_fequal((f32)_timeline.scale, 0)) {
         _timeline.scale = 0;
     }
 }
 
+f64
+z_time_get_tick_rate()
+{
+    return _timeline.time_step;
+}
+
 SHIZTimeDirection
-shiz_get_time_direction()
+z_time_get_direction()
 {
     if (_timeline.scale > 0) {
         return SHIZTimeDirectionForward;
@@ -153,11 +146,19 @@ shiz_get_time_direction()
     return SHIZTimeDirectionStill;
 }
 
-void shiz_animate(SHIZAnimatable * const animatable,
-                  double const interpolation)
+void z_animate(SHIZAnimatable * const animatable,
+               f64 const interpolation)
 {
     animatable->previous_result = animatable->result;
-    animatable->result = _shiz_lerp(animatable->value,
-                                    animatable->previous_result,
-                                    (float)interpolation);
+    animatable->result = z_lerp(animatable->value,
+                                animatable->previous_result,
+                                (f32)interpolation);
 }
+
+#ifdef SHIZ_DEBUG
+f64
+z_time__get_lag()
+{
+    return _timeline_state.time_lag;
+}
+#endif

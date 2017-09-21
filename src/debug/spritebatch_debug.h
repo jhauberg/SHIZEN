@@ -9,17 +9,14 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef shader_h
-#define shader_h
+#ifndef spritebatch_debug_h
+#define spritebatch_debug_h
 
-#include "internal_type.h"
+#ifdef SHIZ_DEBUG
 
-GLuint
-z_gfx__compile_shader(GLenum type,
-                      GLchar const * source);
+SHIZVector3
+z_debug__get_last_sprite_origin(void);
 
-GLuint
-z_gfx__link_program(GLuint vs,
-                    GLuint fs);
+#endif
 
-#endif // shader_h
+#endif /* spritebatch_debug_h */

@@ -20,7 +20,7 @@ typedef struct SHIZSpriteFontLine {
     /** The measured size of the line of text */
     SHIZSize size;
     /** The number of characters in the line */
-    unsigned int character_count;
+    u16 character_count;
 } SHIZSpriteFontLine;
 
 typedef struct SHIZSpriteFontMeasurement {
@@ -29,39 +29,40 @@ typedef struct SHIZSpriteFontMeasurement {
     /** The size of a character sprite as it should appear when drawn (may be scaled) */
     SHIZSize character_size;
     /** The size of a character sprite after applying any size-altering attributes (may be sized with
-     offsets/padding, so these values are not suitable for drawing; use `character_size` instead) */
+        offsets/padding, so these values are not suitable for drawing; use `character_size` instead) */
     SHIZSize character_size_perceived;
     /** A buffer holding the measured size of each line */
     SHIZSpriteFontLine lines[SHIZSpriteFontMaxLines];
-    /** The index of the last character that can fit within specified bounds, if any; -1 otherwise */
-    int max_characters;
-    /** The number of lines */
-    unsigned int line_count;
+    /** The index of the last character that can fit within specified bounds,
+        if any; -1 otherwise */
+    i32 max_characters;
     /** The max number of characters per line before a linebreak is forced */
-    unsigned int max_characters_per_line;
+    u16 max_characters_per_line;
     /** The max number of lines that can fit within specified bounds, if any */
-    unsigned int max_lines_in_bounds;
+    u16 max_lines_in_bounds;
+    /** The number of lines */
+    u8 line_count;
     /** Determines whether to keep text within horizontal bounds */
     bool constrain_horizontally;
     /** Determines whether to keep text within vertical bounds,
-     forcing linebreaks if possible; truncates otherwise */
+        forcing linebreaks if possible; truncates otherwise */
     bool constrain_vertically;
 } SHIZSpriteFontMeasurement;
 
-SHIZSpriteFontMeasurement const shiz_sprite_measure_text(SHIZSpriteFont font,
-                                                         char const * text,
-                                                         SHIZSize bounds,
-                                                         SHIZSpriteFontAttributes attrs);
+SHIZSpriteFontMeasurement const
+z_spritefont__measure_text(SHIZSpriteFont font,
+                           char const * text,
+                           SHIZSize bounds,
+                           SHIZSpriteFontAttributes attrs);
 
-SHIZSize const shiz_sprite_draw_text(SHIZSpriteFont font,
-                                     char const * text,
-                                     SHIZVector2 origin,
-                                     SHIZSpriteFontAlignment alignment,
-                                     SHIZSize bounds,
-                                     SHIZColor tint,
-                                     SHIZSpriteFontAttributes attrs,
-                                     SHIZLayer layer,
-                                     SHIZColor const * highlight_colors,
-                                     unsigned int highlight_color_count);
+SHIZSize const
+z_spritefont__draw_text(SHIZSpriteFont font,
+                        char const * text,
+                        SHIZVector2 origin,
+                        SHIZSpriteFontAlignment alignment,
+                        SHIZSize bounds,
+                        SHIZSpriteFontAttributes attrs,
+                        SHIZColor tint,
+                        SHIZLayer layer);
 
 #endif // spritefont_h
