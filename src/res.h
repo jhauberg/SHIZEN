@@ -24,29 +24,29 @@ typedef enum SHIZResourceType {
 } SHIZResourceType;
 
 typedef struct SHIZResourceImage {
+    char const * filename;
     GLuint texture_id;
-    unsigned int resource_id;
-    unsigned int width;
-    unsigned int height;
-    const char * filename;
+    u16 width;
+    u16 height;
+    u8 resource_id;
 } SHIZResourceImage;
 
 typedef struct SHIZResourceSound {
-    unsigned int resource_id;
-    const char * filename;
+    char const * filename;
+    u8 resource_id;
 } SHIZResourceSound;
 
 extern SHIZResourceImage const SHIZResourceImageEmpty;
 extern SHIZResourceSound const SHIZResourceSoundEmpty;
 
-extern unsigned int const SHIZResourceInvalid;
+extern u8 const SHIZResourceInvalid;
 
-unsigned int
+u8
 z_res__load(SHIZResourceType type,
             char const * filename);
 
 bool
-z_res__unload(unsigned int resource_id);
+z_res__unload(u8 resource_id);
 
 bool
 z_res__unload_all(void);
@@ -55,9 +55,9 @@ SHIZResourceType const
 z_res__type(char const * const filename);
 
 SHIZResourceImage
-z_res__image(unsigned int resource_id);
+z_res__image(u8 resource_id);
 
 SHIZResourceSound
-z_res__sound(unsigned int resource_id);
+z_res__sound(u8 resource_id);
 
 #endif // res_h

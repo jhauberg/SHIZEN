@@ -35,7 +35,7 @@ z_debug__build_stats()
 {
     SHIZViewport const viewport = z_viewport__get();
     
-    unsigned int const sprite_count = z_debug__get_sprite_count();
+    u32 const sprite_count = z_debug__get_sprite_count();
     
     char const sprite_count_tint_specifier =
         sprite_count > SHIZSpriteMax ? '\3' : '\2';
@@ -90,21 +90,21 @@ z_debug__build_stats()
 void
 z_debug__draw_events()
 {
-    unsigned int const line_margin = 8;
-    unsigned int const lane_margin = 4;
-    unsigned int const lane_size = 8;
+    f32 const line_margin = 8;
+    f32 const lane_margin = 4;
+    f32 const lane_size = 8;
     
-    unsigned int draw_events = 0;
+    u16 draw_events = 0;
     
     SHIZLayer const layer = SHIZLayerTop;
     
     SHIZSize const bounds = _graphics_context.native_size;
     
-    for (unsigned int i = 0; i < z_debug__get_event_count(); i++) {
+    for (u16 i = 0; i < z_debug__get_event_count(); i++) {
         SHIZDebugEvent const event = z_debug__get_event(i);
         
-        float const lane_offset =
-        lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
+        f32 const lane_offset =
+            lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
         
         SHIZVector2 const from = SHIZVector2Make(event.origin.x,
                                                  bounds.height - lane_offset);
@@ -157,7 +157,7 @@ z_debug__draw_stats()
     
     SHIZSpriteFont const spritefont = z_debug__get_font();
     
-    unsigned int const margin = 8;
+    f32 const margin = 8;
     
     SHIZColor const highlight_colors[] = {
         SHIZColorFromHex(0xefec0d), // yellow
@@ -189,7 +189,7 @@ z_debug__draw_stats()
     
     char version_buffer[128] = { 0 };
     
-    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s (%s)",
+    sprintf(version_buffer, "» SHIZEN %d.%d.%d / %s (%s)",
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
             SHIZEN_VERSION_NAME, __DATE__);
     
@@ -230,8 +230,8 @@ z_debug__draw_viewport()
     // axes
     SHIZLayer const axes_layer = SHIZLayeredBelow(SHIZLayerTop);
     
-    float const padding = 2;
-    float const text_padding = 2;
+    f32 const padding = 2;
+    f32 const text_padding = 2;
     
     SHIZVector2 const y_bottom =
     SHIZVector2Make(center.x, padding + text_padding);
@@ -318,12 +318,12 @@ z_debug__draw_viewport()
 void
 z_debug__draw_sprite_gizmo(SHIZVector2 const location,
                            SHIZVector2 const anchor,
-                           float const angle,
+                           f32 const angle,
                            SHIZLayer const layer)
 {
     if (angle > 0 || angle < 0) {
-        float const radius = 6;
-        unsigned int const segments = 8;
+        u8 const segments = 8;
+        f32 const radius = 6;
         
         SHIZVector2 const circle_center = SHIZVector2Make(location.x + anchor.x,
                                                           location.y + anchor.y);
@@ -342,7 +342,7 @@ z_debug__draw_sprite_gizmo(SHIZVector2 const location,
                       layer);
     }
     
-    float const anchor_size = 2;
+    f32 const anchor_size = 2;
     
     SHIZRect const anchor_rect =
     SHIZRectMake(location, SHIZSizeMake(anchor_size, anchor_size));
@@ -360,7 +360,7 @@ z_debug__draw_sprite_shape(SHIZVector2 const origin,
                            SHIZSize const size,
                            SHIZColor const color,
                            SHIZVector2 const anchor,
-                           float const angle,
+                           f32 const angle,
                            SHIZLayer const layer)
 {
     bool const previously_tracking_events = z_debug__is_events_enabled();

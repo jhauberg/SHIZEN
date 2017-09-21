@@ -24,9 +24,9 @@
 #define SHIZDebugEventLaneResources 1
 
 typedef struct SHIZDebugEvent {
-    SHIZVector3 origin;
     char const * name;
-    unsigned int lane;
+    SHIZVector3 origin;
+    u8 lane;
 } SHIZDebugEvent;
 
 extern char const * const SHIZDebugEventNamePrimitive;
@@ -35,13 +35,13 @@ extern char const * const SHIZDebugEventNameFlushByCapacity;
 extern char const * const SHIZDebugEventNameFlushByTextureSwitch;
 
 typedef struct SHIZDebugFrameStats {
-    unsigned int draw_count;
-    unsigned int frames_per_second;
-    unsigned int frames_per_second_min;
-    unsigned int frames_per_second_max;
-    unsigned int frames_per_second_avg;
-    double frame_time;
-    double frame_time_avg;
+    f64 frame_time;
+    f64 frame_time_avg;
+    u16 frames_per_second;
+    u16 frames_per_second_min;
+    u16 frames_per_second_max;
+    u16 frames_per_second_avg;
+    u16 draw_count;
 } SHIZDebugFrameStats;
 
 bool
@@ -67,7 +67,6 @@ z_debug__toggle_draw_events(void);
 
 void
 z_debug__toggle_draw_shapes(void);
-
 
 bool
 z_debug__is_enabled(void);
@@ -100,9 +99,9 @@ SHIZSpriteFont
 z_debug__get_font(void);
 
 SHIZDebugEvent
-z_debug__get_event(unsigned int index);
+z_debug__get_event(u16 index);
 
-unsigned int
+u16
 z_debug__get_event_count(void);
 
 void
@@ -123,7 +122,7 @@ void
 z_debug__reset_draw_count(void);
 
 void
-z_debug__increment_draw_count(unsigned int amount);
+z_debug__increment_draw_count(u8 amount);
 
 void
 z_debug__update_frame_stats(void);
@@ -141,7 +140,7 @@ z_debug__load_font(unsigned char const * buffer,
 bool
 z_debug__unload_font(void);
 
-unsigned int
+u8
 z_debug__get_font_resource(void);
 
 #endif

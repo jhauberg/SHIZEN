@@ -71,7 +71,7 @@ void
 z_engine__toggle_windowed(GLFWwindow *);
 
 static
-float
+f32
 z_engine__get_pixel_scale(void);
 
 static
@@ -413,7 +413,7 @@ z_engine__get_framebuffer_size()
 }
 
 static
-float
+f32
 z_engine__get_pixel_scale()
 {
     SHIZSize const framebuffer = z_engine__get_framebuffer_size();
@@ -501,7 +501,8 @@ z_engine__key_callback(GLFWwindow * const window,
 
 static
 void
-z_engine__error_callback(int const error, char const * const description)
+z_engine__error_callback(int const error,
+                         char const * const description)
 {
     z_io__error_context("GLFW", "%d %s", error, description);
 }

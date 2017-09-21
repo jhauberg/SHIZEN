@@ -14,7 +14,9 @@
 
 #ifdef SHIZ_DEBUG
 
-unsigned int
+#include <SHIZEN/zint.h>
+
+u32
 z_debug__get_sprite_count(void);
 
 #endif

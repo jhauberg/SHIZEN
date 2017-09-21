@@ -24,20 +24,20 @@
  * @brief Provides settings and flags for the creation of a window.
  */
 typedef struct SHIZWindowSettings {
+    /** The size of the display within the window in pixels; the actual window
+     * size is determined by pixel-size and may be larger than the display */
+    SHIZSize size;
     /** The title of the window */
     char const * title;
     /** A description of the game that is printed to the log */
     char const * description;
+    /** The size of each pixel; defaults to 1; a higher pixel size results in
+     * a larger window */
+    u8 pixel_size;
     /** Determines whether the window should be fullscreen initially */
     bool fullscreen;
     /** Determines whether v-sync should be enabled */
     bool vsync;
-    /** The size of the display within the window in pixels; the actual window 
-      * size is determined by pixel-size and may be larger than the display */
-    SHIZSize size;
-    /** The size of each pixel; defaults to 1; a higher pixel size results in 
-      * a larger window */
-    unsigned int pixel_size;
 } SHIZWindowSettings;
 
 /**

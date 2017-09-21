@@ -29,7 +29,7 @@ z_gfx__spritebatch_flush(void);
 void
 z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
                   SHIZVector3 origin,
-                  float angle,
+                  f32 angle,
                   GLuint texture_id);
 
 #endif // spritebatch_h

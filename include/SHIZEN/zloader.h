@@ -21,7 +21,7 @@
  *
  * @return A resource id if the resource was loaded successfully, `0` otherwise
  */
-unsigned int
+u8
 z_load(char const * filename);
 
 /**
@@ -30,7 +30,7 @@ z_load(char const * filename);
  * @return `true` if the resource was unloaded successfully, `false` otherwise
  */
 bool
-z_unload(unsigned int resource_id);
+z_unload(u8 resource_id);
 
 SHIZSprite
 z_load_sprite(char const * filename);
@@ -40,10 +40,10 @@ z_load_sprite_src(char const * filename,
                   SHIZRect source);
 
 SHIZSprite
-z_load_sprite_from(unsigned int resource_id);
+z_load_sprite_from(u8 resource_id);
 
 SHIZSprite
-z_load_sprite_from_src(unsigned int resource_id,
+z_load_sprite_from_src(u8 resource_id,
                        SHIZRect source);
 
 SHIZSpriteSheet
@@ -70,8 +70,8 @@ z_load_sprite_from_index(SHIZSpriteSheet spritesheet,
 
 SHIZSprite
 z_load_sprite_from_cell(SHIZSpriteSheet spritesheet,
-                        unsigned int column,
-                        unsigned int row);
+                        u16 column,
+                        u16 row);
 
 SHIZSpriteFont
 z_load_spritefont(char const * filename,

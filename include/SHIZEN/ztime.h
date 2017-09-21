@@ -14,6 +14,8 @@
 
 #include <stdbool.h>
 
+#include "zint.h"
+
 typedef enum SHIZTimeDirection {
     SHIZTimeDirectionBackward = -1,
     SHIZTimeDirectionStill = 0,
@@ -26,25 +28,25 @@ z_time_reset(void);
 void
 z_timing_begin(void);
 
-double
+f64
 z_timing_end(void);
 
 bool
-z_time_tick(unsigned short frequency);
+z_time_tick(u8 frequency);
 
-double
-z_time_passed_since(double time);
+f64
+z_time_passed_since(f64 time);
 
-double
+f64
 z_time_passed(void);
 
-double
+f64
 z_time_get_scale(void);
 
 void
-z_time_set_scale(double scale);
+z_time_set_scale(f64 scale);
 
-double
+f64
 z_time_get_tick_rate(void);
 
 /**
@@ -57,17 +59,18 @@ SHIZTimeDirection
 z_time_get_direction(void);
 
 typedef struct SHIZAnimatable {
-    float value;
-    float previous_result;
-    float result;
+    f32 value;
+    f32 previous_result;
+    f32 result;
 } SHIZAnimatable;
 
 void
-z_animate(SHIZAnimatable *, double interpolation);
+z_animate(SHIZAnimatable *,
+          f64 interpolation);
 
 static inline
 SHIZAnimatable
-SHIZAnimated(float const value)
+SHIZAnimated(f32 const value)
 {
     SHIZAnimatable animatable = {
         .value = value,

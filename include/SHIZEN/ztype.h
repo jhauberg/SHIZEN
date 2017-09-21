@@ -9,22 +9,21 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#pragma once
-
 #ifndef ztype_h
 #define ztype_h
 
 #include <stdbool.h>
 
+#include "zint.h"
 #include "zlayer.h"
 
 typedef struct SHIZVector2 {
-    float x, y;
+    f32 x, y;
 } SHIZVector2;
 
 typedef struct SHIZSize {
-    float width;
-    float height;
+    f32 width;
+    f32 height;
 } SHIZSize;
 
 typedef struct SHIZRect {
@@ -33,8 +32,8 @@ typedef struct SHIZRect {
 } SHIZRect;
 
 typedef struct SHIZColor {
-    float r, g, b;
-    float alpha;
+    f32 r, g, b;
+    f32 alpha;
 } SHIZColor;
 
 typedef enum SHIZDrawMode {
@@ -51,20 +50,20 @@ typedef struct SHIZSprite {
     /* The frame that specifies which part of the image to draw */
     SHIZRect source;
     /** The image resource */
-    unsigned int resource_id;
+    u8 resource_id;
 } SHIZSprite;
 
 typedef struct SHIZSpriteSheet {
-    unsigned int columns;
-    unsigned int rows;
     SHIZSprite resource;
     SHIZSize sprite_size;
     SHIZSize sprite_padding;
+    u16 columns;
+    u16 rows;
 } SHIZSpriteSheet;
 
 typedef struct SHIZSpriteSize {
     SHIZSize target;
-    float scale;
+    f32 scale;
 } SHIZSpriteSize;
 
 typedef enum SHIZSpriteFontAlignment {
@@ -82,39 +81,41 @@ typedef enum SHIZSpriteFontWrapMode {
 } SHIZSpriteFontWrapMode;
 
 typedef struct SHIZSpriteFontTable {
-    const unsigned int * codepage;
-    unsigned int columns;
-    unsigned int rows;
+    u32 const * codepage;
+    u16 columns;
+    u16 rows;
 } SHIZSpriteFontTable;
 
 /**
  * @brief Represents a set of attributes that specify how text should be drawn.
  */
 typedef struct SHIZSpriteFontAttributes {
+    /** A pointer to an array of tint colors */
     SHIZColor const * colors;
-    /** The word-wrapping mode */
-    SHIZSpriteFontWrapMode wrap;
+    /** The amount of colors these attributes point to */
+    u8 colors_count;
     /** A scale defining the final size of the text */
     SHIZVector2 scale;
     /** A scale defining how "tight" characters are drawn */
-    float character_spread;
+    f32 character_spread;
     /** A value that adds padding to each character */
-    float character_padding;
+    f32 character_padding;
     /** A value that adds padding to each line */
-    float line_padding;
-    unsigned int colors_count;
+    f32 line_padding;
+    /** The word-wrapping mode */
+    SHIZSpriteFontWrapMode wrap;
 } SHIZSpriteFontAttributes;
 
 /**
  * @brief Represents a set of sprite characters aligned to an ASCII table.
  */
 typedef struct SHIZSpriteFont {
+    /** The ASCII table that aligns with the font sprite */
+    SHIZSpriteFontTable table;
     /** A sprite that defines the font resource */
     SHIZSprite sprite;
     /** The size of each sprite character */
     SHIZSize character;
-    /** The ASCII table that aligns with the font sprite */
-    SHIZSpriteFontTable table;
     /** Determines whether the font resource includes a sprite for the
       * whitespace character */
     bool includes_whitespace;
@@ -224,7 +225,7 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
 
 static inline
 SHIZVector2 const
-SHIZVector2Make(float const x, float const y)
+SHIZVector2Make(f32 const x, f32 const y)
 {
     SHIZVector2 const vector = {
         x, y
@@ -235,7 +236,7 @@ SHIZVector2Make(float const x, float const y)
 
 static inline
 SHIZSize const
-SHIZSizeMake(float const width, float const height)
+SHIZSizeMake(f32 const width, f32 const height)
 {
     SHIZSize const size = {
         width, height
@@ -257,8 +258,8 @@ SHIZRectMake(SHIZVector2 origin, SHIZSize size)
 
 static inline
 SHIZRect const
-SHIZRectMakeEx(float const x, float const y,
-               float const width, float const height)
+SHIZRectMakeEx(f32 const x, f32 const y,
+               f32 const width, f32 const height)
 {
     return SHIZRectMake(SHIZVector2Make(x, y),
                         SHIZSizeMake(width, height));
@@ -266,10 +267,10 @@ SHIZRectMakeEx(float const x, float const y,
 
 static inline
 SHIZColor const
-SHIZColorMake(float const r,
-              float const g,
-              float const b,
-              float const alpha)
+SHIZColorMake(f32 const r,
+              f32 const g,
+              f32 const b,
+              f32 const alpha)
 {
     SHIZColor const color = {
         r, g, b, alpha
@@ -280,7 +281,7 @@ SHIZColorMake(float const r,
 
 static inline
 SHIZColor const
-SHIZColorFromHex(int const value)
+SHIZColorFromHex(i32 const value)
 {
     SHIZColor const color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
                                           ((value >> 8) & 0xFF) / 255.0f,
@@ -291,7 +292,7 @@ SHIZColorFromHex(int const value)
 
 static inline
 SHIZColor const
-SHIZColorWithAlpa(SHIZColor const color, float const alpha)
+SHIZColorWithAlpa(SHIZColor const color, f32 const alpha)
 {
     SHIZColor result_color = color;
 
@@ -302,14 +303,14 @@ SHIZColorWithAlpa(SHIZColor const color, float const alpha)
 
 static inline
 SHIZColor const
-SHIZSpriteTintDefaultWithAlpa(float const alpha)
+SHIZSpriteTintDefaultWithAlpa(f32 const alpha)
 {
     return SHIZColorWithAlpa(SHIZSpriteNoTint, alpha);
 }
 
 static inline
 SHIZSpriteSize const
-SHIZSpriteSized(SHIZSize const size, float const scale)
+SHIZSpriteSized(SHIZSize const size, f32 const scale)
 {
     SHIZSpriteSize sprite_size;
 
@@ -321,7 +322,7 @@ SHIZSpriteSized(SHIZSize const size, float const scale)
 
 static inline
 SHIZSpriteSize const
-SHIZSpriteSizedIntrinsicallyWithScale(float const scale)
+SHIZSpriteSizedIntrinsicallyWithScale(f32 const scale)
 {
     SHIZSpriteSize size = SHIZSpriteSizeIntrinsic;
 
@@ -332,7 +333,7 @@ SHIZSpriteSizedIntrinsicallyWithScale(float const scale)
 
 static inline
 SHIZSpriteFontAttributes const
-SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
+SHIZSpriteFontAttributesWithScaleAndWrap(f32 const scale,
                                          SHIZSpriteFontWrapMode const wrap)
 {
     SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault;
@@ -345,7 +346,7 @@ SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
 
 static inline
 SHIZSpriteFontAttributes const
-SHIZSpriteFontAttributesWithScale(float const scale)
+SHIZSpriteFontAttributesWithScale(f32 const scale)
 {
     SHIZSpriteFontWrapMode const wrap = SHIZSpriteFontAttributesDefault.wrap;
     

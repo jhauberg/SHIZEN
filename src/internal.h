@@ -23,10 +23,12 @@
 #include <ctype.h>
 #include <math.h>
 
+#include <SHIZEN/zint.h>
+
 #define SHIZEpsilon (1.0 / 1024)
 
 #ifdef SHIZ_DEBUG
-double
+f64
 z_time__get_lag(void);
 #endif
 
@@ -49,38 +51,38 @@ z_str_to_upper(char * string)
  */
 static inline
 bool
-z_fequal(double const a, double const b)
+z_fequal(f32 const a, f32 const b)
 {
-    return (fabs(b - a) < SHIZEpsilon);
+    return (fabsf(b - a) < SHIZEpsilon);
 }
 
 /**
  * @brief Linearly interpolate between two values.
  */
 static inline
-float
-z_lerp(float const a, float const b, float const t)
+f32
+z_lerp(f32 const a, f32 const b, f32 const t)
 {
     return a * (1.0f - t) + b * t;
 }
 
 static inline
-int
-z_random_int_range(int const min, int const max)
+i32
+z_random_int_range(i32 const min, i32 const max)
 {
-    return min + (rand() % (int)((max + 1) - min));
+    return min + (rand() % ((max + 1) - min));
 }
 
 static inline
-float
+f32
 z_random_float(void)
 {
     return rand() / (RAND_MAX + 1.0f);
 }
 
 static inline
-float
-z_random_float_range(float const min, float const max)
+f32
+z_random_float_range(f32 const min, f32 const max)
 {
     return z_lerp(min, max, z_random_float());
 }

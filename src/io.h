@@ -23,10 +23,12 @@ void
 z_io__warning(char const * format, ...);
 
 void
-z_io__error_context(char const * context, char const * format, ...);
+z_io__error_context(char const * context,
+                    char const * format, ...);
 
 void
-z_io__warning_context(char const * context, char const * format, ...);
+z_io__warning_context(char const * context,
+                      char const * format, ...);
 
 bool
 z_io__load_image(char const * filename,

@@ -35,7 +35,7 @@ z_sprite__draw(SHIZSprite sprite,
                SHIZSpriteSize size,
                bool repeat,
                SHIZVector2 anchor,
-               float angle,
+               f32 angle,
                SHIZColor tint,
                bool opaque,
                SHIZLayer layer);

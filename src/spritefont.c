@@ -49,22 +49,22 @@ bool
 z_spritefont__is_tint_character(char);
 
 static
-unsigned int
-z_spritefont__perceived_count(unsigned int count,
-                              unsigned int ignored_count,
+u16
+z_spritefont__perceived_count(u16 count,
+                              u16 ignored_count,
                               bool skipping_leading_whitespace);
 
 static
 void
 z_spritefont__set_line(SHIZSpriteFontLine * line,
                        SHIZSpriteFontMeasurement const * measurement,
-                       float line_height,
-                       unsigned int character_count,
-                       unsigned int character_ignored_count,
+                       f32 line_height,
+                       u16 character_count,
+                       u16 character_ignored_count,
                        bool skipping_leading_whitespace);
 
 static
-int
+i32
 z_spritefont__character_table_index(SHIZSpriteFont const * font,
                                     char character,
                                     unsigned int character_decimal);
@@ -101,30 +101,39 @@ z_spritefont__measure_text(SHIZSpriteFont const font,
     measurement.constrain_vertically = bounds.height > 0;
 
     if (measurement.constrain_horizontally) {
-        measurement.max_characters_per_line =
-            (unsigned int)floor(bounds.width /
-                                measurement.character_size_perceived.width);
-    } else {
-        measurement.max_characters_per_line = UINT32_MAX;
-    }
-
-    float const line_height = measurement.character_size_perceived.height + attribs.line_padding;
-    
-    if (measurement.constrain_vertically) {
-        measurement.max_lines_in_bounds =
-            (unsigned int)floor(bounds.height / line_height);
+        f32 const max_characters_per_line =
+            floorf(bounds.width / measurement.character_size_perceived.width);
         
-        if (measurement.max_lines_in_bounds > SHIZSpriteFontMaxLines) {
-            measurement.max_lines_in_bounds = SHIZSpriteFontMaxLines;
+        if (max_characters_per_line > UINT16_MAX) {
+            measurement.max_characters_per_line = UINT16_MAX;
+        } else {
+            measurement.max_characters_per_line = (u16)max_characters_per_line;
         }
     } else {
-        measurement.max_lines_in_bounds = UINT32_MAX;
+        measurement.max_characters_per_line = UINT16_MAX;
     }
 
-    unsigned int character_count = 0;
-    unsigned int line_index = 0;
-    unsigned int line_character_count = 0;
-    unsigned int line_character_ignored_count = 0;
+    f32 const line_height =
+        measurement.character_size_perceived.height + attribs.line_padding;
+    
+    if (measurement.constrain_vertically) {
+        f32 const max_lines_in_bounds =
+            floorf(bounds.height / line_height);
+        
+        if (max_lines_in_bounds > SHIZSpriteFontMaxLines) {
+            measurement.max_lines_in_bounds = SHIZSpriteFontMaxLines;
+        } else {
+            measurement.max_lines_in_bounds =
+                (u16)max_lines_in_bounds;
+        }
+    } else {
+        measurement.max_lines_in_bounds = UINT16_MAX;
+    }
+
+    u16 character_count = 0;
+    u8 line_index = 0;
+    u16 line_character_count = 0;
+    u16 line_character_ignored_count = 0;
 
     char const whitespace_character = ' ';
     char const newline_character = '\n';
@@ -156,14 +165,15 @@ z_spritefont__measure_text(SHIZSpriteFont const font,
         bool should_skip_leading_whitespace = can_skip_leading_whitespace &&
             (skip_leading_whitespace &&
              current_line_has_leading_whitespace);
-        
-        unsigned int const line_character_count_perceived =
+
+        u16 const line_character_count_perceived =
             z_spritefont__perceived_count(line_character_count,
                                           line_character_ignored_count,
                                           should_skip_leading_whitespace);
 
-        bool const break_line_required = (measurement.constrain_horizontally &&
-                                          line_character_count_perceived >= measurement.max_characters_per_line);
+        bool const break_line_required =
+            (measurement.constrain_horizontally &&
+             line_character_count_perceived >= measurement.max_characters_per_line);
 
         if (break_line_explicit || break_line_required) {
             next_line_has_leading_whitespace = false;
@@ -203,7 +213,8 @@ z_spritefont__measure_text(SHIZSpriteFont const font,
                     
                     char const breaking_character = *text_ptr;
                     
-                    next_line_has_leading_whitespace = breaking_character == whitespace_character;
+                    next_line_has_leading_whitespace =
+                        breaking_character == whitespace_character;
                     
                     if (next_line_has_leading_whitespace) {
                         text_ptr -= character_size;
@@ -491,30 +502,32 @@ z_spritefont__draw_character_index(SHIZSpriteFont const * const font,
 }
 
 static
-int
+i32
 z_spritefont__character_table_index(SHIZSpriteFont const * const font,
                                     char const character,
                                     unsigned int const character_decimal)
 {
-    unsigned int const table_size = font->table.columns * font->table.rows;
+    u32 const table_size = font->table.columns * font->table.rows;
     
-    int character_table_index = -1;
+    i32 character_table_index = -1;
     
-    if (font->table.codepage != NULL) {
-        for (unsigned int i = 0; i < table_size; i++) {
-            if (font->table.codepage[i] == character_decimal) {
-                character_table_index = (int)i;
-                
-                break;
+    if (table_size < INT32_MAX) {
+        if (font->table.codepage != NULL) {
+            for (u32 i = 0; i < table_size; i++) {
+                if (font->table.codepage[i] == character_decimal) {
+                    character_table_index = (int)i;
+                    
+                    break;
+                }
             }
+        } else {
+            character_table_index = (unsigned char)character;
         }
-    } else {
-        character_table_index = (unsigned char)character;
-    }
-    
-    if (character_table_index < 0 ||
-        character_table_index > (int)table_size) {
-        character_table_index = -1;
+        
+        if (character_table_index < 0 ||
+            character_table_index > (i32)table_size) {
+            character_table_index = -1;
+        }
     }
     
     return character_table_index;
@@ -524,10 +537,10 @@ static
 void
 z_spritefont__set_line(SHIZSpriteFontLine * const line,
                        SHIZSpriteFontMeasurement const * const measurement,
-                       float const line_height,
-                       unsigned int character_count,
-                       unsigned int character_ignored_count,
-                       bool skipping_leading_whitespace)
+                       f32 const line_height,
+                       u16 const character_count,
+                       u16 const character_ignored_count,
+                       bool const skipping_leading_whitespace)
 {
     unsigned int const line_character_count_perceived =
         z_spritefont__perceived_count(character_count,
@@ -552,12 +565,12 @@ z_spritefont__is_tint_character(char const character)
 }
 
 static
-unsigned int
-z_spritefont__perceived_count(unsigned int const count,
-                              unsigned int const ignored_count,
+u16
+z_spritefont__perceived_count(u16 const count,
+                              u16 const ignored_count,
                               bool const skipping_leading_whitespace)
 {
-    unsigned int count_perceived = count;
+    u16 count_perceived = count;
     
     if (count_perceived >= ignored_count) {
         count_perceived -= ignored_count;

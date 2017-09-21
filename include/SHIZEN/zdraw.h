@@ -16,17 +16,17 @@
 #include "zlayer.h"
 
 typedef struct SHIZSpriteDrawParameters {
-    SHIZVector2 anchor;
-    SHIZLayer layer;
     SHIZColor tint;
-    float angle; // in radians
+    SHIZVector2 anchor;
+    f32 angle; // in radians
+    SHIZLayer layer;
     bool is_opaque;
 } SHIZSpriteDrawParameters;
 
 typedef struct SHIZSpriteFontDrawParameters {
+    SHIZColor tint;
     SHIZSpriteFontAlignment alignment;
     SHIZLayer layer;
-    SHIZColor tint;
 } SHIZSpriteFontDrawParameters;
 
 /**
@@ -63,11 +63,11 @@ z_draw_line_ex(SHIZVector2 from,
  * @brief Draw a path.
  */
 void
-z_draw_path(SHIZVector2 const points[], unsigned int count,
+z_draw_path(SHIZVector2 const points[], u16 count,
             SHIZColor color);
 
 void
-z_draw_path_ex(SHIZVector2 const points[], unsigned int count,
+z_draw_path_ex(SHIZVector2 const points[], u16 count,
                SHIZColor color,
                SHIZLayer layer);
 /**
@@ -96,7 +96,7 @@ z_draw_rect_ex(SHIZRect rect,
                SHIZColor color,
                SHIZDrawMode mode,
                SHIZVector2 anchor,
-               float angle,
+               f32 angle,
                SHIZLayer layer);
 
 /**
@@ -106,15 +106,15 @@ void
 z_draw_circle(SHIZVector2 center,
               SHIZColor color,
               SHIZDrawMode mode,
-              float radius,
-              unsigned int segments);
+              f32 radius,
+              u8 segments);
 
 void
 z_draw_circle_ex(SHIZVector2 center,
                  SHIZColor color,
                  SHIZDrawMode mode,
-                 float radius,
-                 unsigned int segments,
+                 f32 radius,
+                 u8 segments,
                  SHIZLayer layer);
 
 /**
@@ -124,17 +124,17 @@ void
 z_draw_arc(SHIZVector2 center,
            SHIZColor color,
            SHIZDrawMode mode,
-           float radius,
-           unsigned int segments,
-           float angle);
+           f32 radius,
+           u8 segments,
+           f32 angle);
 
 void
 z_draw_arc_ex(SHIZVector2 center,
               SHIZColor color,
               SHIZDrawMode,
-              float radius,
-              unsigned int segments,
-              float angle,
+              f32 radius,
+              u8 segments,
+              f32 angle,
               SHIZLayer layer);
 
 /**
@@ -205,7 +205,7 @@ z_draw_sprite_ex(SHIZSprite sprite,
                  SHIZSpriteSize size,
                  bool repeat,
                  SHIZVector2 anchor,
-                 float angle,
+                 f32 angle,
                  SHIZColor tint,
                  bool opaque,
                  SHIZLayer layer);
@@ -340,7 +340,7 @@ SHIZSpriteDrawParameters const
 SHIZSpriteDrawParametersMake(SHIZVector2 const anchor,
                              SHIZLayer const layer,
                              SHIZColor const tint,
-                             float const angle,
+                             f32 const angle,
                              bool const is_opaque)
 {
     SHIZSpriteDrawParameters const params = {
@@ -356,7 +356,7 @@ SHIZSpriteDrawParametersMake(SHIZVector2 const anchor,
 
 static inline
 SHIZSpriteDrawParameters const
-SHIZSpriteDrawParametersDefaults(void)
+SHIZSpriteDrawParametersDefault(void)
 {
     return SHIZSpriteDrawParametersMake(SHIZAnchorCenter,
                                         SHIZLayerDefault,
@@ -398,7 +398,7 @@ SHIZSpriteDrawParametersColored(SHIZSpriteDrawParameters params,
 static inline
 SHIZSpriteDrawParameters const
 SHIZSpriteDrawParametersRotated(SHIZSpriteDrawParameters params,
-                                float const angle)
+                                f32 const angle)
 {
     params.angle = angle;
     
@@ -422,7 +422,7 @@ SHIZSpriteFontDrawParametersMake(SHIZSpriteFontAlignment const alignment,
 
 static inline
 SHIZSpriteFontDrawParameters const
-SHIZSpriteFontDrawParametersDefaults(void)
+SHIZSpriteFontDrawParametersDefault(void)
 {
     return SHIZSpriteFontDrawParametersMake(SHIZSpriteFontAlignmentDefault,
                                             SHIZLayerDefault,

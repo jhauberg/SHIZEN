@@ -58,14 +58,14 @@ z_gfx__kill(void);
 void
 z_gfx__render(GLenum mode,
               SHIZVertexPositionColor const * restrict vertices,
-              unsigned int count);
+              u32 count);
 
 void
 z_gfx__render_ex(GLenum const mode,
                  SHIZVertexPositionColor const * restrict vertices,
-                 unsigned int count,
+                 u32 count,
                  SHIZVector3 origin,
-                 float angle);
+                 f32 angle);
 
 /**
  * @brief Render a sprite; a textured quad.
@@ -78,7 +78,7 @@ z_gfx__render_ex(GLenum const mode,
 void
 z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
                      SHIZVector3 origin,
-                     float angle,
+                     f32 angle,
                      GLuint texture_id);
 
 void

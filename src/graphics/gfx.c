@@ -47,9 +47,9 @@ static
 void
 z_gfx__render_primitive(GLenum mode,
                         SHIZVertexPositionColor const * restrict vertices,
-                        unsigned int count,
+                        u32 count,
                         SHIZVector3 origin,
-                        float angle);
+                        f32 angle);
 
 static
 void
@@ -178,8 +178,8 @@ z_gfx__flush()
 
 void
 z_gfx__render(GLenum const mode,
-                SHIZVertexPositionColor const * restrict const vertices,
-                unsigned int const count)
+              SHIZVertexPositionColor const * restrict const vertices,
+              u32 const count)
 {
     z_gfx__render_ex(mode, vertices, count, SHIZVector3Zero, 0);
 }
@@ -187,9 +187,9 @@ z_gfx__render(GLenum const mode,
 void
 z_gfx__render_ex(GLenum const mode,
                  SHIZVertexPositionColor const * restrict const vertices,
-                 unsigned int const count,
+                 u32 const count,
                  SHIZVector3 const origin,
-                 float const angle)
+                 f32 const angle)
 {
     z_gfx__render_primitive(mode, vertices, count, origin, angle);
 }
@@ -197,7 +197,7 @@ z_gfx__render_ex(GLenum const mode,
 void
 z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
                      SHIZVector3 const origin,
-                     float const angle,
+                     f32 const angle,
                      GLuint const texture_id)
 {
     z_gfx__add_sprite(vertices, origin, angle, texture_id);
@@ -423,9 +423,9 @@ static
 void
 z_gfx__render_primitive(GLenum const mode,
                         SHIZVertexPositionColor const * restrict const vertices,
-                        unsigned int const count,
+                        u32 const count,
                         SHIZVector3 const origin,
-                        float const angle)
+                        f32 const angle)
 {
     mat4x4 model;
     mat4x4_identity(model);
