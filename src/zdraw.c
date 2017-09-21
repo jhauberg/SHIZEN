@@ -366,7 +366,7 @@ z_draw_arc_ex(SHIZVector2 const center,
 SHIZSize
 z_draw_sprite(SHIZSprite const sprite,
               SHIZVector2 const origin,
-              SHIZSpriteDrawParameters const params)
+              SHIZSpriteParameters const params)
 {
     return z_draw_sprite_ex(sprite, origin,
                             SHIZSpriteSizeIntrinsic,
@@ -381,7 +381,7 @@ z_draw_sprite(SHIZSprite const sprite,
 SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
                              SHIZVector2 origin,
                              SHIZSpriteSize size,
-                             SHIZSpriteDrawParameters params)
+                             SHIZSpriteParameters params)
 {
     return z_draw_sprite_ex(sprite, origin,
                             size,
@@ -396,7 +396,7 @@ SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
 SHIZSize z_draw_sprite_tiled(SHIZSprite sprite,
                              SHIZVector2 origin,
                              SHIZSpriteSize size,
-                             SHIZSpriteDrawParameters params)
+                             SHIZSpriteParameters params)
 {
     return z_draw_sprite_ex(sprite, origin,
                             size,
@@ -464,7 +464,7 @@ SHIZSize
 z_draw_text(SHIZSpriteFont const font,
             char const * const text,
             SHIZVector2 const origin,
-            SHIZSpriteFontDrawParameters const params)
+            SHIZSpriteFontParameters const params)
 {
     SHIZSize const bounds = SHIZSpriteFontSizeToFit;
     
@@ -475,7 +475,7 @@ SHIZSize z_draw_text_bounded(SHIZSpriteFont font,
                              char const * text,
                              SHIZVector2 origin,
                              SHIZSize bounds,
-                             SHIZSpriteFontDrawParameters params)
+                             SHIZSpriteFontParameters params)
 {
     return z_draw_text_attributed(font, text, origin, bounds,
                                   SHIZSpriteFontAttributesDefault,
@@ -487,7 +487,7 @@ SHIZSize z_draw_text_attributed(SHIZSpriteFont font,
                                 SHIZVector2 origin,
                                 SHIZSize bounds,
                                 SHIZSpriteFontAttributes attribs,
-                                SHIZSpriteFontDrawParameters params)
+                                SHIZSpriteFontParameters params)
 {
     return z_draw_text_ex(font, text, origin, bounds, attribs,
                           params.alignment, params.tint, params.layer);

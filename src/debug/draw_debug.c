@@ -183,9 +183,9 @@ z_debug__draw_stats()
                            stats_text_origin,
                            SHIZSpriteFontSizeToFit,
                            attrs,
-                           SHIZSpriteFontDrawParametersMake(SHIZSpriteFontAlignmentTop|SHIZSpriteFontAlignmentRight,
-                                                            layer,
-                                                            SHIZSpriteNoTint));
+                           SHIZSpriteFontParametersMake(SHIZSpriteFontAlignmentTop|SHIZSpriteFontAlignmentRight,
+                                                        layer,
+                                                        SHIZSpriteNoTint));
     
     char version_buffer[128] = { 0 };
     
