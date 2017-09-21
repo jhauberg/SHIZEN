@@ -187,6 +187,25 @@ z_load_sprite_from_cell(SHIZSpriteSheet const spritesheet,
     return z_load_sprite_from_index(spritesheet, index);
 }
 
+SHIZSprite
+z_load_sprite_from_point(SHIZSpriteSheet const spritesheet,
+                         u16 const x,
+                         u16 const y)
+{
+    u16 column = 0;
+    u16 row = 0;
+    
+    if (x <= spritesheet.resource.source.size.width) {
+        column = (u16)((x / spritesheet.resource.source.size.width) * spritesheet.columns);
+    }
+    
+    if (y <= spritesheet.resource.source.size.height) {
+        row = (u16)((y / spritesheet.resource.source.size.height) * spritesheet.rows);
+    }
+
+    return z_load_sprite_from_cell(spritesheet, column, row);
+}
+
 SHIZSpriteFont
 z_load_spritefont(char const * const filename,
                   SHIZSize const character)

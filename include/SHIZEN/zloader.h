@@ -66,12 +66,16 @@ z_load_spritesheet_from_src(SHIZSprite resource,
 
 SHIZSprite
 z_load_sprite_from_index(SHIZSpriteSheet spritesheet,
-                         unsigned int index);
+                         u32 index);
 
 SHIZSprite
 z_load_sprite_from_cell(SHIZSpriteSheet spritesheet,
                         u16 column,
                         u16 row);
+
+SHIZSprite
+z_load_sprite_from_point(SHIZSpriteSheet spritesheet,
+                         u16 x, u16 y);
 
 SHIZSpriteFont
 z_load_spritefont(char const * filename,
