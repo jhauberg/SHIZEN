@@ -20,7 +20,6 @@
 #if defined(__clang__)
  #pragma clang diagnostic push
  #pragma clang diagnostic ignored "-Wdocumentation"
- #pragma clang diagnostic ignored "-Wconversion"
 #endif
 
 #include <GLFW/glfw3.h>
