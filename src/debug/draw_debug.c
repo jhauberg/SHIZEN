@@ -11,9 +11,7 @@
 
 #ifdef SHIZ_DEBUG
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <stdio.h> // sprintf
 
 #include <SHIZEN/ztime.h>
 #include <SHIZEN/zdraw.h>

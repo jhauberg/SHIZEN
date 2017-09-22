@@ -13,8 +13,6 @@
 
 #include <SHIZEN/zloader.h>
 
-#include <limits.h>
-
 #include "debug.h"
 
 #include "../res.h"

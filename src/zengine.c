@@ -11,7 +11,7 @@
 
 #include <SHIZEN/shizen.h>
 
-#include <stdio.h>
+#include <stdio.h> // printf
 
 #include "graphics/gfx.h"
 

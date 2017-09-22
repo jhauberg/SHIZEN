@@ -12,8 +12,8 @@
 #include "spritefont.h"
 #include "sprite.h"
 
-#include <stdlib.h>
-#include <math.h>
+#include <stdlib.h> // NULL
+#include <math.h> // floorf
 
 static
 unsigned int

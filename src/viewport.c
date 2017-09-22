@@ -9,7 +9,7 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <math.h>
+#include <math.h> // roundf
 
 #include "viewport.h"
 

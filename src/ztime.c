@@ -11,7 +11,7 @@
 
 #include <SHIZEN/ztime.h>
 
-#include <math.h>
+#include <math.h> // fabs
 
 #include "internal.h"
 #include "internal_type.h"

@@ -11,7 +11,7 @@
 
 #include "sprite.h"
 
-#include <stdlib.h>
+#include <stdlib.h> // qsort
 
 #include "graphics/gfx.h"
 
