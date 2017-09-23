@@ -59,3 +59,7 @@ In this day and age, this is not stuff that we typically (have to) think much ab
 I'm a sucker for following rules/best practices and strive to keep my code consistent and readable.
 
 This article has helped a lot. Though I've decided on other practices in some cases, as a general guideline, this one is great.
+
+["Fix Your Timestep!"](http://gafferongames.com/game-physics/fix-your-timestep/)
+
+Essential reading for implementing frame-rate independent simulation.
