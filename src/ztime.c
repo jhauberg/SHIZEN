@@ -155,6 +155,21 @@ void z_animate(SHIZAnimatable * const animatable,
                                 (f32)interpolation);
 }
 
+void z_animate_vec2(SHIZAnimatableVector2 * const animatable,
+                    f64 const interpolation)
+{
+    animatable->previous_result = animatable->result;
+    
+    f32 const x = z_lerp(animatable->value.x,
+                         animatable->previous_result.x,
+                         (f32)interpolation);
+    f32 const y = z_lerp(animatable->value.y,
+                         animatable->previous_result.y,
+                         (f32)interpolation);
+    
+    animatable->result = SHIZVector2Make(x, y);
+}
+
 #ifdef SHIZ_DEBUG
 f64
 z_time__get_lag()

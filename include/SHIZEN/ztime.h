@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 #include "zint.h"
+#include "ztype.h"
 
 typedef enum SHIZTimeDirection {
     SHIZTimeDirectionBackward = -1,
@@ -64,9 +65,19 @@ typedef struct SHIZAnimatable {
     f32 result;
 } SHIZAnimatable;
 
+typedef struct SHIZAnimatableVector2 {
+    SHIZVector2 value;
+    SHIZVector2 previous_result;
+    SHIZVector2 result;
+} SHIZAnimatableVector2;
+
 void
 z_animate(SHIZAnimatable *,
           f64 interpolation);
+
+void
+z_animate_vec2(SHIZAnimatableVector2 *,
+               f64 interpolation);
 
 static inline
 SHIZAnimatable
@@ -74,11 +85,22 @@ SHIZAnimated(f32 const value)
 {
     SHIZAnimatable animatable = {
         .value = value,
-        .previous_result = 0,
-        .result = 0
+        .previous_result = value,
+        .result = value
     };
     
-    z_animate(&animatable, 1);
+    return animatable;
+}
+
+static inline
+SHIZAnimatableVector2
+SHIZAnimatedVector2(SHIZVector2 const value)
+{
+    SHIZAnimatableVector2 animatable = {
+        .value = value,
+        .previous_result = value,
+        .result = value
+    };
     
     return animatable;
 }
