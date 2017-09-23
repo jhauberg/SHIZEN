@@ -224,7 +224,7 @@ z_debug__add_event(SHIZDebugEvent const event)
             
             _context.event_count += 1;
         } else {
-            printf("event not shown: %s", event.name);
+            //printf("event not shown: %s\n", event.name);
         }
     }
 }
