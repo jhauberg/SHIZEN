@@ -176,6 +176,19 @@ z_debug__draw_stats()
         attrs.colors_count = 4;
     }
     
+    SHIZSize const stats_size =
+        z_measure_text_attributed(spritefont,
+                                  _stats_buffer,
+                                  SHIZSpriteFontSizeToFit,
+                                  attrs);
+    
+    z_draw_rect_ex(SHIZRectMake(stats_text_origin, stats_size),
+                   SHIZColorWithAlpa(SHIZColorBlack, 0.6f),
+                   SHIZDrawModeFill,
+                   SHIZAnchorTopRight,
+                   SHIZSpriteNoAngle,
+                   SHIZLayeredBelow(layer));
+    
     z_draw_text_attributed(spritefont,
                            _stats_buffer,
                            stats_text_origin,
