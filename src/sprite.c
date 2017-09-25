@@ -106,8 +106,10 @@ z_sprite__draw(SHIZSprite const sprite,
     
     sprite_object->key = sort_key;
     sprite_object->angle = angle;
-    sprite_object->origin = SHIZVector3Make(origin.x, origin.y, z);
     sprite_object->order = _sprite_list.total;
+    sprite_object->origin = SHIZVector3Make(roundf(origin.x),
+                                            roundf(origin.y),
+                                            z);
 
     SHIZSize const texture_size = SHIZSizeMake(image.width, image.height);
 
