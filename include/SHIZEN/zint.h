@@ -13,6 +13,9 @@
 #define zint_h
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#include <math.h>
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -26,5 +29,27 @@ typedef int64_t i64;
 
 typedef float f32;
 typedef double f64;
+
+/**
+ * @brief Determine whether two floating point values are approximately equal.
+ */
+static inline
+bool
+z_fequal(f32 const a, f32 const b)
+{
+    static f64 const precision = 1.0 / 1024;
+    
+    return fabsf(b - a) < precision;
+}
+
+/**
+ * @brief Linearly interpolate between two values.
+ */
+static inline
+f32
+z_lerp(f32 const a, f32 const b, f32 const t)
+{
+    return a * (1.0f - t) + b * t;
+}
 
 #endif /* zint_h */

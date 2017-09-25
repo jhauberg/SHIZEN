@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 #include "ztype.h"
+#include "zrand.h"
 #include "ztime.h"
 #include "zloader.h"
 #include "zinput.h"

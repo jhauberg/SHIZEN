@@ -25,8 +25,6 @@
 
 #include <SHIZEN/zint.h>
 
-#define SHIZEpsilon (1.0 / 1024)
-
 #ifdef SHIZ_DEBUG
 f64
 z_time__get_lag(void);
@@ -44,47 +42,6 @@ z_str_to_upper(char * string)
     for (ptr = string; *ptr; ptr++) {
         *ptr = (char)toupper(*ptr);
     }
-}
-
-/**
- * @brief Determine whether two floating point values are approximately equal.
- */
-static inline
-bool
-z_fequal(f32 const a, f32 const b)
-{
-    return (fabsf(b - a) < SHIZEpsilon);
-}
-
-/**
- * @brief Linearly interpolate between two values.
- */
-static inline
-f32
-z_lerp(f32 const a, f32 const b, f32 const t)
-{
-    return a * (1.0f - t) + b * t;
-}
-
-static inline
-i32
-z_random_int_range(i32 const min, i32 const max)
-{
-    return min + (rand() % ((max + 1) - min));
-}
-
-static inline
-f32
-z_random_float(void)
-{
-    return rand() / (RAND_MAX + 1.0f);
-}
-
-static inline
-f32
-z_random_float_range(f32 const min, f32 const max)
-{
-    return z_lerp(min, max, z_random_float());
 }
 
 #endif // internal_h
