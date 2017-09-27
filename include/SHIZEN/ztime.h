@@ -60,33 +60,56 @@ SHIZTimeDirection
 z_time_get_direction(void);
 
 typedef struct SHIZAnimatable {
+    f64 time;
     f32 value;
-    f32 previous_result;
     f32 result;
+    f32 result_prev;
 } SHIZAnimatable;
 
 typedef struct SHIZAnimatableVector2 {
+    f64 time;
     SHIZVector2 value;
-    SHIZVector2 previous_result;
     SHIZVector2 result;
+    SHIZVector2 result_prev;
 } SHIZAnimatableVector2;
 
 void
 z_animate(SHIZAnimatable *,
-          f64 interpolation);
+          f32 to);
 
 void
 z_animate_vec2(SHIZAnimatableVector2 *,
-               f64 interpolation);
+               SHIZVector2 to);
+
+void
+z_animate_to(SHIZAnimatable *,
+             f32 to,
+             f64 step,
+             f64 duration);
+
+void
+z_animate_to_vec2(SHIZAnimatableVector2 *,
+                  SHIZVector2 to,
+                  f64 step,
+                  f64 duration);
+
+f32
+z_animate_blend(SHIZAnimatable *,
+                f64 interpolation);
+
+SHIZVector2
+z_animate_blend_vec2(SHIZAnimatableVector2 *,
+                     f64 interpolation);
 
 static inline
 SHIZAnimatable
 SHIZAnimated(f32 const value)
 {
     SHIZAnimatable animatable = {
+        .time = 0,
         .value = value,
-        .previous_result = value,
-        .result = value
+        .result = value,
+        .result_prev = value
     };
     
     return animatable;
@@ -97,9 +120,10 @@ SHIZAnimatableVector2
 SHIZAnimatedVector2(SHIZVector2 const value)
 {
     SHIZAnimatableVector2 animatable = {
+        .time = 0,
         .value = value,
-        .previous_result = value,
-        .result = value
+        .result = value,
+        .result_prev = value
     };
     
     return animatable;
