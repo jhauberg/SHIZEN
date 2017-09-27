@@ -49,7 +49,14 @@ static inline
 f32
 z_lerp(f32 const a, f32 const b, f32 const t)
 {
-    return a * (1.0f - t) + b * t;
+    return (1.0f - t) * a + t * b;
+}
+
+static inline
+f64
+z_lerpf(f64 const a, f64 const b, f64 const t)
+{
+    return (1.0 - t) * a + t * b;
 }
 
 #endif /* zint_h */
