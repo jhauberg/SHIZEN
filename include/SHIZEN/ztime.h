@@ -88,7 +88,7 @@ z_animate_to(SHIZAnimatable *,
              f64 duration);
 
 void
-z_animate_to_vec2(SHIZAnimatableVector2 *,
+z_animate_vec2_to(SHIZAnimatableVector2 *,
                   SHIZVector2 to,
                   f64 step,
                   f64 duration);
@@ -98,7 +98,7 @@ z_animate_blend(SHIZAnimatable *,
                 f64 interpolation);
 
 SHIZVector2
-z_animate_blend_vec2(SHIZAnimatableVector2 *,
+z_animate_vec2_blend(SHIZAnimatableVector2 *,
                      f64 interpolation);
 
 static inline
