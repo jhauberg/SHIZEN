@@ -47,6 +47,8 @@ typedef struct SHIZGraphicsContext {
     bool is_initialized;
     /** Determines whether the context has focus */
     bool is_focused;
+    /** Determines whether the context is running in fullscreen */
+    bool is_fullscreen;
     /** Determines whether a shutdown should be initiated */
     bool should_finish;
 } SHIZGraphicsContext;

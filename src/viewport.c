@@ -9,9 +9,11 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
+#include "viewport.h"
+
 #include <math.h> // roundf
 
-#include "viewport.h"
+#include "internal_type.h"
 
 #include "io.h"
 
@@ -24,9 +26,10 @@ SHIZViewport const SHIZViewportDefault = {
         .width = 0,
         .height = 0
     },
-    .scale = 1,
-    .is_fullscreen = false
+    .scale = 1
 };
+
+extern SHIZGraphicsContext const _graphics_context;
 
 static
 void
@@ -86,7 +89,7 @@ z_viewport__determine_operating_resolution()
                                   _viewport.resolution.width, _viewport.resolution.height,
                                   _viewport.framebuffer.width, _viewport.framebuffer.height,
                                   _viewport.scale,
-                                  _viewport.is_fullscreen ? "fullscreen" : "windowed");
+                                  _graphics_context.is_fullscreen ? "fullscreen" : "windowed");
         }
 }
 
