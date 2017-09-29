@@ -208,10 +208,11 @@ z_animate_vec2(SHIZAnimatableVector2 * const animatable,
 void
 z_animate_to(SHIZAnimatable * const animatable,
              f32 const to,
-             f64 const step,
              f64 const duration)
 {
     if (duration > 0) {
+        f64 const step = z_time_get_tick_rate();
+        
         z_animate_time(&animatable->time, step, duration);
         
         animatable->result_prev = animatable->result;
@@ -229,10 +230,11 @@ z_animate_to(SHIZAnimatable * const animatable,
 void
 z_animate_vec2_to(SHIZAnimatableVector2 * const animatable,
                   SHIZVector2 const to,
-                  f64 const step,
                   f64 const duration)
 {
     if (duration > 0) {
+        f64 const step = z_time_get_tick_rate();
+        
         z_animate_time(&animatable->time, step, duration);
         
         animatable->result_prev = animatable->result;

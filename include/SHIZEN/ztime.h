@@ -84,13 +84,11 @@ z_animate_vec2(SHIZAnimatableVector2 *,
 void
 z_animate_to(SHIZAnimatable *,
              f32 to,
-             f64 step,
              f64 duration);
 
 void
 z_animate_vec2_to(SHIZAnimatableVector2 *,
                   SHIZVector2 to,
-                  f64 step,
                   f64 duration);
 
 f32
