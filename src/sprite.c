@@ -66,6 +66,7 @@ z_sprite__set_uv(SHIZSpriteObject * sprite,
                  SHIZSize destination_size,
                  SHIZSize texture_size,
                  SHIZRect source,
+                 SHIZSpriteFlipMode flip,
                  SHIZColor tint,
                  bool repeat);
 
@@ -77,6 +78,7 @@ z_sprite__draw(SHIZSprite const sprite,
                SHIZSpriteSize const size,
                bool const repeat,
                SHIZVector2 const anchor,
+               SHIZSpriteFlipMode flip,
                f32 const angle,
                SHIZColor const tint,
                bool const opaque,
@@ -124,7 +126,7 @@ z_sprite__draw(SHIZSprite const sprite,
     z_sprite__set_position(sprite_object, destination_size, anchor);
     // set texture coordinates appropriately, taking repeating/tiling into account
     z_sprite__set_uv(sprite_object, destination_size, texture_size,
-                     sprite.source, tint, repeat);
+                     sprite.source, flip, tint, repeat);
 
     // count for current batch
     _sprite_list.count += 1;
@@ -272,14 +274,15 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
                  SHIZSize const size,
                  SHIZSize const texture_size,
                  SHIZRect const source,
+                 SHIZSpriteFlipMode const flip,
                  SHIZColor const tint,
                  bool const repeat)
 {
-    bool const flip_vertically = true;
+    bool const flip_source_vertically = true;
     
     SHIZRect flipped_source = source;
     
-    if (flip_vertically) {
+    if (flip_source_vertically) {
         // opengl assumes that the origin of textures is at the bottom-left of the image,
         // however, it is common to specify top-left as origin when using e.g. sprite sheets (and we want that)
         // so, assuming that the provided source frame expects the top-left to be the origin,
@@ -287,10 +290,12 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
         flipped_source.origin.y = (texture_size.height - source.size.height) - source.origin.y;
     }
     
-    SHIZVector2 const uv_min = SHIZVector2Make((flipped_source.origin.x / texture_size.width),
-                                               (flipped_source.origin.y / texture_size.height));
-    SHIZVector2 const uv_max = SHIZVector2Make(((flipped_source.origin.x + flipped_source.size.width) / texture_size.width),
-                                               ((flipped_source.origin.y + flipped_source.size.height) / texture_size.height));
+    SHIZVector2 const uv_min =
+        SHIZVector2Make(flipped_source.origin.x / texture_size.width,
+                        flipped_source.origin.y / texture_size.height);
+    SHIZVector2 const uv_max =
+        SHIZVector2Make((flipped_source.origin.x + flipped_source.size.width) / texture_size.width,
+                        (flipped_source.origin.y + flipped_source.size.height) / texture_size.height);
     
     f32 uv_scale_x = 1;
     f32 uv_scale_y = 1;
@@ -311,10 +316,17 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
     SHIZVector2 const uv_max_scaled = SHIZVector2Make(uv_max.x * uv_scale_x,
                                                       uv_max.y * uv_scale_y);
     
-    SHIZVector2 const tl = SHIZVector2Make(uv_min_scaled.x, uv_max_scaled.y);
-    SHIZVector2 const br = SHIZVector2Make(uv_max_scaled.x, uv_min_scaled.y);
-    SHIZVector2 const bl = SHIZVector2Make(uv_min_scaled.x, uv_min_scaled.y);
-    SHIZVector2 const tr = SHIZVector2Make(uv_max_scaled.x, uv_max_scaled.y);
+    bool const flip_vertically = (flip & SHIZSpriteFlipModeVertical) == SHIZSpriteFlipModeVertical;
+    bool const flip_horizontally = (flip & SHIZSpriteFlipModeHorizontal) == SHIZSpriteFlipModeHorizontal;
+    
+    SHIZVector2 const tl = SHIZVector2Make(flip_horizontally ? uv_max_scaled.x : uv_min_scaled.x,
+                                           flip_vertically ? uv_min_scaled.y : uv_max_scaled.y);
+    SHIZVector2 const br = SHIZVector2Make(flip_horizontally ? uv_min_scaled.x : uv_max_scaled.x,
+                                           flip_vertically ? uv_max_scaled.y : uv_min_scaled.y);
+    SHIZVector2 const bl = SHIZVector2Make(flip_horizontally ? uv_max_scaled.x : uv_min_scaled.x,
+                                           flip_vertically ? uv_max_scaled.y : uv_min_scaled.y);
+    SHIZVector2 const tr = SHIZVector2Make(flip_horizontally ? uv_min_scaled.x : uv_max_scaled.x,
+                                           flip_vertically ? uv_min_scaled.y : uv_max_scaled.y);
     
     sprite->vertices[0].texture_coord = tl;
     sprite->vertices[1].texture_coord = br;

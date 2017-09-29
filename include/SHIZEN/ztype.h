@@ -53,6 +53,12 @@ typedef struct SHIZSprite {
     u8 resource_id;
 } SHIZSprite;
 
+typedef enum SHIZSpriteFlipMode {
+    SHIZSpriteFlipModeNone = 0,
+    SHIZSpriteFlipModeVertical = 1,
+    SHIZSpriteFlipModeHorizontal = 2
+} SHIZSpriteFlipMode;
+
 typedef struct SHIZSpriteSheet {
     SHIZSprite resource;
     SHIZSize sprite_size;

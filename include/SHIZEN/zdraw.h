@@ -18,6 +18,7 @@
 typedef struct SHIZSpriteParameters {
     SHIZColor tint;
     SHIZVector2 anchor;
+    SHIZSpriteFlipMode flip;
     f32 angle; // in radians
     SHIZLayer layer;
     bool is_opaque;
@@ -205,6 +206,7 @@ z_draw_sprite_ex(SHIZSprite sprite,
                  SHIZSpriteSize size,
                  bool repeat,
                  SHIZVector2 anchor,
+                 SHIZSpriteFlipMode flip,
                  f32 angle,
                  SHIZColor tint,
                  bool opaque,
@@ -338,6 +340,7 @@ z_draw_text_ex(SHIZSpriteFont font,
 static inline
 SHIZSpriteParameters const
 SHIZSpriteParametersMake(SHIZVector2 const anchor,
+                         SHIZSpriteFlipMode const flip,
                          SHIZLayer const layer,
                          SHIZColor const tint,
                          f32 const angle,
@@ -348,6 +351,7 @@ SHIZSpriteParametersMake(SHIZVector2 const anchor,
         .layer = layer,
         .tint = tint,
         .angle = angle,
+        .flip = flip,
         .is_opaque = is_opaque
     };
     
@@ -359,6 +363,7 @@ SHIZSpriteParameters const
 SHIZSpriteParametersDefault(void)
 {
     return SHIZSpriteParametersMake(SHIZAnchorCenter,
+                                    SHIZSpriteFlipModeNone,
                                     SHIZLayerDefault,
                                     SHIZSpriteNoTint,
                                     SHIZSpriteNoAngle,
