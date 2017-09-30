@@ -127,7 +127,7 @@ z_startup(SHIZWindowSettings const settings)
     if (_graphics_context.is_initialized) {
         return false;
     }
-
+    
     z_engine__intro(settings.description);
     
     _graphics_context.native_size = settings.size;
@@ -191,6 +191,8 @@ z_startup(SHIZWindowSettings const settings)
         return false;
     }
 #endif
+    
+    z_random_seed_now();
     
     return true;
 }
