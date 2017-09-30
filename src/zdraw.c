@@ -236,8 +236,20 @@ z_draw_circle(SHIZVector2 const center,
               f32 const radius,
               u8 const segments)
 {
+    z_draw_circle_scaled(center, color, mode, radius, segments,
+                         SHIZVector2One);
+}
+
+void
+z_draw_circle_scaled(SHIZVector2 const center,
+                     SHIZColor const color,
+                     SHIZDrawMode const mode,
+                     f32 const radius,
+                     u8 const segments,
+                     SHIZVector2 const scale)
+{
     z_draw_circle_ex(center, color, mode, radius, segments,
-                     SHIZLayerDefault);
+                     scale, SHIZLayerDefault);
 }
 
 void
@@ -246,6 +258,7 @@ z_draw_circle_ex(SHIZVector2 const center,
                  SHIZDrawMode const mode,
                  f32 const radius,
                  u8 const segments,
+                 SHIZVector2 const scale,
                  SHIZLayer const layer)
 {
     u16 const vertex_count = mode == SHIZDrawModeFill ?
@@ -273,8 +286,8 @@ z_draw_circle_ex(SHIZVector2 const center,
 
         f32 const angle = segment * step;
 
-        f32 const x = radius * cosf(angle);
-        f32 const y = radius * sinf(angle);
+        f32 const x = (radius * scale.x) * cosf(angle);
+        f32 const y = (radius * scale.y) * sinf(angle);
 
         vertices[vertex_index].color = color;
         vertices[vertex_index].position = SHIZVector3Make(x, y, 0);

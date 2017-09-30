@@ -343,6 +343,7 @@ z_debug__draw_sprite_gizmo(SHIZVector2 const location,
                          SHIZColorWithAlpa(SHIZColorWhite, 0.1f),
                          SHIZDrawModeFill,
                          radius, segments,
+                         SHIZVector2One,
                          SHIZLayeredBelow(layer));
         
         z_draw_arc_ex(circle_center,

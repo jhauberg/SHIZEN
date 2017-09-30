@@ -115,11 +115,20 @@ z_draw_circle(SHIZVector2 center,
               u8 segments);
 
 void
+z_draw_circle_scaled(SHIZVector2 center,
+                     SHIZColor color,
+                     SHIZDrawMode mode,
+                     f32 radius,
+                     u8 segments,
+                     SHIZVector2 scale);
+
+void
 z_draw_circle_ex(SHIZVector2 center,
                  SHIZColor color,
                  SHIZDrawMode mode,
                  f32 radius,
                  u8 segments,
+                 SHIZVector2 scale,
                  SHIZLayer layer);
 
 /**
