@@ -93,6 +93,8 @@ z_draw_rect(SHIZRect rect,
             SHIZDrawMode mode);
 /**
  * @brief Draw a rectangle.
+ *
+ * The origin of the rectangle is bottom-left.
  */
 void
 z_draw_rect_ex(SHIZRect rect,
