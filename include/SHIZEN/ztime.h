@@ -88,9 +88,17 @@ z_animate_to(SHIZAnimatable *,
              f64 duration);
 
 void
+z_animate_add(SHIZAnimatable *,
+              f32 add);
+
+void
 z_animate_vec2_to(SHIZAnimatableVector2 *,
                   SHIZVector2 to,
                   f64 duration);
+
+void
+z_animate_vec2_add(SHIZAnimatableVector2 *,
+                   SHIZVector2 add);
 
 f32
 z_animate_blend(SHIZAnimatable *,

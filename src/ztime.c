@@ -228,6 +228,18 @@ z_animate_to(SHIZAnimatable * const animatable,
 }
 
 void
+z_animate_add(SHIZAnimatable * const animatable,
+              f32 const add)
+{
+    f64 const step = z_time_get_tick_rate();
+    
+    f32 const from = animatable->value;
+    f32 const to = from + (f32)(add * step);
+    
+    z_animate(animatable, to);
+}
+
+void
 z_animate_vec2_to(SHIZAnimatableVector2 * const animatable,
                   SHIZVector2 const to,
                   f64 const duration)
@@ -251,6 +263,19 @@ z_animate_vec2_to(SHIZAnimatableVector2 * const animatable,
     } else {
         z_animate_vec2(animatable, to);
     }
+}
+
+void
+z_animate_vec2_add(SHIZAnimatableVector2 * const animatable,
+                   SHIZVector2 const add)
+{
+    f64 const step = z_time_get_tick_rate();
+    
+    SHIZVector2 const from = animatable->value;
+    SHIZVector2 const to = SHIZVector2Make(from.x + (f32)(add.x * step),
+                                           from.y + (f32)(add.y * step));
+    
+    z_animate_vec2(animatable, to);
 }
 
 f32
