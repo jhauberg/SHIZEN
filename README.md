@@ -1,16 +1,21 @@
 # SHIZEN
 
-A low-profile and cross-platform 2D game engine that leaves a small footprint, providing shape, sprite and text-rendering.
+A low-profile and cross-platform 2D game engine\* that leaves a small footprint, providing shape, sprite and text-rendering.
 
-It is written *purely* in **C99** and requires **OpenGL 3.3 (Core Profile)**.
+It is written *entirely* in **C99** and requires **OpenGL 3.3 (Core Profile)**.
 
 **This is very much a work-in-progress. Beware.**
+
+---
+
+<sub>\*Calling it an engine is probably going too far. It's more like a *game-enabling framework*. It does not provide anything beyond the bare minimum for building, running and rendering 2D games. I just like calling it an engine!</sub>
 
 ## Features
 
 * **Sprite batching as the default.** Sprites are always rendered in efficient batches to reduce the number of draw calls.
-* **Primitive shape drawing.** Supports rendering common shapes: e.g. rectangles, circles, paths and points.
 * **Text drawing from bitmap fonts.** Supports rendering fixed-width text from a spritesheet/bitmap font. Word-wrapping and truncation is automatically handled.
+* **Smooth and stutter-free.** Animate values smoothly under any frame-rate by blending between frames.
+* **Primitive shape drawing.** Supports rendering common shapes: e.g. rectangles, circles, paths and points.
 * **Layering.** Sprites, text and primitives are always rendered in the expected order by specifying layers.
 
 ## Dependencies
@@ -59,3 +64,7 @@ In this day and age, this is not stuff that we typically (have to) think much ab
 I'm a sucker for following rules/best practices and strive to keep my code consistent and readable.
 
 This article has helped a lot. Though I've decided on other practices in some cases, as a general guideline, this one is great.
+
+["Fix Your Timestep!"](http://gafferongames.com/game-physics/fix-your-timestep/)
+
+Essential reading for implementing frame-rate independent simulation.

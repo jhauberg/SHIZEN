@@ -11,7 +11,7 @@
 
 #include <SHIZEN/ztype.h>
 
-#include <stdlib.h>
+#include <stdlib.h> // NULL
 
 #include "internal_type.h"
 

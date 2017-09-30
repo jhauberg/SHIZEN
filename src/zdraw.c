@@ -11,10 +11,7 @@
 
 #include <SHIZEN/zdraw.h>
 
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <math.h>
+#include <math.h> // M_PI, cosf, sinf, fmodf
 
 #include "internal.h"
 
@@ -372,6 +369,7 @@ z_draw_sprite(SHIZSprite const sprite,
                             SHIZSpriteSizeIntrinsic,
                             SHIZSpriteNoRepeat,
                             params.anchor,
+                            params.flip,
                             params.angle,
                             params.tint,
                             params.is_opaque,
@@ -387,6 +385,7 @@ SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
                             size,
                             SHIZSpriteNoRepeat,
                             params.anchor,
+                            params.flip,
                             params.angle,
                             params.tint,
                             params.is_opaque,
@@ -402,6 +401,7 @@ SHIZSize z_draw_sprite_tiled(SHIZSprite sprite,
                             size,
                             SHIZSpriteRepeat,
                             params.anchor,
+                            params.flip,
                             params.angle,
                             params.tint,
                             params.is_opaque,
@@ -414,14 +414,15 @@ z_draw_sprite_ex(SHIZSprite const sprite,
                  SHIZSpriteSize const size,
                  bool const repeat,
                  SHIZVector2 const anchor,
+                 SHIZSpriteFlipMode const flip,
                  f32 const angle,
                  SHIZColor const tint,
                  bool const opaque,
                  SHIZLayer const layer)
 {
     SHIZSize const sprite_size = z_sprite__draw(sprite, origin, size, repeat,
-                                                anchor, angle, tint, opaque,
-                                                layer);
+                                                anchor, flip, angle, tint,
+                                                opaque, layer);
 
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {

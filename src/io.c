@@ -19,6 +19,7 @@
  #pragma clang diagnostic ignored "-Wunused-function"
  #pragma clang diagnostic ignored "-Wsign-conversion"
  #pragma clang diagnostic ignored "-Wconversion"
+ #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
 #include <stb_image.h>
@@ -27,8 +28,8 @@
  #pragma clang diagnostic pop
 #endif
 
-#include <stdio.h>
-#include <stdarg.h>
+#include <stdio.h> // fprintf, sprintf, vsnprintf
+#include <stdarg.h> // va_list etc.
 
 static
 bool

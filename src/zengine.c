@@ -11,7 +11,7 @@
 
 #include <SHIZEN/shizen.h>
 
-#include <stdio.h>
+#include <stdio.h> // printf
 
 #include "graphics/gfx.h"
 
@@ -71,6 +71,10 @@ void
 z_engine__toggle_windowed(GLFWwindow *);
 
 static
+bool
+z_engine__is_fullscreen(void);
+
+static
 f32
 z_engine__get_pixel_scale(void);
 
@@ -123,7 +127,7 @@ z_startup(SHIZWindowSettings const settings)
     if (_graphics_context.is_initialized) {
         return false;
     }
-
+    
     z_engine__intro(settings.description);
     
     _graphics_context.native_size = settings.size;
@@ -187,6 +191,8 @@ z_startup(SHIZWindowSettings const settings)
         return false;
     }
 #endif
+    
+    z_random_seed_now();
     
     return true;
 }
@@ -259,10 +265,6 @@ z_engine__build_viewport()
     viewport.resolution = _graphics_context.native_size;
     viewport.framebuffer = z_engine__get_framebuffer_size();
     viewport.scale = z_engine__get_pixel_scale();
-
-    if (glfwGetWindowMonitor(_graphics_context.window)) {
-        viewport.is_fullscreen = true;
-    }
 
     return viewport;
 }
@@ -370,6 +372,8 @@ z_engine__create_window(bool const fullscreen,
     
     GLFWwindow * const window = _graphics_context.window;
     
+    _graphics_context.is_fullscreen = z_engine__is_fullscreen();
+    
     glfwSetWindowCloseCallback(window, z_engine__window_close_callback);
     glfwSetWindowFocusCallback(window, z_engine__window_focus_callback);
     
@@ -424,10 +428,21 @@ z_engine__get_pixel_scale()
 }
 
 static
+bool
+z_engine__is_fullscreen()
+{
+    if (_graphics_context.window != NULL) {
+        return glfwGetWindowMonitor(_graphics_context.window) != NULL;
+    }
+    
+    return false;
+}
+
+static
 void
 z_engine__toggle_windowed(GLFWwindow * const window)
 {
-    bool const is_currently_fullscreen = glfwGetWindowMonitor(window) != NULL;
+    bool const is_currently_fullscreen = z_engine__is_fullscreen();
 
     int window_position_x = (int)_preferred_window_position.x;
     int window_position_y = (int)_preferred_window_position.y;
@@ -458,6 +473,8 @@ z_engine__toggle_windowed(GLFWwindow * const window)
                                  mode->refreshRate);
         }
     }
+    
+    _graphics_context.is_fullscreen = z_engine__is_fullscreen();
 }
 
 static
@@ -536,6 +553,8 @@ z_engine__framebuffer_size_callback(GLFWwindow * const window,
     (void)width;
     (void)height;
 
+    _graphics_context.is_fullscreen = z_engine__is_fullscreen();
+    
     SHIZViewport const viewport = z_engine__build_viewport();
 
     z_viewport__set(viewport);

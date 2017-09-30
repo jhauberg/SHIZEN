@@ -11,7 +11,7 @@
 
 #include <SHIZEN/ztime.h>
 
-#include <math.h>
+#include <math.h> // fabs
 
 #include "internal.h"
 #include "internal_type.h"
@@ -74,9 +74,7 @@ z_time_tick(u8 const frequency)
     if (_timeline_state.time_lag >= _timeline.time_step) {
         _timeline_state.time_lag -= _timeline.time_step;
         
-        SHIZTimeDirection const direction = z_time_get_direction();
-        
-        _timeline.time += _timeline.time_step * direction;
+        _timeline.time += _timeline.time_step * z_time_get_direction();
         
         return true;
     }
@@ -146,13 +144,161 @@ z_time_get_direction()
     return SHIZTimeDirectionStill;
 }
 
-void z_animate(SHIZAnimatable * const animatable,
-               f64 const interpolation)
+static
+void
+z_animate_time(f64 * time,
+               f64 const step,
+               f64 const duration)
 {
-    animatable->previous_result = animatable->result;
-    animatable->result = z_lerp(animatable->value,
-                                animatable->previous_result,
-                                (f32)interpolation);
+    *time += step;
+    
+    if (*time > duration) {
+        *time = duration;
+    }
+}
+
+static
+void
+z_animate_value_to(f32 * next_value,
+                   f32 const value,
+                   f32 const to,
+                   f64 const time,
+                   f64 const duration)
+{
+    f32 const t = duration > 0 ? (f32)(time / duration) : 1;
+    
+    *next_value = z_lerp(value, to, t);
+}
+
+static
+f32
+z_animate_blend_value(f32 const previous,
+                      f32 const next,
+                      f64 const interpolation)
+{
+    f32 t = (f32)interpolation;
+    
+    if (t < 0) {
+        t = 0;
+    } else if (t > 1) {
+        t = 1;
+    }
+    
+    return z_lerp(previous, next, t);
+}
+
+void
+z_animate(SHIZAnimatable * const animatable,
+          f32 const to)
+{
+    animatable->value = to;
+    animatable->result_prev = animatable->result;
+    animatable->result = animatable->value;
+}
+
+void
+z_animate_vec2(SHIZAnimatableVector2 * const animatable,
+               SHIZVector2 const to)
+{
+    animatable->value = to;
+    animatable->result_prev = animatable->result;
+    animatable->result = animatable->value;
+}
+
+void
+z_animate_to(SHIZAnimatable * const animatable,
+             f32 const to,
+             f64 const duration)
+{
+    if (duration > 0) {
+        f64 const step = z_time_get_tick_rate();
+        
+        z_animate_time(&animatable->time, step, duration);
+        
+        animatable->result_prev = animatable->result;
+        
+        z_animate_value_to(&animatable->result,
+                           animatable->value,
+                           to,
+                           animatable->time,
+                           duration);
+    } else {
+        z_animate(animatable, to);
+    }
+}
+
+void
+z_animate_add(SHIZAnimatable * const animatable,
+              f32 const add)
+{
+    f64 const step = z_time_get_tick_rate();
+    
+    f32 const from = animatable->value;
+    f32 const to = from + (f32)(add * step);
+    
+    z_animate(animatable, to);
+}
+
+void
+z_animate_vec2_to(SHIZAnimatableVector2 * const animatable,
+                  SHIZVector2 const to,
+                  f64 const duration)
+{
+    if (duration > 0) {
+        f64 const step = z_time_get_tick_rate();
+        
+        z_animate_time(&animatable->time, step, duration);
+        
+        animatable->result_prev = animatable->result;
+        
+        z_animate_value_to(&animatable->result.x,
+                           animatable->value.x, to.x,
+                           animatable->time,
+                           duration);
+        
+        z_animate_value_to(&animatable->result.y,
+                           animatable->value.y, to.y,
+                           animatable->time,
+                           duration);
+    } else {
+        z_animate_vec2(animatable, to);
+    }
+}
+
+void
+z_animate_vec2_add(SHIZAnimatableVector2 * const animatable,
+                   SHIZVector2 const add)
+{
+    f64 const step = z_time_get_tick_rate();
+    
+    SHIZVector2 const from = animatable->value;
+    SHIZVector2 const to = SHIZVector2Make(from.x + (f32)(add.x * step),
+                                           from.y + (f32)(add.y * step));
+    
+    z_animate_vec2(animatable, to);
+}
+
+f32
+z_animate_blend(SHIZAnimatable * const animatable,
+                f64 const interpolation)
+{
+    return z_animate_blend_value(animatable->result_prev,
+                                 animatable->result,
+                                 interpolation);
+}
+
+SHIZVector2
+z_animate_vec2_blend(SHIZAnimatableVector2 * const animatable,
+                     f64 const interpolation)
+{
+    f32 const x = z_animate_blend_value(animatable->result_prev.x,
+                                        animatable->result.x,
+                                        interpolation);
+    f32 const y = z_animate_blend_value(animatable->result_prev.y,
+                                        animatable->result.y,
+                                        interpolation);
+    
+    return SHIZVector2Make(x, y);
 }
 
 #ifdef SHIZ_DEBUG

@@ -9,8 +9,8 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <string.h>
-#include <stdlib.h>
+#include <stdlib.h> // NULL
+#include <string.h> // strcmp, strrchr
 
 #include "res.h"
 #include "io.h"

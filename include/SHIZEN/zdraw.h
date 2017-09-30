@@ -18,15 +18,18 @@
 typedef struct SHIZSpriteParameters {
     SHIZColor tint;
     SHIZVector2 anchor;
+    SHIZSpriteFlipMode flip;
     f32 angle; // in radians
     SHIZLayer layer;
     bool is_opaque;
+    u8 _pad;
 } SHIZSpriteParameters;
 
 typedef struct SHIZSpriteFontParameters {
     SHIZColor tint;
     SHIZSpriteFontAlignment alignment;
     SHIZLayer layer;
+    u8 _pad[2];
 } SHIZSpriteFontParameters;
 
 /**
@@ -90,6 +93,8 @@ z_draw_rect(SHIZRect rect,
             SHIZDrawMode mode);
 /**
  * @brief Draw a rectangle.
+ *
+ * The origin of the rectangle is bottom-left.
  */
 void
 z_draw_rect_ex(SHIZRect rect,
@@ -205,6 +210,7 @@ z_draw_sprite_ex(SHIZSprite sprite,
                  SHIZSpriteSize size,
                  bool repeat,
                  SHIZVector2 anchor,
+                 SHIZSpriteFlipMode flip,
                  f32 angle,
                  SHIZColor tint,
                  bool opaque,
@@ -338,6 +344,7 @@ z_draw_text_ex(SHIZSpriteFont font,
 static inline
 SHIZSpriteParameters const
 SHIZSpriteParametersMake(SHIZVector2 const anchor,
+                         SHIZSpriteFlipMode const flip,
                          SHIZLayer const layer,
                          SHIZColor const tint,
                          f32 const angle,
@@ -348,6 +355,7 @@ SHIZSpriteParametersMake(SHIZVector2 const anchor,
         .layer = layer,
         .tint = tint,
         .angle = angle,
+        .flip = flip,
         .is_opaque = is_opaque
     };
     
@@ -359,6 +367,7 @@ SHIZSpriteParameters const
 SHIZSpriteParametersDefault(void)
 {
     return SHIZSpriteParametersMake(SHIZAnchorCenter,
+                                    SHIZSpriteFlipModeNone,
                                     SHIZLayerDefault,
                                     SHIZSpriteNoTint,
                                     SHIZSpriteNoAngle,

@@ -21,6 +21,7 @@ typedef struct SHIZSpriteFontLine {
     SHIZSize size;
     /** The number of characters in the line */
     u16 character_count;
+    u8 _pad[2];
 } SHIZSpriteFontLine;
 
 typedef struct SHIZSpriteFontMeasurement {
@@ -47,6 +48,7 @@ typedef struct SHIZSpriteFontMeasurement {
     /** Determines whether to keep text within vertical bounds,
         forcing linebreaks if possible; truncates otherwise */
     bool constrain_vertically;
+    u8 _pad;
 } SHIZSpriteFontMeasurement;
 
 SHIZSpriteFontMeasurement const

@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 #include "ztype.h"
+#include "zrand.h"
 #include "ztime.h"
 #include "zloader.h"
 #include "zinput.h"
@@ -38,6 +39,7 @@ typedef struct SHIZWindowSettings {
     bool fullscreen;
     /** Determines whether v-sync should be enabled */
     bool vsync;
+    u8 _pad[5];
 } SHIZWindowSettings;
 
 /**

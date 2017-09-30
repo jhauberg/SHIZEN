@@ -15,6 +15,7 @@
 #include <stdbool.h>
 
 #include "zint.h"
+#include "ztype.h"
 
 typedef enum SHIZTimeDirection {
     SHIZTimeDirectionBackward = -1,
@@ -59,26 +60,78 @@ SHIZTimeDirection
 z_time_get_direction(void);
 
 typedef struct SHIZAnimatable {
+    f64 time;
     f32 value;
-    f32 previous_result;
     f32 result;
+    f32 result_prev;
+    u8 _pad[4];
 } SHIZAnimatable;
+
+typedef struct SHIZAnimatableVector2 {
+    f64 time;
+    SHIZVector2 value;
+    SHIZVector2 result;
+    SHIZVector2 result_prev;
+} SHIZAnimatableVector2;
 
 void
 z_animate(SHIZAnimatable *,
-          f64 interpolation);
+          f32 to);
+
+void
+z_animate_vec2(SHIZAnimatableVector2 *,
+               SHIZVector2 to);
+
+void
+z_animate_to(SHIZAnimatable *,
+             f32 to,
+             f64 duration);
+
+void
+z_animate_add(SHIZAnimatable *,
+              f32 add);
+
+void
+z_animate_vec2_to(SHIZAnimatableVector2 *,
+                  SHIZVector2 to,
+                  f64 duration);
+
+void
+z_animate_vec2_add(SHIZAnimatableVector2 *,
+                   SHIZVector2 add);
+
+f32
+z_animate_blend(SHIZAnimatable *,
+                f64 interpolation);
+
+SHIZVector2
+z_animate_vec2_blend(SHIZAnimatableVector2 *,
+                     f64 interpolation);
 
 static inline
 SHIZAnimatable
 SHIZAnimated(f32 const value)
 {
     SHIZAnimatable animatable = {
+        .time = 0,
         .value = value,
-        .previous_result = 0,
-        .result = 0
+        .result = value,
+        .result_prev = value
     };
     
-    z_animate(&animatable, 1);
+    return animatable;
+}
+
+static inline
+SHIZAnimatableVector2
+SHIZAnimatedVector2(SHIZVector2 const value)
+{
+    SHIZAnimatableVector2 animatable = {
+        .time = 0,
+        .value = value,
+        .result = value,
+        .result_prev = value
+    };
     
     return animatable;
 }

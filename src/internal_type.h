@@ -20,7 +20,6 @@
 #if defined(__clang__)
  #pragma clang diagnostic push
  #pragma clang diagnostic ignored "-Wdocumentation"
- #pragma clang diagnostic ignored "-Wconversion"
 #endif
 
 #include <GLFW/glfw3.h>
@@ -48,8 +47,11 @@ typedef struct SHIZGraphicsContext {
     bool is_initialized;
     /** Determines whether the context has focus */
     bool is_focused;
+    /** Determines whether the context is running in fullscreen */
+    bool is_fullscreen;
     /** Determines whether a shutdown should be initiated */
     bool should_finish;
+    u8 _pad[2];
 } SHIZGraphicsContext;
 
 typedef struct SHIZTimeline {

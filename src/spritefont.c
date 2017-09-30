@@ -12,8 +12,8 @@
 #include "spritefont.h"
 #include "sprite.h"
 
-#include <stdlib.h>
-#include <math.h>
+#include <stdlib.h> // NULL
+#include <math.h> // floorf
 
 static
 unsigned int
@@ -495,6 +495,7 @@ z_spritefont__draw_character_index(SHIZSpriteFont const * const font,
                    character_sprite_size,
                    SHIZSpriteNoRepeat,
                    SHIZAnchorTopLeft,
+                   SHIZSpriteFlipModeNone,
                    SHIZSpriteNoAngle,
                    highlight_color,
                    SHIZSpriteNotOpaque,
