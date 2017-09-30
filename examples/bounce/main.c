@@ -1,6 +1,4 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include <SHIZEN/shizen.h>
 
@@ -22,7 +20,7 @@ int main() {
     SHIZSize const screen = z_get_display_size();
     
     f32 const gravity = -9.81f;
-    f32 const platform_friction = 0.76f;
+    f32 const platform_friction = 0.86f;
     f32 const ball_radius = 12;
     
     SHIZVector2 const screen_center = SHIZVector2Make(screen.width / 2,
@@ -40,6 +38,10 @@ int main() {
         SHIZAnimatedVector2(SHIZVector2Make(screen_center.x,
                                             screen_center.y + one_quarter_screen_height));
     
+    SHIZAnimatable ball_squish_scale = SHIZAnimated(1);
+    
+    f64 const ball_squish_duration = 0.2;
+    
     SHIZVector2 ball_velocity = SHIZVector2Zero;
     
     while (!z_should_finish()) {
@@ -52,25 +54,40 @@ int main() {
                 }
                 
                 if (z_input_down(SHIZInputUp)) {
-                    ball_velocity.y += 50;
+                    ball_velocity.y += 35;
                 } else if (z_input_down(SHIZInputDown)) {
-                    ball_velocity.y -= 50;
+                    ball_velocity.y -= 35;
                 }
                 
                 ball_velocity.y += gravity;
                 
                 z_animate_vec2_add(&ball_position, ball_velocity);
+                z_animate_to(&ball_squish_scale, 1, ball_squish_duration);
                 
                 f32 const platform_top_y = platform.origin.y + platform_size.height;
-                f32 const ball_bottom_y = ball_position.value.y - ball_radius;
+                f32 const ball_bottom_y = ball_position.value.y - (ball_radius * ball_squish_scale.result);
                 
                 if (ball_bottom_y < platform_top_y) {
+                    f32 squish_scale = 1;
+                    
+                    if (fabsf(ball_velocity.y) > ball_radius * ball_radius) {
+                        squish_scale = ball_radius / fabsf(ball_velocity.y);
+                        
+                        if (squish_scale < 0.6f) {
+                            squish_scale = 0.6f;
+                        } else if (squish_scale > 1) {
+                            squish_scale = 1;
+                        }
+                    }
+                    
+                    ball_squish_scale = SHIZAnimated(squish_scale);
+                    
                     ball_velocity.y *= platform_friction;
                     ball_velocity.y *= -1;
                     
                     SHIZVector2 clamped_ball_position = ball_position.value;
                     
-                    clamped_ball_position.y = platform_top_y + ball_radius;
+                    clamped_ball_position.y = platform_top_y + (ball_radius * ball_squish_scale.result);
                     
                     ball_position = SHIZAnimatedVector2(clamped_ball_position);
                 }
@@ -83,11 +100,15 @@ int main() {
             SHIZVector2 const position =
                 z_animate_vec2_blend(&ball_position, interpolation);
             
-            z_draw_circle(position,
-                          SHIZColorWhite,
-                          SHIZDrawModeFill,
-                          ball_radius,
-                          16);
+            f32 const squish_scale =
+                z_animate_blend(&ball_squish_scale, interpolation);
+            
+            z_draw_circle_scaled(position,
+                                 SHIZColorWhite,
+                                 SHIZDrawModeFill,
+                                 ball_radius,
+                                 16,
+                                 SHIZVector2Make(1, squish_scale));
             
             z_draw_rect(platform,
                         SHIZColorWhite,
