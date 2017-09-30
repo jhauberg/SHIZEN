@@ -22,12 +22,14 @@ typedef struct SHIZSpriteParameters {
     f32 angle; // in radians
     SHIZLayer layer;
     bool is_opaque;
+    u8 _pad;
 } SHIZSpriteParameters;
 
 typedef struct SHIZSpriteFontParameters {
     SHIZColor tint;
     SHIZSpriteFontAlignment alignment;
     SHIZLayer layer;
+    u8 _pad[2];
 } SHIZSpriteFontParameters;
 
 /**

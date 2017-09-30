@@ -44,6 +44,7 @@ typedef struct SHIZSpriteList {
     SHIZSpriteObject sprites[SHIZSpriteMax];
     u32 total;
     u16 count;
+    u8 _pad[2];
 } SHIZSpriteList;
 
 static

@@ -64,6 +64,7 @@ typedef struct SHIZAnimatable {
     f32 value;
     f32 result;
     f32 result_prev;
+    u8 _pad[4];
 } SHIZAnimatable;
 
 typedef struct SHIZAnimatableVector2 {

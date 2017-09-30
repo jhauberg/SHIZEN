@@ -33,6 +33,7 @@ typedef struct SHIZSpriteBatch {
     SHIZRenderObject render;
     GLuint texture_id;
     u16 count;
+    u8 _pad[2];
 } SHIZSpriteBatch;
 
 static SHIZSpriteBatch _spritebatch;

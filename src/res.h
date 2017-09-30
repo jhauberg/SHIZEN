@@ -29,11 +29,13 @@ typedef struct SHIZResourceImage {
     u16 width;
     u16 height;
     u8 resource_id;
+    u8 _pad[7];
 } SHIZResourceImage;
 
 typedef struct SHIZResourceSound {
     char const * filename;
     u8 resource_id;
+    u8 _pad[7];
 } SHIZResourceSound;
 
 extern SHIZResourceImage const SHIZResourceImageEmpty;

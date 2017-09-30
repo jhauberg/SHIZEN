@@ -27,6 +27,7 @@ typedef struct SHIZDebugEvent {
     char const * name;
     SHIZVector3 origin;
     u8 lane;
+    u8 _pad[3];
 } SHIZDebugEvent;
 
 extern char const * const SHIZDebugEventNamePrimitive;
@@ -42,6 +43,7 @@ typedef struct SHIZDebugFrameStats {
     u16 frames_per_second_max;
     u16 frames_per_second_avg;
     u16 draw_count;
+    u8 _pad[6];
 } SHIZDebugFrameStats;
 
 bool

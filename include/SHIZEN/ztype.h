@@ -51,6 +51,7 @@ typedef struct SHIZSprite {
     SHIZRect source;
     /** The image resource */
     u8 resource_id;
+    u8 _pad[3];
 } SHIZSprite;
 
 typedef enum SHIZSpriteFlipMode {
@@ -90,16 +91,13 @@ typedef struct SHIZSpriteFontTable {
     u32 const * codepage;
     u16 columns;
     u16 rows;
+    u8 _pad[4];
 } SHIZSpriteFontTable;
 
 /**
  * @brief Represents a set of attributes that specify how text should be drawn.
  */
 typedef struct SHIZSpriteFontAttributes {
-    /** A pointer to an array of tint colors */
-    SHIZColor const * colors;
-    /** The amount of colors these attributes point to */
-    u8 colors_count;
     /** A scale defining the final size of the text */
     SHIZVector2 scale;
     /** A scale defining how "tight" characters are drawn */
@@ -110,6 +108,11 @@ typedef struct SHIZSpriteFontAttributes {
     f32 line_padding;
     /** The word-wrapping mode */
     SHIZSpriteFontWrapMode wrap;
+    /** A pointer to an array of tint colors */
+    SHIZColor const * colors;
+    /** The amount of colors these attributes point to */
+    u8 colors_count;
+    u8 _pad[7];
 } SHIZSpriteFontAttributes;
 
 /**
@@ -125,6 +128,7 @@ typedef struct SHIZSpriteFont {
     /** Determines whether the font resource includes a sprite for the
       * whitespace character */
     bool includes_whitespace;
+    u8 _pad[3];
 } SHIZSpriteFont;
 
 /**

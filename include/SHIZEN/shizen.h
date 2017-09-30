@@ -39,6 +39,7 @@ typedef struct SHIZWindowSettings {
     bool fullscreen;
     /** Determines whether v-sync should be enabled */
     bool vsync;
+    u8 _pad[5];
 } SHIZWindowSettings;
 
 /**

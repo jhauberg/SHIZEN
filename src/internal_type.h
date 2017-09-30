@@ -51,6 +51,7 @@ typedef struct SHIZGraphicsContext {
     bool is_fullscreen;
     /** Determines whether a shutdown should be initiated */
     bool should_finish;
+    u8 _pad[2];
 } SHIZGraphicsContext;
 
 typedef struct SHIZTimeline {
