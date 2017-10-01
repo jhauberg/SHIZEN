@@ -120,8 +120,8 @@ z_sprite__draw(SHIZSprite const sprite,
                                                 size.target.width : sprite.source.size.width,
                                               size.target.height > 0 ?
                                                 size.target.height : sprite.source.size.height);
-    SHIZSize const destination_size = SHIZSizeMake(source_size.width * size.scale,
-                                                   source_size.height * size.scale);
+    SHIZSize const destination_size = SHIZSizeMake(source_size.width * size.scale.x,
+                                                   source_size.height * size.scale.y);
 
     // set vertex positions appropriately for the given anchor (note that vertices are not transformed until flushed)
     z_sprite__set_position(sprite_object, destination_size, anchor);

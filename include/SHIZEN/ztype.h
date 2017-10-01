@@ -70,7 +70,7 @@ typedef struct SHIZSpriteSheet {
 
 typedef struct SHIZSpriteSize {
     SHIZSize target;
-    f32 scale;
+    SHIZVector2 scale;
 } SHIZSpriteSize;
 
 typedef enum SHIZSpriteFontAlignment {
@@ -320,7 +320,7 @@ SHIZSpriteTintDefaultWithAlpa(f32 const alpha)
 
 static inline
 SHIZSpriteSize const
-SHIZSpriteSized(SHIZSize const size, f32 const scale)
+SHIZSpriteSized(SHIZSize const size, SHIZVector2 const scale)
 {
     SHIZSpriteSize sprite_size;
 
@@ -332,7 +332,7 @@ SHIZSpriteSized(SHIZSize const size, f32 const scale)
 
 static inline
 SHIZSpriteSize const
-SHIZSpriteSizedIntrinsicallyWithScale(f32 const scale)
+SHIZSpriteSizedIntrinsicallyWithScale(SHIZVector2 const scale)
 {
     SHIZSpriteSize size = SHIZSpriteSizeIntrinsic;
 

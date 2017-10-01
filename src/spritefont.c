@@ -485,8 +485,10 @@ z_spritefont__draw_character_index(SHIZSpriteFont const * const font,
     character_sprite.source.origin.y = (font->sprite.source.origin.y +
                                         (font->character.height * character_row));
     
-    SHIZSpriteSize const character_sprite_size = SHIZSpriteSized(measurement->character_size,
-                                                                 SHIZSpriteNoScale);
+
+    SHIZSpriteSize const character_sprite_size =
+        SHIZSpriteSized(measurement->character_size,
+                        SHIZVector2One);
     
     // todo: optimization; we already know the Z because the layer does not change per character
     // todo: optimization; we don't need to calculate anchored rect each time either
