@@ -15,33 +15,41 @@
 #include "zint.h"
 #include "ztype.h"
 
-void
-z_random_seed(u32 seed);
+#include <stdbool.h>
 
 void
-z_random_seed_now(void);
+z_rand_seed(u32 seed);
+
+void
+z_rand_seed_now(void);
 
 u32
-z_random_get_seed(void);
+z_rand_get_seed(void);
+
+u32
+z_rand(void);
 
 i32
-z_random_int(void);
-
-i32
-z_random_int_range(i32 const min,
-                   i32 const max);
+z_rand_range(i32 const min,
+             i32 const max);
 
 f32
-z_random(void);
+z_randf(void);
 
 f32
-z_random_range(f32 const min,
-               f32 const max);
+z_randf_range(f32 const min,
+              f32 const max);
 
 f32
-z_random_angle(void);
+z_randf_angle(void);
 
 SHIZColor
-z_random_color(void);
+z_rand_color(void);
+
+bool
+z_rand_choice(void);
+
+bool
+z_rand_chance(f32 percentage);
 
 #endif /* zrand_h */

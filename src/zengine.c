@@ -192,7 +192,7 @@ z_startup(SHIZWindowSettings const settings)
     }
 #endif
     
-    z_random_seed_now();
+    z_rand_seed_now();
     
     return true;
 }
