@@ -11,9 +11,9 @@
 
 #include <SHIZEN/zrand.h>
 
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+#include <stdlib.h> // NULL
+#include <math.h> // ldexpf, M_PI
+#include <time.h> // time()
 
 #ifdef SHIZ_DEBUG
  #include <stdio.h>
@@ -79,17 +79,13 @@ z_randf_range(f32 const min, f32 const max)
 f32
 z_randf_angle()
 {
-    return z_randf_range((f32)-M_PI,
-                         (f32)M_PI);
+    return z_randf_range((f32)-M_PI, (f32)M_PI);
 }
 
 SHIZColor
 z_rand_color()
 {
-    return SHIZColorMake(z_randf(),
-                         z_randf(),
-                         z_randf(),
-                         1);
+    return SHIZColorMake(z_randf(), z_randf(), z_randf(), 1);
 }
 
 bool
