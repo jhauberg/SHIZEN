@@ -256,6 +256,22 @@ z_get_display_size()
     return _graphics_context.native_size;
 }
 
+SHIZVector2
+z_get_display_point(SHIZVector2 const anchor)
+{
+    SHIZSize const display = z_get_display_size();
+    SHIZSize const display_half = SHIZSizeMake(display.width / 2,
+                                               display.height / 2);
+    
+    SHIZVector2 const delta = SHIZVector2Make(display_half.width * anchor.x,
+                                              display_half.height * anchor.y);
+    
+    SHIZVector2 const point = SHIZVector2Make(display_half.width + delta.x,
+                                              display_half.height + delta.y);
+    
+    return point;
+}
+
 static
 SHIZViewport
 z_engine__build_viewport()

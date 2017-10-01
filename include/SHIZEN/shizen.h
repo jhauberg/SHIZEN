@@ -115,4 +115,7 @@ z_should_finish(void);
 SHIZSize
 z_get_display_size(void);
 
+SHIZVector2
+z_get_display_point(SHIZVector2 anchor);
+
 #endif // shizen_h

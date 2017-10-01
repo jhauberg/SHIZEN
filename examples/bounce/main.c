@@ -23,8 +23,7 @@ int main() {
     f32 const platform_friction = 0.86f;
     f32 const ball_radius = 12;
     
-    SHIZVector2 const screen_center = SHIZVector2Make(screen.width / 2,
-                                                      screen.height / 2);
+    SHIZVector2 const screen_center = z_get_display_point(SHIZAnchorCenter);
     
     f32 const one_quarter_screen_height = (screen.height / 4);
     
