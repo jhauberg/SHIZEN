@@ -338,35 +338,66 @@ z_debug__draw_viewport()
 }
 
 void
-z_debug__draw_sprite_shape(SHIZVector2 const origin,
-                           SHIZSize const size,
-                           SHIZColor const color,
-                           SHIZVector2 const anchor,
-                           f32 const angle,
-                           SHIZLayer const layer)
+z_debug__draw_rect_bounds(SHIZRect const rect,
+                          SHIZColor const color,
+                          SHIZVector2 const anchor,
+                          f32 const angle,
+                          SHIZLayer const layer)
 {
     bool const previously_tracking_events = z_debug__is_events_enabled();
     
     z_debug__set_events_enabled(false);
+
+    SHIZSize const padded_size = SHIZSizeMake(rect.size.width + 2,
+                                              rect.size.height + 2);
     
-    SHIZSize const padded_size = SHIZSizeMake(size.width + 1, size.height + 1);
-    SHIZVector2 padded_origin = SHIZVector2Make(origin.x, origin.y);
+    SHIZVector2 padded_origin = SHIZVector2Make(rect.origin.x + anchor.x,
+                                                rect.origin.y + anchor.y);
+
+    bool const previously_drawing_shapes = z_debug__is_drawing_shapes();
     
-    if (anchor.x > 0) {
-        padded_origin.x += anchor.x;
-    }
-    
-    if (anchor.y > 0) {
-        padded_origin.y += anchor.y;
-    }
-    
+    // disable shape drawing while drawing this shape to avoid
+    // drawing the shape of a shape of a shape...
+    z_debug__set_drawing_shapes(false);
+
     z_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
                    color, SHIZDrawModeOutline, anchor, angle,
                    SHIZLayeredAbove(layer));
     
-    z_debug__draw_gizmo(origin, anchor, angle, SHIZLayeredAbove(layer));
+    z_debug__draw_gizmo(rect.origin, anchor, angle, SHIZLayeredAbove(layer));
     
+    z_debug__set_drawing_shapes(previously_drawing_shapes);
     z_debug__set_events_enabled(previously_tracking_events);
+}
+
+void
+z_debug__draw_sprite_bounds(SHIZVector2 const origin,
+                            SHIZSize const size,
+                            SHIZColor const color,
+                            SHIZVector2 const anchor,
+                            f32 const angle,
+                            SHIZLayer const layer)
+{
+    z_debug__draw_rect_bounds(SHIZRectMake(origin, size),
+                              color,
+                              anchor,
+                              angle,
+                              layer);
+}
+
+void
+z_debug__draw_circle_bounds(SHIZVector2 const origin,
+                            SHIZColor const color,
+                            f32 const radius,
+                            SHIZVector2 const scale,
+                            SHIZLayer const layer)
+{
+    SHIZRect const rect =
+        SHIZRectMake(origin, SHIZSizeMake((radius * scale.x) * 2,
+                                          (radius * scale.y) * 2));
+    
+    z_debug__draw_rect_bounds(rect, color,
+                             SHIZAnchorCenter, 0, layer);
 }
 
 static

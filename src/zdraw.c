@@ -226,6 +226,16 @@ z_draw_rect_ex(SHIZRect const rect,
                          vertices, vertex_count,
                          origin, angle);
     }
+    
+#ifdef SHIZ_DEBUG
+    if (z_debug__is_enabled()) {
+        if (z_debug__is_drawing_shapes() &&
+            (rect.size.width > 0 && rect.size.height > 0)) {
+            z_debug__draw_rect_bounds(rect, SHIZColorRed,
+                                      anchor, angle, layer);
+        }
+    }
+#endif
 }
 
 void
@@ -308,6 +318,16 @@ z_draw_circle_ex(SHIZVector2 const center,
         z_gfx__render_ex(GL_LINE_LOOP, vertices, vertex_count, origin,
                          SHIZSpriteNoAngle);
     }
+    
+#ifdef SHIZ_DEBUG
+    if (z_debug__is_enabled()) {
+        if (z_debug__is_drawing_shapes() &&
+            (radius > 0)) {
+            z_debug__draw_circle_bounds(center, SHIZColorRed,
+                                        radius, scale, layer);
+        }
+    }
+#endif
 }
 
 void
@@ -440,8 +460,8 @@ z_draw_sprite_ex(SHIZSprite const sprite,
     if (z_debug__is_enabled()) {
         if (z_debug__is_drawing_shapes() &&
             (sprite_size.width > 0 && sprite_size.height > 0)) {
-            z_debug__draw_sprite_shape(origin, sprite_size, SHIZColorRed,
-                                       anchor, angle, layer);
+            z_debug__draw_sprite_bounds(origin, sprite_size, SHIZColorRed,
+                                        anchor, angle, layer);
         }
 
         z_debug__add_event_resource(z_res__image(sprite.resource_id).filename,
@@ -554,14 +574,14 @@ z_draw_text_ex(SHIZSpriteFont const font,
             }
             
             // draw final size
-            z_debug__draw_sprite_shape(origin, text_size, SHIZColorRed, anchor,
-                                       SHIZSpriteNoAngle,
-                                       layer);
+            z_debug__draw_sprite_bounds(origin, text_size, SHIZColorRed,
+                                        anchor, SHIZSpriteNoAngle,
+                                        layer);
             
             if (bounds.width > 0 && bounds.height > 0) {
                 // draw bounds
-                z_debug__draw_sprite_shape(origin, bounds, SHIZColorYellow, anchor,
-                                           SHIZSpriteNoAngle,
+                z_debug__draw_sprite_bounds(origin, bounds, SHIZColorYellow,
+                                           anchor, SHIZSpriteNoAngle,
                                            layer);
             }
         }

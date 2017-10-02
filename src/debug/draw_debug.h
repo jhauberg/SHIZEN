@@ -29,12 +29,26 @@ void
 z_debug__draw_viewport(void);
 
 void
-z_debug__draw_sprite_shape(SHIZVector2 origin,
-                           SHIZSize size,
-                           SHIZColor color,
-                           SHIZVector2 anchor,
-                           f32 angle,
-                           SHIZLayer layer);
+z_debug__draw_circle_bounds(SHIZVector2 origin,
+                            SHIZColor color,
+                            f32 radius,
+                            SHIZVector2 scale,
+                            SHIZLayer layer);
+
+void
+z_debug__draw_rect_bounds(SHIZRect rect,
+                          SHIZColor color,
+                          SHIZVector2 anchor,
+                          f32 angle,
+                          SHIZLayer layer);
+
+void
+z_debug__draw_sprite_bounds(SHIZVector2 origin,
+                            SHIZSize size,
+                            SHIZColor color,
+                            SHIZVector2 anchor,
+                            f32 angle,
+                            SHIZLayer layer);
 
 #endif
 

@@ -38,6 +38,7 @@ typedef struct SHIZDebugContext {
     bool draw_events;
     bool draw_axes;
     bool print_sprite_order;
+    u8 pad[7];
 } SHIZDebugContext;
 
 static
