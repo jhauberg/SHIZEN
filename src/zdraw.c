@@ -128,6 +128,14 @@ z_draw_path_ex(SHIZVector2 const points[],
     }
     
     z_gfx__render(GL_LINE_STRIP, vertices, count);
+    
+#ifdef SHIZ_DEBUG
+    if (z_debug__is_enabled()) {
+        if (z_debug__is_drawing_shapes() && count > 1) {
+            z_debug__draw_path_bounds(points, count, SHIZColorRed, layer);
+        }
+    }
+#endif
 }
 
 void
@@ -218,8 +226,8 @@ z_draw_rect_ex(SHIZRect const rect,
     
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {
-        if (z_debug__is_drawing_shapes() &&
-            (rect.size.width > 0 && rect.size.height > 0)) {
+        if (z_debug__is_drawing_shapes() && (rect.size.width > 0 &&
+                                             rect.size.height > 0)) {
             z_debug__draw_rect_bounds(rect, SHIZColorRed,
                                       anchor, angle, layer);
         }
@@ -310,8 +318,7 @@ z_draw_circle_ex(SHIZVector2 const center,
     
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {
-        if (z_debug__is_drawing_shapes() &&
-            (radius > 0)) {
+        if (z_debug__is_drawing_shapes() && radius > 0) {
             z_debug__draw_circle_bounds(center, SHIZColorRed,
                                         radius, scale, layer);
         }
@@ -447,8 +454,8 @@ z_draw_sprite_ex(SHIZSprite const sprite,
 
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {
-        if (z_debug__is_drawing_shapes() &&
-            (sprite_size.width > 0 && sprite_size.height > 0)) {
+        if (z_debug__is_drawing_shapes() && (sprite_size.width > 0 &&
+                                             sprite_size.height > 0)) {
             z_debug__draw_sprite_bounds(origin, sprite_size, SHIZColorRed,
                                         anchor, angle, layer);
         }

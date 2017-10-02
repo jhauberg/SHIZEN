@@ -400,6 +400,42 @@ z_debug__draw_circle_bounds(SHIZVector2 const origin,
                              SHIZAnchorCenter, 0, layer);
 }
 
+void
+z_debug__draw_path_bounds(SHIZVector2 const points[], u16 const count,
+                          SHIZColor const color,
+                          SHIZLayer const layer)
+{
+    SHIZVector2 min = points[0];
+    SHIZVector2 max = points[0];
+    
+    for (u8 i = 1; i < count; i++) {
+        SHIZVector2 const point = points[i];
+        
+        if (point.x < min.x) {
+            min.x = point.x;
+        }
+        
+        if (point.y < min.y) {
+            min.y = point.y;
+        }
+        
+        if (point.x > max.x) {
+            max.x = point.x;
+        }
+        
+        if (point.y > max.y) {
+            max.y = point.y;
+        }
+    }
+    
+    SHIZRect const rect =
+        SHIZRectMake(min, SHIZSizeMake(max.x - min.x,
+                                       max.y - min.y));
+    
+    z_debug__draw_rect_bounds(rect, color,
+                              SHIZAnchorBottomLeft, 0, layer);
+}
+
 static
 void
 z_debug__draw_gizmo(SHIZVector2 const location,
