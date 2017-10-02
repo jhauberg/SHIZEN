@@ -24,6 +24,13 @@
 #include "../viewport.h"
 #include "../res.h"
 
+static
+void
+z_debug__draw_gizmo(SHIZVector2 location,
+                    SHIZVector2 anchor,
+                    f32 angle,
+                    SHIZLayer layer);
+
 extern SHIZGraphicsContext const _graphics_context;
 
 static char _stats_buffer[256] = { 0 };
@@ -331,17 +338,51 @@ z_debug__draw_viewport()
 }
 
 void
-z_debug__draw_sprite_gizmo(SHIZVector2 const location,
+z_debug__draw_sprite_shape(SHIZVector2 const origin,
+                           SHIZSize const size,
+                           SHIZColor const color,
                            SHIZVector2 const anchor,
                            f32 const angle,
                            SHIZLayer const layer)
+{
+    bool const previously_tracking_events = z_debug__is_events_enabled();
+    
+    z_debug__set_events_enabled(false);
+    
+    SHIZSize const padded_size = SHIZSizeMake(size.width + 1, size.height + 1);
+    SHIZVector2 padded_origin = SHIZVector2Make(origin.x, origin.y);
+    
+    if (anchor.x > 0) {
+        padded_origin.x += anchor.x;
+    }
+    
+    if (anchor.y > 0) {
+        padded_origin.y += anchor.y;
+    }
+    
+    z_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
+                   color, SHIZDrawModeOutline, anchor, angle,
+                   SHIZLayeredAbove(layer));
+    
+    z_debug__draw_gizmo(origin, anchor, angle, SHIZLayeredAbove(layer));
+    
+    z_debug__set_events_enabled(previously_tracking_events);
+}
+
+static
+void
+z_debug__draw_gizmo(SHIZVector2 const location,
+                    SHIZVector2 const anchor,
+                    f32 const angle,
+                    SHIZLayer const layer)
 {
     if (angle > 0 || angle < 0) {
         u8 const segments = 8;
         f32 const radius = 6;
         
-        SHIZVector2 const circle_center = SHIZVector2Make(location.x + anchor.x,
-                                                          location.y + anchor.y);
+        SHIZVector2 const circle_center =
+            SHIZVector2Make(location.x + anchor.x,
+                            location.y + anchor.y);
         
         z_draw_circle_ex(circle_center,
                          SHIZColorWithAlpa(SHIZColorWhite, 0.1f),
@@ -369,39 +410,6 @@ z_debug__draw_sprite_gizmo(SHIZVector2 const location,
                    SHIZAnchorInverse(anchor),
                    angle,
                    SHIZLayeredAbove(layer));
-}
-
-void
-z_debug__draw_sprite_shape(SHIZVector2 const origin,
-                           SHIZSize const size,
-                           SHIZColor const color,
-                           SHIZVector2 const anchor,
-                           f32 const angle,
-                           SHIZLayer const layer)
-{
-    bool const previously_tracking_events = z_debug__is_events_enabled();
-    
-    z_debug__set_events_enabled(false);
-    
-    SHIZSize const padded_size = SHIZSizeMake(size.width + 1, size.height + 1);
-    SHIZVector2 padded_origin = SHIZVector2Make(origin.x, origin.y);
-    
-    if (anchor.x > 0) {
-        padded_origin.x += anchor.x;
-    }
-    
-    if (anchor.y > 0) {
-        padded_origin.y += anchor.y;
-    }
-    
-    z_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
-                   color, SHIZDrawModeOutline, anchor, angle,
-                   SHIZLayeredAbove(layer));
-    
-    z_debug__draw_sprite_gizmo(origin, anchor, angle,
-                               SHIZLayeredAbove(layer));
-    
-    z_debug__set_events_enabled(previously_tracking_events);
 }
 
 #endif

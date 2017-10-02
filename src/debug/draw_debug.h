@@ -29,12 +29,6 @@ void
 z_debug__draw_viewport(void);
 
 void
-z_debug__draw_sprite_gizmo(SHIZVector2 location,
-                           SHIZVector2 anchor,
-                           f32 angle,
-                           SHIZLayer layer);
-
-void
 z_debug__draw_sprite_shape(SHIZVector2 origin,
                            SHIZSize size,
                            SHIZColor color,
