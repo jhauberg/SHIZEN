@@ -197,25 +197,24 @@ z_draw_rect_ex(SHIZRect const rect,
                                                rect.origin.y,
                                                z);
 
-    SHIZRect const anchored_rect = z_sprite__anchor_rect(rect.size,
-                                                         anchor);
-
+    SHIZRect const anchored_rect = z_sprite__anchor_rect(rect.size, anchor);
+    
     f32 const l = anchored_rect.origin.x;
     f32 const r = anchored_rect.origin.x + anchored_rect.size.width;
     f32 const b = anchored_rect.origin.y;
     f32 const t = anchored_rect.origin.y + anchored_rect.size.height;
-
+    
     if (mode == SHIZDrawModeFill) {
         vertices[0].position = SHIZVector3Make(l, b, 0);
         vertices[1].position = SHIZVector3Make(l, t, 0);
         vertices[2].position = SHIZVector3Make(r, b, 0);
         vertices[3].position = SHIZVector3Make(r, t, 0);
     } else {
-        vertices[0].position = SHIZVector3Make(l, b, 0);
-        vertices[1].position = SHIZVector3Make(l, t, 0);
+        vertices[0].position = SHIZVector3Make(l + 0.5f, b + 0.5f, 0);
+        vertices[1].position = SHIZVector3Make(l + 0.5f, t, 0);
         // note that the order of the vertices differ from the filled shape
         vertices[2].position = SHIZVector3Make(r, t, 0);
-        vertices[3].position = SHIZVector3Make(r, b, 0);
+        vertices[3].position = SHIZVector3Make(r, b + 0.5f, 0);
     }
 
     if (mode == SHIZDrawModeFill) {
