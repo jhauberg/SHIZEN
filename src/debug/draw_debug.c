@@ -231,12 +231,16 @@ z_debug__draw_viewport()
     SHIZColor const y_color = SHIZColorWithAlpa(SHIZColorGreen, 0.6f);
     
     SHIZRect const viewport_shape =
-    SHIZRectMake(center, SHIZSizeMake(viewport.resolution.width - 1,
-                                      viewport.resolution.height - 1));
+        SHIZRectMake(center, SHIZSizeMake(viewport.resolution.width - 1,
+                                          viewport.resolution.height - 1));
     
     // bounds
     z_draw_rect_ex(viewport_shape, bounds_color,
                    SHIZDrawModeOutline, SHIZAnchorCenter, 0, bounds_layer);
+    
+    if (!z_debug__is_drawing_axes()) {
+        return;
+    }
     
     // axes
     SHIZLayer const axes_layer = SHIZLayeredBelow(SHIZLayerTop);
@@ -259,15 +263,15 @@ z_debug__draw_viewport()
     z_draw_line_ex(y_top, y_bottom, y_color, axes_layer);
     z_draw_line_ex(x_left, x_right, x_color, axes_layer);
     
-    SHIZSpriteFont const spritefont = z_debug__get_font();
-    
-    SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
-        attrs.character_spread = SHIZSpriteFontSpreadTight;
-    }
-    
-    SHIZColor point_color = bounds_color;
-    
     if (z_debug__is_expanded()) {
+        SHIZSpriteFont const spritefont = z_debug__get_font();
+        
+        SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
+            attrs.character_spread = SHIZSpriteFontSpreadTight;
+        }
+        
+        SHIZColor point_color = bounds_color;
+        
         z_draw_text_ex(spritefont, "0,0",
                        SHIZVector2Make(spritefont.character.width / 2,
                                        (spritefont.character.height / 2) - 1),

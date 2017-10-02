@@ -70,6 +70,9 @@ z_debug__toggle_draw_events(void);
 void
 z_debug__toggle_draw_shapes(void);
 
+void
+z_debug__toggle_draw_axes(void);
+
 bool
 z_debug__is_enabled(void);
 
@@ -81,6 +84,9 @@ z_debug__is_events_enabled(void);
 
 bool
 z_debug__is_drawing_events(void);
+
+bool
+z_debug__is_drawing_axes(void);
 
 bool
 z_debug__is_drawing_shapes(void);

@@ -521,6 +521,8 @@ z_engine__key_callback(GLFWwindow * const window,
             z_debug__toggle_draw_shapes();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_2) && action == GLFW_RELEASE) {
             z_debug__toggle_draw_events();
+        } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_3) && action == GLFW_RELEASE) {
+            z_debug__toggle_draw_axes();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_MINUS) && (action == GLFW_PRESS ||
                                                                          action == GLFW_REPEAT)) {
             z_time_set_scale(z_time_get_scale() - 0.1);
