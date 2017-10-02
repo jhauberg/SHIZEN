@@ -29,18 +29,6 @@ extern SHIZGraphicsContext const _graphics_context;
 
 static
 void
-z_draw__path_3d(SHIZVector3 const points[],
-                u16 const count,
-                SHIZColor const color);
-
-static
-void
-z_draw__line_3d(SHIZVector3 const from,
-                SHIZVector3 const to,
-                SHIZColor const color);
-
-static
-void
 z_draw__flush(void);
 
 void
@@ -107,11 +95,11 @@ z_draw_line_ex(SHIZVector2 const from,
                SHIZColor const color,
                SHIZLayer const layer)
 {
-    f32 const z = z_layer__get_z(layer);
+    SHIZVector2 points[] = {
+        from, to
+    };
     
-    z_draw__line_3d(SHIZVector3Make(from.x, from.y, z),
-                    SHIZVector3Make(to.x, to.y, z),
-                    color);
+    z_draw_path_ex(points, 2, color, layer);
 }
 
 void
@@ -128,17 +116,18 @@ z_draw_path_ex(SHIZVector2 const points[],
                SHIZColor const color,
                SHIZLayer const layer)
 {
-    SHIZVector3 points_3d[count];
-    
     f32 const z = z_layer__get_z(layer);
     
-    for (u16 i = 0; i < count; i++) {
-        points_3d[i].x = points[i].x;
-        points_3d[i].y = points[i].y;
-        points_3d[i].z = z;
+    SHIZVertexPositionColor vertices[count];
+    
+    for (unsigned int i = 0; i < count; i++) {
+        SHIZVector2 const point = points[i];
+        
+        vertices[i].position = SHIZVector3Make(point.x, point.y, z);
+        vertices[i].color = color;
     }
     
-    z_draw__path_3d(points_3d, count, color);
+    z_gfx__render(GL_LINE_STRIP, vertices, count);
 }
 
 void
@@ -592,35 +581,6 @@ z_draw_text_ex(SHIZSpriteFont const font,
 #endif
     
     return text_size;
-}
-
-static
-void
-z_draw__path_3d(SHIZVector3 const points[],
-                u16 const count,
-                SHIZColor const color)
-{
-    SHIZVertexPositionColor vertices[count];
-    
-    for (unsigned int i = 0; i < count; i++) {
-        vertices[i].position = points[i];
-        vertices[i].color = color;
-    }
-    
-    z_gfx__render(GL_LINE_STRIP, vertices, count);
-}
-
-static
-void
-z_draw__line_3d(SHIZVector3 const from,
-                SHIZVector3 const to,
-                SHIZColor const color)
-{
-    SHIZVector3 points[] = {
-        from, to
-    };
-    
-    z_draw__path_3d(points, 2, color);
 }
 
 static
