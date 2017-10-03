@@ -37,7 +37,7 @@ static inline
 bool
 z_fequal(f32 const a, f32 const b)
 {
-    static f64 const precision = 1.0 / 1024;
+    static f64 const precision = 1.0 / 2048;
     
     return fabsf(b - a) < precision;
 }
