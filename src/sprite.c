@@ -110,10 +110,10 @@ z_sprite__draw(SHIZSprite const sprite,
     sprite_object->key = sort_key;
     sprite_object->angle = angle;
     sprite_object->order = _sprite_list.total;
-    sprite_object->origin = SHIZVector3Make(roundf(origin.x),
-                                            roundf(origin.y),
+    sprite_object->origin = SHIZVector3Make(PIXEL(origin.x),
+                                            PIXEL(origin.y),
                                             z);
-
+    
     SHIZSize const texture_size = SHIZSizeMake(image.width, image.height);
 
     SHIZSize const source_size = SHIZSizeMake(size.target.width > 0 ?
@@ -154,7 +154,8 @@ z_sprite__anchor_rect(SHIZSize const size,
     f32 const l = dx - hw;
     f32 const b = dy - hh;
 
-    return SHIZRectMake(SHIZVector2Make(l, b), size);
+    return SHIZRectMake(SHIZVector2Make(l, b),
+                        size);
 }
 
 void
@@ -248,12 +249,13 @@ z_sprite__set_position(SHIZSpriteObject * const sprite,
                        SHIZSize const size,
                        SHIZVector2 const anchor)
 {
-    SHIZRect const anchored_rect = z_sprite__anchor_rect(size, anchor);
-    
-    f32 const l = anchored_rect.origin.x;
-    f32 const r = anchored_rect.origin.x + anchored_rect.size.width;
-    f32 const b = anchored_rect.origin.y;
-    f32 const t = anchored_rect.origin.y + anchored_rect.size.height;
+    SHIZSize const s = SHIZSizeMake(size.width - 1, size.height - 1);
+    SHIZRect const anchored_rect = z_sprite__anchor_rect(s, anchor);
+
+    f32 const l = PIXEL(anchored_rect.origin.x) - 0.5f;
+    f32 const r = PIXEL(anchored_rect.origin.x + anchored_rect.size.width) + 0.5f;
+    f32 const b = PIXEL(anchored_rect.origin.y) - 0.5f;
+    f32 const t = PIXEL(anchored_rect.origin.y + anchored_rect.size.height) + 0.5f;
     
     SHIZVector2 const bl = SHIZVector2Make(l, b);
     SHIZVector2 const tl = SHIZVector2Make(l, t);
@@ -290,13 +292,17 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
         // we have to flip the specified coordinate so that the origin becomes bottom-left
         flipped_source.origin.y = (texture_size.height - source.size.height) - source.origin.y;
     }
-    
+
+    // bias sampling towards the center of each texel
+    f32 const w = 0.5f / texture_size.width;
+    f32 const h = 0.5f / texture_size.height;
+
     SHIZVector2 const uv_min =
-        SHIZVector2Make(flipped_source.origin.x / texture_size.width,
-                        flipped_source.origin.y / texture_size.height);
+        SHIZVector2Make((flipped_source.origin.x + w) / texture_size.width,
+                        (flipped_source.origin.y + h) / texture_size.height);
     SHIZVector2 const uv_max =
-        SHIZVector2Make((flipped_source.origin.x + flipped_source.size.width) / texture_size.width,
-                        (flipped_source.origin.y + flipped_source.size.height) / texture_size.height);
+        SHIZVector2Make((flipped_source.origin.x + flipped_source.size.width - w) / texture_size.width,
+                        (flipped_source.origin.y + flipped_source.size.height - h) / texture_size.height);
     
     f32 uv_scale_x = 1;
     f32 uv_scale_y = 1;
