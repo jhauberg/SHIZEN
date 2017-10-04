@@ -327,7 +327,7 @@ z_draw_circle_ex(SHIZVector2 const center,
     for (u8 segment = 0; segment < segments; segment++) {
         u16 const vertex_index = vertex_offset + segment;
 
-        f32 const angle = segment * step;
+        f32 const angle = segment * -step;
 
         f32 const x = (radius * scale.x) * cosf(angle);
         f32 const y = (radius * scale.y) * sinf(angle);
@@ -410,7 +410,7 @@ z_draw_arc_ex(SHIZVector2 const center,
     for (u8 segment = 0; segment < end; segment++) {
         u16 const vertex_index = vertex_offset + segment;
 
-        f32 const step_angle = segment * step;
+        f32 const step_angle = segment * -step;
 
         f32 const x = radius * cosf(step_angle);
         f32 const y = radius * sinf(step_angle);
