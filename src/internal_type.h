@@ -32,6 +32,8 @@
 
 #include <SHIZEN/ztype.h>
 
+#define PIXEL(x) floorf(x)
+
 typedef struct SHIZGraphicsContext {
     /** A reference to the current window */
     GLFWwindow * window;
