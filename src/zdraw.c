@@ -131,15 +131,15 @@ z_draw_path_ex(SHIZVector2 const points[],
             SHIZVector2 edge = SHIZVector2Zero;
             
             if (delta.x > 0) {
-                edge.x = 0.5f;
+                edge.x = HALF_PIXEL;
             } else if (delta.x < 0) {
-                edge.x = -0.5f;
+                edge.x = -HALF_PIXEL;
             }
             
             if (delta.y > 0) {
-                edge.y = 0.5f;
+                edge.y = HALF_PIXEL;
             } else if (delta.y < 0) {
-                edge.y = -0.5f;
+                edge.y = -HALF_PIXEL;
             }
             
             vertices[i].position = SHIZVector3Make(PIXEL(point.x) + edge.x,
@@ -334,8 +334,8 @@ z_draw_circle_ex(SHIZVector2 const center,
 
         vertices[vertex_index].color = color;
         // note that we're intentionally leaving out the 'z' here
-        vertices[vertex_index].position = SHIZVector3Make(x - 0.5f,
-                                                          y - 0.5f,
+        vertices[vertex_index].position = SHIZVector3Make(x - HALF_PIXEL,
+                                                          y - HALF_PIXEL,
                                                           0);
 
         if (mode == SHIZDrawModeFill && segment == 0) {
@@ -417,8 +417,8 @@ z_draw_arc_ex(SHIZVector2 const center,
 
         vertices[vertex_index].color = color;
         // note that we're intentionally leaving out the 'z' here
-        vertices[vertex_index].position = SHIZVector3Make(x - 0.5f,
-                                                          y - 0.5f,
+        vertices[vertex_index].position = SHIZVector3Make(x - HALF_PIXEL,
+                                                          y - HALF_PIXEL,
                                                           0);
     }
 

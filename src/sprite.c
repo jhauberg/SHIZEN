@@ -154,8 +154,7 @@ z_sprite__anchor_rect(SHIZSize const size,
     f32 const l = dx - hw;
     f32 const b = dy - hh;
 
-    return SHIZRectMake(SHIZVector2Make(l, b),
-                        size);
+    return SHIZRectMake(SHIZVector2Make(l, b), size);
 }
 
 void
@@ -182,8 +181,8 @@ z_sprite__flush()
 
     z_sprite__sort();
     
-    for (u16 sprite_index = 0; sprite_index < _sprite_list.count; sprite_index++) {
-        SHIZSpriteObject const sprite = _sprite_list.sprites[sprite_index];
+    for (u16 i = 0; i < _sprite_list.count; i++) {
+        SHIZSpriteObject const sprite = _sprite_list.sprites[i];
         SHIZSpriteKey const * const sprite_key = (SHIZSpriteKey *)&sprite.key;
 
 #ifdef SHIZ_DEBUG
@@ -249,13 +248,15 @@ z_sprite__set_position(SHIZSpriteObject * const sprite,
                        SHIZSize const size,
                        SHIZVector2 const anchor)
 {
-    SHIZSize const s = SHIZSizeMake(size.width - 1, size.height - 1);
-    SHIZRect const anchored_rect = z_sprite__anchor_rect(s, anchor);
+    SHIZSize const clamped_size = SHIZSizeMake(size.width - 1,
+                                               size.height - 1);
+    
+    SHIZRect const rect = z_sprite__anchor_rect(clamped_size, anchor);
 
-    f32 const l = PIXEL(anchored_rect.origin.x) - 0.5f;
-    f32 const r = PIXEL(anchored_rect.origin.x + anchored_rect.size.width) + 0.5f;
-    f32 const b = PIXEL(anchored_rect.origin.y) - 0.5f;
-    f32 const t = PIXEL(anchored_rect.origin.y + anchored_rect.size.height) + 0.5f;
+    f32 const l = PIXEL(rect.origin.x) - HALF_PIXEL;
+    f32 const r = PIXEL(rect.origin.x + rect.size.width) + HALF_PIXEL;
+    f32 const b = PIXEL(rect.origin.y) - HALF_PIXEL;
+    f32 const t = PIXEL(rect.origin.y + rect.size.height) + HALF_PIXEL;
     
     SHIZVector2 const bl = SHIZVector2Make(l, b);
     SHIZVector2 const tl = SHIZVector2Make(l, t);
@@ -276,45 +277,44 @@ void
 z_sprite__set_uv(SHIZSpriteObject * const sprite,
                  SHIZSize const size,
                  SHIZSize const texture_size,
-                 SHIZRect const source,
+                 SHIZRect source,
                  SHIZSpriteFlipMode const flip,
                  SHIZColor const tint,
                  bool const repeat)
 {
     bool const flip_source_vertically = true;
     
-    SHIZRect flipped_source = source;
-    
     if (flip_source_vertically) {
         // opengl assumes that the origin of textures is at the bottom-left of the image,
         // however, it is common to specify top-left as origin when using e.g. sprite sheets (and we want that)
         // so, assuming that the provided source frame expects the top-left to be the origin,
         // we have to flip the specified coordinate so that the origin becomes bottom-left
-        flipped_source.origin.y = (texture_size.height - source.size.height) - source.origin.y;
+        source.origin.y =
+            (texture_size.height - source.size.height) - source.origin.y;
     }
 
     // bias sampling towards the center of each texel
-    f32 const w = 0.5f / texture_size.width;
-    f32 const h = 0.5f / texture_size.height;
+    f32 const w = HALF_PIXEL / texture_size.width;
+    f32 const h = HALF_PIXEL / texture_size.height;
 
     SHIZVector2 const uv_min =
-        SHIZVector2Make((flipped_source.origin.x + w) / texture_size.width,
-                        (flipped_source.origin.y + h) / texture_size.height);
+        SHIZVector2Make((source.origin.x + w) / texture_size.width,
+                        (source.origin.y + h) / texture_size.height);
     SHIZVector2 const uv_max =
-        SHIZVector2Make((flipped_source.origin.x + flipped_source.size.width - w) / texture_size.width,
-                        (flipped_source.origin.y + flipped_source.size.height - h) / texture_size.height);
+        SHIZVector2Make((source.origin.x + source.size.width - w) / texture_size.width,
+                        (source.origin.y + source.size.height - h) / texture_size.height);
     
     f32 uv_scale_x = 1;
     f32 uv_scale_y = 1;
     
     if (repeat) {
         // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
-        if (size.width > flipped_source.size.width) {
-            uv_scale_x = size.width / flipped_source.size.width;
+        if (size.width > source.size.width) {
+            uv_scale_x = size.width / source.size.width;
         }
         
-        if (size.height > flipped_source.size.height) {
-            uv_scale_y = size.height / flipped_source.size.height;
+        if (size.height > source.size.height) {
+            uv_scale_y = size.height / source.size.height;
         }
     }
     

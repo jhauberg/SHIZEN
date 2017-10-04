@@ -33,6 +33,7 @@
 #include <SHIZEN/ztype.h>
 
 #define PIXEL(x) floorf(x)
+#define HALF_PIXEL 0.5f
 
 typedef struct SHIZGraphicsContext {
     /** A reference to the current window */
