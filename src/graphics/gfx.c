@@ -37,7 +37,7 @@ static
 void
 z_gfx__render_post(void);
 
-static unsigned int const post_vertex_count = 4;
+#define VERTEX_COUNT_PER_FRAME 4
 
 typedef struct SHIZGFXPost {
     SHIZRenderObject render;
@@ -263,7 +263,7 @@ z_gfx__init_post()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    static SHIZVertexPositionTexture const vertices[post_vertex_count] = {
+    static SHIZVertexPositionTexture const vertices[VERTEX_COUNT_PER_FRAME] = {
         { .position = { -1, -1, 0 }, .texture_coord = { 0, 0 } },
         { .position = { -1,  1, 0 }, .texture_coord = { 0, 1 } },
         { .position = {  1, -1, 0 }, .texture_coord = { 1, 0 } },
@@ -307,7 +307,7 @@ z_gfx__render_post()
     glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
         glBindVertexArray(_post.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _post.render.vbo); {
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, post_vertex_count);
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, VERTEX_COUNT_PER_FRAME);
             }
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
