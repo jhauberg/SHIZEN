@@ -32,7 +32,14 @@
 
 #include <SHIZEN/ztype.h>
 
-#define PIXEL(x) floorf(x)
+#define PREFER_INTEGRAL_PIXELS 1
+
+#if PREFER_INTEGRAL_PIXELS
+ #define PIXEL(x) floorf(x)
+#else
+ #define PIXEL(x) x
+#endif
+
 #define HALF_PIXEL 0.5f
 
 typedef struct SHIZGraphicsContext {
