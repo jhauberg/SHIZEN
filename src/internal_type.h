@@ -32,6 +32,22 @@
 
 #include <SHIZEN/ztype.h>
 
+/**
+ * This toggle determines how pixel coordinates are transformed before being
+ * sent to the GPU, and has an effect on how sprites and shapes are
+ * rasterized when rendered.
+ *
+ * If enabled, all pixel coordinates will be floored to their integral value;
+ * e.g. '12.5' becomes '12.0', providing precise pixel rasterization.
+ *
+ * Generally, enabling this option should result in precise renderings,
+ * but might also make movement look less fluid/smooth.
+ *
+ * Turning it off, however, may cause unexpected rasterization artifacts and
+ * less precise renderings, but will also make movement look more fluid.
+ *
+ * So there's a trade-off to consider between both options.
+ */
 #define PREFER_INTEGRAL_PIXELS 1
 
 #if PREFER_INTEGRAL_PIXELS
