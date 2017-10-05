@@ -214,11 +214,11 @@ z_debug__draw_stats()
                                                         layer,
                                                         SHIZSpriteNoTint));
     
-    char version_buffer[128] = { 0 };
+    char version_buffer[64] = { 0 };
     
-    sprintf(version_buffer, "» SHIZEN %d.%d.%d / %s (%s)",
+    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s",
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
-            SHIZEN_VERSION_NAME, __DATE__);
+            SHIZEN_VERSION_NAME);
     
     z_draw_text_ex(spritefont,
                    version_buffer,
