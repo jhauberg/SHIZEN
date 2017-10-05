@@ -273,8 +273,8 @@ z_get_display_point(SHIZVector2 const anchor)
     SHIZVector2 const point = SHIZVector2Make(pixels_half.width + delta.x,
                                               pixels_half.height + delta.y);
     
-    return SHIZVector2Make(PIXEL(point.x),
-                           PIXEL(point.y));
+    return SHIZVector2Make(PIXEL(point.x) + HALF_PIXEL,
+                           PIXEL(point.y) + HALF_PIXEL);
 }
 
 static

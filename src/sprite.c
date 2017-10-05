@@ -253,10 +253,17 @@ z_sprite__set_position(SHIZSpriteObject * const sprite,
     
     SHIZRect const rect = z_sprite__anchor_rect(clamped_size, anchor);
 
+#if PREFER_INTEGRAL_PIXELS
     f32 const l = PIXEL(rect.origin.x) - HALF_PIXEL;
     f32 const r = PIXEL(rect.origin.x + rect.size.width) + HALF_PIXEL;
     f32 const b = PIXEL(rect.origin.y) - HALF_PIXEL;
     f32 const t = PIXEL(rect.origin.y + rect.size.height) + HALF_PIXEL;
+#else
+    f32 const l = PIXEL(rect.origin.x) - HALF_PIXEL - HALF_PIXEL / 2;
+    f32 const r = PIXEL(rect.origin.x + rect.size.width) + HALF_PIXEL - HALF_PIXEL / 2;
+    f32 const b = PIXEL(rect.origin.y) - HALF_PIXEL - HALF_PIXEL / 2;
+    f32 const t = PIXEL(rect.origin.y + rect.size.height) + HALF_PIXEL - HALF_PIXEL / 2;
+#endif
     
     SHIZVector2 const bl = SHIZVector2Make(l, b);
     SHIZVector2 const tl = SHIZVector2Make(l, t);

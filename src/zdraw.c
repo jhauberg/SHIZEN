@@ -142,13 +142,26 @@ z_draw_path_ex(SHIZVector2 const points[],
                 edge.y = -HALF_PIXEL;
             }
             
+            // extend last point to make that pixel inclusive
+#if PREFER_INTEGRAL_PIXELS
             vertices[i].position = SHIZVector3Make(PIXEL(point.x) + edge.x,
                                                    PIXEL(point.y) + edge.y,
                                                    z);
+#else
+            vertices[i].position = SHIZVector3Make(PIXEL(point.x) + edge.x - (HALF_PIXEL / 2),
+                                                   PIXEL(point.y) + edge.y - (HALF_PIXEL / 2),
+                                                   z);
+#endif
         } else {
+#if PREFER_INTEGRAL_PIXELS
             vertices[i].position = SHIZVector3Make(PIXEL(point.x),
                                                    PIXEL(point.y),
                                                    z);
+#else
+            vertices[i].position = SHIZVector3Make(PIXEL(point.x) - HALF_PIXEL,
+                                                   PIXEL(point.y) - HALF_PIXEL,
+                                                   z);
+#endif
         }
         
         vertices[i].color = color;
@@ -177,11 +190,19 @@ z_draw_point_ex(SHIZVector2 const point,
                 SHIZColor const color,
                 SHIZLayer const layer)
 {
+    f32 const z = z_layer__get_z(layer);
+    
     SHIZVertexPositionColor vertices[1] = {
         {
+#if PREFER_INTEGRAL_PIXELS
             .position = SHIZVector3Make(PIXEL(point.x),
                                         PIXEL(point.y),
-                                        z_layer__get_z(layer)),
+                                        z),
+#else
+            .position = SHIZVector3Make(PIXEL(point.x) - HALF_PIXEL,
+                                        PIXEL(point.y) - HALF_PIXEL,
+                                        z),
+#endif
             .color = color
         }
     };
@@ -236,10 +257,17 @@ z_draw_rect_ex(SHIZRect const rect,
     // as each vertex will be transformed by the Z of the origin later and
     // thus becomes unnecessary to add here
     if (mode == SHIZDrawModeFill) {
+#if PREFER_INTEGRAL_PIXELS
         vertices[0].position = SHIZVector3Make(l, b, 0);
         vertices[1].position = SHIZVector3Make(l, t + 1, 0);
         vertices[2].position = SHIZVector3Make(r + 1, b, 0);
         vertices[3].position = SHIZVector3Make(r + 1, t + 1, 0);
+#else
+        vertices[0].position = SHIZVector3Make(l - HALF_PIXEL, b - HALF_PIXEL, 0);
+        vertices[1].position = SHIZVector3Make(l - HALF_PIXEL, t + 1 - HALF_PIXEL, 0);
+        vertices[2].position = SHIZVector3Make(r + 1 - HALF_PIXEL, b - HALF_PIXEL, 0);
+        vertices[3].position = SHIZVector3Make(r + 1 - HALF_PIXEL, t + 1 - HALF_PIXEL, 0);
+#endif
     } else {
         // else
         vertices[0].position = SHIZVector3Make(l, b, 0);
