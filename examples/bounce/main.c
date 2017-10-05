@@ -15,19 +15,19 @@ int main() {
         exit(EXIT_FAILURE);
     }
     
-    u8 const tick_frequency = 30;
+    u8 const tick_frequency = 60;
     
     SHIZSize const screen = z_get_display_size();
     
     f32 const gravity = -9.81f;
     f32 const platform_friction = 0.86f;
-    f32 const ball_radius = 12;
+    f32 const ball_radius = 16;
     
     SHIZVector2 const screen_center = z_get_display_point(SHIZAnchorCenter);
-    
+   
     f32 const one_quarter_screen_height = (screen.height / 4);
     
-    SHIZSize const platform_size = SHIZSizeMake(100, 10);
+    SHIZSize const platform_size = SHIZSizeMake(140, 15);
     SHIZRect const platform =
         SHIZRectMake(SHIZVector2Make(screen_center.x - (platform_size.width / 2),
                                      screen_center.y - one_quarter_screen_height),
@@ -106,7 +106,7 @@ int main() {
                                  SHIZColorWhite,
                                  SHIZDrawModeFill,
                                  ball_radius,
-                                 16,
+                                 20,
                                  SHIZVector2Make(1, squish_scale));
             
             z_draw_rect(platform,
