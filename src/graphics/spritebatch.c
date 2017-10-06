@@ -246,6 +246,8 @@ z_gfx__spritebatch_flush()
     
     mat4x4 transform;
 
+    // todo: optimization; in many cases we don't have to keep building the projection matrix
+    //                     because it only changes when the viewport changes- which is probably not every frame
     z_transform__project_ortho(transform, model, z_viewport__get());
     
     z_gfx__spritebatch_state(true);

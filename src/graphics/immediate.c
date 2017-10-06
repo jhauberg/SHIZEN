@@ -104,6 +104,8 @@ z_gfx__render_immediate(GLenum const mode,
     mat4x4 transform;
     mat4x4_identity(transform);
     
+    // todo: optimization; in many cases we don't have to keep building the projection matrix
+    //                     because it only changes when the viewport changes- which is probably not every frame
     z_transform__project_ortho(transform, model, z_viewport__get());
     
     z_gfx__immediate_state(true);
