@@ -81,10 +81,11 @@ z_drawing_end()
         z_debug__set_drawing_shapes(false);
         z_debug__set_events_enabled(false);
 
-        z_debug__draw_viewport();
         z_debug__build_stats();
         z_debug__draw_stats();
 
+        z_debug__draw_viewport();
+        
         if (z_debug__is_drawing_events()) {
             z_debug__draw_events();
         }
