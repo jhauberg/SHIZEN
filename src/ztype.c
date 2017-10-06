@@ -87,7 +87,7 @@ SHIZSpriteFont const SHIZSpriteFontEmpty = {
 
 SHIZSpriteSize const SHIZSpriteSizeIntrinsic = {
     .target = { -1, -1 },
-    .scale = SHIZSpriteNoScale
+    .scale = { SHIZSpriteNoScale, SHIZSpriteNoScale }
 };
 
 SHIZSpriteFontAttributes const SHIZSpriteFontAttributesDefault = {

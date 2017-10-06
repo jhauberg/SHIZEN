@@ -9,13 +9,12 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <stdbool.h>
-#include <stdio.h>
-
 #include "gfx.h"
 
 #include "../transform.h"
+#include "../res.h"
 #include "../io.h"
+#include "../white.1x1.h"
 
 #include "shader.h"
 #include "spritebatch.h"
@@ -24,6 +23,13 @@
 #ifdef SHIZ_DEBUG
  #include "../debug/debug.h"
 #endif
+
+#include <stdbool.h>
+#include <stdio.h>
+
+#include <SHIZEN/zloader.h>
+
+extern SHIZSprite _spr_white_1x1;
 
 static
 bool
@@ -37,7 +43,11 @@ static
 void
 z_gfx__render_post(void);
 
-static unsigned int const post_vertex_count = 4;
+static
+bool
+z_gfx__load_default_texture(void);
+
+#define VERTEX_COUNT_PER_FRAME 4
 
 typedef struct SHIZGFXPost {
     SHIZRenderObject render;
@@ -70,6 +80,12 @@ z_gfx__init(SHIZViewport const viewport)
         
         return false;
     }
+    
+    if (!z_gfx__load_default_texture()) {
+        z_io__error_context("GFX", "Could not load default texture");
+        
+        return false;
+    }
 
     return true;
 }
@@ -77,6 +93,13 @@ z_gfx__init(SHIZViewport const viewport)
 bool
 z_gfx__kill()
 {
+    if (!z_unload(_spr_white_1x1.resource_id)) {
+        return false;
+    }
+    
+    _spr_white_1x1.resource_id = SHIZResourceInvalid;
+    _spr_white_1x1.source = SHIZRectEmpty;
+    
     if (!z_gfx__kill_immediate()) {
         return false;
     }
@@ -227,8 +250,8 @@ z_gfx__init_post()
     // clear depth should be set once and not changed afterwards
     glClearDepth(1.0);
     
-    GLsizei const texture_width = (GLsizei)viewport.resolution.width;
-    GLsizei const texture_height = (GLsizei)viewport.resolution.height;
+    GLsizei const w = (GLsizei)viewport.resolution.width;
+    GLsizei const h = (GLsizei)viewport.resolution.height;
     
     glGenFramebuffers(1, &_post.framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, _post.framebuffer); {
@@ -238,14 +261,14 @@ z_gfx__init_post()
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                         texture_width, texture_height,
+                         w, h,
                          0, GL_RGB, GL_UNSIGNED_BYTE, 0);
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         
         glGenRenderbuffers(1, &_post.renderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, _post.renderbuffer); {
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, texture_width, texture_height);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _post.renderbuffer);
             glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _post.texture_id, 0);
         }
@@ -263,7 +286,7 @@ z_gfx__init_post()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    static SHIZVertexPositionTexture const vertices[post_vertex_count] = {
+    static SHIZVertexPositionTexture const vertices[VERTEX_COUNT_PER_FRAME] = {
         { .position = { -1, -1, 0 }, .texture_coord = { 0, 0 } },
         { .position = { -1,  1, 0 }, .texture_coord = { 0, 1 } },
         { .position = {  1, -1, 0 }, .texture_coord = { 1, 0 } },
@@ -275,7 +298,8 @@ z_gfx__init_post()
     
     glBindVertexArray(_post.render.vao); {
         glBindBuffer(GL_ARRAY_BUFFER, _post.render.vbo); {
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+                         GL_STATIC_DRAW);
             
             glVertexAttribPointer(0 /* position location */,
                                   3 /* number of position components per vertex */,
@@ -307,7 +331,7 @@ z_gfx__render_post()
     glBindTexture(GL_TEXTURE_2D, _post.texture_id); {
         glBindVertexArray(_post.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _post.render.vbo); {
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, post_vertex_count);
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, VERTEX_COUNT_PER_FRAME);
             }
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
@@ -328,5 +352,22 @@ z_gfx__kill_post()
     glDeleteVertexArrays(1, &_post.render.vao);
     glDeleteBuffers(1, &_post.render.vbo);
 
+    return true;
+}
+
+static
+bool
+z_gfx__load_default_texture()
+{
+    u8 const white_resource_id = z_res__load_data(SHIZResourceTypeImage,
+                                                  WHITE_1x1,
+                                                  WHITE_1x1_SIZE);
+    
+    if (white_resource_id == SHIZResourceInvalid) {
+        return false;
+    }
+    
+    _spr_white_1x1 = z_load_sprite_from(white_resource_id);
+    
     return true;
 }

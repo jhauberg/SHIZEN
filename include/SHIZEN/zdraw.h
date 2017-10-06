@@ -79,10 +79,14 @@ z_draw_path_ex(SHIZVector2 const points[], u16 count,
 void
 z_draw_point(SHIZVector2 point,
              SHIZColor color);
-
+void
+z_draw_point_anchored(SHIZVector2 point,
+                      SHIZColor color,
+                      SHIZVector2 anchor);
 void
 z_draw_point_ex(SHIZVector2 point,
                 SHIZColor color,
+                SHIZVector2 anchor,
                 SHIZLayer layer);
 /**
  * @brief Draw a rectangle.
@@ -115,11 +119,20 @@ z_draw_circle(SHIZVector2 center,
               u8 segments);
 
 void
+z_draw_circle_scaled(SHIZVector2 center,
+                     SHIZColor color,
+                     SHIZDrawMode mode,
+                     f32 radius,
+                     u8 segments,
+                     SHIZVector2 scale);
+
+void
 z_draw_circle_ex(SHIZVector2 center,
                  SHIZColor color,
                  SHIZDrawMode mode,
                  f32 radius,
                  u8 segments,
+                 SHIZVector2 scale,
                  SHIZLayer layer);
 
 /**

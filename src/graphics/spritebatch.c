@@ -19,17 +19,18 @@
  #include "../debug/debug.h"
 #endif
 
-#define SHIZGFXSpriteBatchMax 128 /* flush when reaching this limit */
+#define SPRITES_MAX 128 /* flush when reaching this limit */
+
+#define VERTEX_COUNT_PER_SPRITE (2 * 3) /* 2 triangles per batched quad = 6 vertices */
+
+#define VERTEX_COUNT_PER_BATCH (SPRITES_MAX * VERTEX_COUNT_PER_SPRITE)
 
 static
 void
 z_gfx__spritebatch_state(bool enable);
 
-static u16 const _vertex_count_per_quad = 2 * 3; /* 2 triangles per batched quad = 6 vertices  */
-static u16 const _vertex_count = SHIZGFXSpriteBatchMax * _vertex_count_per_quad;
-
 typedef struct SHIZSpriteBatch {
-    SHIZVertexPositionColorTexture vertices[_vertex_count];
+    SHIZVertexPositionColorTexture vertices[VERTEX_COUNT_PER_BATCH];
     SHIZRenderObject render;
     GLuint texture_id;
     u16 count;
@@ -55,7 +56,7 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
     
     _spritebatch.texture_id = texture_id;
     
-    if (_spritebatch.count + 1 > SHIZGFXSpriteBatchMax) {
+    if (_spritebatch.count + 1 > SPRITES_MAX) {
         if (z_gfx__spritebatch_flush()) {
 #ifdef SHIZ_DEBUG
             z_debug__add_event_draw(SHIZDebugEventNameFlushByCapacity, origin);
@@ -63,13 +64,13 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
         }
     }
     
-    u32 const offset = _spritebatch.count * _vertex_count_per_quad;
+    u32 const offset = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
     
     mat4x4 transform;
     
     z_transform__translate_rotate_scale(transform, origin, angle, 1);
     
-    for (u8 v = 0; v < _vertex_count_per_quad; v++) {
+    for (u8 v = 0; v < VERTEX_COUNT_PER_SPRITE; v++) {
         SHIZVertexPositionColorTexture vertex = vertices[v];
         
         vec4 position = {
@@ -157,10 +158,10 @@ z_gfx__init_spritebatch()
     
     glBindVertexArray(_spritebatch.render.vao); {
         glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
-            int const stride = sizeof(SHIZVertexPositionColorTexture);
+            GLsizei const stride = sizeof(SHIZVertexPositionColorTexture);
             
             glBufferData(GL_ARRAY_BUFFER,
-                         _vertex_count * stride,
+                         VERTEX_COUNT_PER_BATCH * stride,
                          NULL /* we're just allocating the space initially- there's no vertex data yet */,
                          GL_DYNAMIC_DRAW /* we'll be updating this buffer regularly */);
             
@@ -245,6 +246,8 @@ z_gfx__spritebatch_flush()
     
     mat4x4 transform;
 
+    // todo: optimization; in many cases we don't have to keep building the projection matrix
+    //                     because it only changes when the viewport changes- which is probably not every frame
     z_transform__project_ortho(transform, model, z_viewport__get());
     
     z_gfx__spritebatch_state(true);
@@ -257,13 +260,14 @@ z_gfx__spritebatch_flush()
     glBindTexture(GL_TEXTURE_2D, _spritebatch.texture_id); {
         glBindVertexArray(_spritebatch.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
-                u32 const count = _spritebatch.count * _vertex_count_per_quad;
+                GLsizei const count = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
+                GLsizeiptr const size = sizeof(SHIZVertexPositionColorTexture) * (u32)count;
                 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
-                                sizeof(SHIZVertexPositionColorTexture) * count,
+                                size,
                                 _spritebatch.vertices);
-                glDrawArrays(GL_TRIANGLES, 0, (GLsizei)count);
+                glDrawArrays(GL_TRIANGLES, 0, count);
 #ifdef SHIZ_DEBUG
                 z_debug__increment_draw_count(1);
 #endif
@@ -316,7 +320,7 @@ SHIZVector3
 z_debug__get_last_sprite_origin()
 {
     if (_spritebatch.count > 0) {
-        u32 const offset = (_spritebatch.count - 1) * _vertex_count_per_quad;
+        u32 const offset = (_spritebatch.count - 1) * VERTEX_COUNT_PER_SPRITE;
         
         SHIZVector3 const bl = _spritebatch.vertices[offset + 2].position;
         SHIZVector3 const tr = _spritebatch.vertices[offset + 4].position;

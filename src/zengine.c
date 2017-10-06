@@ -27,6 +27,8 @@
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
 #define SHIZ_MIN_OPENGL_VERSION_MINOR 3
 
+extern SHIZGraphicsContext _graphics_context;
+
 const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .title = "SHIZEN",
     .description = NULL,
@@ -104,23 +106,6 @@ z_engine__intro_gl(void);
 
 static SHIZVector2 _preferred_window_position;
 
-SHIZGraphicsContext _graphics_context = {
-    .window = NULL,
-    .native_size = {
-        .width = 0,
-        .height = 0
-    },
-    .display_size = {
-        .width = 0,
-        .height = 0
-    },
-    .swap_interval = 0,
-    .pixel_size = 1,
-    .is_initialized = false,
-    .is_focused = false,
-    .should_finish = false
-};
-
 bool
 z_startup(SHIZWindowSettings const settings)
 {
@@ -192,7 +177,7 @@ z_startup(SHIZWindowSettings const settings)
     }
 #endif
     
-    z_random_seed_now();
+    z_rand_seed_now();
     
     return true;
 }
@@ -254,6 +239,27 @@ SHIZSize
 z_get_display_size()
 {
     return _graphics_context.native_size;
+}
+
+SHIZVector2
+z_get_display_point(SHIZVector2 const anchor)
+{
+    SHIZSize const display = z_get_display_size();
+    
+    SHIZSize const pixels = SHIZSizeMake(display.width,
+                                         display.height);
+    
+    SHIZSize const pixels_half = SHIZSizeMake(pixels.width / 2,
+                                              pixels.height / 2);
+    
+    SHIZVector2 const delta = SHIZVector2Make(pixels_half.width * anchor.x,
+                                              pixels_half.height * anchor.y);
+
+    SHIZVector2 const point = SHIZVector2Make(pixels_half.width + delta.x,
+                                              pixels_half.height + delta.y);
+
+    return SHIZVector2Make(PIXEL(point.x),
+                           PIXEL(point.y));
 }
 
 static
@@ -505,6 +511,8 @@ z_engine__key_callback(GLFWwindow * const window,
             z_debug__toggle_draw_shapes();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_2) && action == GLFW_RELEASE) {
             z_debug__toggle_draw_events();
+        } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_3) && action == GLFW_RELEASE) {
+            z_debug__toggle_draw_axes();
         } else if ((mods == GLFW_MOD_SHIFT && key == GLFW_KEY_MINUS) && (action == GLFW_PRESS ||
                                                                          action == GLFW_REPEAT)) {
             z_time_set_scale(z_time_get_scale() - 0.1);

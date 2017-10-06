@@ -36,7 +36,9 @@ typedef struct SHIZDebugContext {
     bool is_events_enabled; // used to disable event/draw call tracking while drawing debug stuff
     bool draw_shapes;
     bool draw_events;
+    bool draw_axes;
     bool print_sprite_order;
+    u8 pad[7];
 } SHIZDebugContext;
 
 static
@@ -71,6 +73,7 @@ z_debug__init()
     _context.is_events_enabled = true;
     _context.draw_shapes = false;
     _context.draw_events = false;
+    _context.draw_axes = false;
     _context.print_sprite_order = false;
     _context.event_count = 0;
 
@@ -141,6 +144,12 @@ z_debug__toggle_draw_shapes()
     _context.draw_shapes = !_context.draw_shapes;
 }
 
+void
+z_debug__toggle_draw_axes()
+{
+    _context.draw_axes = !_context.draw_axes;
+}
+
 bool
 z_debug__is_enabled()
 {
@@ -169,6 +178,12 @@ bool
 z_debug__is_drawing_shapes()
 {
     return _context.draw_shapes;
+}
+
+bool
+z_debug__is_drawing_axes()
+{
+    return _context.draw_axes;
 }
 
 bool

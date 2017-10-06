@@ -24,6 +24,22 @@
 #include "../viewport.h"
 #include "../res.h"
 
+static
+void
+z_debug__draw_gizmo(SHIZVector2 location,
+                    SHIZVector2 anchor,
+                    f32 angle,
+                    SHIZLayer layer);
+
+static
+void
+z_debug__draw_rect_bounds_ex(SHIZRect rect,
+                             SHIZColor color,
+                             SHIZVector2 anchor,
+                             f32 angle,
+                             SHIZLayer layer,
+                             bool draw_gizmo);
+
 extern SHIZGraphicsContext const _graphics_context;
 
 static char _stats_buffer[256] = { 0 };
@@ -198,11 +214,11 @@ z_debug__draw_stats()
                                                         layer,
                                                         SHIZSpriteNoTint));
     
-    char version_buffer[128] = { 0 };
+    char version_buffer[64] = { 0 };
     
-    sprintf(version_buffer, "» SHIZEN %d.%d.%d / %s (%s)",
+    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s",
             SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
-            SHIZEN_VERSION_NAME, __DATE__);
+            SHIZEN_VERSION_NAME);
     
     z_draw_text_ex(spritefont,
                    version_buffer,
@@ -231,12 +247,15 @@ z_debug__draw_viewport()
     SHIZColor const y_color = SHIZColorWithAlpa(SHIZColorGreen, 0.6f);
     
     SHIZRect const viewport_shape =
-    SHIZRectMake(center, SHIZSizeMake(viewport.resolution.width - 1,
-                                      viewport.resolution.height - 1));
+        SHIZRectMake(SHIZVector2Zero, SHIZSizeMake((viewport.resolution.width), (viewport.resolution.height)));
     
     // bounds
     z_draw_rect_ex(viewport_shape, bounds_color,
-                   SHIZDrawModeOutline, SHIZAnchorCenter, 0, bounds_layer);
+                   SHIZDrawModeOutline, SHIZAnchorBottomLeft, 0, bounds_layer);
+    
+    if (!z_debug__is_drawing_axes()) {
+        return;
+    }
     
     // axes
     SHIZLayer const axes_layer = SHIZLayeredBelow(SHIZLayerTop);
@@ -259,15 +278,15 @@ z_debug__draw_viewport()
     z_draw_line_ex(y_top, y_bottom, y_color, axes_layer);
     z_draw_line_ex(x_left, x_right, x_color, axes_layer);
     
-    SHIZSpriteFont const spritefont = z_debug__get_font();
-    
-    SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
-        attrs.character_spread = SHIZSpriteFontSpreadTight;
-    }
-    
-    SHIZColor point_color = bounds_color;
-    
     if (z_debug__is_expanded()) {
+        SHIZSpriteFont const spritefont = z_debug__get_font();
+        
+        SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault; {
+            attrs.character_spread = SHIZSpriteFontSpreadTight;
+        }
+        
+        SHIZColor point_color = bounds_color;
+        
         z_draw_text_ex(spritefont, "0,0",
                        SHIZVector2Make(spritefont.character.width / 2,
                                        (spritefont.character.height / 2) - 1),
@@ -327,25 +346,107 @@ z_debug__draw_viewport()
 }
 
 void
-z_debug__draw_sprite_gizmo(SHIZVector2 const location,
-                           SHIZVector2 const anchor,
-                           f32 const angle,
-                           SHIZLayer const layer)
+z_debug__draw_rect_bounds(SHIZRect const rect,
+                          SHIZColor const color,
+                          SHIZVector2 const anchor,
+                          f32 const angle,
+                          SHIZLayer const layer)
+{
+    z_debug__draw_rect_bounds_ex(rect, color, anchor, angle, layer, true);
+}
+
+void
+z_debug__draw_sprite_bounds(SHIZVector2 const origin,
+                            SHIZSize const size,
+                            SHIZColor const color,
+                            SHIZVector2 const anchor,
+                            f32 const angle,
+                            SHIZLayer const layer)
+{
+    z_debug__draw_rect_bounds(SHIZRectMake(origin, size),
+                              color,
+                              anchor,
+                              angle,
+                              layer);
+}
+
+void
+z_debug__draw_circle_bounds(SHIZVector2 const origin,
+                            SHIZColor const color,
+                            f32 const radius,
+                            SHIZVector2 const scale,
+                            SHIZLayer const layer)
+{
+    SHIZRect const rect =
+        SHIZRectMake(origin, SHIZSizeMake((radius * scale.x) * 2,
+                                          (radius * scale.y) * 2));
+    
+    z_debug__draw_rect_bounds_ex(rect, color,
+                                 SHIZAnchorCenter, 0, layer, false);
+}
+
+void
+z_debug__draw_path_bounds(SHIZVector2 const points[], u16 const count,
+                          SHIZColor const color,
+                          SHIZLayer const layer)
+{
+    SHIZVector2 min = points[0];
+    SHIZVector2 max = points[0];
+    
+    for (u8 i = 1; i < count; i++) {
+        SHIZVector2 const point = points[i];
+        
+        if (point.x < min.x) {
+            min.x = point.x;
+        }
+        
+        if (point.y < min.y) {
+            min.y = point.y;
+        }
+        
+        if (point.x > max.x) {
+            max.x = point.x;
+        }
+        
+        if (point.y > max.y) {
+            max.y = point.y;
+        }
+    }
+    
+    f32 const width = max.x - min.x;
+    f32 const height = max.y - min.y;
+    
+    SHIZSize const size = SHIZSizeMake(width, height);
+    SHIZVector2 const center = SHIZVector2Make(min.x + (size.width / 2),
+                                               min.y + (size.height / 2));
+
+    SHIZRect const rect = SHIZRectMake(center, size);
+    
+    z_debug__draw_rect_bounds_ex(rect, color,
+                                 SHIZAnchorCenter,
+                                 0, layer, false);
+    
+}
+
+static
+void
+z_debug__draw_gizmo(SHIZVector2 const location,
+                    SHIZVector2 const anchor,
+                    f32 const angle,
+                    SHIZLayer const layer)
 {
     if (angle > 0 || angle < 0) {
-        u8 const segments = 8;
+        u8 const segments = 10;
         f32 const radius = 6;
         
-        SHIZVector2 const circle_center = SHIZVector2Make(location.x + anchor.x,
-                                                          location.y + anchor.y);
-        
-        z_draw_circle_ex(circle_center,
+        z_draw_circle_ex(location,
                          SHIZColorWithAlpa(SHIZColorWhite, 0.1f),
                          SHIZDrawModeFill,
                          radius, segments,
+                         SHIZVector2One,
                          SHIZLayeredBelow(layer));
         
-        z_draw_arc_ex(circle_center,
+        z_draw_arc_ex(location,
                       SHIZColorWithAlpa(SHIZColorWhite, 0.6f),
                       SHIZDrawModeFill,
                       radius, segments,
@@ -356,46 +457,61 @@ z_debug__draw_sprite_gizmo(SHIZVector2 const location,
     f32 const anchor_size = 2;
     
     SHIZRect const anchor_rect =
-    SHIZRectMake(location, SHIZSizeMake(anchor_size, anchor_size));
+        SHIZRectMake(location, SHIZSizeMake(anchor_size, anchor_size));
+    
+    bool const anchor_outside = false;
     
     z_draw_rect_ex(anchor_rect,
                    SHIZColorYellow,
                    SHIZDrawModeFill,
-                   SHIZAnchorInverse(anchor),
-                   angle,
+                   anchor_outside ? SHIZAnchorInverse(anchor) : anchor,
+                   0,
                    SHIZLayeredAbove(layer));
 }
 
+static
 void
-z_debug__draw_sprite_shape(SHIZVector2 const origin,
-                           SHIZSize const size,
-                           SHIZColor const color,
-                           SHIZVector2 const anchor,
-                           f32 const angle,
-                           SHIZLayer const layer)
+z_debug__draw_rect_bounds_ex(SHIZRect const rect,
+                             SHIZColor const color,
+                             SHIZVector2 const anchor,
+                             f32 const angle,
+                             SHIZLayer const layer,
+                             bool const draw_gizmo)
 {
     bool const previously_tracking_events = z_debug__is_events_enabled();
     
     z_debug__set_events_enabled(false);
     
-    SHIZSize const padded_size = SHIZSizeMake(size.width + 1, size.height + 1);
-    SHIZVector2 padded_origin = SHIZVector2Make(origin.x, origin.y);
+    // enable outside bounds to avoid the frame overlapping sprite/primitive
+    // pixels, but it won't work well with rotated elements
+    bool const outside_bounds = false;
     
-    if (anchor.x > 0) {
-        padded_origin.x += anchor.x;
+    SHIZRect bounds_rect = rect;
+    
+    if (outside_bounds) {
+        bounds_rect.size = SHIZSizeMake(bounds_rect.size.width + 2,
+                                        bounds_rect.size.height + 2);
+        
+        bounds_rect.origin =
+            SHIZVector2Make(bounds_rect.origin.x + (1 * anchor.x),
+                            bounds_rect.origin.y + (1 * anchor.y));
     }
     
-    if (anchor.y > 0) {
-        padded_origin.y += anchor.y;
-    }
+    bool const previously_drawing_shapes = z_debug__is_drawing_shapes();
     
-    z_draw_rect_ex(SHIZRectMake(padded_origin, padded_size),
-                   color, SHIZDrawModeOutline, anchor, angle,
+    // disable shape drawing while drawing this shape to avoid
+    // drawing the shape of a shape of a shape...
+    z_debug__set_drawing_shapes(false);
+    
+    z_draw_rect_ex(bounds_rect,
+                   SHIZColorWithAlpa(color, 0.6f), SHIZDrawModeOutline, anchor, angle,
                    SHIZLayeredAbove(layer));
     
-    z_debug__draw_sprite_gizmo(origin, anchor, angle,
-                               SHIZLayeredAbove(layer));
+    if (draw_gizmo) {
+        z_debug__draw_gizmo(rect.origin, anchor, angle, SHIZLayeredAbove(layer));
+    }
     
+    z_debug__set_drawing_shapes(previously_drawing_shapes);
     z_debug__set_events_enabled(previously_tracking_events);
 }
 

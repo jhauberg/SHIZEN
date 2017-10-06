@@ -104,6 +104,8 @@ z_gfx__render_immediate(GLenum const mode,
     mat4x4 transform;
     mat4x4_identity(transform);
     
+    // todo: optimization; in many cases we don't have to keep building the projection matrix
+    //                     because it only changes when the viewport changes- which is probably not every frame
     z_transform__project_ortho(transform, model, z_viewport__get());
     
     z_gfx__immediate_state(true);
@@ -155,10 +157,15 @@ z_gfx__immediate_state(bool const enable)
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
         
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CW);
+        
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     } else {
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
+        glDisable(GL_CULL_FACE);
     }
 }

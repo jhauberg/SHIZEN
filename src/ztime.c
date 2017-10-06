@@ -167,7 +167,13 @@ z_animate_value_to(f32 * next_value,
 {
     f32 const t = duration > 0 ? (f32)(time / duration) : 1;
     
-    *next_value = z_lerp(value, to, t);
+    f32 d = z_lerp(value, to, t);
+    
+    if (z_fequal(d, to)) {
+        d = to;
+    }
+    
+    *next_value = d;
 }
 
 static
@@ -176,6 +182,10 @@ z_animate_blend_value(f32 const previous,
                       f32 const next,
                       f64 const interpolation)
 {
+    if (z_fequal(previous, next)) {
+        return next;
+    }
+    
     f32 t = (f32)interpolation;
     
     if (t < 0) {

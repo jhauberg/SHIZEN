@@ -44,8 +44,12 @@ extern SHIZResourceSound const SHIZResourceSoundEmpty;
 extern u8 const SHIZResourceInvalid;
 
 u8
-z_res__load(SHIZResourceType type,
-            char const * filename);
+z_res__load(char const * filename);
+
+u8
+z_res__load_data(SHIZResourceType type,
+                 unsigned char const * buffer,
+                 unsigned int length);
 
 bool
 z_res__unload(u8 resource_id);
@@ -54,7 +58,7 @@ bool
 z_res__unload_all(void);
 
 SHIZResourceType const
-z_res__type(char const * const filename);
+z_res__type(char const * filename);
 
 SHIZResourceImage
 z_res__image(u8 resource_id);

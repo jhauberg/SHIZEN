@@ -145,9 +145,10 @@ z_res__sound(u8 const resource_id)
 }
 
 u8
-z_res__load(SHIZResourceType const type,
-            char const * const filename)
+z_res__load(char const * const filename)
 {
+    SHIZResourceType const type = z_res__type(filename);
+    
     if (type == SHIZResourceTypeNotSupported) {
         z_io__error("resource not loaded ('%s'); unsupported type (%s)",
                     filename, z_res__filename_ext(filename));
@@ -177,6 +178,46 @@ z_res__load(SHIZResourceType const type,
             
             _sounds[expected_index].resource_id = expected_id;
             _sounds[expected_index].filename = filename;
+            
+            resource_id = expected_id;
+        }
+    }
+    
+    return resource_id;
+}
+
+u8
+z_res__load_data(SHIZResourceType const type,
+                 unsigned char const * const buffer,
+                 unsigned int const length)
+{
+    if (type == SHIZResourceTypeNotSupported) {
+        z_io__error("resource not loaded; unsupported type");
+        
+        return SHIZResourceInvalid;
+    }
+    
+    u8 resource_id = SHIZResourceInvalid;
+
+    u8 expected_index;
+    u8 const expected_id = z_res__next_id(type, &expected_index);
+    
+    if (expected_id != SHIZResourceInvalid) {
+        if (type == SHIZResourceTypeImage) {
+            _current_image_resource = &_images[expected_index];
+            
+            if (z_io__load_image_data(buffer, length, z_res__image_loaded_callback)) {
+                _current_image_resource->resource_id = expected_id;
+                _current_image_resource->filename = NULL;
+                
+                resource_id = expected_id;
+            }
+            
+            _current_image_resource = NULL;
+        } else if (type == SHIZResourceTypeSound) {
+            // todo: actual loading left blank for future implementation
+            
+            _sounds[expected_index].resource_id = expected_id;
             
             resource_id = expected_id;
         }

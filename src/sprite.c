@@ -90,7 +90,9 @@ z_sprite__draw(SHIZSprite const sprite,
     if (sprite.resource_id == SHIZResourceInvalid ||
         sprite.resource_id != image.resource_id ||
         (sprite.source.size.width <= 0 ||
-         sprite.source.size.height <= 0)) {
+         sprite.source.size.height <= 0) ||
+        (size.target.width == 0 ||
+         size.target.height == 0)) {
         return SHIZSizeZero;
     }
 
@@ -110,18 +112,18 @@ z_sprite__draw(SHIZSprite const sprite,
     sprite_object->key = sort_key;
     sprite_object->angle = angle;
     sprite_object->order = _sprite_list.total;
-    sprite_object->origin = SHIZVector3Make(roundf(origin.x),
-                                            roundf(origin.y),
+    sprite_object->origin = SHIZVector3Make(PIXEL(origin.x),
+                                            PIXEL(origin.y),
                                             z);
-
+    
     SHIZSize const texture_size = SHIZSizeMake(image.width, image.height);
 
     SHIZSize const source_size = SHIZSizeMake(size.target.width > 0 ?
                                                 size.target.width : sprite.source.size.width,
                                               size.target.height > 0 ?
                                                 size.target.height : sprite.source.size.height);
-    SHIZSize const destination_size = SHIZSizeMake(source_size.width * size.scale,
-                                                   source_size.height * size.scale);
+    SHIZSize const destination_size = SHIZSizeMake(source_size.width * size.scale.x,
+                                                   source_size.height * size.scale.y);
 
     // set vertex positions appropriately for the given anchor (note that vertices are not transformed until flushed)
     z_sprite__set_position(sprite_object, destination_size, anchor);
@@ -181,8 +183,8 @@ z_sprite__flush()
 
     z_sprite__sort();
     
-    for (u16 sprite_index = 0; sprite_index < _sprite_list.count; sprite_index++) {
-        SHIZSpriteObject const sprite = _sprite_list.sprites[sprite_index];
+    for (u16 i = 0; i < _sprite_list.count; i++) {
+        SHIZSpriteObject const sprite = _sprite_list.sprites[i];
         SHIZSpriteKey const * const sprite_key = (SHIZSpriteKey *)&sprite.key;
 
 #ifdef SHIZ_DEBUG
@@ -248,12 +250,12 @@ z_sprite__set_position(SHIZSpriteObject * const sprite,
                        SHIZSize const size,
                        SHIZVector2 const anchor)
 {
-    SHIZRect const anchored_rect = z_sprite__anchor_rect(size, anchor);
-    
-    f32 const l = anchored_rect.origin.x;
-    f32 const r = anchored_rect.origin.x + anchored_rect.size.width;
-    f32 const b = anchored_rect.origin.y;
-    f32 const t = anchored_rect.origin.y + anchored_rect.size.height;
+    SHIZRect const anchored = z_sprite__anchor_rect(size, anchor);
+
+    f32 const l = PIXEL(anchored.origin.x);
+    f32 const r = PIXEL(anchored.origin.x + anchored.size.width);
+    f32 const b = PIXEL(anchored.origin.y);
+    f32 const t = PIXEL(anchored.origin.y + anchored.size.height);
     
     SHIZVector2 const bl = SHIZVector2Make(l, b);
     SHIZVector2 const tl = SHIZVector2Make(l, t);
@@ -274,41 +276,44 @@ void
 z_sprite__set_uv(SHIZSpriteObject * const sprite,
                  SHIZSize const size,
                  SHIZSize const texture_size,
-                 SHIZRect const source,
+                 SHIZRect source,
                  SHIZSpriteFlipMode const flip,
                  SHIZColor const tint,
                  bool const repeat)
 {
     bool const flip_source_vertically = true;
     
-    SHIZRect flipped_source = source;
-    
     if (flip_source_vertically) {
         // opengl assumes that the origin of textures is at the bottom-left of the image,
         // however, it is common to specify top-left as origin when using e.g. sprite sheets (and we want that)
         // so, assuming that the provided source frame expects the top-left to be the origin,
         // we have to flip the specified coordinate so that the origin becomes bottom-left
-        flipped_source.origin.y = (texture_size.height - source.size.height) - source.origin.y;
+        source.origin.y =
+            (texture_size.height - source.size.height) - source.origin.y;
     }
-    
+
+    // bias sampling towards the center of each texel
+    f32 const w = HALF_PIXEL / texture_size.width;
+    f32 const h = HALF_PIXEL / texture_size.height;
+
     SHIZVector2 const uv_min =
-        SHIZVector2Make(flipped_source.origin.x / texture_size.width,
-                        flipped_source.origin.y / texture_size.height);
+        SHIZVector2Make((source.origin.x + w) / texture_size.width,
+                        (source.origin.y + h) / texture_size.height);
     SHIZVector2 const uv_max =
-        SHIZVector2Make((flipped_source.origin.x + flipped_source.size.width) / texture_size.width,
-                        (flipped_source.origin.y + flipped_source.size.height) / texture_size.height);
+        SHIZVector2Make((source.origin.x + source.size.width - w) / texture_size.width,
+                        (source.origin.y + source.size.height - h) / texture_size.height);
     
     f32 uv_scale_x = 1;
     f32 uv_scale_y = 1;
     
     if (repeat) {
         // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
-        if (size.width > flipped_source.size.width) {
-            uv_scale_x = size.width / flipped_source.size.width;
+        if (size.width > source.size.width) {
+            uv_scale_x = size.width / source.size.width;
         }
         
-        if (size.height > flipped_source.size.height) {
-            uv_scale_y = size.height / flipped_source.size.height;
+        if (size.height > source.size.height) {
+            uv_scale_y = size.height / source.size.height;
         }
     }
     
