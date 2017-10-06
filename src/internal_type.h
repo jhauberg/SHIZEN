@@ -48,7 +48,7 @@
  *
  * So there's a trade-off to consider between both options.
  */
-#define PREFER_INTEGRAL_PIXELS 1
+#define PREFER_INTEGRAL_PIXELS 0
 
 #if PREFER_INTEGRAL_PIXELS
  #define PIXEL(x) floorf(x)

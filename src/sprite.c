@@ -90,7 +90,9 @@ z_sprite__draw(SHIZSprite const sprite,
     if (sprite.resource_id == SHIZResourceInvalid ||
         sprite.resource_id != image.resource_id ||
         (sprite.source.size.width <= 0 ||
-         sprite.source.size.height <= 0)) {
+         sprite.source.size.height <= 0) ||
+        (size.target.width == 0 ||
+         size.target.height == 0)) {
         return SHIZSizeZero;
     }
 
@@ -248,22 +250,12 @@ z_sprite__set_position(SHIZSpriteObject * const sprite,
                        SHIZSize const size,
                        SHIZVector2 const anchor)
 {
-    SHIZSize const clamped_size = SHIZSizeMake(size.width - 1,
-                                               size.height - 1);
-    
-    SHIZRect const rect = z_sprite__anchor_rect(clamped_size, anchor);
+    SHIZRect const anchored = z_sprite__anchor_rect(size, anchor);
 
-#if PREFER_INTEGRAL_PIXELS
-    f32 const l = PIXEL(rect.origin.x) - HALF_PIXEL;
-    f32 const r = PIXEL(rect.origin.x + rect.size.width) + HALF_PIXEL;
-    f32 const b = PIXEL(rect.origin.y) - HALF_PIXEL;
-    f32 const t = PIXEL(rect.origin.y + rect.size.height) + HALF_PIXEL;
-#else
-    f32 const l = PIXEL(rect.origin.x) - HALF_PIXEL - HALF_PIXEL / 2;
-    f32 const r = PIXEL(rect.origin.x + rect.size.width) + HALF_PIXEL - HALF_PIXEL / 2;
-    f32 const b = PIXEL(rect.origin.y) - HALF_PIXEL - HALF_PIXEL / 2;
-    f32 const t = PIXEL(rect.origin.y + rect.size.height) + HALF_PIXEL - HALF_PIXEL / 2;
-#endif
+    f32 const l = PIXEL(anchored.origin.x);
+    f32 const r = PIXEL(anchored.origin.x + anchored.size.width);
+    f32 const b = PIXEL(anchored.origin.y);
+    f32 const t = PIXEL(anchored.origin.y + anchored.size.height);
     
     SHIZVector2 const bl = SHIZVector2Make(l, b);
     SHIZVector2 const tl = SHIZVector2Make(l, t);

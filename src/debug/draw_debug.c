@@ -416,9 +416,7 @@ z_debug__draw_path_bounds(SHIZVector2 const points[], u16 const count,
     f32 const width = max.x - min.x;
     f32 const height = max.y - min.y;
     
-    SHIZSize const size = SHIZSizeMake(width + 1,
-                                       height + 1);
-    
+    SHIZSize const size = SHIZSizeMake(width, height);
     SHIZVector2 const center = SHIZVector2Make(min.x + (size.width / 2),
                                                min.y + (size.height / 2));
 

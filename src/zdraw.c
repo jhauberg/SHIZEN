@@ -26,10 +26,35 @@
 #endif
 
 extern SHIZGraphicsContext const _graphics_context;
+extern SHIZSprite const _spr_white_1x1;
 
 static
 void
 z_draw__flush(void);
+
+static
+void
+z_draw__rect(SHIZRect rect,
+             SHIZColor color,
+             SHIZVector2 anchor,
+             f32 angle,
+             SHIZLayer layer);
+
+static
+void
+z_draw__rect_outline(SHIZRect rect,
+                     SHIZColor color,
+                     SHIZVector2 anchor,
+                     f32 angle,
+                     SHIZLayer layer);
+
+static
+SHIZVector2
+z_draw__pixel_centering_offset(SHIZVector2 const anchor)
+{
+    return SHIZVector2Make(HALF_PIXEL * -anchor.x,
+                           HALF_PIXEL * -anchor.y);
+}
 
 void
 z_drawing_begin(SHIZColor const background)
@@ -120,49 +145,15 @@ z_draw_path_ex(SHIZVector2 const points[],
     
     SHIZVertexPositionColor vertices[count];
     
+    SHIZVector2 const anchor = SHIZAnchorBottomLeft;
+    SHIZVector2 const offset = z_draw__pixel_centering_offset(anchor);
+    
     for (u8 i = 0; i < count; i++) {
         SHIZVector2 const point = points[i];
-
-        if (i == count - 1) {
-            SHIZVector2 const previous_point = points[i - 1];
-            SHIZVector2 const delta = SHIZVector2Make(point.x - previous_point.x,
-                                                      point.y - previous_point.y);
-            
-            SHIZVector2 edge = SHIZVector2Zero;
-            
-            if (delta.x > 0) {
-                edge.x = HALF_PIXEL;
-            } else if (delta.x < 0) {
-                edge.x = -HALF_PIXEL;
-            }
-            
-            if (delta.y > 0) {
-                edge.y = HALF_PIXEL;
-            } else if (delta.y < 0) {
-                edge.y = -HALF_PIXEL;
-            }
-            
-            // extend last point to make that pixel inclusive
-#if PREFER_INTEGRAL_PIXELS
-            vertices[i].position = SHIZVector3Make(PIXEL(point.x) + edge.x,
-                                                   PIXEL(point.y) + edge.y,
-                                                   z);
-#else
-            vertices[i].position = SHIZVector3Make(PIXEL(point.x) + edge.x - (HALF_PIXEL / 2),
-                                                   PIXEL(point.y) + edge.y - (HALF_PIXEL / 2),
-                                                   z);
-#endif
-        } else {
-#if PREFER_INTEGRAL_PIXELS
-            vertices[i].position = SHIZVector3Make(PIXEL(point.x),
-                                                   PIXEL(point.y),
-                                                   z);
-#else
-            vertices[i].position = SHIZVector3Make(PIXEL(point.x) - HALF_PIXEL,
-                                                   PIXEL(point.y) - HALF_PIXEL,
-                                                   z);
-#endif
-        }
+        
+        vertices[i].position = SHIZVector3Make(PIXEL(point.x) + offset.x,
+                                               PIXEL(point.y) + offset.y,
+                                               z);
         
         vertices[i].color = color;
     }
@@ -182,32 +173,39 @@ void
 z_draw_point(SHIZVector2 const point,
              SHIZColor const color)
 {
-    z_draw_point_ex(point, color, SHIZLayerDefault);
+    z_draw_point_anchored(point, color, SHIZAnchorBottomLeft);
+}
+
+void
+z_draw_point_anchored(SHIZVector2 const point,
+                      SHIZColor const color,
+                      SHIZVector2 const anchor)
+{
+    z_draw_point_ex(point, color, anchor, SHIZLayerDefault);
 }
 
 void
 z_draw_point_ex(SHIZVector2 const point,
                 SHIZColor const color,
+                SHIZVector2 const anchor,
                 SHIZLayer const layer)
 {
-    f32 const z = z_layer__get_z(layer);
+    // we can utilize the spritebatch to draw 1x1 sprites instead of rendering
+    // vertices using GL_POINTS
+    SHIZSpriteParameters params = SHIZSpriteParametersDefault(); {
+        params.tint = color;
+        params.layer = layer;
+        params.anchor = anchor;
+    }
     
-    SHIZVertexPositionColor vertices[1] = {
-        {
-#if PREFER_INTEGRAL_PIXELS
-            .position = SHIZVector3Make(PIXEL(point.x),
-                                        PIXEL(point.y),
-                                        z),
-#else
-            .position = SHIZVector3Make(PIXEL(point.x) - HALF_PIXEL,
-                                        PIXEL(point.y) - HALF_PIXEL,
-                                        z),
-#endif
-            .color = color
-        }
-    };
-
-    z_gfx__render(GL_POINTS, vertices, 1);
+    bool const was_drawing_debug_shapes = z_debug__is_drawing_shapes();
+    
+    // we don't want debug shapes on points
+    z_debug__set_drawing_shapes(false);
+    
+    z_draw_sprite(_spr_white_1x1, SHIZVector2Make(point.x, point.y), params);
+    
+    z_debug__set_drawing_shapes(was_drawing_debug_shapes);
 }
 
 void
@@ -229,73 +227,11 @@ z_draw_rect_ex(SHIZRect const rect,
                f32 const angle,
                SHIZLayer const layer)
 {
-    u8 const vertex_count = 4;
-
-    SHIZVertexPositionColor vertices[vertex_count];
-
-    for (u8 i = 0; i < vertex_count; i++) {
-        vertices[i].color = color;
-    }
-
-    f32 const z = z_layer__get_z(layer);
-
-    SHIZVector3 const origin = SHIZVector3Make(PIXEL(rect.origin.x),
-                                               PIXEL(rect.origin.y),
-                                               z);
-
-    SHIZRect const anchored_rect =
-        z_sprite__anchor_rect(SHIZSizeMake(rect.size.width - 1,
-                                           rect.size.height - 1),
-                              anchor);
-    
-    f32 const l = PIXEL(anchored_rect.origin.x);
-    f32 const r = PIXEL(anchored_rect.origin.x + anchored_rect.size.width);
-    f32 const b = PIXEL(anchored_rect.origin.y);
-    f32 const t = PIXEL(anchored_rect.origin.y + anchored_rect.size.height);
-    
-    // note that we're intentionally leaving out the 'z' for the vertices,
-    // as each vertex will be transformed by the Z of the origin later and
-    // thus becomes unnecessary to add here
     if (mode == SHIZDrawModeFill) {
-#if PREFER_INTEGRAL_PIXELS
-        vertices[0].position = SHIZVector3Make(l, b, 0);
-        vertices[1].position = SHIZVector3Make(l, t + 1, 0);
-        vertices[2].position = SHIZVector3Make(r + 1, b, 0);
-        vertices[3].position = SHIZVector3Make(r + 1, t + 1, 0);
-#else
-        vertices[0].position = SHIZVector3Make(l - HALF_PIXEL, b - HALF_PIXEL, 0);
-        vertices[1].position = SHIZVector3Make(l - HALF_PIXEL, t + 1 - HALF_PIXEL, 0);
-        vertices[2].position = SHIZVector3Make(r + 1 - HALF_PIXEL, b - HALF_PIXEL, 0);
-        vertices[3].position = SHIZVector3Make(r + 1 - HALF_PIXEL, t + 1 - HALF_PIXEL, 0);
-#endif
+        z_draw__rect(rect, color, anchor, angle, layer);
     } else {
-        // else
-        vertices[0].position = SHIZVector3Make(l, b, 0);
-        vertices[1].position = SHIZVector3Make(l, t, 0);
-        // note that the order of the vertices differ from the filled shape
-        vertices[2].position = SHIZVector3Make(r, t, 0);
-        vertices[3].position = SHIZVector3Make(r, b, 0);
+        z_draw__rect_outline(rect, color, anchor, angle, layer);
     }
-
-    if (mode == SHIZDrawModeFill) {
-        z_gfx__render_ex(GL_TRIANGLE_STRIP,
-                         vertices, vertex_count,
-                         origin, angle);
-    } else {
-        z_gfx__render_ex(GL_LINE_LOOP,
-                         vertices, vertex_count,
-                         origin, angle);
-    }
-    
-#ifdef SHIZ_DEBUG
-    if (z_debug__is_enabled()) {
-        if (z_debug__is_drawing_shapes() && (anchored_rect.size.width > 0 &&
-                                             anchored_rect.size.height > 0)) {
-            z_debug__draw_rect_bounds(rect, SHIZColorRed,
-                                      anchor, angle, layer);
-        }
-    }
-#endif
 }
 
 void
@@ -338,8 +274,10 @@ z_draw_circle_ex(SHIZVector2 const center,
     f32 const z = z_layer__get_z(layer);
     f32 const step = 2.0f * (f32)M_PI / segments;
 
-    SHIZVector3 const origin = SHIZVector3Make(PIXEL(center.x),
-                                               PIXEL(center.y),
+    SHIZVector2 const offset = z_draw__pixel_centering_offset(SHIZAnchorCenter);
+    
+    SHIZVector3 const origin = SHIZVector3Make(PIXEL(center.x) + offset.x,
+                                               PIXEL(center.y) + offset.y,
                                                z);
     
     u8 vertex_offset = 0;
@@ -362,9 +300,7 @@ z_draw_circle_ex(SHIZVector2 const center,
 
         vertices[vertex_index].color = color;
         // note that we're intentionally leaving out the 'z' here
-        vertices[vertex_index].position = SHIZVector3Make(x - HALF_PIXEL,
-                                                          y - HALF_PIXEL,
-                                                          0);
+        vertices[vertex_index].position = SHIZVector3Make(x, y, 0);
 
         if (mode == SHIZDrawModeFill && segment == 0) {
             // connect the last vertex to the first shape vertex
@@ -424,10 +360,12 @@ z_draw_arc_ex(SHIZVector2 const center,
     f32 const z = z_layer__get_z(layer);
     f32 const step = target_angle / segments;
 
-    SHIZVector3 const origin = SHIZVector3Make(PIXEL(center.x),
-                                               PIXEL(center.y),
+    SHIZVector2 const offset = z_draw__pixel_centering_offset(SHIZAnchorCenter);
+    
+    SHIZVector3 const origin = SHIZVector3Make(PIXEL(center.x) + offset.x,
+                                               PIXEL(center.y) + offset.y,
                                                z);
-
+    
     u8 vertex_offset = 1;
 
     vertices[0].color = color;
@@ -445,9 +383,7 @@ z_draw_arc_ex(SHIZVector2 const center,
 
         vertices[vertex_index].color = color;
         // note that we're intentionally leaving out the 'z' here
-        vertices[vertex_index].position = SHIZVector3Make(x - HALF_PIXEL,
-                                                          y - HALF_PIXEL,
-                                                          0);
+        vertices[vertex_index].position = SHIZVector3Make(x, y, 0);
     }
 
     if (mode == SHIZDrawModeFill) {
@@ -477,10 +413,11 @@ z_draw_sprite(SHIZSprite const sprite,
                             params.layer);
 }
 
-SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
-                             SHIZVector2 origin,
-                             SHIZSpriteSize size,
-                             SHIZSpriteParameters params)
+SHIZSize
+z_draw_sprite_sized(SHIZSprite sprite,
+                    SHIZVector2 origin,
+                    SHIZSpriteSize size,
+                    SHIZSpriteParameters params)
 {
     return z_draw_sprite_ex(sprite, origin,
                             size,
@@ -493,10 +430,11 @@ SHIZSize z_draw_sprite_sized(SHIZSprite sprite,
                             params.layer);
 }
 
-SHIZSize z_draw_sprite_tiled(SHIZSprite sprite,
-                             SHIZVector2 origin,
-                             SHIZSpriteSize size,
-                             SHIZSpriteParameters params)
+SHIZSize
+z_draw_sprite_tiled(SHIZSprite sprite,
+                    SHIZVector2 origin,
+                    SHIZSpriteSize size,
+                    SHIZSpriteParameters params)
 {
     return z_draw_sprite_ex(sprite, origin,
                             size,
@@ -586,12 +524,13 @@ SHIZSize z_draw_text_bounded(SHIZSpriteFont font,
                                   params);
 }
 
-SHIZSize z_draw_text_attributed(SHIZSpriteFont font,
-                                char const * text,
-                                SHIZVector2 origin,
-                                SHIZSize bounds,
-                                SHIZSpriteFontAttributes attribs,
-                                SHIZSpriteFontParameters params)
+SHIZSize
+z_draw_text_attributed(SHIZSpriteFont font,
+                       char const * text,
+                       SHIZVector2 origin,
+                       SHIZSize bounds,
+                       SHIZSpriteFontAttributes attribs,
+                       SHIZSpriteFontParameters params)
 {
     return z_draw_text_ex(font, text, origin, bounds, attribs,
                           params.alignment, params.tint, params.layer);
@@ -665,6 +604,91 @@ z_draw_text_ex(SHIZSpriteFont const font,
 #endif
     
     return text_size;
+}
+
+static
+void
+z_draw__rect_outline(SHIZRect const rect,
+                     SHIZColor const color,
+                     SHIZVector2 const anchor,
+                     f32 const angle,
+                     SHIZLayer const layer)
+{
+    u8 const vertex_count = 4;
+    
+    SHIZVertexPositionColor vertices[vertex_count];
+    
+    for (u8 i = 0; i < vertex_count; i++) {
+        vertices[i].color = color;
+    }
+    
+    f32 const z = z_layer__get_z(layer);
+    
+    SHIZVector2 const offset = z_draw__pixel_centering_offset(anchor);
+    
+    SHIZVector3 const origin = SHIZVector3Make(PIXEL(rect.origin.x) + offset.x,
+                                               PIXEL(rect.origin.y) + offset.y,
+                                               z);
+    
+    // because of how pixels are rasterized, we need to make the box 1px smaller
+    // this achieves the result that we want; e.g. a rect (0,0) at 3x3, paints
+    // exactly 3 pixels wide, and 3 pixels tall (depending on anchoring) when
+    // it's size is considered as only 2x2
+    SHIZRect const anchored =
+        z_sprite__anchor_rect(SHIZSizeMake(rect.size.width - 1,
+                                           rect.size.height - 1),
+                              anchor);
+    
+    f32 const l = PIXEL(anchored.origin.x);
+    f32 const r = PIXEL(anchored.origin.x + anchored.size.width);
+    f32 const b = PIXEL(anchored.origin.y);
+    f32 const t = PIXEL(anchored.origin.y + anchored.size.height);
+    
+    // note that we're intentionally leaving out the 'z' for the vertices,
+    // as each vertex will be transformed by the Z of the origin later and
+    // thus becomes unnecessary to add here
+    vertices[0].position = SHIZVector3Make(l, b, 0);
+    vertices[1].position = SHIZVector3Make(l, t, 0);
+    vertices[2].position = SHIZVector3Make(r, t, 0);
+    vertices[3].position = SHIZVector3Make(r, b, 0);
+    
+    z_gfx__render_ex(GL_LINE_LOOP,
+                     vertices, vertex_count,
+                     origin, angle);
+    
+#ifdef SHIZ_DEBUG
+    if (z_debug__is_enabled()) {
+        if (z_debug__is_drawing_shapes() && (anchored.size.width > 0 &&
+                                             anchored.size.height > 0)) {
+            z_debug__draw_rect_bounds(rect, SHIZColorRed,
+                                      anchor, angle, layer);
+        }
+    }
+#endif
+}
+
+static
+void
+z_draw__rect(SHIZRect const rect,
+             SHIZColor const color,
+             SHIZVector2 const anchor,
+             f32 const angle,
+             SHIZLayer const layer)
+{
+    // we can utilize the spritebatch when drawing filled rectangles
+    // by stretching a 1x1 white texture to the size of our rect
+    SHIZSpriteParameters params = SHIZSpriteParametersDefault(); {
+        params.angle = angle;
+        params.tint = color;
+        params.layer = layer;
+        params.anchor = anchor;
+    }
+    
+    // note that this automatically triggers a debug bounds draw
+    z_draw_sprite_sized(_spr_white_1x1,
+                        rect.origin,
+                        SHIZSpriteSized(rect.size, SHIZVector2One),
+                        params);
 }
 
 static

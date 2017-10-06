@@ -22,10 +22,9 @@ z_transform__project_ortho(mat4x4 world,
     mat4x4 projection;
     mat4x4_identity(projection);
     
-    // align pixels to their centers
     mat4x4_ortho(projection,
-                 -0.5f, (viewport.resolution.width - 1) + 0.5f,
-                 -0.5f, (viewport.resolution.height - 1) + 0.5f,
+                 0, viewport.resolution.width,
+                 0, viewport.resolution.height,
                  -1 /* near */, 1 /* far */);
 
     mat4x4 model_view;
