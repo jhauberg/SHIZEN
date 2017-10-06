@@ -16,7 +16,7 @@
 u8
 z_load(char const * const filename)
 {
-    return z_res__load(z_res__type(filename), filename);
+    return z_res__load(filename);
 }
 
 bool
