@@ -397,6 +397,15 @@ z_draw_arc_ex(SHIZVector2 const center,
                          vertices, vertex_count,
                          origin, SHIZSpriteNoAngle);
     }
+    
+#ifdef SHIZ_DEBUG
+    if (z_debug__is_enabled()) {
+        if (z_debug__is_drawing_shapes() && radius > 0) {
+            z_debug__draw_circle_bounds(center, SHIZColorRed,
+                                        radius, SHIZVector2One, layer);
+        }
+    }
+#endif
 }
 
 SHIZSize
