@@ -198,15 +198,16 @@ z_draw_point_ex(SHIZVector2 const point,
         params.layer = layer;
         params.anchor = anchor;
     }
-    
+#ifdef SHIZ_DEBUG
     bool const was_drawing_debug_shapes = z_debug__is_drawing_shapes();
     
     // we don't want debug shapes on points
     z_debug__set_drawing_shapes(false);
-    
+#endif
     z_draw_sprite(_spr_white_1x1, SHIZVector2Make(point.x, point.y), params);
-    
+#ifdef SHIZ_DEBUG
     z_debug__set_drawing_shapes(was_drawing_debug_shapes);
+#endif
 }
 
 void
