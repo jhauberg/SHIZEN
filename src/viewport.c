@@ -60,11 +60,11 @@ z_viewport__get()
 SHIZRect
 z_viewport__get_clip()
 {
-    GLint const x = (GLint)(_viewport_offset.width / 2);
-    GLint const y = (GLint)(_viewport_offset.height / 2);
+    f32 const x = _viewport_offset.width / 2;
+    f32 const y = _viewport_offset.height / 2;
     
-    GLsizei const width = (GLsizei)(_viewport.framebuffer.width - _viewport_offset.width);
-    GLsizei const height = (GLsizei)(_viewport.framebuffer.height - _viewport_offset.height);
+    f32 const width = _viewport.framebuffer.width - _viewport_offset.width;
+    f32 const height = _viewport.framebuffer.height - _viewport_offset.height;
     
     return SHIZRectMake(SHIZVector2Make(x, y),
                         SHIZSizeMake(width, height));
