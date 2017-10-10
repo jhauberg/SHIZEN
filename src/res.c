@@ -66,7 +66,7 @@ SHIZResourceType
 z_res__type_from_id(u8 resource_id);
 
 static
-i16 const
+s16 const
 z_res__index_from_id(u8 resource_id,
                      SHIZResourceType type);
 
@@ -119,7 +119,7 @@ z_res__image(u8 const resource_id)
         return SHIZResourceImageEmpty;
     }
     
-    i16 const index = z_res__index_from_id(resource_id, SHIZResourceTypeImage);
+    s16 const index = z_res__index_from_id(resource_id, SHIZResourceTypeImage);
     
     if (index < 0) {
         return SHIZResourceImageEmpty;
@@ -135,7 +135,7 @@ z_res__sound(u8 const resource_id)
         return SHIZResourceSoundEmpty;
     }
     
-    i16 const index = z_res__index_from_id(resource_id, SHIZResourceTypeSound);
+    s16 const index = z_res__index_from_id(resource_id, SHIZResourceTypeSound);
     
     if (index < 0) {
         return SHIZResourceSoundEmpty;
@@ -235,7 +235,7 @@ z_res__unload(u8 const resource_id)
     
     SHIZResourceType const type = z_res__type_from_id(resource_id);
     
-    i16 const index = z_res__index_from_id(resource_id, type);
+    s16 const index = z_res__index_from_id(resource_id, type);
     
     if (index < 0) {
         z_io__error("could not unload resource (%d); index out of bounds (%d)",
@@ -303,7 +303,7 @@ z_res__unload_all()
 }
 
 static
-i16 const
+s16 const
 z_res__index_from_id(u8 const resource_id,
                      SHIZResourceType const type)
 {

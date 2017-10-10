@@ -130,7 +130,7 @@ z_recorder__stop()
         return false;
     }
     
-    i32 const status = pclose(_recorder.output);
+    s32 const status = pclose(_recorder.output);
     
     _is_recording = false;
     

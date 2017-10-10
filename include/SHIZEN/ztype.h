@@ -291,7 +291,7 @@ SHIZColorMake(f32 const r,
 
 static inline
 SHIZColor const
-SHIZColorFromHex(i32 const value)
+SHIZColorFromHex(s32 const value)
 {
     SHIZColor const color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
                                           ((value >> 8) & 0xFF) / 255.0f,

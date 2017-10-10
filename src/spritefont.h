@@ -36,7 +36,7 @@ typedef struct SHIZSpriteFontMeasurement {
     SHIZSpriteFontLine lines[SHIZSpriteFontMaxLines];
     /** The index of the last character that can fit within specified bounds,
         if any; -1 otherwise */
-    i32 max_characters;
+    s32 max_characters;
     /** The max number of characters per line before a linebreak is forced */
     u16 max_characters_per_line;
     /** The max number of lines that can fit within specified bounds, if any */

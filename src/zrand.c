@@ -53,13 +53,13 @@ z_rand()
     return pcg32_random();
 }
 
-i32
-z_rand_range(i32 const min, i32 const max)
+s32
+z_rand_range(s32 const min, s32 const max)
 {
     u32 const range = (u32)abs(max - min);
     u32 const r = pcg32_boundedrand(range + 1); // both min and max inclusive
     
-    i32 const result = min + (i32)r;
+    s32 const result = min + (s32)r;
     
     return result;
 }
