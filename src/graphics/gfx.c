@@ -25,7 +25,6 @@
 #endif
 
 #include <stdbool.h>
-#include <stdio.h>
 
 #include <SHIZEN/zloader.h>
 
@@ -145,18 +144,17 @@ z_gfx__end()
 {
     z_gfx__flush();
 
-    SHIZViewport const viewport = z_viewport__get();
-    SHIZSize const viewport_offset = z_viewport__get_offset();
-
-    GLint const x = (GLint)(viewport_offset.width / 2);
-    GLint const y = (GLint)(viewport_offset.height / 2);
+    SHIZRect const clip = z_viewport__get_clip();
     
-    GLsizei const width = (GLsizei)(viewport.framebuffer.width - viewport_offset.width);
-    GLsizei const height = (GLsizei)(viewport.framebuffer.height - viewport_offset.height);
+    GLint const x = (GLint)clip.origin.x;
+    GLint const y = (GLint)clip.origin.y;
+    
+    GLsizei const width = (GLsizei)clip.size.width;
+    GLsizei const height = (GLsizei)clip.size.height;
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0); {
         glViewport(x, y, width, height);
-
+        
         // note that we don't need to clear this framebuffer, as we're expecting to overwrite
         // every pixel every frame anyway (with the opaque texture of the post framebuffer)
         // however; if we wanted to apply color to the letter/pillar-boxed bars,
