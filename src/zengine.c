@@ -11,7 +11,7 @@
 
 #include <SHIZEN/shizen.h>
 
-#include <stdio.h> // printf
+#include <stdio.h> // sprintf, printf
 
 #include "graphics/gfx.h"
 
@@ -22,6 +22,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "debug/debug.h"
+ #include "debug/recorder.h"
 #endif
 
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
@@ -175,6 +176,14 @@ z_startup(SHIZWindowSettings const settings)
         
         return false;
     }
+    
+    if (z_recorder__init()) {
+        z_recorder__setup(_graphics_context.display_size);
+    } else {
+        z_io__error("SHIZEN could not initialize recorder");
+        
+        return false;
+    }
 #endif
     
     z_rand_seed_now();
@@ -194,6 +203,10 @@ z_shutdown()
     }
 
 #ifdef SHIZ_DEBUG
+    if (!z_recorder__kill()) {
+        return false;
+    }
+    
     if (!z_debug__kill()) {
         return false;
     }
@@ -220,6 +233,13 @@ void
 z_engine__present_frame()
 {
     glfwSwapBuffers(_graphics_context.window);
+   
+#ifdef SHIZ_DEBUG
+    if (z_recorder_is_recording()) {
+        z_recorder__capture();
+    }
+#endif
+    
     glfwPollEvents();
 }
 
@@ -497,7 +517,13 @@ z_engine__key_callback(GLFWwindow * const window,
         z_engine__toggle_windowed(window);
     }
 #ifdef SHIZ_DEBUG
-    else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
+    else if (key == GLFW_KEY_F2 && action == GLFW_RELEASE) {
+        if (!z_recorder_is_recording()) {
+            z_recorder__start();
+        } else {
+            z_recorder__stop();
+        }
+    } else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
         z_debug__toggle_enabled();
     }
     
@@ -566,4 +592,14 @@ z_engine__framebuffer_size_callback(GLFWwindow * const window,
     SHIZViewport const viewport = z_engine__build_viewport();
 
     z_viewport__set(viewport);
+    
+#ifdef SHIZ_DEBUG
+    if (z_recorder_is_recording()) {
+        z_io__warning_context("RECORDER",
+                              "Switching window mode is not supported while recording; stopping recording");
+        z_recorder__stop();
+    }
+    
+    z_recorder__setup(_graphics_context.display_size);
+#endif
 }
