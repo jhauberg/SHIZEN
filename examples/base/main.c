@@ -28,7 +28,7 @@ int main() {
             }
         }
         
-        f64 const interpolation = z_timing_end();
+        z_timing_end();
         
         z_drawing_begin(SHIZColorBlack); {
             // draw stuff
