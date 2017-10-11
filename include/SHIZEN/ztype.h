@@ -306,6 +306,24 @@ SHIZRectFromPoints(SHIZVector2 const points[], u16 const count)
 }
 
 static inline
+SHIZVector2
+SHIZVector2CenterFromPoints(SHIZVector2 const points[],
+                            u16 const count)
+{
+    SHIZVector2 sum = SHIZVector2Zero;
+    
+    for (u8 i = 0; i < count; i++) {
+        SHIZVector2 const point = points[i];
+        
+        sum.x += point.x;
+        sum.y += point.y;
+    }
+    
+    return SHIZVector2Make(sum.x / count,
+                           sum.y / count);
+}
+
+static inline
 SHIZRect const
 SHIZRectMakeEx(f32 const x, f32 const y,
                f32 const width, f32 const height)
