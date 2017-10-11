@@ -88,6 +88,22 @@ z_draw_point_ex(SHIZVector2 point,
                 SHIZColor color,
                 SHIZVector2 anchor,
                 SHIZLayer layer);
+
+/**
+ * @brief Draw a triangle.
+ */
+void
+z_draw_triangle(SHIZVector2 a, SHIZVector2 b, SHIZVector2 c, SHIZColor color, SHIZDrawMode mode);
+void
+z_draw_triangle_ex(SHIZVector2 a, SHIZVector2 b, SHIZVector2 c, SHIZColor color, SHIZDrawMode mode, f32 angle, SHIZLayer layer);
+/**
+ * @brief Draw an equilateral triangle.
+ */
+void
+z_draw_triangle_sized(SHIZVector2 center, SHIZColor color, SHIZDrawMode mode, SHIZSize size);
+void
+z_draw_triangle_sized_ex(SHIZVector2 center, SHIZColor color, SHIZDrawMode mode, SHIZSize size, f32 angle, SHIZLayer layer);
+
 /**
  * @brief Draw a rectangle.
  */

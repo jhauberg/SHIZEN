@@ -49,12 +49,26 @@ z_draw__rect_outline(SHIZRect rect,
                      SHIZLayer layer);
 
 static
+s32
+z_draw__compare_point_order_cw(void const * a,
+                               void const * b);
+
+static
+bool
+z_draw__point_order_before_cw(SHIZVector2 a,
+                              SHIZVector2 b,
+                              SHIZVector2 center);
+
+static
 SHIZVector2
 z_draw__pixel_centering_offset(SHIZVector2 const anchor)
 {
     return SHIZVector2Make(HALF_PIXEL * -anchor.x,
                            HALF_PIXEL * -anchor.y);
 }
+
+// used per triangle draw to ensure clockwise ordering of vertices
+static SHIZVector2 current_triangle_center = { .x = 0, .y = 0 };
 
 void
 z_drawing_begin(SHIZColor const background)
@@ -164,7 +178,8 @@ z_draw_path_ex(SHIZVector2 const points[],
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {
         if (z_debug__is_drawing_shapes() && count > 1) {
-            z_debug__draw_path_bounds(points, count, SHIZColorRed, layer);
+            z_debug__draw_points_bounds(points, count, SHIZColorRed,
+                                        SHIZSpriteNoAngle, layer);
         }
     }
 #endif
@@ -208,6 +223,115 @@ z_draw_point_ex(SHIZVector2 const point,
 #ifdef SHIZ_DEBUG
     z_debug__set_drawing_shapes(was_drawing_debug_shapes);
 #endif
+}
+
+void
+z_draw_triangle(SHIZVector2 const a,
+                SHIZVector2 const b,
+                SHIZVector2 const c,
+                SHIZColor const color,
+                SHIZDrawMode const mode)
+{
+    z_draw_triangle_ex(a, b, c, color, mode, SHIZSpriteNoAngle, SHIZLayerDefault);
+}
+
+void
+z_draw_triangle_ex(SHIZVector2 const a,
+                   SHIZVector2 const b,
+                   SHIZVector2 const c,
+                   SHIZColor const color,
+                   SHIZDrawMode const mode,
+                   f32 const angle,
+                   SHIZLayer const layer)
+{
+    u8 const vertex_count = 3;
+    
+    SHIZVector2 points[3] = {
+        a, b, c
+    };
+    
+    // temporarily store the center for this triangle
+    current_triangle_center = SHIZVector2CenterFromPoints(points, vertex_count);
+    
+    // then ensure that vertices are built in a clockwise order, starting with
+    // the vertex at a position closest to 12-o-clock (comparison will use
+    // the triangle center to determine proper ordering)
+    qsort(points, vertex_count,
+          sizeof(SHIZVector2),
+          z_draw__compare_point_order_cw);
+    
+    f32 const z = z_layer__get_z(layer);
+    
+    SHIZVector2 const offset =
+        z_draw__pixel_centering_offset(SHIZAnchorBottomLeft);
+    SHIZVector3 const origin =
+        SHIZVector3Make(PIXEL(current_triangle_center.x) + offset.x,
+                        PIXEL(current_triangle_center.y) + offset.y,
+                        z);
+    
+    SHIZVertexPositionColor vertices[vertex_count];
+        
+    for (u8 i = 0; i < vertex_count; i++) {
+        SHIZVector2 point = points[i];
+        
+        if (mode == SHIZDrawModeOutline) {
+            if (i == 0) {
+                point.y -= 1;
+            } else if (i == 1) {
+                point.x -= 1;
+            }
+        }
+        
+        vertices[i].color = color;
+        vertices[i].position = SHIZVector3Make(point.x - current_triangle_center.x,
+                                               point.y - current_triangle_center.y,
+                                               0);
+    }
+    
+    current_triangle_center = SHIZVector2Zero;
+    
+    if (mode == SHIZDrawModeFill) {
+        z_gfx__render_ex(GL_TRIANGLES, vertices, vertex_count, origin, angle);
+    } else {
+        z_gfx__render_ex(GL_LINE_LOOP, vertices, vertex_count, origin, angle);
+    }
+    
+#ifdef SHIZ_DEBUG
+    if (z_debug__is_enabled()) {
+        if (z_debug__is_drawing_shapes()) {
+            z_debug__draw_points_bounds(points, vertex_count, SHIZColorRed,
+                                        angle, layer);
+        }
+    }
+#endif
+}
+
+void
+z_draw_triangle_sized(SHIZVector2 const center,
+                      SHIZColor const color,
+                      SHIZDrawMode const mode,
+                      SHIZSize const size)
+{
+    z_draw_triangle_sized_ex(center, color, mode, size,
+                             SHIZSpriteNoAngle, SHIZLayerDefault);
+}
+
+void
+z_draw_triangle_sized_ex(SHIZVector2 const center,
+                         SHIZColor const color,
+                         SHIZDrawMode const mode,
+                         SHIZSize const size,
+                         f32 const angle,
+                         SHIZLayer const layer)
+{
+    f32 const w = size.width / 2;
+    f32 const h = size.height / 2;
+    
+    SHIZVector2 const a = SHIZVector2Make(center.x, center.y + h);
+    SHIZVector2 const b = SHIZVector2Make(center.x + w, center.y - h);
+    SHIZVector2 const c = SHIZVector2Make(center.x - w, center.y - h);
+    
+    z_draw_triangle_ex(a, b, c, color, mode, angle, layer);
 }
 
 void
@@ -708,4 +832,68 @@ z_draw__flush()
 {
     z_sprite__flush();
     z_gfx__flush();
+}
+
+static
+s32
+z_draw__compare_point_order_cw(void const * const a,
+                               void const * const b)
+{
+    SHIZVector2 const * lhs = (SHIZVector2 *)a;
+    SHIZVector2 const * rhs = (SHIZVector2 *)b;
+    
+    if (z_draw__point_order_before_cw(*lhs, *rhs, current_triangle_center)) {
+        return -1;
+    } else {
+        return 1;
+    }
+    
+    return 0;
+}
+
+static
+bool
+z_draw__point_order_before_cw(SHIZVector2 const a,
+                              SHIZVector2 const b,
+                              SHIZVector2 const center)
+{
+    // implementation adapted from
+    // https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
+    if (a.x - center.x >= 0 && b.x - center.x < 0) {
+        return true;
+    }
+    
+    if (a.x - center.x < 0 && b.x - center.x >= 0) {
+        return false;
+    }
+    
+    if (a.x - center.x == 0 && b.x - center.x == 0) {
+        if (a.y - center.y >= 0 || b.y - center.y >= 0) {
+            return a.y > b.y;
+        }
+        
+        return b.y > a.y;
+    }
+    
+    // compute the cross product of vectors (center -> a) x (center -> b)
+    s32 det = (s32)((a.x - center.x) * (b.y - center.y) -
+                    (b.x - center.x) * (a.y - center.y));
+    
+    if (det < 0) {
+        return true;
+    }
+    
+    if (det > 0) {
+        return false;
+    }
+    
+    // points a and b are on the same line from the center
+    // check which point is closer to the center
+    s32 d1 = (s32)((a.x - center.x) * (a.x - center.x) +
+                   (a.y - center.y) * (a.y - center.y));
+    
+    s32 d2 = (s32)((b.x - center.x) * (b.x - center.x) +
+                   (b.y - center.y) * (b.y - center.y));
+    
+    return d1 > d2;
 }

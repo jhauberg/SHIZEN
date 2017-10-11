@@ -386,46 +386,21 @@ z_debug__draw_circle_bounds(SHIZVector2 const origin,
 }
 
 void
-z_debug__draw_path_bounds(SHIZVector2 const points[], u16 const count,
-                          SHIZColor const color,
-                          SHIZLayer const layer)
+z_debug__draw_points_bounds(SHIZVector2 const points[], u16 const count,
+                            SHIZColor const color,
+                            f32 const angle,
+                            SHIZLayer const layer)
 {
-    SHIZVector2 min = points[0];
-    SHIZVector2 max = points[0];
+    SHIZRect rect = SHIZRectFromPoints(points, count);
     
-    for (u8 i = 1; i < count; i++) {
-        SHIZVector2 const point = points[i];
-        
-        if (point.x < min.x) {
-            min.x = point.x;
-        }
-        
-        if (point.y < min.y) {
-            min.y = point.y;
-        }
-        
-        if (point.x > max.x) {
-            max.x = point.x;
-        }
-        
-        if (point.y > max.y) {
-            max.y = point.y;
-        }
-    }
+    rect.origin = SHIZVector2Make(rect.origin.x + rect.size.width / 2,
+                                  rect.origin.y + rect.size.height / 2);
     
-    f32 const width = max.x - min.x;
-    f32 const height = max.y - min.y;
-    
-    SHIZSize const size = SHIZSizeMake(width, height);
-    SHIZVector2 const center = SHIZVector2Make(min.x + (size.width / 2),
-                                               min.y + (size.height / 2));
-
-    SHIZRect const rect = SHIZRectMake(center, size);
+    bool const show_gizmo = angle > 0 || angle < 0;
     
     z_debug__draw_rect_bounds_ex(rect, color,
                                  SHIZAnchorCenter,
-                                 0, layer, false);
-    
+                                 angle, layer, show_gizmo);
 }
 
 static
