@@ -53,9 +53,6 @@ bool
 z_debug__kill(void);
 
 void
-z_debug__process_errors(void);
-
-void
 z_debug__toggle_enabled(void);
 
 void

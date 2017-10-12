@@ -112,11 +112,6 @@ z_drawing_end()
 #endif
 
     z_gfx__end();
-
-#ifdef SHIZ_DEBUG
-    // flush out any encountered errors during this frame
-    z_debug__process_errors();
-#endif
     
     z_engine__present_frame();
 }

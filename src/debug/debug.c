@@ -105,16 +105,6 @@ z_debug__kill()
 }
 
 void
-z_debug__process_errors()
-{
-    GLenum error;
-    
-    while ((error = glGetError()) != GL_NO_ERROR) {
-        z_io__error_context("OPENGL", "%d", error);
-    }
-}
-
-void
 z_debug__toggle_enabled()
 {
     _context.is_enabled = !_context.is_enabled;

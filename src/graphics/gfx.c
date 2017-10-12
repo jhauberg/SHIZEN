@@ -28,6 +28,12 @@
 
 #include <SHIZEN/zloader.h>
 
+#ifdef SHIZ_DEBUG
+static
+void
+z_gfx__process_errors(void);
+#endif
+
 extern SHIZSprite _spr_white_1x1;
 
 static
@@ -165,6 +171,8 @@ z_gfx__end()
 
 #ifdef SHIZ_DEBUG
     z_debug__update_frame_stats();
+    
+    z_gfx__process_errors();
 #endif
 }
 
@@ -369,3 +377,16 @@ z_gfx__load_default_texture()
     
     return true;
 }
+
+#ifdef SHIZ_DEBUG
+static
+void
+z_gfx__process_errors()
+{
+    GLenum error;
+    
+    while ((error = glGetError()) != GL_NO_ERROR) {
+        z_io__error_context("OPENGL", "%d", error);
+    }
+}
+#endif
