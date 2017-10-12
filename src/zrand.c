@@ -19,7 +19,7 @@
  #include <stdio.h>
 #endif
 
-#include <pcg_basic.h>
+#include <pcg/pcg_basic.h>
 
 static u32 current_seed;
 
