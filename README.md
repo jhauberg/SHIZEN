@@ -9,7 +9,7 @@ It is written *entirely* in **C99** and requires **OpenGL 3.3 (Core Profile)**.
 ## Features
 
 * **Sprite batching as the default.** Sprites are always rendered in efficient batches to reduce the number of draw calls.
-* **Text drawing from bitmap fonts.** Supports rendering fixed-width text from a spritesheet/bitmap font. Word-wrapping and truncation is automatically handled.
+* **Text drawing from bitmap fonts.** Supports text rendering using bitmap fonts. Word-wrapping and truncation is automatically handled.
 * **Smooth and stutter-free rendering.** Animate values smoothly under any frame-rate by blending between frames.
 * **Primitive shape drawing.** Supports rendering common shapes: e.g. rectangles, circles, paths and points.
 * **Layering.** Sprites, text and primitives are always rendered in the expected order by specifying layers.
