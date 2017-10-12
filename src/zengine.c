@@ -105,6 +105,10 @@ static
 void
 z_engine__intro_gl(void);
 
+static
+u8
+z_engine__get_refresh_rate(void);
+
 static SHIZVector2 _preferred_window_position;
 
 bool
@@ -178,7 +182,8 @@ z_startup(SHIZWindowSettings const settings)
     }
     
     if (z_recorder__init()) {
-        z_recorder__setup(_graphics_context.display_size);
+        z_recorder__setup(_graphics_context.display_size,
+                          z_engine__get_refresh_rate());
     } else {
         z_io__error("SHIZEN could not initialize recorder");
         
@@ -373,7 +378,7 @@ z_engine__create_window(bool const fullscreen,
         GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
         
         if (monitor) {
-            const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+            GLFWvidmode const * const mode = glfwGetVideoMode(monitor);
             
             int const display_width = mode->width;
             int const display_height = mode->height;
@@ -451,6 +456,23 @@ z_engine__get_pixel_scale()
     
     return (framebuffer.width + framebuffer.height) /
         (window.width + window.height);
+}
+
+static
+u8
+z_engine__get_refresh_rate()
+{
+    GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
+    
+    if (monitor != NULL) {
+        GLFWvidmode const * const mode = glfwGetVideoMode(monitor);
+        
+        if (mode != NULL) {
+            return (u8)mode->refreshRate;
+        }
+    }
+    
+    return 0;
 }
 
 static
@@ -600,6 +622,7 @@ z_engine__framebuffer_size_callback(GLFWwindow * const window,
         z_recorder__stop();
     }
     
-    z_recorder__setup(_graphics_context.display_size);
+    z_recorder__setup(_graphics_context.display_size,
+                      z_engine__get_refresh_rate());
 #endif
 }

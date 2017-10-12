@@ -23,8 +23,7 @@ typedef struct SHIZRecorder {
     FILE * output;
     GLubyte * buffer;
     u32 frame_size;
-    char command[200];
-    u8 _pad[4];
+    char command[196];
 } SHIZRecorder;
 
 static SHIZRecorder _recorder;
@@ -55,7 +54,8 @@ z_recorder__kill()
 }
 
 void
-z_recorder__setup(SHIZSize const resolution)
+z_recorder__setup(SHIZSize const resolution,
+                  u8 const hz)
 {
     SHIZRect clip = z_viewport__get_clip();
     
@@ -68,13 +68,53 @@ z_recorder__setup(SHIZSize const resolution)
     if (_recorder.buffer != NULL) {
         free(_recorder.buffer);
     }
-    
+
     _recorder.frame_size = input_width * input_height * (sizeof(GLubyte) * 4);
     _recorder.buffer = malloc(_recorder.frame_size);
     
+    u8 const refresh_rate = hz > 0 ? hz : 60; // default to 60 fps
+    
+    char const * const output_filename = "output";
+    
+    char const * const command_format =
+    // location of ffmpeg
+    "/usr/local/bin/ffmpeg "
+    // only output fatal errors
+    "-loglevel panic "
+    // set refresh rate (should match monitor refresh rate)
+    "-r %d "
+    // expect raw frame data
+    "-f rawvideo "
+    // set pixel format (must be RGBA)
+    "-pix_fmt rgba "
+    // set input frame resolution
+    "-s %dx%d "
+    // and read frame data from stdin
+    "-i - "
+    "-threads 0 "
+    // set preset (anything goes; balance between file size and performance;
+    // faster -> better performance, larger file size,
+    // slower -> worse performance, smaller file size)
+    "-preset fast "
+    // overwrite file without asking
+    "-y "
+    // use x264 encoding
+    "-vcodec libx264rgb "
+    // set encoding/compression quality (smaller -> less compression, larger file)
+    // (-preset ultrafast -crf 0 works well to disable compression, but filesize will suffer)
+    "-crf 23 "
+    // flip input vertically and scale down to expected output size
+    // note that input and output sizes do not always match (e.g. on retina screens)
+    "-vf vflip,scale=%d:%d "
+    // set output destination (should be mkv or mp4)
+    "%s.mkv";
+    
     sprintf(_recorder.command,
-            "/usr/local/bin/ffmpeg -r 60 -f rawvideo -pix_fmt rgba -s %dx%d -i - -threads 0 -preset ultrafast -y -vcodec libx264rgb -crf 0 -vf vflip,scale=%d:%d output.mkv",
-            input_width, input_height, output_width, output_height);
+            command_format,
+            refresh_rate,
+            input_width, input_height,
+            output_width, output_height,
+            output_filename);
 }
 
 void
@@ -118,6 +158,8 @@ z_recorder__start()
         z_io__error_context("RECORDER", "Unable to start recording; output file inaccessible");
         
         return false;
+    } else {
+        printf("Starting recording... (%s)\n", _recorder.command);
     }
     
     return true;
@@ -138,6 +180,8 @@ z_recorder__stop()
         z_io__error_context("RECORDER", "Unable to end recording; output may be corrupted");
         
         return false;
+    } else {
+        printf("Stopped recording\n");
     }
     
     return true;

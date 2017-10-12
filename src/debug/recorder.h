@@ -23,7 +23,8 @@ bool
 z_recorder__kill(void);
 
 void
-z_recorder__setup(SHIZSize resolution);
+z_recorder__setup(SHIZSize resolution,
+                  u8 hz);
 
 void
 z_recorder__capture(void);
