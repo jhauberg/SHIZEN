@@ -14,24 +14,21 @@
 
 #define SHIZEN_VERSION_MAJOR 0
 #define SHIZEN_VERSION_MINOR 21
-#define SHIZEN_VERSION_PATCH 0
+#define SHIZEN_VERSION_PATCH 1
 
 #define SHIZEN_VERSION_NAME "ALPHA"
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <ctype.h>
-#include <math.h>
+#include <ctype.h> // toupper
 
 #include <SHIZEN/zint.h>
+
+void
+z_engine__present_frame(void);
 
 #ifdef SHIZ_DEBUG
 f64
 z_time__get_lag(void);
 #endif
-
-void
-z_engine__present_frame(void);
 
 static inline
 void

@@ -11,6 +11,7 @@
 
 #include <SHIZEN/zdraw.h>
 
+#include <stdlib.h> // qsort
 #include <math.h> // M_PI, cosf, sinf, fmodf
 
 #include "internal.h"
