@@ -2,7 +2,7 @@
 
 A low-profile and cross-platform 2D game engine<sup>\*</sup> that leaves a small footprint, providing shape, sprite and text-rendering using modern and efficient techniques.
 
-It is written *entirely* in **C99** and requires **OpenGL 3.3 (Core Profile)**.
+It is written *entirely* in **C99** and requires **OpenGL 3.3 (Core Profile)** and **OpenAL**.
 
 **This is very much a work-in-progress. Beware.**
 
