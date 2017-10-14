@@ -2289,6 +2289,7 @@ static void inverse_mdct(float *buffer, int n, vorb *f, int blocktype)
    // @OPTIMIZE: reduce register pressure by using fewer variables?
    int save_point = temp_alloc_save(f);
    float *buf2 = (float *) temp_alloc(f, n2 * sizeof(*buf2));
+    memset(buf2, 0, n2 * sizeof(*buf2));
    float *u=NULL,*v=NULL;
    // twiddle factors
    float *A = f->A[blocktype];
