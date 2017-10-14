@@ -14,7 +14,10 @@
 
 #include <stdbool.h>
 
+#include <SHIZEN/ztype.h>
+
 typedef bool (* z_io__load_image_handler)(int width, int height, int components, unsigned char * data);
+typedef bool (* z_io__load_sound_handler)(int channels, int sample_rate, short * data, int size);
 
 void
 z_io__error(char const * format, ...);
@@ -38,5 +41,9 @@ bool
 z_io__load_image_data(unsigned char const * buffer,
                       unsigned int length,
                       z_io__load_image_handler handler);
+
+bool
+z_io__load_sound(char const * filename,
+                 z_io__load_sound_handler handler);
 
 #endif // io_h

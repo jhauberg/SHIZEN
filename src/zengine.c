@@ -11,10 +11,11 @@
 
 #include <SHIZEN/shizen.h>
 
-#include <stdio.h> // printf
+#include <stdio.h> // sprintf, printf
 
 #include "graphics/gfx.h"
 
+#include "mixer.h"
 #include "internal.h"
 #include "viewport.h"
 #include "res.h"
@@ -22,6 +23,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "debug/debug.h"
+ #include "debug/recorder.h"
 #endif
 
 #define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
@@ -104,6 +106,10 @@ static
 void
 z_engine__intro_gl(void);
 
+static
+u8
+z_engine__get_refresh_rate(void);
+
 static SHIZVector2 _preferred_window_position;
 
 bool
@@ -165,6 +171,10 @@ z_startup(SHIZWindowSettings const settings)
         return false;
     }
     
+    if (!z_mixer__init()) {
+        return false;
+    }
+    
     _graphics_context.is_initialized = true;
 
     z_time_reset();
@@ -172,6 +182,15 @@ z_startup(SHIZWindowSettings const settings)
 #ifdef SHIZ_DEBUG
     if (!z_debug__init()) {
         z_io__error("SHIZEN could not initialize a debugging state");
+        
+        return false;
+    }
+    
+    if (z_recorder__init()) {
+        z_recorder__setup(_graphics_context.display_size,
+                          z_engine__get_refresh_rate());
+    } else {
+        z_io__error("SHIZEN could not initialize recorder");
         
         return false;
     }
@@ -188,18 +207,26 @@ z_shutdown()
     if (!_graphics_context.is_initialized) {
         return false;
     }
-
+    
+    z_res__unload_all();
+    
+    if (!z_mixer__kill()) {
+        return false;
+    }
+    
     if (!z_gfx__kill()) {
         return false;
     }
 
 #ifdef SHIZ_DEBUG
+    if (!z_recorder__kill()) {
+        return false;
+    }
+    
     if (!z_debug__kill()) {
         return false;
     }
 #endif
-    
-    z_res__unload_all();
 
     GLFWwindow * const window = _graphics_context.window;
     
@@ -220,6 +247,13 @@ void
 z_engine__present_frame()
 {
     glfwSwapBuffers(_graphics_context.window);
+   
+#ifdef SHIZ_DEBUG
+    if (z_recorder_is_recording()) {
+        z_recorder__capture();
+    }
+#endif
+    
     glfwPollEvents();
 }
 
@@ -353,7 +387,7 @@ z_engine__create_window(bool const fullscreen,
         GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
         
         if (monitor) {
-            const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+            GLFWvidmode const * const mode = glfwGetVideoMode(monitor);
             
             int const display_width = mode->width;
             int const display_height = mode->height;
@@ -434,6 +468,23 @@ z_engine__get_pixel_scale()
 }
 
 static
+u8
+z_engine__get_refresh_rate()
+{
+    GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
+    
+    if (monitor != NULL) {
+        GLFWvidmode const * const mode = glfwGetVideoMode(monitor);
+        
+        if (mode != NULL) {
+            return (u8)mode->refreshRate;
+        }
+    }
+    
+    return 0;
+}
+
+static
 bool
 z_engine__is_fullscreen()
 {
@@ -497,7 +548,13 @@ z_engine__key_callback(GLFWwindow * const window,
         z_engine__toggle_windowed(window);
     }
 #ifdef SHIZ_DEBUG
-    else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
+    else if (key == GLFW_KEY_F2 && action == GLFW_RELEASE) {
+        if (!z_recorder_is_recording()) {
+            z_recorder__start();
+        } else {
+            z_recorder__stop();
+        }
+    } else if ((key == GLFW_KEY_GRAVE_ACCENT) && action == GLFW_PRESS) {
         z_debug__toggle_enabled();
     }
     
@@ -566,4 +623,15 @@ z_engine__framebuffer_size_callback(GLFWwindow * const window,
     SHIZViewport const viewport = z_engine__build_viewport();
 
     z_viewport__set(viewport);
+    
+#ifdef SHIZ_DEBUG
+    if (z_recorder_is_recording()) {
+        z_io__warning_context("RECORDER",
+                              "Switching window mode is not supported while recording; stopping recording");
+        z_recorder__stop();
+    }
+    
+    z_recorder__setup(_graphics_context.display_size,
+                      z_engine__get_refresh_rate());
+#endif
 }

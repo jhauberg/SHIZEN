@@ -29,9 +29,9 @@ z_rand_get_seed(void);
 u32
 z_rand(void);
 
-i32
-z_rand_range(i32 const min,
-             i32 const max);
+s32
+z_rand_range(s32 const min,
+             s32 const max);
 
 f32
 z_randf(void);

@@ -25,9 +25,14 @@
 #endif
 
 #include <stdbool.h>
-#include <stdio.h>
 
 #include <SHIZEN/zloader.h>
+
+#ifdef SHIZ_DEBUG
+static
+void
+z_gfx__process_errors(void);
+#endif
 
 extern SHIZSprite _spr_white_1x1;
 
@@ -145,18 +150,17 @@ z_gfx__end()
 {
     z_gfx__flush();
 
-    SHIZViewport const viewport = z_viewport__get();
-    SHIZSize const viewport_offset = z_viewport__get_offset();
-
-    GLint const x = (GLint)(viewport_offset.width / 2);
-    GLint const y = (GLint)(viewport_offset.height / 2);
+    SHIZRect const clip = z_viewport__get_clip();
     
-    GLsizei const width = (GLsizei)(viewport.framebuffer.width - viewport_offset.width);
-    GLsizei const height = (GLsizei)(viewport.framebuffer.height - viewport_offset.height);
+    GLint const x = (GLint)clip.origin.x;
+    GLint const y = (GLint)clip.origin.y;
+    
+    GLsizei const width = (GLsizei)clip.size.width;
+    GLsizei const height = (GLsizei)clip.size.height;
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0); {
         glViewport(x, y, width, height);
-
+        
         // note that we don't need to clear this framebuffer, as we're expecting to overwrite
         // every pixel every frame anyway (with the opaque texture of the post framebuffer)
         // however; if we wanted to apply color to the letter/pillar-boxed bars,
@@ -166,6 +170,8 @@ z_gfx__end()
     }
 
 #ifdef SHIZ_DEBUG
+    z_gfx__process_errors();
+    
     z_debug__update_frame_stats();
 #endif
 }
@@ -201,6 +207,50 @@ z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict const verti
                      GLuint const texture_id)
 {
     z_gfx__add_sprite(vertices, origin, angle, texture_id);
+}
+
+bool
+z_gfx__create_texture(SHIZResourceImage * const resource,
+                      int const width,
+                      int const height,
+                      int const components,
+                      unsigned char * const data)
+{
+    if (resource == NULL) {
+        return false;
+    }
+    
+    glGenTextures(1, &resource->texture_id);
+    glBindTexture(GL_TEXTURE_2D, resource->texture_id); {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        
+        if (components == 3) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                         width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        } else if (components == 4) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                         width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        }
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    return true;
+}
+
+bool
+z_gfx__destroy_texture(SHIZResourceImage const * const resource)
+{
+    if (resource == NULL) {
+        return false;
+    }
+    
+    glDeleteTextures(1, &resource->texture_id);
+    
+    return true;
 }
 
 static
@@ -371,3 +421,16 @@ z_gfx__load_default_texture()
     
     return true;
 }
+
+#ifdef SHIZ_DEBUG
+static
+void
+z_gfx__process_errors()
+{
+    GLenum error;
+    
+    while ((error = glGetError()) != GL_NO_ERROR) {
+        z_io__error_context("OPENGL", "%d", error);
+    }
+}
+#endif

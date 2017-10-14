@@ -64,7 +64,7 @@ z_spritefont__set_line(SHIZSpriteFontLine * line,
                        bool skipping_leading_whitespace);
 
 static
-i32
+s32
 z_spritefont__character_table_index(SHIZSpriteFont const * font,
                                     char character,
                                     u32 character_decimal);
@@ -298,7 +298,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
         z_spritefont__measure_text(font, text, bounds, attribs);
 
     u8 const truncation_length = 3;
-    i32 const truncation_index = measurement.max_characters - truncation_length;
+    s32 const truncation_index = measurement.max_characters - truncation_length;
     
     char const truncation_character = '.';
     char const whitespace_character = ' ';
@@ -365,7 +365,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
                     // at this point, we know that 'character' is one of the numeric tint specifiers
                     // so we can determine the index like below, where a tint specifier of 1 results
                     // in an index of -1, which we then use to reset any highlight
-                    i16 const highlight_color_index = character - 2;
+                    s16 const highlight_color_index = character - 2;
 
                     if (highlight_color_index < 0) {
                         // reset to original tint
@@ -389,7 +389,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
                 continue;
             }
 
-            i32 const character_table_index =
+            s32 const character_table_index =
                 z_spritefont__character_table_index(&font,
                                                     character,
                                                     character_decimal);
@@ -409,7 +409,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
 
                 character_takes_space = false;
 
-                i32 const previous_text_index = character_count - 2;
+                s32 const previous_text_index = character_count - 2;
 
                 if (previous_text_index >= 0) {
                     // note that we don't care about character byte sizes here;
@@ -505,14 +505,14 @@ z_spritefont__draw_character_index(SHIZSpriteFont const * const font,
 }
 
 static
-i32
+s32
 z_spritefont__character_table_index(SHIZSpriteFont const * const font,
                                     char const character,
                                     u32 const character_decimal)
 {
     u32 const table_size = font->table.columns * font->table.rows;
     
-    i32 character_table_index = -1;
+    s32 character_table_index = -1;
     
     if (table_size < INT32_MAX) {
         if (font->table.codepage != NULL) {
@@ -528,7 +528,7 @@ z_spritefont__character_table_index(SHIZSpriteFont const * const font,
         }
         
         if (character_table_index < 0 ||
-            character_table_index > (i32)table_size) {
+            character_table_index > (s32)table_size) {
             character_table_index = -1;
         }
     }

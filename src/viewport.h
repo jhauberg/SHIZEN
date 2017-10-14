@@ -34,7 +34,7 @@ z_viewport__set(SHIZViewport viewport);
 SHIZViewport
 z_viewport__get(void);
 
-SHIZSize
-z_viewport__get_offset(void);
+SHIZRect
+z_viewport__get_clip(void);
 
 #endif // viewport_h

@@ -57,10 +57,17 @@ z_viewport__get()
     return _viewport;
 }
 
-SHIZSize
-z_viewport__get_offset()
+SHIZRect
+z_viewport__get_clip()
 {
-    return _viewport_offset;
+    f32 const x = _viewport_offset.width / 2;
+    f32 const y = _viewport_offset.height / 2;
+    
+    f32 const width = _viewport.framebuffer.width - _viewport_offset.width;
+    f32 const height = _viewport.framebuffer.height - _viewport_offset.height;
+    
+    return SHIZRectMake(SHIZVector2Make(x, y),
+                        SHIZSizeMake(width, height));
 }
 
 void

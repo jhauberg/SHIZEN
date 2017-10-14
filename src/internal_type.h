@@ -13,7 +13,7 @@
 #define internal_type_h
 
 // use gl3w to load opengl headers
-#include <GL/gl3w.h>
+#include <gl3w/GL/gl3w.h>
 // which means GLFW should not do that
 #define GLFW_INCLUDE_NONE
 
@@ -22,9 +22,12 @@
  #pragma clang diagnostic ignored "-Wdocumentation"
 #endif
 
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+
 #include <GLFW/glfw3.h>
 
-#include <linmath.h>
+#include <linmath/linmath.h>
 
 #if defined(__clang__)
  #pragma clang diagnostic pop

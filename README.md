@@ -1,15 +1,15 @@
 # SHIZEN
 
-A low-profile and cross-platform 2D game engine<sup>\*</sup> that leaves a small footprint, providing shape, sprite and text-rendering.
+A low-profile and cross-platform 2D game engine<sup>\*</sup> that leaves a small footprint, providing shape, sprite and text-rendering using modern and efficient techniques.
 
-It is written *entirely* in **C99** and requires **OpenGL 3.3 (Core Profile)**.
+It is written *entirely* in **C99** and requires **OpenGL 3.3 (Core Profile)** and **OpenAL**.
 
 **This is very much a work-in-progress. Beware.**
 
 ## Features
 
 * **Sprite batching as the default.** Sprites are always rendered in efficient batches to reduce the number of draw calls.
-* **Text drawing from bitmap fonts.** Supports rendering fixed-width text from a spritesheet/bitmap font. Word-wrapping and truncation is automatically handled.
+* **Text drawing from bitmap fonts.** Supports text rendering using bitmap fonts. Word-wrapping and truncation is automatically handled.
 * **Smooth and stutter-free rendering.** Animate values smoothly under any frame-rate by blending between frames.
 * **Primitive shape drawing.** Supports rendering common shapes: e.g. rectangles, circles, paths and points.
 * **Layering.** Sprites, text and primitives are always rendered in the expected order by specifying layers.
@@ -18,12 +18,18 @@ It is written *entirely* in **C99** and requires **OpenGL 3.3 (Core Profile)**.
 
 ## Dependencies
 
-A few dependencies are required to keep the scope of the project down:
+A few dependencies are required to keep the scope of the project down. Most of these are small and already included as part of the repository (see [external](/external)).
+
+**Requires installation:**
 
 * [`GLFW`](https://github.com/glfw/glfw) handles **cross-platform window creation**
+
+**Included:**
+
 * [`gl3w`](https://github.com/skaslev/gl3w) handles **OpenGL Core Profile** header loading
 * [`linmath`](https://github.com/datenwolf/linmath.h) provides **math functions**
-* [`stb_image`](https://github.com/nothings/stb) provides **image loading** capabilities
+* [`stb_image`](https://github.com/nothings/stb) provides **image loading** capabilities (png)
+* [`stb_vorbis`](https://github.com/nothings/stb) provides **sound loading** capabilities (ogg)
 * [`PCG`](http://www.pcg-random.org) for improved **random number generation**
 
 ## Examples
@@ -40,7 +46,7 @@ But let's not get into that. It's all about the journey anyway, right?
 
 ## Inspiration
 
-### Libraries
+### Similar projects
 
 * [`whitgl`](https://github.com/whitingjp/whitgl) by Jonathan Whiting
 * [`Punity`](https://github.com/martincohen/Punity) by Martin Cohen

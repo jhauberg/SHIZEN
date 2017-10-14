@@ -29,9 +29,10 @@ void
 z_debug__draw_viewport(void);
 
 void
-z_debug__draw_path_bounds(SHIZVector2 const points[], u16 count,
-                          SHIZColor color,
-                          SHIZLayer layer);
+z_debug__draw_points_bounds(SHIZVector2 const points[], u16 count,
+                            SHIZColor color,
+                            f32 angle,
+                            SHIZLayer layer);
 
 void
 z_debug__draw_circle_bounds(SHIZVector2 origin,

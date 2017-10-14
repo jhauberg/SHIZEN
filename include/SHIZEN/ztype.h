@@ -257,13 +257,70 @@ SHIZSizeMake(f32 const width, f32 const height)
 
 static inline
 SHIZRect const
-SHIZRectMake(SHIZVector2 origin, SHIZSize size)
+SHIZRectMake(SHIZVector2 const origin, SHIZSize const size)
 {
     SHIZRect const rect = {
         origin, size
     };
 
     return rect;
+}
+
+static inline
+SHIZRect
+SHIZRectFromPoints(SHIZVector2 const points[], u16 const count)
+{
+    if (count == 0) {
+        return SHIZRectEmpty;
+    }
+    
+    SHIZVector2 min = points[0];
+    SHIZVector2 max = points[0];
+    
+    for (u8 i = 1; i < count; i++) {
+        SHIZVector2 const point = points[i];
+        
+        if (point.x < min.x) {
+            min.x = point.x;
+        }
+        
+        if (point.y < min.y) {
+            min.y = point.y;
+        }
+        
+        if (point.x > max.x) {
+            max.x = point.x;
+        }
+        
+        if (point.y > max.y) {
+            max.y = point.y;
+        }
+    }
+    
+    f32 const width = max.x - min.x;
+    f32 const height = max.y - min.y;
+    
+    SHIZSize const size = SHIZSizeMake(width, height);
+    
+    return SHIZRectMake(min, size);
+}
+
+static inline
+SHIZVector2
+SHIZVector2CenterFromPoints(SHIZVector2 const points[],
+                            u16 const count)
+{
+    SHIZVector2 sum = SHIZVector2Zero;
+    
+    for (u8 i = 0; i < count; i++) {
+        SHIZVector2 const point = points[i];
+        
+        sum.x += point.x;
+        sum.y += point.y;
+    }
+    
+    return SHIZVector2Make(sum.x / count,
+                           sum.y / count);
 }
 
 static inline
@@ -291,7 +348,7 @@ SHIZColorMake(f32 const r,
 
 static inline
 SHIZColor const
-SHIZColorFromHex(i32 const value)
+SHIZColorFromHex(s32 const value)
 {
     SHIZColor const color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
                                           ((value >> 8) & 0xFF) / 255.0f,
