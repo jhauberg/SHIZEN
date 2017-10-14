@@ -15,6 +15,8 @@
 #include "internal_type.h"
 #include "viewport.h"
 
+#include "../res.h"
+
 /**
  * @brief Initialize the SHIZEN graphics module.
  *
@@ -89,5 +91,15 @@ z_gfx__end(void);
 
 void
 z_gfx__flush(void);
+
+bool
+z_gfx__create_texture(SHIZResourceImage * resource,
+                      int width,
+                      int height,
+                      int components,
+                      unsigned char * data);
+
+bool
+z_gfx__destroy_texture(SHIZResourceImage const * resource);
 
 #endif // gfx_h
