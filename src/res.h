@@ -34,6 +34,8 @@ typedef struct SHIZResourceImage {
 
 typedef struct SHIZResourceSound {
     char const * filename;
+    ALuint source_id;
+    ALuint buffer_id;
     u8 resource_id;
     u8 _pad[7];
 } SHIZResourceSound;

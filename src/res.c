@@ -12,6 +12,9 @@
 #include <stdlib.h> // NULL
 #include <string.h> // strcmp, strrchr
 
+#include "graphics/gfx.h"
+#include "mixer.h"
+
 #include "res.h"
 #include "io.h"
 
@@ -55,6 +58,11 @@ z_res__image_loaded_callback(int width, int height, int components,
 
 static
 bool
+z_res__sound_loaded_callback(int channels, int sample_rate,
+                             short * data, int size);
+
+static
+bool
 z_res__is_image(u8 resource_id);
 
 static
@@ -83,6 +91,7 @@ char const *
 z_res__filename_ext(char const * filename);
 
 static SHIZResourceImage * _current_image_resource; // temporary pointer to the image being loaded
+static SHIZResourceSound * _current_sound_resource; // temporary pointer to the sound being loaded
 
 static SHIZResourceImage _images[SHIZResourceImageMax];
 static SHIZResourceSound _sounds[SHIZResourceSoundMax];
@@ -164,22 +173,24 @@ z_res__load(char const * const filename)
     if (expected_id != SHIZResourceInvalid) {
         if (type == SHIZResourceTypeImage) {
             _current_image_resource = &_images[expected_index];
+            _current_image_resource->resource_id = expected_id;
+            _current_image_resource->filename = filename;
             
             if (z_io__load_image(filename, z_res__image_loaded_callback)) {
-                _current_image_resource->resource_id = expected_id;
-                _current_image_resource->filename = filename;
-                
                 resource_id = expected_id;
             }
             
             _current_image_resource = NULL;
         } else if (type == SHIZResourceTypeSound) {
-            // todo: actual loading left blank for future implementation
+            _current_sound_resource = &_sounds[expected_index];
+            _current_sound_resource->resource_id = expected_id;
+            _current_sound_resource->filename = filename;
             
-            _sounds[expected_index].resource_id = expected_id;
-            _sounds[expected_index].filename = filename;
+            if (z_io__load_sound(filename, z_res__sound_loaded_callback)) {
+                resource_id = expected_id;
+            }
             
-            resource_id = expected_id;
+            _current_sound_resource = NULL;
         }
     }
     
@@ -233,6 +244,8 @@ z_res__unload(u8 const resource_id)
         return false;
     }
     
+    bool unloaded = false;
+    
     SHIZResourceType const type = z_res__type_from_id(resource_id);
     
     s16 const index = z_res__index_from_id(resource_id, type);
@@ -242,28 +255,34 @@ z_res__unload(u8 const resource_id)
                     resource_id, index);
     } else {
         if (type == SHIZResourceTypeImage) {
-            glDeleteTextures(1, &_images[index].texture_id);
+            unloaded = z_gfx__destroy_texture(&_images[index]);
+            
+            if (!unloaded) {
+                z_io__error("could not unload image (%d)", resource_id);
+            }
             
             _images[index].width = 0;
             _images[index].height = 0;
             _images[index].resource_id = SHIZResourceInvalid;
             _images[index].filename = NULL;
             _images[index].texture_id = 0;
-            
-            return true;
         } else if (type == SHIZResourceTypeSound) {
-            // todo: actual unloading left blank for future implementation
+            unloaded = z_mixer__destroy_sound(&_sounds[index]);
+            
+            if (!unloaded) {
+                z_io__error("could not unload sound (%d)", resource_id);
+            }
             
             _sounds[index].resource_id = SHIZResourceInvalid;
-            
-            return true;
+            _sounds[index].filename = NULL;
+            _sounds[index].source_id = 0;
         } else {
             z_io__error("could not unload resource (%d); resource not found",
                         resource_id);
         }
     }
     
-    return false;
+    return unloaded;
 }
 
 bool
@@ -410,33 +429,39 @@ z_res__image_loaded_callback(int const width,
         return false;
     }
     
-    if ((width <= 0 || height <= 0) ||
+    if (data == NULL ||
+        (width <= 0 || height <= 0) ||
         (width > UINT16_MAX || height > UINT16_MAX)) {
         return false;
     }
     
     _current_image_resource->width = (u16)width;
     _current_image_resource->height = (u16)height;
-    
-    glGenTextures(1, &_current_image_resource->texture_id);
-    glBindTexture(GL_TEXTURE_2D, _current_image_resource->texture_id); {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        
-        if (components == 3) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                         width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        } else if (components == 4) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                         width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        }
+
+    return z_gfx__create_texture(_current_image_resource,
+                                 width, height,
+                                 components,
+                                 data);
+}
+
+static
+bool
+z_res__sound_loaded_callback(int const channels,
+                             int const sample_rate,
+                             short * const data,
+                             int size)
+{
+    if (_current_sound_resource == NULL) {
+        return false;
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
     
-    return true;
+    if (data == NULL) {
+        return false;
+    }
+    
+    return z_mixer__create_sound(_current_sound_resource,
+                                 channels, sample_rate,
+                                 data, size);
 }
 
 static

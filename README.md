@@ -28,7 +28,8 @@ A few dependencies are required to keep the scope of the project down. Most of t
 
 * [`gl3w`](https://github.com/skaslev/gl3w) handles **OpenGL Core Profile** header loading
 * [`linmath`](https://github.com/datenwolf/linmath.h) provides **math functions**
-* [`stb_image`](https://github.com/nothings/stb) provides **image loading** capabilities
+* [`stb_image`](https://github.com/nothings/stb) provides **image loading** capabilities (png)
+* [`stb_vorbis`](https://github.com/nothings/stb) provides **sound loading** capabilities (ogg)
 * [`PCG`](http://www.pcg-random.org) for improved **random number generation**
 
 ## Examples

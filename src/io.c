@@ -22,11 +22,13 @@
  #pragma clang diagnostic ignored "-Wpadded"
 #endif
 
-#include <stb_image.h>
+#include <stb/stb_image.h>
 
 #if defined(__clang__)
  #pragma clang diagnostic pop
 #endif
+
+#include <stb/stb_vorbis.h>
 
 #include <stdio.h> // fprintf, sprintf, vsnprintf
 #include <stdarg.h> // va_list etc.
@@ -134,6 +136,36 @@ z_io__load_image_data(unsigned char const * const buffer,
     }
     
     return z_io__handle_image(image, width, height, components, handler);
+}
+
+bool
+z_io__load_sound(char const * const filename,
+                 z_io__load_sound_handler const handler)
+{
+    int channels;
+    int sample_rate;
+    
+    short * data = NULL;
+    
+    int size = stb_vorbis_decode_filename(filename, &channels, &sample_rate, &data);
+    
+    if (size == -1 || size == -2) {
+        if (data != NULL) {
+            free(data);
+        }
+        
+        return false;
+    }
+    
+    int length = size * channels * (int)sizeof(short);
+    
+    if (handler) {
+        return (*handler)(channels, sample_rate, data, length);
+    }
+    
+    free(data);
+    
+    return true;
 }
 
 static

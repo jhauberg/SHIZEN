@@ -20,6 +20,7 @@
 #include "zloader.h"
 #include "zinput.h"
 #include "zdraw.h"
+#include "zsound.h"
 
 /**
  * @brief Provides settings and flags for the creation of a window.

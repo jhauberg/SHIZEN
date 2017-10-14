@@ -22,6 +22,9 @@
  #pragma clang diagnostic ignored "-Wdocumentation"
 #endif
 
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+
 #include <GLFW/glfw3.h>
 
 #include <linmath/linmath.h>

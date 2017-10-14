@@ -15,6 +15,7 @@
 
 #include "graphics/gfx.h"
 
+#include "mixer.h"
 #include "internal.h"
 #include "viewport.h"
 #include "res.h"
@@ -170,6 +171,10 @@ z_startup(SHIZWindowSettings const settings)
         return false;
     }
     
+    if (!z_mixer__init()) {
+        return false;
+    }
+    
     _graphics_context.is_initialized = true;
 
     z_time_reset();
@@ -202,7 +207,13 @@ z_shutdown()
     if (!_graphics_context.is_initialized) {
         return false;
     }
-
+    
+    z_res__unload_all();
+    
+    if (!z_mixer__kill()) {
+        return false;
+    }
+    
     if (!z_gfx__kill()) {
         return false;
     }
@@ -216,8 +227,6 @@ z_shutdown()
         return false;
     }
 #endif
-    
-    z_res__unload_all();
 
     GLFWwindow * const window = _graphics_context.window;
     
