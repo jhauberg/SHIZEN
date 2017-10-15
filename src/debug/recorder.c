@@ -159,7 +159,9 @@ z_recorder__start()
         
         return false;
     } else {
-        printf("Starting recording... (%s)\n", _recorder.command);
+#ifdef SHIZ_DEBUG
+        z_io__debug("Starting recording... (%s)", _recorder.command);
+#endif
     }
     
     return true;
@@ -181,7 +183,9 @@ z_recorder__stop()
         
         return false;
     } else {
-        printf("Stopped recording\n");
+#ifdef SHIZ_DEBUG
+        z_io__debug("Stopped recording");
+#endif
     }
     
     return true;

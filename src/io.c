@@ -49,8 +49,11 @@ z_io__printf(char const * format, va_list args);
 static char _buffer[SHIZIOBufferCapacity];
 static char _buffer_format[SHIZIOBufferCapacity];
 
-#define SHIZIOContextError "ERROR"
+#define SHIZIOContextError   "!ERROR!"
 #define SHIZIOContextWarning "WARNING"
+#ifdef SHIZ_DEBUG
+ #define SHIZIOContextDebug  "*DEBUG*"
+#endif
 
 #define SHIZ_IO_PRINTF(stmt) \
     va_list args; \
@@ -89,6 +92,15 @@ z_io__warning_context(char const * const context,
     SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] [%s] %s",
                             SHIZIOContextWarning, context, format) )
 }
+
+#ifdef SHIZ_DEBUG
+void
+z_io__debug(char const * const format, ...)
+{
+    SHIZ_IO_PRINTF( sprintf(_buffer_format, "[%s] %s",
+                            SHIZIOContextDebug, format) )
+}
+#endif
 
 bool
 z_io__load_image(char const * const filename,

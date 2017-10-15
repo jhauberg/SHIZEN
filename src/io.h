@@ -25,6 +25,11 @@ z_io__error(char const * format, ...);
 void
 z_io__warning(char const * format, ...);
 
+#ifdef SHIZ_DEBUG
+void
+z_io__debug(char const * format, ...);
+#endif
+
 void
 z_io__error_context(char const * context,
                     char const * format, ...);

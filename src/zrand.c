@@ -16,7 +16,7 @@
 #include <time.h> // time()
 
 #ifdef SHIZ_DEBUG
- #include <stdio.h>
+ #include "io.h"
 #endif
 
 #include <pcg/pcg_basic.h>
@@ -31,7 +31,7 @@ z_rand_seed(u32 seed)
     current_seed = seed;
     
 #ifdef SHIZ_DEBUG
-    printf("Seeding: %d\n", current_seed);
+    z_io__debug("Seeding: %d", current_seed);
 #endif
 }
 
