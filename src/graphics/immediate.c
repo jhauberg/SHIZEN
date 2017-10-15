@@ -17,6 +17,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "../debug/debug.h"
+ #include "../debug/profiler.h"
 #endif
 
 static
@@ -120,7 +121,7 @@ z_gfx__render_immediate(GLenum const mode,
                          GL_DYNAMIC_DRAW);
             glDrawArrays(mode, 0, (GLsizei)count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
 #ifdef SHIZ_DEBUG
-            z_debug__increment_draw_count(1);
+            z_profiler__increment_draw_count(1);
 #endif
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);

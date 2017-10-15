@@ -22,6 +22,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "../debug/debug.h"
+ #include "../debug/profiler.h"
 #endif
 
 #include <stdbool.h>
@@ -91,6 +92,12 @@ z_gfx__init(SHIZViewport const viewport)
         
         return false;
     }
+    
+#ifdef SHIZ_DEBUG
+    if (!z_profiler__init()) {
+        z_io__error("Could not initialize profiler");
+    }
+#endif
 
     return true;
 }
@@ -116,6 +123,12 @@ z_gfx__kill()
     if (!z_gfx__kill_post()) {
         return false;
     }
+    
+#ifdef SHIZ_DEBUG
+    if (!z_profiler__kill()) {
+        return false;
+    }
+#endif
 
     return true;
 }
@@ -124,7 +137,7 @@ void
 z_gfx__begin(SHIZColor const clear)
 {
 #ifdef SHIZ_DEBUG
-    z_debug__reset_draw_count();
+    z_profiler__begin();
 #endif
 
     z_gfx__spritebatch_reset();
@@ -172,7 +185,7 @@ z_gfx__end()
 #ifdef SHIZ_DEBUG
     z_gfx__process_errors();
     
-    z_debug__update_frame_stats();
+    z_profiler__end();
 #endif
 }
 

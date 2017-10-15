@@ -17,6 +17,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "../debug/debug.h"
+ #include "../debug/profiler.h"
 #endif
 
 #define SPRITES_MAX 128 /* flush when reaching this limit */
@@ -269,7 +270,7 @@ z_gfx__spritebatch_flush()
                                 _spritebatch.vertices);
                 glDrawArrays(GL_TRIANGLES, 0, count);
 #ifdef SHIZ_DEBUG
-                z_debug__increment_draw_count(1);
+                z_profiler__increment_draw_count(1);
 #endif
             }
             glBindBuffer(GL_ARRAY_BUFFER, 0);

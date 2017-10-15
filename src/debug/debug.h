@@ -35,17 +35,6 @@ extern char const * const SHIZDebugEventNameFlush;
 extern char const * const SHIZDebugEventNameFlushByCapacity;
 extern char const * const SHIZDebugEventNameFlushByTextureSwitch;
 
-typedef struct SHIZDebugFrameStats {
-    f64 frame_time;
-    f64 frame_time_avg;
-    u16 frames_per_second;
-    u16 frames_per_second_min;
-    u16 frames_per_second_max;
-    u16 frames_per_second_avg;
-    u16 draw_count;
-    u8 _pad[6];
-} SHIZDebugFrameStats;
-
 bool
 z_debug__init(void);
 
@@ -122,18 +111,6 @@ z_debug__add_event_resource(char const * filename,
 void
 z_debug__add_event_draw(char const * cause,
                         SHIZVector3 origin);
-
-void
-z_debug__reset_draw_count(void);
-
-void
-z_debug__increment_draw_count(u8 amount);
-
-void
-z_debug__update_frame_stats(void);
-
-SHIZDebugFrameStats
-z_debug__get_frame_stats(void);
 
 void
 z_debug__print_resources(void);

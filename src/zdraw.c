@@ -23,6 +23,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "debug/debug.h"
+ #include "debug/profiler.h"
  #include "res.h"
 #endif
 
@@ -86,6 +87,7 @@ z_drawing_begin(SHIZColor const background)
 void
 z_drawing_end()
 {
+    // flush any remaining batches as we've reached the end of a frame
     z_draw__flush();
 
 #ifdef SHIZ_DEBUG
@@ -93,8 +95,12 @@ z_drawing_end()
         bool const previously_drawing_shapes = z_debug__is_drawing_shapes();
         bool const previously_enabled_events = z_debug__is_events_enabled();
 
+        // disable events and shape drawing triggers so we can draw
+        // debug stuff without it affecting the profiler stats
         z_debug__set_drawing_shapes(false);
         z_debug__set_events_enabled(false);
+        
+        z_profiler__set_is_profiling(false);
 
         z_debug__build_stats();
         z_debug__draw_stats();
@@ -107,6 +113,8 @@ z_drawing_end()
 
         z_draw__flush();
 
+        z_profiler__set_is_profiling(true);
+        
         z_debug__set_drawing_shapes(previously_drawing_shapes);
         z_debug__set_events_enabled(previously_enabled_events);
     }

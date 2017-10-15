@@ -17,6 +17,7 @@
 #include <SHIZEN/zdraw.h>
 
 #include "debug.h"
+#include "profiler.h"
 
 #include "../internal.h"
 #include "../sprite.h"
@@ -66,7 +67,7 @@ z_debug__build_stats()
                 viewport.resolution.width, viewport.resolution.height);
     }
     
-    SHIZDebugFrameStats const frame_stats = z_debug__get_frame_stats();
+    SHIZProfilerStats const frame_stats = z_profiler__get_stats();
     
     bool const is_vsync_enabled = _graphics_context.swap_interval > 0;
     
@@ -457,6 +458,8 @@ z_debug__draw_rect_bounds_ex(SHIZRect const rect,
     
     z_debug__set_events_enabled(false);
     
+    z_profiler__set_is_profiling(false);
+    
     // enable outside bounds to avoid the frame overlapping sprite/primitive
     // pixels, but it won't work well with rotated elements
     bool const outside_bounds = false;
@@ -485,6 +488,8 @@ z_debug__draw_rect_bounds_ex(SHIZRect const rect,
     if (draw_gizmo) {
         z_debug__draw_gizmo(rect.origin, anchor, angle, SHIZLayeredAbove(layer));
     }
+    
+    z_profiler__set_is_profiling(true);
     
     z_debug__set_drawing_shapes(previously_drawing_shapes);
     z_debug__set_events_enabled(previously_tracking_events);
