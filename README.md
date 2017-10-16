@@ -1,4 +1,4 @@
-# SHIZEN
+<img src="https://github.com/jhauberg/SHIZEN/blob/master/brand/LOGO.png" width="128" height="64">
 
 A low-profile and cross-platform 2D game engine<sup>\*</sup> that leaves a small footprint, providing shape, sprite and text-rendering using modern and efficient techniques.
 
