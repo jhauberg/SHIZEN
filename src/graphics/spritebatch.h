@@ -21,15 +21,15 @@ bool
 z_gfx__kill_spritebatch(void);
 
 void
-z_gfx__spritebatch_reset(void);
+z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
+                  SHIZVector3 origin,
+                  f32 angle,
+                  GLuint texture_id);
 
 bool
 z_gfx__spritebatch_flush(void);
 
 void
-z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
-                  SHIZVector3 origin,
-                  f32 angle,
-                  GLuint texture_id);
+z_gfx__spritebatch_reset(void);
 
 #endif // spritebatch_h

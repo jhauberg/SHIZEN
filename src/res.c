@@ -83,8 +83,9 @@ u8 z_res__next_id(SHIZResourceType,
                   u8 * index);
 
 static
-bool z_res__is_index_free(u8 resource_index,
-                          SHIZResourceType type);
+bool
+z_res__is_index_free(u8 resource_index,
+                     SHIZResourceType type);
 
 static
 char const *

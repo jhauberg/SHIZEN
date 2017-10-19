@@ -46,7 +46,8 @@ typedef struct SHIZWindowSettings {
 /**
  * @brief Default window settings.
  *
- * Default window settings provides a 320x240 non-fullscreen window with v-sync enabled.
+ * Default window settings provides a 320x240 non-fullscreen window with
+ * v-sync enabled.
  */
 extern SHIZWindowSettings const SHIZWindowSettingsDefault;
 
@@ -57,9 +58,11 @@ extern SHIZWindowSettings const SHIZWindowSettingsDefault;
  *
  * Once initialized, SHIZEN has a graphics context and is ready to do things.
  *
- * @warning Initialization must occur before calling any other SHIZEN core functions.
+ * @warning Initialization must occur before calling any other SHIZEN core
+ *          functions.
  
- * @remark This function has no effect if SHIZEN was already initialized successfully.
+ * @remark This function has no effect if SHIZEN was already initialized
+ *         successfully.
  *
  * @param settings 
  *        A SHIZWindowSettings object with values and flags that
@@ -75,7 +78,8 @@ z_startup(SHIZWindowSettings settings);
  *
  * Shutdown the SHIZEN engine core and clear any associated graphics context.
  *
- * If SHIZEN was successfully initialized, this function should be called before the game exits.
+ * If SHIZEN was successfully initialized, this function should be called
+ * before the game exits.
  *
  * @remark This function has no effect if SHIZEN was not initialized.
  *
@@ -87,10 +91,11 @@ z_shutdown(void);
 /**
  * @brief Signal that SHIZEN should finish up.
  *
- * Signal that the SHIZEN graphics context should finish up and prepare to shutdown.
+ * Signal that the SHIZEN graphics context should finish up and prepare to
+ * shutdown.
  *
- * This can be called at any time (e.g. during the rendering of a frame), to indicate that 
- * the game should shutdown when possible.
+ * This can be called at any time (e.g. during the rendering of a frame) to
+ * indicate that the game should shutdown when possible.
  */
 void
 z_request_finish(void);
