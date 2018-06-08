@@ -458,37 +458,6 @@ z_res__filename_ext(char const * const filename)
 
 #ifdef SHIZ_DEBUG
 
-void
-z_debug__print_resources()
-{
-    printf("  IDX  ID  RESOURCE\n");
-    printf("  -----------------\n");
-    for (uint8_t image_resource_index = 0; image_resource_index < SHIZResourceImageMax; image_resource_index++) {
-        uint8_t resource_id = _images[image_resource_index].resource_id;
-        
-        if (resource_id != SHIZResourceInvalid) {
-            printf("i %02d: [%02d] %s (%dx%d)\n",
-                   image_resource_index, resource_id,
-                   _images[image_resource_index].filename,
-                   _images[image_resource_index].width,
-                   _images[image_resource_index].height);
-        } else {
-            printf("i %02d: [%02d] ---\n", image_resource_index, resource_id);
-        }
-    }
-    for (uint8_t sound_resource_index = 0; sound_resource_index < SHIZResourceSoundMax; sound_resource_index++) {
-        uint8_t resource_id = _sounds[sound_resource_index].resource_id;
-        
-        if (resource_id != SHIZResourceInvalid) {
-            printf("s %02d: [%02d] %s\n",
-                   sound_resource_index, resource_id,
-                   _sounds[sound_resource_index].filename);
-        } else {
-            printf("s %02d: [%02d] ---\n", sound_resource_index, resource_id);
-        }
-    }
-}
-
 bool
 z_debug__load_font(uint8_t const * const buffer,
                    uint32_t const length)

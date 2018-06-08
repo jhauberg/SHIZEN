@@ -65,8 +65,6 @@ void z_debug__add_event(SHIZDebugEvent event);
 void z_debug__add_event_resource(char const * filename, SHIZVector3 origin);
 void z_debug__add_event_draw(char const * cause, SHIZVector3 origin);
 
-void z_debug__print_resources(void);
-
 bool z_debug__load_font(uint8_t const * buffer, uint32_t length);
 bool z_debug__unload_font(void);
 
