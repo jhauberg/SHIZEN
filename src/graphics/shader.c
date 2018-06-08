@@ -9,9 +9,10 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include "shader.h"
+#include "shader.h" // z_gfx_*
+#include "io.h" // z_io_*
 
-#include "io.h"
+#include "../internal.h" // GLuint, GLenum, GLchar, gl*
 
 GLuint
 z_gfx__compile_shader(GLenum const type,

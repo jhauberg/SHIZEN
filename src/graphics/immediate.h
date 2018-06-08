@@ -9,22 +9,13 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef immediate_h
-#define immediate_h
+#pragma once
 
-#include "internal_type.h"
+#include <stdint.h> // uint32_t
 
-bool
-z_gfx__init_immediate(void);
+#include "../internal.h" // SHIZVertexPositionColor, SHIZVector3, GLenum
 
-bool
-z_gfx__kill_immediate(void);
+bool z_gfx__init_immediate(void);
+bool z_gfx__kill_immediate(void);
 
-void
-z_gfx__render_immediate(GLenum mode,
-                        SHIZVertexPositionColor const * restrict vertices,
-                        u32 count,
-                        SHIZVector3 origin,
-                        f32 angle);
-
-#endif /* immediate_h */
+void z_gfx__render_immediate(GLenum mode, SHIZVertexPositionColor const * restrict vertices, uint32_t count, SHIZVector3 origin, float angle);

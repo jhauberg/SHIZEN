@@ -15,7 +15,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
     
-    u8 const tick_frequency = 30;
+    uint8_t const tick_frequency = 30;
     
     while (!z_should_finish()) {
         z_timing_begin(); {

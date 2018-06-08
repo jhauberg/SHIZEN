@@ -9,10 +9,9 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef shizen_h
-#define shizen_h
+#pragma once
 
-#include <stdbool.h>
+#include <stdbool.h> // bool
 
 #include "ztype.h"
 #include "zrand.h"
@@ -35,18 +34,18 @@ typedef struct SHIZWindowSettings {
     char const * description;
     /** The size of each pixel; defaults to 1; a higher pixel size results in
      * a larger window */
-    u8 pixel_size;
+    uint8_t pixel_size;
     /** Determines whether the window should be fullscreen initially */
     bool fullscreen;
     /** Determines whether v-sync should be enabled */
     bool vsync;
-    u8 _pad[5];
 } SHIZWindowSettings;
 
 /**
  * @brief Default window settings.
  *
- * Default window settings provides a 320x240 non-fullscreen window with v-sync enabled.
+ * Default window settings provides a 320x240 non-fullscreen window with
+ * v-sync enabled.
  */
 extern SHIZWindowSettings const SHIZWindowSettingsDefault;
 
@@ -57,9 +56,11 @@ extern SHIZWindowSettings const SHIZWindowSettingsDefault;
  *
  * Once initialized, SHIZEN has a graphics context and is ready to do things.
  *
- * @warning Initialization must occur before calling any other SHIZEN core functions.
+ * @warning Initialization must occur before calling any other SHIZEN core
+ *          functions.
  
- * @remark This function has no effect if SHIZEN was already initialized successfully.
+ * @remark This function has no effect if SHIZEN was already initialized
+ *         successfully.
  *
  * @param settings 
  *        A SHIZWindowSettings object with values and flags that
@@ -67,33 +68,32 @@ extern SHIZWindowSettings const SHIZWindowSettingsDefault;
  *
  * @return `true` if SHIZEN was initialized successfully, `false` otherwise
  */
-bool
-z_startup(SHIZWindowSettings settings);
+bool z_startup(SHIZWindowSettings settings);
 
 /**
  * @brief Shutdown the SHIZEN engine core.
  *
  * Shutdown the SHIZEN engine core and clear any associated graphics context.
  *
- * If SHIZEN was successfully initialized, this function should be called before the game exits.
+ * If SHIZEN was successfully initialized, this function should be called
+ * before the game exits.
  *
  * @remark This function has no effect if SHIZEN was not initialized.
  *
  * @return `true` if SHIZEN was shutdown successfully, `false` otherwise
  */
-bool
-z_shutdown(void);
+bool z_shutdown(void);
 
 /**
  * @brief Signal that SHIZEN should finish up.
  *
- * Signal that the SHIZEN graphics context should finish up and prepare to shutdown.
+ * Signal that the SHIZEN graphics context should finish up and prepare to
+ * shutdown.
  *
- * This can be called at any time (e.g. during the rendering of a frame), to indicate that 
- * the game should shutdown when possible.
+ * This can be called at any time (e.g. during the rendering of a frame) to
+ * indicate that the game should shutdown when possible.
  */
-void
-z_request_finish(void);
+void z_request_finish(void);
 
 /**
  * @brief Determine whether SHIZEN should finish up.
@@ -107,16 +107,11 @@ z_request_finish(void);
  *
  * @return `true` if SHIZEN should finish up, `false` otherwise
  */
-bool
-z_should_finish(void);
+bool z_should_finish(void);
 
 /**
  * @brief Return the display size within the window.
  */
-SHIZSize
-z_get_display_size(void);
+SHIZSize z_get_display_size(void);
 
-SHIZVector2
-z_get_display_point(SHIZVector2 anchor);
-
-#endif // shizen_h
+SHIZVector2 z_get_display_point(SHIZVector2 anchor);

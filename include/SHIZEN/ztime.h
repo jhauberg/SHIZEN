@@ -9,13 +9,11 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef ztime_h
-#define ztime_h
+#pragma once
 
-#include <stdbool.h>
+#include <stdbool.h> // bool
 
-#include "zint.h"
-#include "ztype.h"
+#include "ztype.h" // SHIZVector2
 
 typedef enum SHIZTimeDirection {
     SHIZTimeDirectionBackward = -1,
@@ -23,32 +21,20 @@ typedef enum SHIZTimeDirection {
     SHIZTimeDirectionForward = 1
 } SHIZTimeDirection;
 
-void
-z_time_reset(void);
+void z_time_reset(void);
 
-void
-z_timing_begin(void);
+void z_timing_begin(void);
+double z_timing_end(void);
 
-f64
-z_timing_end(void);
+bool z_time_tick(uint8_t frequency);
 
-bool
-z_time_tick(u8 frequency);
+double z_time_passed_since(double time);
+double z_time_passed(void);
 
-f64
-z_time_passed_since(f64 time);
+double z_time_get_scale(void);
+void z_time_set_scale(double scale);
 
-f64
-z_time_passed(void);
-
-f64
-z_time_get_scale(void);
-
-void
-z_time_set_scale(f64 scale);
-
-f64
-z_time_get_tick_rate(void);
+double z_time_get_tick_rate(void);
 
 /**
  * @brief Determine the direction of passing time.
@@ -56,61 +42,37 @@ z_time_get_tick_rate(void);
  * The direction is ultimately determined by the time scale, and is always
  * one of three possible values: Backward, Still or Forward.
  */
-SHIZTimeDirection
-z_time_get_direction(void);
+SHIZTimeDirection z_time_get_direction(void);
 
 typedef struct SHIZAnimatable {
-    f64 time;
-    f32 value;
-    f32 result;
-    f32 result_prev;
-    u8 _pad[4];
+    double time;
+    float value;
+    float result;
+    float result_prev;
 } SHIZAnimatable;
 
 typedef struct SHIZAnimatableVector2 {
-    f64 time;
+    double time;
     SHIZVector2 value;
     SHIZVector2 result;
     SHIZVector2 result_prev;
 } SHIZAnimatableVector2;
 
-void
-z_animate(SHIZAnimatable *,
-          f32 to);
+void z_animate(SHIZAnimatable *, float to);
+void z_animate_add(SHIZAnimatable *, float add);
+void z_animate_to(SHIZAnimatable *, float to, double duration);
 
-void
-z_animate_vec2(SHIZAnimatableVector2 *,
-               SHIZVector2 to);
+void z_animate_vec2(SHIZAnimatableVector2 *, SHIZVector2 to);
+void z_animate_vec2_add(SHIZAnimatableVector2 *, SHIZVector2 add);
+void z_animate_vec2_to(SHIZAnimatableVector2 *, SHIZVector2 to, double duration);
 
-void
-z_animate_to(SHIZAnimatable *,
-             f32 to,
-             f64 duration);
+float z_animate_blend(SHIZAnimatable *, double interpolation);
 
-void
-z_animate_add(SHIZAnimatable *,
-              f32 add);
-
-void
-z_animate_vec2_to(SHIZAnimatableVector2 *,
-                  SHIZVector2 to,
-                  f64 duration);
-
-void
-z_animate_vec2_add(SHIZAnimatableVector2 *,
-                   SHIZVector2 add);
-
-f32
-z_animate_blend(SHIZAnimatable *,
-                f64 interpolation);
-
-SHIZVector2
-z_animate_vec2_blend(SHIZAnimatableVector2 *,
-                     f64 interpolation);
+SHIZVector2 z_animate_vec2_blend(SHIZAnimatableVector2 *, double interpolation);
 
 static inline
 SHIZAnimatable
-SHIZAnimated(f32 const value)
+SHIZAnimated(float const value)
 {
     SHIZAnimatable animatable = {
         .time = 0,
@@ -135,5 +97,3 @@ SHIZAnimatedVector2(SHIZVector2 const value)
     
     return animatable;
 }
-
-#endif // ztime_h

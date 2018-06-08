@@ -17,11 +17,10 @@
 
 #ifdef SHIZ_DEBUG
  #include "../debug/debug.h"
+ #include "../debug/profiler.h"
 #endif
 
-static
-void
-z_gfx__immediate_state(bool enable);
+static void z_gfx__immediate_state(bool enable);
 
 static SHIZRenderObject _renderer;
 
@@ -92,9 +91,9 @@ z_gfx__init_immediate()
 void
 z_gfx__render_immediate(GLenum const mode,
                         SHIZVertexPositionColor const * restrict const vertices,
-                        u32 const count,
+                        uint32_t const count,
                         SHIZVector3 const origin,
-                        f32 const angle)
+                        float const angle)
 {
     mat4x4 model;
     mat4x4_identity(model);
@@ -120,7 +119,7 @@ z_gfx__render_immediate(GLenum const mode,
                          GL_DYNAMIC_DRAW);
             glDrawArrays(mode, 0, (GLsizei)count /* count of indices; not count of lines; i.e. 1 line = 2 vertices/indices */);
 #ifdef SHIZ_DEBUG
-            z_debug__increment_draw_count(1);
+            z_profiler__increment_draw_count(1);
 #endif
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);

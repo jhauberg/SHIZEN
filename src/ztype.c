@@ -11,9 +11,10 @@
 
 #include <SHIZEN/ztype.h>
 
+#include <stdbool.h> // bool
 #include <stdlib.h> // NULL
 
-#include "internal_type.h"
+#include "internal.h" // SHIZVector3
 
 SHIZVector2 const SHIZVector2Zero = { 0, 0 };
 SHIZVector2 const SHIZVector2One = { 1, 1 };
@@ -66,6 +67,12 @@ SHIZSpriteSheet const SHIZSpriteSheetEmpty = {
         .width = 0,
         .height = 0
     }
+};
+
+SHIZSpriteFontTable const SHIZSpriteFontTableEmpty = {
+    .columns = 0,
+    .rows = 0,
+    .codepage = NULL
 };
 
 SHIZSpriteFont const SHIZSpriteFontEmpty = {

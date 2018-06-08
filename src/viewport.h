@@ -9,15 +9,14 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef viewport_h
-#define viewport_h
+#pragma once
 
-#include <SHIZEN/ztype.h>
+#include <SHIZEN/ztype.h> // SHIZSize, SHIZRect
 
 typedef struct SHIZViewport {
     SHIZSize framebuffer;
     SHIZSize resolution;
-    f32 scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
+    float scale; // framebuffer pixel scale; i.e. retina @2x framebuffer at 640 => actually 1280
 } SHIZViewport;
 
 typedef enum SHIZViewportMode {
@@ -28,13 +27,7 @@ typedef enum SHIZViewportMode {
 
 extern SHIZViewport const SHIZViewportDefault;
 
-void
-z_viewport__set(SHIZViewport viewport);
+void z_viewport__set(SHIZViewport viewport);
 
-SHIZViewport
-z_viewport__get(void);
-
-SHIZRect
-z_viewport__get_clip(void);
-
-#endif // viewport_h
+SHIZViewport z_viewport__get(void);
+SHIZRect z_viewport__get_clip(void);

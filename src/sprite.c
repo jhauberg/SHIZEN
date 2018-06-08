@@ -9,17 +9,20 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
+#include <SHIZEN/zlayer.h>
+
 #include "sprite.h"
 
 #include <stdlib.h> // qsort
 
 #include "graphics/gfx.h"
 
-#include "internal_type.h"
+#include "internal.h"
 #include "res.h"
 
 #ifdef SHIZ_DEBUG
  #include "debug/debug.h"
+ #include <stdio.h> // printf
 #endif
 
 #define SHIZSpriteVertexCount 6
@@ -27,49 +30,38 @@
 typedef struct SHIZSpriteObject {
     SHIZVertexPositionColorTexture vertices[SHIZSpriteVertexCount];
     SHIZVector3 origin;
-    u32 key; // 4 bytes; will hold packed SHIZSpriteKey
-    u32 order; // literal call order; used to ensure stable sorting
-    f32 angle;
+    uint32_t key; // 4 bytes; will hold packed SHIZSpriteKey
+    uint32_t order; // literal call order; used to ensure stable sorting
+    float angle;
 } SHIZSpriteObject;
 
 typedef struct SHIZSpriteKey {
     // note that the order of these fields affect the sorting,
     // where fields at the bottom weigh heavier than ones at the top
-    u8 texture_id; // 1 byte
-    SHIZLayer layer; // 2 bytes; note that if we want more layers (as in >255, we need more bytes in our "container field", requiring a 64bit key i.e. u64)
+    uint8_t texture_id; // 1 byte
+    SHIZLayer layer; // 2 bytes; note that if we want more layers (as in >255, we need more bytes in our "container field", requiring a 64bit key i.e. uint64_t)
     bool is_transparent; // 1 byte
 } SHIZSpriteKey;
 
 typedef struct SHIZSpriteList {
     SHIZSpriteObject sprites[SHIZSpriteMax];
-    u32 total;
-    u16 count;
-    u8 _pad[2];
+    uint32_t total;
+    uint16_t count;
 } SHIZSpriteList;
 
-static
-int
-z_sprite__compare(void const * sprite,
-                  void const * other_sprite);
+static int z_sprite__compare(void const * sprite, void const * other_sprite);
+static void z_sprite__sort(void);
 
-static
-void
-z_sprite__sort(void);
-
-static
-void
-z_sprite__set_position(SHIZSpriteObject * sprite,
-                       SHIZSize destination_size,
-                       SHIZVector2 anchor);
-static
-void
-z_sprite__set_uv(SHIZSpriteObject * sprite,
-                 SHIZSize destination_size,
-                 SHIZSize texture_size,
-                 SHIZRect source,
-                 SHIZSpriteFlipMode flip,
-                 SHIZColor tint,
-                 bool repeat);
+static void z_sprite__set_position(SHIZSpriteObject * sprite,
+                                   SHIZSize destination_size,
+                                   SHIZVector2 anchor);
+static void z_sprite__set_uv(SHIZSpriteObject * sprite,
+                             SHIZSize destination_size,
+                             SHIZSize texture_size,
+                             SHIZRect source,
+                             SHIZSpriteFlipMode flip,
+                             SHIZColor tint,
+                             bool repeat);
 
 static struct SHIZSpriteList _sprite_list;
 
@@ -80,7 +72,7 @@ z_sprite__draw(SHIZSprite const sprite,
                bool const repeat,
                SHIZVector2 const anchor,
                SHIZSpriteFlipMode flip,
-               f32 const angle,
+               float const angle,
                SHIZColor const tint,
                bool const opaque,
                SHIZLayer const layer)
@@ -96,14 +88,14 @@ z_sprite__draw(SHIZSprite const sprite,
         return SHIZSizeZero;
     }
 
-    f32 const z = z_layer__get_z(layer);
+    float const z = z_layer__get_z(layer);
     
-    u32 sort_key = 0;
+    uint32_t sort_key = 0;
     
     SHIZSpriteKey * const sprite_key = (SHIZSpriteKey *)&sort_key;
 
     sprite_key->layer = layer;
-    sprite_key->texture_id = (u8)image.texture_id;
+    sprite_key->texture_id = (uint8_t)image.texture_id;
     sprite_key->is_transparent = !opaque;
     
     struct SHIZSpriteObject * const sprite_object =
@@ -147,14 +139,14 @@ SHIZRect const
 z_sprite__anchor_rect(SHIZSize const size,
                       SHIZVector2 const anchor)
 {
-    f32 const hw = size.width / 2.0f;
-    f32 const hh = size.height / 2.0f;
+    float const hw = size.width / 2.0f;
+    float const hh = size.height / 2.0f;
 
-    f32 const dx = hw * -anchor.x;
-    f32 const dy = hh * -anchor.y;
+    float const dx = hw * -anchor.x;
+    float const dy = hh * -anchor.y;
 
-    f32 const l = dx - hw;
-    f32 const b = dy - hh;
+    float const l = dx - hw;
+    float const b = dy - hh;
 
     return SHIZRectMake(SHIZVector2Make(l, b), size);
 }
@@ -183,7 +175,7 @@ z_sprite__flush()
 
     z_sprite__sort();
     
-    for (u16 i = 0; i < _sprite_list.count; i++) {
+    for (uint16_t i = 0; i < _sprite_list.count; i++) {
         SHIZSpriteObject const sprite = _sprite_list.sprites[i];
         SHIZSpriteKey const * const sprite_key = (SHIZSpriteKey *)&sprite.key;
 
@@ -252,10 +244,10 @@ z_sprite__set_position(SHIZSpriteObject * const sprite,
 {
     SHIZRect const anchored = z_sprite__anchor_rect(size, anchor);
 
-    f32 const l = PIXEL(anchored.origin.x);
-    f32 const r = PIXEL(anchored.origin.x + anchored.size.width);
-    f32 const b = PIXEL(anchored.origin.y);
-    f32 const t = PIXEL(anchored.origin.y + anchored.size.height);
+    float const l = PIXEL(anchored.origin.x);
+    float const r = PIXEL(anchored.origin.x + anchored.size.width);
+    float const b = PIXEL(anchored.origin.y);
+    float const t = PIXEL(anchored.origin.y + anchored.size.height);
     
     SHIZVector2 const bl = SHIZVector2Make(l, b);
     SHIZVector2 const tl = SHIZVector2Make(l, t);
@@ -293,8 +285,8 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
     }
 
     // bias sampling towards the center of each texel
-    f32 const w = HALF_PIXEL / texture_size.width;
-    f32 const h = HALF_PIXEL / texture_size.height;
+    float const w = HALF_PIXEL / texture_size.width;
+    float const h = HALF_PIXEL / texture_size.height;
 
     SHIZVector2 const uv_min =
         SHIZVector2Make((source.origin.x + w) / texture_size.width,
@@ -303,8 +295,8 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
         SHIZVector2Make((source.origin.x + source.size.width - w) / texture_size.width,
                         (source.origin.y + source.size.height - h) / texture_size.height);
     
-    f32 uv_scale_x = 1;
-    f32 uv_scale_y = 1;
+    float uv_scale_x = 1;
+    float uv_scale_y = 1;
     
     if (repeat) {
         // in order to repeat a texture, we need to scale the uv's to be larger than the actual source
@@ -342,7 +334,7 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
     sprite->vertices[4].texture_coord = tr;
     sprite->vertices[5].texture_coord = br;
     
-    for (u8 vertex = 0; vertex < SHIZSpriteVertexCount; vertex++) {
+    for (uint8_t vertex = 0; vertex < SHIZSpriteVertexCount; vertex++) {
         sprite->vertices[vertex].color = tint;
         // in order for repeated textures to work (without having to set wrapping modes,
         // and with support for sub-textures) we have to specify the space that
@@ -357,7 +349,7 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
 
 #ifdef SHIZ_DEBUG
 
-u32
+uint32_t
 z_debug__get_sprite_count()
 {
     return _sprite_list.total;

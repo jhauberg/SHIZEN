@@ -11,16 +11,19 @@
 
 #include <SHIZEN/zloader.h>
 
+#include <stdbool.h> // bool
+#include <stdint.h> // uint8_t, uint16_t, uint32_t
+
 #include "res.h"
 
-u8
+uint8_t
 z_load(char const * const filename)
 {
     return z_res__load(filename);
 }
 
 bool
-z_unload(u8 const resource_id)
+z_unload(uint8_t const resource_id)
 {
     return z_res__unload(resource_id);
 }
@@ -28,7 +31,7 @@ z_unload(u8 const resource_id)
 SHIZSprite
 z_load_sprite(char const * const filename)
 {
-    u8 const resource_id = z_load(filename);
+    uint8_t const resource_id = z_load(filename);
     
     if (resource_id == SHIZResourceInvalid) {
         return SHIZSpriteEmpty;
@@ -81,7 +84,7 @@ z_load_spritesheet_src(char const * const filename,
 }
 
 SHIZSprite
-z_load_sprite_from(u8 const resource_id)
+z_load_sprite_from(uint8_t const resource_id)
 {
     SHIZResourceImage const image = z_res__image(resource_id);
     
@@ -96,10 +99,10 @@ z_load_sprite_from(u8 const resource_id)
 }
 
 SHIZSprite
-z_load_sprite_from_src(u8 const resource_id,
+z_load_sprite_from_src(uint8_t const resource_id,
                        SHIZRect const source)
 {
-    SHIZSprite sprite;
+    SHIZSprite sprite = SHIZSpriteEmpty;
     
     sprite.resource_id = resource_id;
     sprite.source = source;
@@ -111,24 +114,24 @@ SHIZSpriteSheet
 z_load_spritesheet_from(SHIZSprite const resource,
                         SHIZSize const sprite_size)
 {
-    SHIZSpriteSheet spritesheet;
+    SHIZSpriteSheet spritesheet = SHIZSpriteSheetEmpty;
     
     spritesheet.resource = resource;
     spritesheet.sprite_size = sprite_size;
     
     SHIZSize const source = resource.source.size;
     
-    f32 const columns = source.width / sprite_size.width;
-    f32 const rows = source.height / sprite_size.height;
+    float const columns = source.width / sprite_size.width;
+    float const rows = source.height / sprite_size.height;
     
     if (columns > 0 && columns < UINT16_MAX) {
-        spritesheet.columns = (u16)columns;
+        spritesheet.columns = (uint16_t)columns;
     } else {
         spritesheet.columns = 1;
     }
     
     if (rows > 0 && rows < UINT16_MAX) {
-        spritesheet.rows = (u16)rows;
+        spritesheet.rows = (uint16_t)rows;
     } else {
         spritesheet.rows = 1;
     }
@@ -151,10 +154,10 @@ z_load_spritesheet_from_src(SHIZSprite const resource,
 
 SHIZSprite
 z_load_sprite_from_index(SHIZSpriteSheet const spritesheet,
-                         u32 const index)
+                         uint32_t const index)
 {
-    u16 const row = (u16)(index / spritesheet.columns);
-    u16 const column = index % spritesheet.columns;
+    uint16_t const row = (uint16_t)(index / spritesheet.columns);
+    uint16_t const column = index % spritesheet.columns;
     
     SHIZVector2 const source_origin = SHIZVector2Make(spritesheet.resource.source.origin.x +
                                                       spritesheet.sprite_padding.width,
@@ -179,28 +182,28 @@ z_load_sprite_from_index(SHIZSpriteSheet const spritesheet,
 
 SHIZSprite
 z_load_sprite_from_cell(SHIZSpriteSheet const spritesheet,
-                        u16 const column,
-                        u16 const row)
+                        uint16_t const column,
+                        uint16_t const row)
 {
-    u32 const index = row * spritesheet.columns + column;
+    uint32_t const index = row * spritesheet.columns + column;
     
     return z_load_sprite_from_index(spritesheet, index);
 }
 
 SHIZSprite
 z_load_sprite_from_point(SHIZSpriteSheet const spritesheet,
-                         u16 const x,
-                         u16 const y)
+                         uint16_t const x,
+                         uint16_t const y)
 {
-    u16 column = 0;
-    u16 row = 0;
+    uint16_t column = 0;
+    uint16_t row = 0;
     
     if (x <= spritesheet.resource.source.size.width) {
-        column = (u16)((x / spritesheet.resource.source.size.width) * spritesheet.columns);
+        column = (uint16_t)((x / spritesheet.resource.source.size.width) * spritesheet.columns);
     }
     
     if (y <= spritesheet.resource.source.size.height) {
-        row = (u16)((y / spritesheet.resource.source.size.height) * spritesheet.rows);
+        row = (uint16_t)((y / spritesheet.resource.source.size.height) * spritesheet.rows);
     }
 
     return z_load_sprite_from_cell(spritesheet, column, row);
@@ -208,19 +211,19 @@ z_load_sprite_from_point(SHIZSpriteSheet const spritesheet,
 
 SHIZSpriteFont
 z_load_spritefont(char const * const filename,
-                  SHIZSize const character)
+                  SHIZSize const character_size)
 {
     SHIZSprite const sprite = z_load_sprite(filename);
     
-    return z_load_spritefont_from(sprite, character);
+    return z_load_spritefont_from(sprite, character_size);
 }
 
 SHIZSpriteFont
 z_load_spritefont_ex(char const * const filename,
-                     SHIZSize const character,
+                     SHIZSize const character_size,
                      SHIZSpriteFontTable const table)
 {
-    SHIZSpriteFont const spritefont = z_load_spritefont(filename, character);
+    SHIZSpriteFont const spritefont = z_load_spritefont(filename, character_size);
     
     return z_load_spritefont_from_ex(spritefont.sprite,
                                      spritefont.character,
@@ -229,41 +232,41 @@ z_load_spritefont_ex(char const * const filename,
 
 SHIZSpriteFont
 z_load_spritefont_from(SHIZSprite const sprite,
-                       SHIZSize const character)
+                       SHIZSize const character_size)
 {
-    SHIZSpriteFontTable table;
+    SHIZSpriteFontTable table = SHIZSpriteFontTableEmpty;
     
     SHIZSize const source = sprite.source.size;
     
-    f32 const columns = source.width / character.width;
-    f32 const rows = source.height / character.height;
+    float const columns = source.width / character_size.width;
+    float const rows = source.height / character_size.height;
     
     if (columns > 0 && columns < UINT16_MAX) {
-        table.columns = (u16)columns;
+        table.columns = (uint16_t)columns;
     } else {
         table.columns = 1;
     }
     
     if (rows > 0 && rows < UINT16_MAX) {
-        table.rows = (u16)rows;
+        table.rows = (uint16_t)rows;
     } else {
         table.rows = 1;
     }
 
     table.codepage = NULL;
     
-    return z_load_spritefont_from_ex(sprite, character, table);
+    return z_load_spritefont_from_ex(sprite, character_size, table);
 }
 
 SHIZSpriteFont
 z_load_spritefont_from_ex(SHIZSprite const sprite,
-                          SHIZSize const character,
+                          SHIZSize const character_size,
                           SHIZSpriteFontTable const table)
 {
-    SHIZSpriteFont spritefont;
+    SHIZSpriteFont spritefont = SHIZSpriteFontEmpty;
     
     spritefont.sprite = sprite;
-    spritefont.character = character;
+    spritefont.character = character_size;
     spritefont.table = table;
     // default to skip whitespaces; this will reduce the number of sprites drawn
     spritefont.includes_whitespace = false;

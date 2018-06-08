@@ -14,7 +14,7 @@
 #include <stdlib.h> // NULL
 #include <stdio.h> // fwrite, popen, pclose
 
-#include "../internal_type.h"
+#include "../internal.h"
 
 #include "../viewport.h"
 #include "../io.h"
@@ -22,7 +22,7 @@
 typedef struct SHIZRecorder {
     FILE * output;
     GLubyte * buffer;
-    u32 frame_size;
+    uint32_t frame_size;
     char command[196];
 } SHIZRecorder;
 
@@ -55,15 +55,15 @@ z_recorder__kill()
 
 void
 z_recorder__setup(SHIZSize const resolution,
-                  u8 const hz)
+                  uint8_t const hz)
 {
     SHIZRect clip = z_viewport__get_clip();
     
-    u32 const input_width = (u32)clip.size.width;
-    u32 const input_height = (u32)clip.size.height;
+    uint32_t const input_width = (uint32_t)clip.size.width;
+    uint32_t const input_height = (uint32_t)clip.size.height;
     
-    u32 const output_width = (u32)resolution.width;
-    u32 const output_height = (u32)resolution.height;
+    uint32_t const output_width = (uint32_t)resolution.width;
+    uint32_t const output_height = (uint32_t)resolution.height;
     
     if (_recorder.buffer != NULL) {
         free(_recorder.buffer);
@@ -72,7 +72,7 @@ z_recorder__setup(SHIZSize const resolution,
     _recorder.frame_size = input_width * input_height * (sizeof(GLubyte) * 4);
     _recorder.buffer = malloc(_recorder.frame_size);
     
-    u8 const refresh_rate = hz > 0 ? hz : 60; // default to 60 fps
+    uint8_t const refresh_rate = hz > 0 ? hz : 60; // default to 60 fps
     
     char const * const output_filename = "output";
     
@@ -159,7 +159,9 @@ z_recorder__start()
         
         return false;
     } else {
-        printf("Starting recording... (%s)\n", _recorder.command);
+#ifdef SHIZ_DEBUG
+        z_io__debug("Starting recording... (%s)", _recorder.command);
+#endif
     }
     
     return true;
@@ -172,7 +174,7 @@ z_recorder__stop()
         return false;
     }
     
-    s32 const status = pclose(_recorder.output);
+    int32_t const status = pclose(_recorder.output);
     
     _is_recording = false;
     
@@ -181,7 +183,9 @@ z_recorder__stop()
         
         return false;
     } else {
-        printf("Stopped recording\n");
+#ifdef SHIZ_DEBUG
+        z_io__debug("Stopped recording");
+#endif
     }
     
     return true;

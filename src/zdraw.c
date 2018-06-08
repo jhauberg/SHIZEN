@@ -11,6 +11,7 @@
 
 #include <SHIZEN/zdraw.h>
 
+#include <stdlib.h> // qsort
 #include <math.h> // M_PI, cosf, sinf, fmodf
 
 #include "internal.h"
@@ -22,6 +23,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "debug/debug.h"
+ #include "debug/profiler.h"
  #include "res.h"
 #endif
 
@@ -37,7 +39,7 @@ void
 z_draw__rect(SHIZRect rect,
              SHIZColor color,
              SHIZVector2 anchor,
-             f32 angle,
+             float angle,
              SHIZLayer layer);
 
 static
@@ -45,11 +47,11 @@ void
 z_draw__rect_outline(SHIZRect rect,
                      SHIZColor color,
                      SHIZVector2 anchor,
-                     f32 angle,
+                     float angle,
                      SHIZLayer layer);
 
 static
-s32
+int32_t
 z_draw__compare_point_order_cw(void const * a,
                                void const * b);
 
@@ -85,6 +87,7 @@ z_drawing_begin(SHIZColor const background)
 void
 z_drawing_end()
 {
+    // flush any remaining batches as we've reached the end of a frame
     z_draw__flush();
 
 #ifdef SHIZ_DEBUG
@@ -92,8 +95,12 @@ z_drawing_end()
         bool const previously_drawing_shapes = z_debug__is_drawing_shapes();
         bool const previously_enabled_events = z_debug__is_events_enabled();
 
+        // disable events and shape drawing triggers so we can draw
+        // debug stuff without it affecting the profiler stats
         z_debug__set_drawing_shapes(false);
         z_debug__set_events_enabled(false);
+        
+        z_profiler__set_is_profiling(false);
 
         z_debug__build_stats();
         z_debug__draw_stats();
@@ -106,6 +113,8 @@ z_drawing_end()
 
         z_draw__flush();
 
+        z_profiler__set_is_profiling(true);
+        
         z_debug__set_drawing_shapes(previously_drawing_shapes);
         z_debug__set_events_enabled(previously_enabled_events);
     }
@@ -139,7 +148,7 @@ z_draw_line_ex(SHIZVector2 const from,
 
 void
 z_draw_path(SHIZVector2 const points[],
-            u16 const count,
+            uint16_t const count,
             SHIZColor const color)
 {
     z_draw_path_ex(points, count, color, SHIZLayerDefault);
@@ -147,18 +156,18 @@ z_draw_path(SHIZVector2 const points[],
 
 void
 z_draw_path_ex(SHIZVector2 const points[],
-               u16 const count,
+               uint16_t const count,
                SHIZColor const color,
                SHIZLayer const layer)
 {
-    f32 const z = z_layer__get_z(layer);
+    float const z = z_layer__get_z(layer);
     
     SHIZVertexPositionColor vertices[count];
     
     SHIZVector2 const anchor = SHIZAnchorBottomLeft;
     SHIZVector2 const offset = z_draw__pixel_centering_offset(anchor);
     
-    for (u8 i = 0; i < count; i++) {
+    for (uint8_t i = 0; i < count; i++) {
         SHIZVector2 const point = points[i];
         
         vertices[i].position = SHIZVector3Make(PIXEL(point.x) + offset.x,
@@ -236,10 +245,10 @@ z_draw_triangle_ex(SHIZVector2 const a,
                    SHIZVector2 const c,
                    SHIZColor const color,
                    SHIZDrawMode const mode,
-                   f32 const angle,
+                   float const angle,
                    SHIZLayer const layer)
 {
-    u8 const vertex_count = 3;
+    uint8_t const vertex_count = 3;
     
     SHIZVector2 points[3] = {
         a, b, c
@@ -255,7 +264,7 @@ z_draw_triangle_ex(SHIZVector2 const a,
           sizeof(SHIZVector2),
           z_draw__compare_point_order_cw);
     
-    f32 const z = z_layer__get_z(layer);
+    float const z = z_layer__get_z(layer);
     
     SHIZVector2 const offset =
         z_draw__pixel_centering_offset(SHIZAnchorBottomLeft);
@@ -266,7 +275,7 @@ z_draw_triangle_ex(SHIZVector2 const a,
     
     SHIZVertexPositionColor vertices[vertex_count];
         
-    for (u8 i = 0; i < vertex_count; i++) {
+    for (uint8_t i = 0; i < vertex_count; i++) {
         SHIZVector2 point = points[i];
         
         if (mode == SHIZDrawModeOutline) {
@@ -316,11 +325,11 @@ z_draw_triangle_sized_ex(SHIZVector2 const center,
                          SHIZColor const color,
                          SHIZDrawMode const mode,
                          SHIZSize const size,
-                         f32 const angle,
+                         float const angle,
                          SHIZLayer const layer)
 {
-    f32 const w = size.width / 2;
-    f32 const h = size.height / 2;
+    float const w = size.width / 2;
+    float const h = size.height / 2;
     
     SHIZVector2 const a = SHIZVector2Make(center.x, center.y + h);
     SHIZVector2 const b = SHIZVector2Make(center.x + w, center.y - h);
@@ -345,7 +354,7 @@ z_draw_rect_ex(SHIZRect const rect,
                SHIZColor const color,
                SHIZDrawMode const mode,
                SHIZVector2 const anchor,
-               f32 const angle,
+               float const angle,
                SHIZLayer const layer)
 {
     if (mode == SHIZDrawModeFill) {
@@ -359,8 +368,8 @@ void
 z_draw_circle(SHIZVector2 const center,
               SHIZColor const color,
               SHIZDrawMode const mode,
-              f32 const radius,
-              u8 const segments)
+              float const radius,
+              uint8_t const segments)
 {
     z_draw_circle_scaled(center, color, mode, radius, segments,
                          SHIZVector2One);
@@ -370,8 +379,8 @@ void
 z_draw_circle_scaled(SHIZVector2 const center,
                      SHIZColor const color,
                      SHIZDrawMode const mode,
-                     f32 const radius,
-                     u8 const segments,
+                     float const radius,
+                     uint8_t const segments,
                      SHIZVector2 const scale)
 {
     z_draw_circle_ex(center, color, mode, radius, segments,
@@ -382,18 +391,18 @@ void
 z_draw_circle_ex(SHIZVector2 const center,
                  SHIZColor const color,
                  SHIZDrawMode const mode,
-                 f32 const radius,
-                 u8 const segments,
+                 float const radius,
+                 uint8_t const segments,
                  SHIZVector2 const scale,
                  SHIZLayer const layer)
 {
-    u16 const vertex_count = mode == SHIZDrawModeFill ?
+    uint16_t const vertex_count = mode == SHIZDrawModeFill ?
         (segments + 2) : segments;
 
     SHIZVertexPositionColor vertices[vertex_count];
 
-    f32 const z = z_layer__get_z(layer);
-    f32 const step = 2.0f * (f32)M_PI / segments;
+    float const z = z_layer__get_z(layer);
+    float const step = 2.0f * (float)M_PI / segments;
 
     SHIZVector2 const offset = z_draw__pixel_centering_offset(SHIZAnchorCenter);
     
@@ -401,7 +410,7 @@ z_draw_circle_ex(SHIZVector2 const center,
                                                PIXEL(center.y) + offset.y,
                                                z);
     
-    u8 vertex_offset = 0;
+    uint8_t vertex_offset = 0;
 
     if (mode == SHIZDrawModeFill) {
         // start at the center
@@ -411,13 +420,13 @@ z_draw_circle_ex(SHIZVector2 const center,
         vertex_offset = 1;
     }
 
-    for (u8 segment = 0; segment < segments; segment++) {
-        u16 const vertex_index = vertex_offset + segment;
+    for (uint8_t segment = 0; segment < segments; segment++) {
+        uint16_t const vertex_index = vertex_offset + segment;
 
-        f32 const angle = segment * -step;
+        float const angle = segment * -step;
 
-        f32 const x = (radius * scale.x) * cosf(angle);
-        f32 const y = (radius * scale.y) * sinf(angle);
+        float const x = (radius * scale.x) * cosf(angle);
+        float const y = (radius * scale.y) * sinf(angle);
 
         vertices[vertex_index].color = color;
         // note that we're intentionally leaving out the 'z' here
@@ -426,7 +435,7 @@ z_draw_circle_ex(SHIZVector2 const center,
         if (mode == SHIZDrawModeFill && segment == 0) {
             // connect the last vertex to the first shape vertex
             // (i.e. not center in case of fill)
-            u16 const last_index = vertex_offset + segments;
+            uint16_t const last_index = vertex_offset + segments;
 
             vertices[last_index].color = color;
             vertices[last_index].position = vertices[vertex_index].position;
@@ -455,9 +464,9 @@ void
 z_draw_arc(SHIZVector2 const center,
            SHIZColor const color,
            SHIZDrawMode const mode,
-           f32 const radius,
-           u8 const segments,
-           f32 const angle)
+           float const radius,
+           uint8_t const segments,
+           float const angle)
 {
     z_draw_arc_ex(center, color, mode, radius, segments, angle,
                   SHIZLayerDefault);
@@ -467,19 +476,19 @@ void
 z_draw_arc_ex(SHIZVector2 const center,
               SHIZColor const color,
               SHIZDrawMode const mode,
-              f32 const radius,
-              u8 const segments,
-              f32 const angle,
+              float const radius,
+              uint8_t const segments,
+              float const angle,
               SHIZLayer const layer)
 {
-    u16 const vertex_count = segments + 2;
+    uint16_t const vertex_count = segments + 2;
 
     SHIZVertexPositionColor vertices[vertex_count];
 
-    f32 const target_angle = fmodf(angle, (f32)M_PI * 2.0f);
+    float const target_angle = fmodf(angle, (float)M_PI * 2.0f);
 
-    f32 const z = z_layer__get_z(layer);
-    f32 const step = target_angle / segments;
+    float const z = z_layer__get_z(layer);
+    float const step = target_angle / segments;
 
     SHIZVector2 const offset = z_draw__pixel_centering_offset(SHIZAnchorCenter);
     
@@ -487,20 +496,20 @@ z_draw_arc_ex(SHIZVector2 const center,
                                                PIXEL(center.y) + offset.y,
                                                z);
     
-    u8 vertex_offset = 1;
+    uint8_t vertex_offset = 1;
 
     vertices[0].color = color;
     vertices[0].position = SHIZVector3Zero;
 
-    u16 end = segments + 1;
+    uint16_t end = segments + 1;
     
-    for (u8 segment = 0; segment < end; segment++) {
-        u16 const vertex_index = vertex_offset + segment;
+    for (uint8_t segment = 0; segment < end; segment++) {
+        uint16_t const vertex_index = vertex_offset + segment;
 
-        f32 const step_angle = segment * -step;
+        float const step_angle = segment * -step;
 
-        f32 const x = radius * cosf(step_angle);
-        f32 const y = radius * sinf(step_angle);
+        float const x = radius * cosf(step_angle);
+        float const y = radius * sinf(step_angle);
 
         vertices[vertex_index].color = color;
         // note that we're intentionally leaving out the 'z' here
@@ -584,7 +593,7 @@ z_draw_sprite_ex(SHIZSprite const sprite,
                  bool const repeat,
                  SHIZVector2 const anchor,
                  SHIZSpriteFlipMode const flip,
-                 f32 const angle,
+                 float const angle,
                  SHIZColor const tint,
                  bool const opaque,
                  SHIZLayer const layer)
@@ -741,18 +750,18 @@ void
 z_draw__rect_outline(SHIZRect const rect,
                      SHIZColor const color,
                      SHIZVector2 const anchor,
-                     f32 const angle,
+                     float const angle,
                      SHIZLayer const layer)
 {
-    u8 const vertex_count = 4;
+    uint8_t const vertex_count = 4;
     
     SHIZVertexPositionColor vertices[vertex_count];
     
-    for (u8 i = 0; i < vertex_count; i++) {
+    for (uint8_t i = 0; i < vertex_count; i++) {
         vertices[i].color = color;
     }
     
-    f32 const z = z_layer__get_z(layer);
+    float const z = z_layer__get_z(layer);
     
     SHIZVector2 const offset = z_draw__pixel_centering_offset(anchor);
     
@@ -769,10 +778,10 @@ z_draw__rect_outline(SHIZRect const rect,
                                            rect.size.height - 1),
                               anchor);
     
-    f32 const l = PIXEL(anchored.origin.x);
-    f32 const r = PIXEL(anchored.origin.x + anchored.size.width);
-    f32 const b = PIXEL(anchored.origin.y);
-    f32 const t = PIXEL(anchored.origin.y + anchored.size.height);
+    float const l = PIXEL(anchored.origin.x);
+    float const r = PIXEL(anchored.origin.x + anchored.size.width);
+    float const b = PIXEL(anchored.origin.y);
+    float const t = PIXEL(anchored.origin.y + anchored.size.height);
     
     // note that we're intentionally leaving out the 'z' for the vertices,
     // as each vertex will be transformed by the Z of the origin later and
@@ -802,7 +811,7 @@ void
 z_draw__rect(SHIZRect const rect,
              SHIZColor const color,
              SHIZVector2 const anchor,
-             f32 const angle,
+             float const angle,
              SHIZLayer const layer)
 {
     // we can utilize the spritebatch when drawing filled rectangles
@@ -830,7 +839,7 @@ z_draw__flush()
 }
 
 static
-s32
+int32_t
 z_draw__compare_point_order_cw(void const * const a,
                                void const * const b)
 {
@@ -871,7 +880,7 @@ z_draw__point_order_before_cw(SHIZVector2 const a,
     }
     
     // compute the cross product of vectors (center -> a) x (center -> b)
-    s32 det = (s32)((a.x - center.x) * (b.y - center.y) -
+    int32_t det = (int32_t)((a.x - center.x) * (b.y - center.y) -
                     (b.x - center.x) * (a.y - center.y));
     
     if (det < 0) {
@@ -884,10 +893,10 @@ z_draw__point_order_before_cw(SHIZVector2 const a,
     
     // points a and b are on the same line from the center
     // check which point is closer to the center
-    s32 d1 = (s32)((a.x - center.x) * (a.x - center.x) +
+    int32_t d1 = (int32_t)((a.x - center.x) * (a.x - center.x) +
                    (a.y - center.y) * (a.y - center.y));
     
-    s32 d2 = (s32)((b.x - center.x) * (b.x - center.x) +
+    int32_t d2 = (int32_t)((b.x - center.x) * (b.x - center.x) +
                    (b.y - center.y) * (b.y - center.y));
     
     return d1 > d2;

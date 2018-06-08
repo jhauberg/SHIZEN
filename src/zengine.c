@@ -79,7 +79,7 @@ bool
 z_engine__is_fullscreen(void);
 
 static
-f32
+float
 z_engine__get_pixel_scale(void);
 
 static
@@ -107,7 +107,7 @@ void
 z_engine__intro_gl(void);
 
 static
-u8
+uint8_t
 z_engine__get_refresh_rate(void);
 
 static SHIZVector2 _preferred_window_position;
@@ -457,7 +457,7 @@ z_engine__get_framebuffer_size()
 }
 
 static
-f32
+float
 z_engine__get_pixel_scale()
 {
     SHIZSize const framebuffer = z_engine__get_framebuffer_size();
@@ -468,7 +468,7 @@ z_engine__get_pixel_scale()
 }
 
 static
-u8
+uint8_t
 z_engine__get_refresh_rate()
 {
     GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
@@ -477,7 +477,7 @@ z_engine__get_refresh_rate()
         GLFWvidmode const * const mode = glfwGetVideoMode(monitor);
         
         if (mode != NULL) {
-            return (u8)mode->refreshRate;
+            return (uint8_t)mode->refreshRate;
         }
     }
     

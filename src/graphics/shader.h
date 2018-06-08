@@ -9,17 +9,9 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef shader_h
-#define shader_h
+#pragma once
 
-#include "internal_type.h"
+#include "../internal.h" // GLuint, GLenum, GLchar
 
-GLuint
-z_gfx__compile_shader(GLenum type,
-                      GLchar const * source);
-
-GLuint
-z_gfx__link_program(GLuint vs,
-                    GLuint fs);
-
-#endif // shader_h
+GLuint z_gfx__compile_shader(GLenum type, GLchar const * source);
+GLuint z_gfx__link_program(GLuint vs, GLuint fs);

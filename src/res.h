@@ -9,13 +9,12 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef res_h
-#define res_h
+#pragma once
 
-#include <stdio.h>
-#include <stdbool.h>
+#include <stdbool.h> // bool
+#include <stdint.h> // uint8_t, uint16_t
 
-#include "internal_type.h"
+#include "internal.h" // todo: preferaby get rid of this! only needed for GL/ALuint
 
 typedef enum SHIZResourceType {
     SHIZResourceTypeNotSupported,
@@ -26,46 +25,30 @@ typedef enum SHIZResourceType {
 typedef struct SHIZResourceImage {
     char const * filename;
     GLuint texture_id;
-    u16 width;
-    u16 height;
-    u8 resource_id;
-    u8 _pad[7];
+    uint16_t width;
+    uint16_t height;
+    uint8_t resource_id;
 } SHIZResourceImage;
 
 typedef struct SHIZResourceSound {
     char const * filename;
     ALuint source_id;
     ALuint buffer_id;
-    u8 resource_id;
-    u8 _pad[7];
+    uint8_t resource_id;
 } SHIZResourceSound;
 
 extern SHIZResourceImage const SHIZResourceImageEmpty;
 extern SHIZResourceSound const SHIZResourceSoundEmpty;
 
-extern u8 const SHIZResourceInvalid;
+extern uint8_t const SHIZResourceInvalid;
 
-u8
-z_res__load(char const * filename);
+uint8_t z_res__load(char const * filename);
+uint8_t z_res__load_data(SHIZResourceType, uint8_t const * buffer, uint32_t length);
 
-u8
-z_res__load_data(SHIZResourceType type,
-                 unsigned char const * buffer,
-                 unsigned int length);
+bool z_res__unload(uint8_t resource_id);
+bool z_res__unload_all(void);
 
-bool
-z_res__unload(u8 resource_id);
+SHIZResourceType const z_res__type(char const * filename);
 
-bool
-z_res__unload_all(void);
-
-SHIZResourceType const
-z_res__type(char const * filename);
-
-SHIZResourceImage
-z_res__image(u8 resource_id);
-
-SHIZResourceSound
-z_res__sound(u8 resource_id);
-
-#endif // res_h
+SHIZResourceImage z_res__image(uint8_t resource_id);
+SHIZResourceSound z_res__sound(uint8_t resource_id);

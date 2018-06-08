@@ -17,11 +17,11 @@
 
 static
 unsigned int
-utf8_decode(char const * str, u32 * i)
+utf8_decode(char const * str, uint32_t * i)
 {
     unsigned char const * s = (unsigned char const *)str;
 
-    u32 u = *s, l = 1;
+    uint32_t u = *s, l = 1;
 
     if (((u) & 0xc0) == 0xc0) {
         int a = (u & 0x20) ? ((u & 0x10) ? ((u & 0x08) ? ((u & 0x04) ? 6 : 5) : 4) : 3) : 2;
@@ -49,32 +49,32 @@ bool
 z_spritefont__is_tint_character(char);
 
 static
-u16
-z_spritefont__perceived_count(u16 count,
-                              u16 ignored_count,
+uint16_t
+z_spritefont__perceived_count(uint16_t count,
+                              uint16_t ignored_count,
                               bool skipping_leading_whitespace);
 
 static
 void
 z_spritefont__set_line(SHIZSpriteFontLine * line,
                        SHIZSpriteFontMeasurement const * measurement,
-                       f32 line_height,
-                       u16 character_count,
-                       u16 character_ignored_count,
+                       float line_height,
+                       uint16_t character_count,
+                       uint16_t character_ignored_count,
                        bool skipping_leading_whitespace);
 
 static
-s32
+int32_t
 z_spritefont__character_table_index(SHIZSpriteFont const * font,
                                     char character,
-                                    u32 character_decimal);
+                                    uint32_t character_decimal);
 
 static
 void
 z_spritefont__draw_character_index(SHIZSpriteFont const * font,
                                    SHIZSpriteFontMeasurement const * measurement,
                                    SHIZVector2 character_origin,
-                                   u16 character_table_index,
+                                   uint16_t character_table_index,
                                    SHIZColor highlight_color,
                                    SHIZLayer layer);
 
@@ -101,39 +101,39 @@ z_spritefont__measure_text(SHIZSpriteFont const font,
     measurement.constrain_vertically = bounds.height > 0;
 
     if (measurement.constrain_horizontally) {
-        f32 const max_characters_per_line =
+        float const max_characters_per_line =
             floorf(bounds.width / measurement.character_size_perceived.width);
         
         if (max_characters_per_line > UINT16_MAX) {
             measurement.max_characters_per_line = UINT16_MAX;
         } else {
-            measurement.max_characters_per_line = (u16)max_characters_per_line;
+            measurement.max_characters_per_line = (uint16_t)max_characters_per_line;
         }
     } else {
         measurement.max_characters_per_line = UINT16_MAX;
     }
 
-    f32 const line_height =
+    float const line_height =
         measurement.character_size_perceived.height + attribs.line_padding;
     
     if (measurement.constrain_vertically) {
-        f32 const max_lines_in_bounds =
+        float const max_lines_in_bounds =
             floorf(bounds.height / line_height);
         
         if (max_lines_in_bounds > SHIZSpriteFontMaxLines) {
             measurement.max_lines_in_bounds = SHIZSpriteFontMaxLines;
         } else {
             measurement.max_lines_in_bounds =
-                (u16)max_lines_in_bounds;
+                (uint16_t)max_lines_in_bounds;
         }
     } else {
         measurement.max_lines_in_bounds = UINT16_MAX;
     }
 
-    u16 character_count = 0;
-    u8 line_index = 0;
-    u16 line_character_count = 0;
-    u16 line_character_ignored_count = 0;
+    uint16_t character_count = 0;
+    uint8_t line_index = 0;
+    uint16_t line_character_count = 0;
+    uint16_t line_character_ignored_count = 0;
 
     char const whitespace_character = ' ';
     char const newline_character = '\n';
@@ -166,7 +166,7 @@ z_spritefont__measure_text(SHIZSpriteFont const font,
             (skip_leading_whitespace &&
              current_line_has_leading_whitespace);
 
-        u16 const line_character_count_perceived =
+        uint16_t const line_character_count_perceived =
             z_spritefont__perceived_count(line_character_count,
                                           line_character_ignored_count,
                                           should_skip_leading_whitespace);
@@ -297,8 +297,8 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
     SHIZSpriteFontMeasurement const measurement =
         z_spritefont__measure_text(font, text, bounds, attribs);
 
-    u8 const truncation_length = 3;
-    s32 const truncation_index = measurement.max_characters - truncation_length;
+    uint8_t const truncation_length = 3;
+    int32_t const truncation_index = measurement.max_characters - truncation_length;
     
     char const truncation_character = '.';
     char const whitespace_character = ' ';
@@ -314,7 +314,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
         character_origin.y += measurement.size.height;
     }
 
-    u16 character_count = 0;
+    uint16_t character_count = 0;
 
     bool break_from_truncation = false;
 
@@ -322,7 +322,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
 
     char const * text_ptr = text;
     
-    for (u8 line_index = 0; line_index < measurement.line_count; line_index++) {
+    for (uint8_t line_index = 0; line_index < measurement.line_count; line_index++) {
         SHIZSpriteFontLine const line = measurement.lines[line_index];
 
         if ((alignment & SHIZSpriteFontAlignmentCenter) == SHIZSpriteFontAlignmentCenter) {
@@ -331,7 +331,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
             character_origin.x -= line.size.width;
         }
 
-        u16 character_index = 0;
+        uint16_t character_index = 0;
         
         for (character_index = 0;
              character_index < line.character_count;
@@ -347,12 +347,12 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
             char const character = should_truncate ?
                 truncation_character : *text_ptr;
 
-            u32 character_size = should_truncate ?
+            uint32_t character_size = should_truncate ?
                 sizeof(character) : 0;
             // for special characters we need to find the character decimal value
             // so that we can later look up the proper index in the font codepage
-            u32 character_decimal = should_truncate ?
-                (u32)character : utf8_decode(text_ptr, &character_size);
+            uint32_t character_decimal = should_truncate ?
+                (uint32_t)character : utf8_decode(text_ptr, &character_size);
 
             text_ptr += character_size;
             
@@ -365,7 +365,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
                     // at this point, we know that 'character' is one of the numeric tint specifiers
                     // so we can determine the index like below, where a tint specifier of 1 results
                     // in an index of -1, which we then use to reset any highlight
-                    s16 const highlight_color_index = character - 2;
+                    int16_t const highlight_color_index = character - 2;
 
                     if (highlight_color_index < 0) {
                         // reset to original tint
@@ -389,7 +389,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
                 continue;
             }
 
-            s32 const character_table_index =
+            int32_t const character_table_index =
                 z_spritefont__character_table_index(&font,
                                                     character,
                                                     character_decimal);
@@ -409,7 +409,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
 
                 character_takes_space = false;
 
-                s32 const previous_text_index = character_count - 2;
+                int32_t const previous_text_index = character_count - 2;
 
                 if (previous_text_index >= 0) {
                     // note that we don't care about character byte sizes here;
@@ -435,7 +435,7 @@ z_spritefont__draw_text(SHIZSpriteFont const font,
                     z_spritefont__draw_character_index(&font,
                                                        &measurement,
                                                        character_origin,
-                                                       (u16)character_table_index,
+                                                       (uint16_t)character_table_index,
                                                        highlight_color,
                                                        layer);
                 }
@@ -467,12 +467,12 @@ void
 z_spritefont__draw_character_index(SHIZSpriteFont const * const font,
                                    SHIZSpriteFontMeasurement const * const measurement,
                                    SHIZVector2 const character_origin,
-                                   u16 const character_table_index,
+                                   uint16_t const character_table_index,
                                    SHIZColor const highlight_color,
                                    SHIZLayer const layer)
 {
-    u16 const character_row = character_table_index / font->table.columns;
-    u16 const character_column = character_table_index % font->table.columns;
+    uint16_t const character_row = character_table_index / font->table.columns;
+    uint16_t const character_column = character_table_index % font->table.columns;
     
     SHIZSprite character_sprite = SHIZSpriteEmpty;
     
@@ -505,18 +505,18 @@ z_spritefont__draw_character_index(SHIZSpriteFont const * const font,
 }
 
 static
-s32
+int32_t
 z_spritefont__character_table_index(SHIZSpriteFont const * const font,
                                     char const character,
-                                    u32 const character_decimal)
+                                    uint32_t const character_decimal)
 {
-    u32 const table_size = font->table.columns * font->table.rows;
+    uint32_t const table_size = font->table.columns * font->table.rows;
     
-    s32 character_table_index = -1;
+    int32_t character_table_index = -1;
     
     if (table_size < INT32_MAX) {
         if (font->table.codepage != NULL) {
-            for (u32 i = 0; i < table_size; i++) {
+            for (uint32_t i = 0; i < table_size; i++) {
                 if (font->table.codepage[i] == character_decimal) {
                     character_table_index = (int)i;
                     
@@ -528,7 +528,7 @@ z_spritefont__character_table_index(SHIZSpriteFont const * const font,
         }
         
         if (character_table_index < 0 ||
-            character_table_index > (s32)table_size) {
+            character_table_index > (int32_t)table_size) {
             character_table_index = -1;
         }
     }
@@ -540,12 +540,12 @@ static
 void
 z_spritefont__set_line(SHIZSpriteFontLine * const line,
                        SHIZSpriteFontMeasurement const * const measurement,
-                       f32 const line_height,
-                       u16 const character_count,
-                       u16 const character_ignored_count,
+                       float const line_height,
+                       uint16_t const character_count,
+                       uint16_t const character_ignored_count,
                        bool const skipping_leading_whitespace)
 {
-    u16 const line_character_count_perceived =
+    uint16_t const line_character_count_perceived =
         z_spritefont__perceived_count(character_count,
                                       character_ignored_count,
                                       skipping_leading_whitespace);
@@ -568,12 +568,12 @@ z_spritefont__is_tint_character(char const character)
 }
 
 static
-u16
-z_spritefont__perceived_count(u16 const count,
-                              u16 const ignored_count,
+uint16_t
+z_spritefont__perceived_count(uint16_t const count,
+                              uint16_t const ignored_count,
                               bool const skipping_leading_whitespace)
 {
-    u16 count_perceived = count;
+    uint16_t count_perceived = count;
     
     if (count_perceived >= ignored_count) {
         count_perceived -= ignored_count;

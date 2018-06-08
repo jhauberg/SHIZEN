@@ -17,6 +17,7 @@
 
 #ifdef SHIZ_DEBUG
  #include "../debug/debug.h"
+ #include "../debug/profiler.h"
 #endif
 
 #define SPRITES_MAX 128 /* flush when reaching this limit */
@@ -25,73 +26,16 @@
 
 #define VERTEX_COUNT_PER_BATCH (SPRITES_MAX * VERTEX_COUNT_PER_SPRITE)
 
-static
-void
-z_gfx__spritebatch_state(bool enable);
+static void z_gfx__spritebatch_state(bool enable);
 
 typedef struct SHIZSpriteBatch {
     SHIZVertexPositionColorTexture vertices[VERTEX_COUNT_PER_BATCH];
     SHIZRenderObject render;
     GLuint texture_id;
-    u16 count;
-    u8 _pad[2];
+    uint16_t count;
 } SHIZSpriteBatch;
 
 static SHIZSpriteBatch _spritebatch;
-
-void
-z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
-                  SHIZVector3 const origin,
-                  f32 const angle,
-                  GLuint const texture_id)
-{
-    if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set yet */
-        _spritebatch.texture_id != texture_id) {
-        if (z_gfx__spritebatch_flush()) {
-#ifdef SHIZ_DEBUG
-            z_debug__add_event_draw(SHIZDebugEventNameFlushByTextureSwitch, origin);
-#endif
-        }
-    }
-    
-    _spritebatch.texture_id = texture_id;
-    
-    if (_spritebatch.count + 1 > SPRITES_MAX) {
-        if (z_gfx__spritebatch_flush()) {
-#ifdef SHIZ_DEBUG
-            z_debug__add_event_draw(SHIZDebugEventNameFlushByCapacity, origin);
-#endif
-        }
-    }
-    
-    u32 const offset = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
-    
-    mat4x4 transform;
-    
-    z_transform__translate_rotate_scale(transform, origin, angle, 1);
-    
-    for (u8 v = 0; v < VERTEX_COUNT_PER_SPRITE; v++) {
-        SHIZVertexPositionColorTexture vertex = vertices[v];
-        
-        vec4 position = {
-            vertex.position.x,
-            vertex.position.y,
-            vertex.position.z, 1
-        };
-        
-        vec4 world_position;
-        
-        mat4x4_mul_vec4(world_position, transform, position);
-        
-        vertex.position = SHIZVector3Make(world_position[0],
-                                          world_position[1],
-                                          world_position[2]);
-        
-        _spritebatch.vertices[offset + v] = vertex;
-    }
-    
-    _spritebatch.count += 1;
-}
 
 bool
 z_gfx__init_spritebatch()
@@ -227,6 +171,60 @@ z_gfx__kill_spritebatch()
     return true;
 }
 
+void
+z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
+                  SHIZVector3 const origin,
+                  float const angle,
+                  GLuint const texture_id)
+{
+    if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set yet */
+        _spritebatch.texture_id != texture_id) {
+        if (z_gfx__spritebatch_flush()) {
+#ifdef SHIZ_DEBUG
+            z_debug__add_event_draw(SHIZDebugEventNameFlushByTextureSwitch, origin);
+#endif
+        }
+    }
+    
+    _spritebatch.texture_id = texture_id;
+    
+    if (_spritebatch.count + 1 > SPRITES_MAX) {
+        if (z_gfx__spritebatch_flush()) {
+#ifdef SHIZ_DEBUG
+            z_debug__add_event_draw(SHIZDebugEventNameFlushByCapacity, origin);
+#endif
+        }
+    }
+    
+    uint32_t const offset = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
+    
+    mat4x4 transform;
+    
+    z_transform__translate_rotate_scale(transform, origin, angle, 1);
+    
+    for (uint8_t v = 0; v < VERTEX_COUNT_PER_SPRITE; v++) {
+        SHIZVertexPositionColorTexture vertex = vertices[v];
+        
+        vec4 position = {
+            vertex.position.x,
+            vertex.position.y,
+            vertex.position.z, 1
+        };
+        
+        vec4 world_position;
+        
+        mat4x4_mul_vec4(world_position, transform, position);
+        
+        vertex.position = SHIZVector3Make(world_position[0],
+                                          world_position[1],
+                                          world_position[2]);
+        
+        _spritebatch.vertices[offset + v] = vertex;
+    }
+    
+    _spritebatch.count += 1;
+}
+
 bool
 z_gfx__spritebatch_flush()
 {
@@ -261,7 +259,7 @@ z_gfx__spritebatch_flush()
         glBindVertexArray(_spritebatch.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
                 GLsizei const count = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
-                GLsizeiptr const size = sizeof(SHIZVertexPositionColorTexture) * (u32)count;
+                GLsizeiptr const size = sizeof(SHIZVertexPositionColorTexture) * (uint32_t)count;
                 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
@@ -269,7 +267,7 @@ z_gfx__spritebatch_flush()
                                 _spritebatch.vertices);
                 glDrawArrays(GL_TRIANGLES, 0, count);
 #ifdef SHIZ_DEBUG
-                z_debug__increment_draw_count(1);
+                z_profiler__increment_draw_count(1);
 #endif
             }
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -320,7 +318,7 @@ SHIZVector3
 z_debug__get_last_sprite_origin()
 {
     if (_spritebatch.count > 0) {
-        u32 const offset = (_spritebatch.count - 1) * VERTEX_COUNT_PER_SPRITE;
+        uint32_t const offset = (_spritebatch.count - 1) * VERTEX_COUNT_PER_SPRITE;
         
         SHIZVector3 const bl = _spritebatch.vertices[offset + 2].position;
         SHIZVector3 const tr = _spritebatch.vertices[offset + 4].position;

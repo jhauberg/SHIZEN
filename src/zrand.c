@@ -10,76 +10,78 @@
 //
 
 #include <SHIZEN/zrand.h>
+#include <SHIZEN/zmath.h>
+#include <SHIZEN/ztype.h> //
 
 #include <stdlib.h> // NULL
 #include <math.h> // ldexpf, M_PI
 #include <time.h> // time()
 
 #ifdef SHIZ_DEBUG
- #include <stdio.h>
+ #include "io.h"
 #endif
 
 #include <pcg/pcg_basic.h>
 
-static u32 current_seed;
+static uint32_t current_seed;
 
 void
-z_rand_seed(u32 seed)
+z_rand_seed(uint32_t seed)
 {
     pcg32_srandom(seed, 0xda3e39cb94b95bdbULL);
     
     current_seed = seed;
     
 #ifdef SHIZ_DEBUG
-    printf("Seeding: %d\n", current_seed);
+    z_io__debug("Seeding: %d", current_seed);
 #endif
 }
 
 void
 z_rand_seed_now()
 {
-    z_rand_seed((u32)time(NULL));
+    z_rand_seed((uint32_t)time(NULL));
 }
 
-u32
+uint32_t
 z_rand_get_seed()
 {
     return current_seed;
 }
 
-u32
+uint32_t
 z_rand()
 {
     return pcg32_random();
 }
 
-s32
-z_rand_range(s32 const min, s32 const max)
+int32_t
+z_rand_range(int32_t const min, int32_t const max)
 {
-    u32 const range = (u32)abs(max - min);
-    u32 const r = pcg32_boundedrand(range + 1); // both min and max inclusive
+    uint32_t const range = (uint32_t)abs(max - min);
+    uint32_t const r = pcg32_boundedrand(range + 1); // both min and max inclusive
     
-    s32 const result = min + (s32)r;
+    int32_t const result = min + (int32_t)r;
     
     return result;
 }
 
-f32
+float
 z_randf()
 {
     return ldexpf(z_rand(), -32);
 }
 
-f32
-z_randf_range(f32 const min, f32 const max)
+float
+z_randf_range(float const min, float const max)
 {
     return z_lerp(min, max, z_randf());
 }
 
-f32
+float
 z_randf_angle()
 {
-    return z_randf_range((f32)-M_PI, (f32)M_PI);
+    return z_randf_range((float)-M_PI, (float)M_PI);
 }
 
 SHIZColor
@@ -95,7 +97,7 @@ z_rand_choice()
 }
 
 bool
-z_rand_chance(f32 const percentage)
+z_rand_chance(float const percentage)
 {
     return z_randf() < percentage;
 }
