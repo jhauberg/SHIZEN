@@ -15,6 +15,9 @@
 #define SHIZEN_VERSION_MINOR 22
 #define SHIZEN_VERSION_PATCH 0
 
+#define SHIZ_MIN_OPENGL_VERSION_MAJOR 3
+#define SHIZ_MIN_OPENGL_VERSION_MINOR 3
+
 #include <ctype.h> // toupper
 
 // use gl3w to load opengl headers
