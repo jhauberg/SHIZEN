@@ -78,3 +78,7 @@ Essential reading for implementing frame-rate independent simulation and animati
 ["Minimal OpenGL 3.3 Core Profile Demo"](http://nullprogram.com/blog/2015/06/06/)
 
 Good starting point for anyone wanting to build a new, modern, OpenGL program that is compatible with most systems.
+
+## License
+
+This is a Free Open-Source Software project released under the [MIT License](LICENSE).
