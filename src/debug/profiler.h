@@ -17,14 +17,13 @@
 #include <stdbool.h>
 
 typedef struct SHIZProfilerStats {
-    f64 frame_time;
-    f64 frame_time_avg;
-    u16 frames_per_second;
-    u16 frames_per_second_min;
-    u16 frames_per_second_max;
-    u16 frames_per_second_avg;
-    u16 draw_count;
-    u8 _pad[6];
+    double frame_time;
+    double frame_time_avg;
+    uint16_t frames_per_second;
+    uint16_t frames_per_second_min;
+    uint16_t frames_per_second_max;
+    uint16_t frames_per_second_avg;
+    uint16_t draw_count;
 } SHIZProfilerStats;
 
 bool
@@ -40,7 +39,7 @@ void
 z_profiler__end(void);
 
 void
-z_profiler__increment_draw_count(u8 amount);
+z_profiler__increment_draw_count(uint8_t amount);
 
 void
 z_profiler__set_is_profiling(bool enabled);

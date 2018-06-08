@@ -9,33 +9,23 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef mixer_h
-#define mixer_h
+#pragma once
 
-#include <stdbool.h>
+#include <stdbool.h> // bool
+#include <stdint.h> // uint8_t, int16_t, int32_t
 
-#include <SHIZEN/ztype.h>
+#include "res.h" // SHIZResourceSound
 
-#include "res.h"
+bool z_mixer__init(void);
+bool z_mixer__kill(void);
 
-bool
-z_mixer__init(void);
+void z_mixer__play_sound(uint8_t sound_resource_id);
+void z_mixer__stop_sound(uint8_t sound_resource_id);
 
-bool
-z_mixer__kill(void);
+bool z_mixer__create_sound(SHIZResourceSound * resource,
+                           int32_t channels,
+                           int32_t sample_rate,
+                           int16_t * data,
+                           int32_t size);
 
-void
-z_mixer__play_sound(u8 sound);
-void
-z_mixer__stop_sound(u8 sound);
-
-bool
-z_mixer__create_sound(SHIZResourceSound * resource,
-                      int channels,
-                      int sample_rate,
-                      short * data,
-                      int size);
-bool
-z_mixer__destroy_sound(SHIZResourceSound const * resource);
-
-#endif /* mixer_h */
+bool z_mixer__destroy_sound(SHIZResourceSound const * resource);

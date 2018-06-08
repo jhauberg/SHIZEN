@@ -9,36 +9,27 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef sprite_h
-#define sprite_h
+#pragma once
 
-#include <SHIZEN/ztype.h>
+#include <SHIZEN/ztype.h> // SHIZRect, SHIZSize, SHIZVector2, SHIZSprite
 
 /**
  * The amount of sprites that can be sorted per frame before a batch is issued.
  */
 #define SHIZSpriteMax 2048
 
-SHIZRect const
-z_sprite__anchor_rect(SHIZSize size,
-                      SHIZVector2 anchor);
+SHIZRect const z_sprite__anchor_rect(SHIZSize size, SHIZVector2 anchor);
 
-void
-z_sprite__reset(void);
+void z_sprite__reset(void);
+void z_sprite__flush(void);
 
-void
-z_sprite__flush(void);
-
-SHIZSize const
-z_sprite__draw(SHIZSprite sprite,
-               SHIZVector2 origin,
-               SHIZSpriteSize size,
-               bool repeat,
-               SHIZVector2 anchor,
-               SHIZSpriteFlipMode flip,
-               f32 angle,
-               SHIZColor tint,
-               bool opaque,
-               SHIZLayer layer);
-
-#endif // sprite_h
+SHIZSize const z_sprite__draw(SHIZSprite sprite,
+                              SHIZVector2 origin,
+                              SHIZSpriteSize size,
+                              bool repeat,
+                              SHIZVector2 anchor,
+                              SHIZSpriteFlipMode flip,
+                              float angle,
+                              SHIZColor tint,
+                              bool opaque,
+                              SHIZLayer layer);

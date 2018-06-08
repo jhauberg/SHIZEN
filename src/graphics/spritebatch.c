@@ -26,16 +26,13 @@
 
 #define VERTEX_COUNT_PER_BATCH (SPRITES_MAX * VERTEX_COUNT_PER_SPRITE)
 
-static
-void
-z_gfx__spritebatch_state(bool enable);
+static void z_gfx__spritebatch_state(bool enable);
 
 typedef struct SHIZSpriteBatch {
     SHIZVertexPositionColorTexture vertices[VERTEX_COUNT_PER_BATCH];
     SHIZRenderObject render;
     GLuint texture_id;
-    u16 count;
-    u8 _pad[2];
+    uint16_t count;
 } SHIZSpriteBatch;
 
 static SHIZSpriteBatch _spritebatch;
@@ -177,7 +174,7 @@ z_gfx__kill_spritebatch()
 void
 z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
                   SHIZVector3 const origin,
-                  f32 const angle,
+                  float const angle,
                   GLuint const texture_id)
 {
     if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set yet */
@@ -199,13 +196,13 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
         }
     }
     
-    u32 const offset = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
+    uint32_t const offset = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
     
     mat4x4 transform;
     
     z_transform__translate_rotate_scale(transform, origin, angle, 1);
     
-    for (u8 v = 0; v < VERTEX_COUNT_PER_SPRITE; v++) {
+    for (uint8_t v = 0; v < VERTEX_COUNT_PER_SPRITE; v++) {
         SHIZVertexPositionColorTexture vertex = vertices[v];
         
         vec4 position = {
@@ -262,7 +259,7 @@ z_gfx__spritebatch_flush()
         glBindVertexArray(_spritebatch.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
                 GLsizei const count = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
-                GLsizeiptr const size = sizeof(SHIZVertexPositionColorTexture) * (u32)count;
+                GLsizeiptr const size = sizeof(SHIZVertexPositionColorTexture) * (uint32_t)count;
                 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
@@ -321,7 +318,7 @@ SHIZVector3
 z_debug__get_last_sprite_origin()
 {
     if (_spritebatch.count > 0) {
-        u32 const offset = (_spritebatch.count - 1) * VERTEX_COUNT_PER_SPRITE;
+        uint32_t const offset = (_spritebatch.count - 1) * VERTEX_COUNT_PER_SPRITE;
         
         SHIZVector3 const bl = _spritebatch.vertices[offset + 2].position;
         SHIZVector3 const tr = _spritebatch.vertices[offset + 4].position;

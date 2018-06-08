@@ -9,21 +9,10 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef transform_h
-#define transform_h
+#pragma once
 
-#include "internal_type.h"
-#include "viewport.h"
+#include "internal.h" // SHIZVector3, mat4x4
+#include "viewport.h" // SHIZViewport
 
-void
-z_transform__project_ortho(mat4x4 world,
-                           mat4x4 model,
-                           SHIZViewport viewport);
-
-void
-z_transform__translate_rotate_scale(mat4x4 model,
-                                    SHIZVector3 translation,
-                                    f32 angle,
-                                    f32 scale);
-
-#endif // transform_h
+void z_transform__project_ortho(mat4x4 world, mat4x4 model, SHIZViewport viewport);
+void z_transform__translate_rotate_scale(mat4x4 model, SHIZVector3 translation, float angle, float scale);

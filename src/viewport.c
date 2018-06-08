@@ -9,13 +9,12 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include "viewport.h"
+#include "viewport.h" // SHIZViewport, z_viewport_*
 
 #include <math.h> // roundf
 
-#include "internal_type.h"
-
-#include "io.h"
+#include "internal.h" // SHIZGraphicsContext
+#include "io.h" // z_io_*
 
 SHIZViewport const SHIZViewportDefault = {
     .framebuffer = {
@@ -31,19 +30,10 @@ SHIZViewport const SHIZViewportDefault = {
 
 extern SHIZGraphicsContext const _graphics_context;
 
-static
-void
-z_viewport__apply_boxing_if_necessary(void);
+static void z_viewport__apply_boxing_if_necessary(void);
 
-static
-void
-z_viewport__determine_operating_resolution(void);
-
-static
-void
-z_viewport__determine_mode(SHIZViewportMode * mode,
-                           f32 * width,
-                           f32 * height);
+static void z_viewport__determine_operating_resolution(void);
+static void z_viewport__determine_mode(SHIZViewportMode *, float * width, float * height);
 
 // set to false to let viewport fit framebuffer (pixels will be stretched)
 #define SHIZViewportEnableBoxing true
@@ -60,11 +50,11 @@ z_viewport__get()
 SHIZRect
 z_viewport__get_clip()
 {
-    f32 const x = _viewport_offset.width / 2;
-    f32 const y = _viewport_offset.height / 2;
+    float const x = _viewport_offset.width / 2;
+    float const y = _viewport_offset.height / 2;
     
-    f32 const width = _viewport.framebuffer.width - _viewport_offset.width;
-    f32 const height = _viewport.framebuffer.height - _viewport_offset.height;
+    float const width = _viewport.framebuffer.width - _viewport_offset.width;
+    float const height = _viewport.framebuffer.height - _viewport_offset.height;
     
     return SHIZRectMake(SHIZVector2Make(x, y),
                         SHIZSizeMake(width, height));
@@ -109,8 +99,8 @@ z_viewport__apply_boxing_if_necessary()
     if (SHIZViewportEnableBoxing) {
         SHIZViewportMode mode;
         
-        f32 adjusted_width;
-        f32 adjusted_height;
+        float adjusted_width;
+        float adjusted_height;
         
         z_viewport__determine_mode(&mode, &adjusted_width, &adjusted_height);
         
@@ -127,20 +117,20 @@ z_viewport__apply_boxing_if_necessary()
 static
 void
 z_viewport__determine_mode(SHIZViewportMode * const mode,
-                           f32 * const width,
-                           f32 * const height)
+                           float * const width,
+                           float * const height)
 {
-    f32 const screen_aspect_ratio = _viewport.resolution.width / _viewport.resolution.height;
-    f32 const framebuffer_aspect_ratio = _viewport.framebuffer.width / _viewport.framebuffer.height;
+    float const screen_aspect_ratio = _viewport.resolution.width / _viewport.resolution.height;
+    float const framebuffer_aspect_ratio = _viewport.framebuffer.width / _viewport.framebuffer.height;
     
-    f32 adjusted_width = _viewport.framebuffer.width;
-    f32 adjusted_height = _viewport.framebuffer.height;
+    float adjusted_width = _viewport.framebuffer.width;
+    float adjusted_height = _viewport.framebuffer.height;
     
     *mode = SHIZViewportModeNormal;
     
     if (screen_aspect_ratio > framebuffer_aspect_ratio ||
         framebuffer_aspect_ratio > screen_aspect_ratio) {
-        f32 const targetAspectRatio = screen_aspect_ratio;
+        float const targetAspectRatio = screen_aspect_ratio;
         
         // letterbox (horizontal bars)
         adjusted_height = roundf(adjusted_width / targetAspectRatio);

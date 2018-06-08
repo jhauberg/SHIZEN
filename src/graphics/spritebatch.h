@@ -9,27 +9,16 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef spritebatch_h
-#define spritebatch_h
+#pragma once
 
-#include "internal_type.h"
+#include <stdbool.h> // bool
 
-bool
-z_gfx__init_spritebatch(void);
+#include "../internal.h" // SHIZVertexPositionColorText, SHIZVector3, GLuint
 
-bool
-z_gfx__kill_spritebatch(void);
+bool z_gfx__init_spritebatch(void);
+bool z_gfx__kill_spritebatch(void);
 
-void
-z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict vertices,
-                  SHIZVector3 origin,
-                  f32 angle,
-                  GLuint texture_id);
+void z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict vertices, SHIZVector3 origin, float angle, GLuint texture_id);
 
-bool
-z_gfx__spritebatch_flush(void);
-
-void
-z_gfx__spritebatch_reset(void);
-
-#endif // spritebatch_h
+bool z_gfx__spritebatch_flush(void);
+void z_gfx__spritebatch_reset(void);

@@ -20,9 +20,7 @@
  #include "../debug/profiler.h"
 #endif
 
-static
-void
-z_gfx__immediate_state(bool enable);
+static void z_gfx__immediate_state(bool enable);
 
 static SHIZRenderObject _renderer;
 
@@ -93,9 +91,9 @@ z_gfx__init_immediate()
 void
 z_gfx__render_immediate(GLenum const mode,
                         SHIZVertexPositionColor const * restrict const vertices,
-                        u32 const count,
+                        uint32_t const count,
                         SHIZVector3 const origin,
-                        f32 const angle)
+                        float const angle)
 {
     mat4x4 model;
     mat4x4_identity(model);

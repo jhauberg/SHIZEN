@@ -29,7 +29,7 @@ static
 void
 z_debug__draw_gizmo(SHIZVector2 location,
                     SHIZVector2 anchor,
-                    f32 angle,
+                    float angle,
                     SHIZLayer layer);
 
 static
@@ -37,7 +37,7 @@ void
 z_debug__draw_rect_bounds_ex(SHIZRect rect,
                              SHIZColor color,
                              SHIZVector2 anchor,
-                             f32 angle,
+                             float angle,
                              SHIZLayer layer,
                              bool draw_gizmo);
 
@@ -50,7 +50,7 @@ z_debug__build_stats()
 {
     SHIZViewport const viewport = z_viewport__get();
     
-    u32 const sprite_count = z_debug__get_sprite_count();
+    uint32_t const sprite_count = z_debug__get_sprite_count();
     
     char const sprite_count_tint_specifier =
         sprite_count > SHIZSpriteMax ? '\3' : '\2';
@@ -105,20 +105,20 @@ z_debug__build_stats()
 void
 z_debug__draw_events()
 {
-    f32 const line_margin = 8;
-    f32 const lane_margin = 4;
-    f32 const lane_size = 8;
+    float const line_margin = 8;
+    float const lane_margin = 4;
+    float const lane_size = 8;
     
-    u16 draw_events = 0;
+    uint16_t draw_events = 0;
     
     SHIZLayer const layer = SHIZLayerTop;
     
     SHIZSize const bounds = _graphics_context.native_size;
     
-    for (u16 i = 0; i < z_debug__get_event_count(); i++) {
+    for (uint16_t i = 0; i < z_debug__get_event_count(); i++) {
         SHIZDebugEvent const event = z_debug__get_event(i);
         
-        f32 const lane_offset =
+        float const lane_offset =
             lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
         
         SHIZVector2 const from = SHIZVector2Make(event.origin.x,
@@ -172,7 +172,7 @@ z_debug__draw_stats()
     
     SHIZSpriteFont const spritefont = z_debug__get_font();
     
-    f32 const margin = 8;
+    float const margin = 8;
     
     SHIZColor const highlight_colors[] = {
         SHIZColorFromHex(0xefec0d), // yellow
@@ -261,8 +261,8 @@ z_debug__draw_viewport()
     // axes
     SHIZLayer const axes_layer = SHIZLayeredBelow(SHIZLayerTop);
     
-    f32 const padding = 2;
-    f32 const text_padding = 2;
+    float const padding = 2;
+    float const text_padding = 2;
     
     SHIZVector2 const y_bottom =
     SHIZVector2Make(center.x, padding + text_padding);
@@ -350,7 +350,7 @@ void
 z_debug__draw_rect_bounds(SHIZRect const rect,
                           SHIZColor const color,
                           SHIZVector2 const anchor,
-                          f32 const angle,
+                          float const angle,
                           SHIZLayer const layer)
 {
     z_debug__draw_rect_bounds_ex(rect, color, anchor, angle, layer, true);
@@ -361,7 +361,7 @@ z_debug__draw_sprite_bounds(SHIZVector2 const origin,
                             SHIZSize const size,
                             SHIZColor const color,
                             SHIZVector2 const anchor,
-                            f32 const angle,
+                            float const angle,
                             SHIZLayer const layer)
 {
     z_debug__draw_rect_bounds(SHIZRectMake(origin, size),
@@ -374,7 +374,7 @@ z_debug__draw_sprite_bounds(SHIZVector2 const origin,
 void
 z_debug__draw_circle_bounds(SHIZVector2 const origin,
                             SHIZColor const color,
-                            f32 const radius,
+                            float const radius,
                             SHIZVector2 const scale,
                             SHIZLayer const layer)
 {
@@ -387,9 +387,9 @@ z_debug__draw_circle_bounds(SHIZVector2 const origin,
 }
 
 void
-z_debug__draw_points_bounds(SHIZVector2 const points[], u16 const count,
+z_debug__draw_points_bounds(SHIZVector2 const points[], uint16_t const count,
                             SHIZColor const color,
-                            f32 const angle,
+                            float const angle,
                             SHIZLayer const layer)
 {
     SHIZRect rect = SHIZRectFromPoints(points, count);
@@ -408,12 +408,12 @@ static
 void
 z_debug__draw_gizmo(SHIZVector2 const location,
                     SHIZVector2 const anchor,
-                    f32 const angle,
+                    float const angle,
                     SHIZLayer const layer)
 {
     if (angle > 0 || angle < 0) {
-        u8 const segments = 10;
-        f32 const radius = 6;
+        uint8_t const segments = 10;
+        float const radius = 6;
         
         z_draw_circle_ex(location,
                          SHIZColorWithAlpa(SHIZColorWhite, 0.1f),
@@ -430,7 +430,7 @@ z_debug__draw_gizmo(SHIZVector2 const location,
                       layer);
     }
     
-    f32 const anchor_size = 2;
+    float const anchor_size = 2;
     
     SHIZRect const anchor_rect =
         SHIZRectMake(location, SHIZSizeMake(anchor_size, anchor_size));
@@ -450,7 +450,7 @@ void
 z_debug__draw_rect_bounds_ex(SHIZRect const rect,
                              SHIZColor const color,
                              SHIZVector2 const anchor,
-                             f32 const angle,
+                             float const angle,
                              SHIZLayer const layer,
                              bool const draw_gizmo)
 {

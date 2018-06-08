@@ -9,10 +9,10 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <stdbool.h>
-#include <stdlib.h>
+#include <stdbool.h> // bool
+#include <stdlib.h> // NULL
 
-#include "internal_type.h"
+#include "internal.h" // SHIZGraphicsContext
 
 SHIZGraphicsContext _graphics_context = {
     .window = NULL,

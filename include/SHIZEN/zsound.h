@@ -9,14 +9,9 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef zsound_h
-#define zsound_h
+#pragma once
 
-#include "ztype.h"
+#include <stdint.h> // uint8_t
 
-void
-z_sound_play(u8 sound);
-void
-z_sound_stop(u8 sound);
-
-#endif /* zsound_h */
+void z_sound_play(uint8_t sound_resource_id);
+void z_sound_stop(uint8_t sound_resource_id);

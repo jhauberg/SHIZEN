@@ -9,9 +9,9 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include <SHIZEN/zinput.h>
+#include <SHIZEN/zinput.h> // SHIZInput, z_input_*
 
-#include "internal_type.h"
+#include "internal.h" // SHIZGraphicsContext, GLFWwindow
 
 extern SHIZGraphicsContext const _graphics_context;
 
@@ -62,6 +62,9 @@ z_input_update()
 
     _down[SHIZInputEscape] =
         glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !is_modified;
+    
+    _down[SHIZInputSpace] =
+        glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !is_modified;
     
     _down[SHIZInputX] = glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS;
     _down[SHIZInputZ] = glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS;

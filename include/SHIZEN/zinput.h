@@ -9,10 +9,9 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef zinput_h
-#define zinput_h
+#pragma once
 
-#include <stdbool.h>
+#include <stdbool.h> // bool
 
 typedef enum SHIZInput {
     SHIZInputUp,
@@ -21,6 +20,7 @@ typedef enum SHIZInput {
     SHIZInputRight,
     SHIZInputConfirm,
     SHIZInputEscape,
+    SHIZInputSpace,
     SHIZInputX,
     SHIZInputZ,
     SHIZInputAny
@@ -28,16 +28,8 @@ typedef enum SHIZInput {
 
 #define SHIZInputMax (SHIZInputAny + 1)
 
-void
-z_input_update(void);
+void z_input_update(void);
 
-bool
-z_input_down(SHIZInput);
-
-bool
-z_input_pressed(SHIZInput);
-
-bool
-z_input_released(SHIZInput);
-
-#endif /* zinput_h */
+bool z_input_down(SHIZInput);
+bool z_input_pressed(SHIZInput);
+bool z_input_released(SHIZInput);

@@ -9,14 +9,13 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef zlayer_h
-#define zlayer_h
+#pragma once
 
-#include "zint.h"
+#include <stdint.h> // uint8_t, UINT8_MAX
 
 typedef struct SHIZLayer {
-    u8 depth;
-    u8 layer;
+    uint8_t depth;
+    uint8_t layer;
 } SHIZLayer;
 
 extern SHIZLayer const SHIZLayerTop; // max
@@ -32,8 +31,8 @@ extern SHIZLayer const SHIZLayerBottom; // min
 
 static inline
 SHIZLayer const
-SHIZLayeredAtDepth(u8 const layer,
-                   u8 const depth)
+SHIZLayeredAtDepth(uint8_t const layer,
+                   uint8_t const depth)
 {
     SHIZLayer result;
 
@@ -45,7 +44,7 @@ SHIZLayeredAtDepth(u8 const layer,
 
 static inline
 SHIZLayer const
-SHIZLayered(u8 const layer)
+SHIZLayered(uint8_t const layer)
 {
     return SHIZLayeredAtDepth(layer, SHIZLayerDefault.depth);
 }
@@ -79,5 +78,3 @@ SHIZLayeredAbove(SHIZLayer const layer)
 
     return layer_above;
 }
-
-#endif // zlayer_h

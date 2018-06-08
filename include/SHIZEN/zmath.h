@@ -9,35 +9,20 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#ifndef zint_h
-#define zint_h
+#pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <stdbool.h> // bool
 
-#include <math.h>
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
-typedef int8_t s8;
-typedef int16_t s16;
-typedef int32_t s32;
-typedef int64_t s64;
-
-typedef float f32;
-typedef double f64;
+#include <math.h> // fabsf
 
 /**
  * @brief Determine whether two floating point values are approximately equal.
  */
 static inline
 bool
-z_fequal(f32 const a, f32 const b)
+z_fequal(float const a, float const b)
 {
-    static f64 const precision = 1.0 / 2048;
+    static double const precision = 1.0 / 2048;
     
     return fabsf(b - a) < precision;
 }
@@ -46,17 +31,15 @@ z_fequal(f32 const a, f32 const b)
  * @brief Linearly interpolate between two values.
  */
 static inline
-f32
-z_lerp(f32 const a, f32 const b, f32 const t)
+float
+z_lerp(float const a, float const b, float const t)
 {
     return (1.0f - t) * a + t * b;
 }
 
 static inline
-f64
-z_lerpf(f64 const a, f64 const b, f64 const t)
+double
+z_lerpf(double const a, double const b, double const t)
 {
     return (1.0 - t) * a + t * b;
 }
-
-#endif /* zint_h */

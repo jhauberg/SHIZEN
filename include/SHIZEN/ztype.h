@@ -14,16 +14,15 @@
 
 #include <stdbool.h>
 
-#include "zint.h"
 #include "zlayer.h"
 
 typedef struct SHIZVector2 {
-    f32 x, y;
+    float x, y;
 } SHIZVector2;
 
 typedef struct SHIZSize {
-    f32 width;
-    f32 height;
+    float width;
+    float height;
 } SHIZSize;
 
 typedef struct SHIZRect {
@@ -32,8 +31,8 @@ typedef struct SHIZRect {
 } SHIZRect;
 
 typedef struct SHIZColor {
-    f32 r, g, b;
-    f32 alpha;
+    float r, g, b;
+    float alpha;
 } SHIZColor;
 
 typedef enum SHIZDrawMode {
@@ -50,8 +49,7 @@ typedef struct SHIZSprite {
     /* The frame that specifies which part of the image to draw */
     SHIZRect source;
     /** The image resource */
-    u8 resource_id;
-    u8 _pad[3];
+    uint8_t resource_id;
 } SHIZSprite;
 
 typedef enum SHIZSpriteFlipMode {
@@ -64,8 +62,8 @@ typedef struct SHIZSpriteSheet {
     SHIZSprite resource;
     SHIZSize sprite_size;
     SHIZSize sprite_padding;
-    u16 columns;
-    u16 rows;
+    uint16_t columns;
+    uint16_t rows;
 } SHIZSpriteSheet;
 
 typedef struct SHIZSpriteSize {
@@ -88,10 +86,9 @@ typedef enum SHIZSpriteFontWrapMode {
 } SHIZSpriteFontWrapMode;
 
 typedef struct SHIZSpriteFontTable {
-    u32 const * codepage;
-    u16 columns;
-    u16 rows;
-    u8 _pad[4];
+    uint32_t const * codepage;
+    uint16_t columns;
+    uint16_t rows;
 } SHIZSpriteFontTable;
 
 /**
@@ -101,18 +98,17 @@ typedef struct SHIZSpriteFontAttributes {
     /** A scale defining the final size of the text */
     SHIZVector2 scale;
     /** A scale defining how "tight" characters are drawn */
-    f32 character_spread;
+    float character_spread;
     /** A value that adds padding to each character */
-    f32 character_padding;
+    float character_padding;
     /** A value that adds padding to each line */
-    f32 line_padding;
+    float line_padding;
     /** The word-wrapping mode */
     SHIZSpriteFontWrapMode wrap;
     /** A pointer to an array of tint colors */
     SHIZColor const * colors;
     /** The amount of colors these attributes point to */
-    u8 colors_count;
-    u8 _pad[7];
+    uint8_t colors_count;
 } SHIZSpriteFontAttributes;
 
 /**
@@ -128,7 +124,6 @@ typedef struct SHIZSpriteFont {
     /** Determines whether the font resource includes a sprite for the
       * whitespace character */
     bool includes_whitespace;
-    u8 _pad[3];
 } SHIZSpriteFont;
 
 /**
@@ -157,6 +152,7 @@ extern SHIZRect const SHIZRectEmpty;
 extern SHIZSprite const SHIZSpriteEmpty;
 extern SHIZSpriteSheet const SHIZSpriteSheetEmpty;
 extern SHIZSpriteFont const SHIZSpriteFontEmpty;
+extern SHIZSpriteFontTable const SHIZSpriteFontTableEmpty;
 
 /**
  * @brief Size a sprite to its intrinsic (or natural) size.
@@ -235,7 +231,7 @@ extern SHIZVector2 const SHIZAnchorBottomRight;
 
 static inline
 SHIZVector2 const
-SHIZVector2Make(f32 const x, f32 const y)
+SHIZVector2Make(float const x, float const y)
 {
     SHIZVector2 const vector = {
         x, y
@@ -246,7 +242,7 @@ SHIZVector2Make(f32 const x, f32 const y)
 
 static inline
 SHIZSize const
-SHIZSizeMake(f32 const width, f32 const height)
+SHIZSizeMake(float const width, float const height)
 {
     SHIZSize const size = {
         width, height
@@ -268,7 +264,7 @@ SHIZRectMake(SHIZVector2 const origin, SHIZSize const size)
 
 static inline
 SHIZRect
-SHIZRectFromPoints(SHIZVector2 const points[], u16 const count)
+SHIZRectFromPoints(SHIZVector2 const points[], uint16_t const count)
 {
     if (count == 0) {
         return SHIZRectEmpty;
@@ -277,7 +273,7 @@ SHIZRectFromPoints(SHIZVector2 const points[], u16 const count)
     SHIZVector2 min = points[0];
     SHIZVector2 max = points[0];
     
-    for (u8 i = 1; i < count; i++) {
+    for (uint8_t i = 1; i < count; i++) {
         SHIZVector2 const point = points[i];
         
         if (point.x < min.x) {
@@ -297,8 +293,8 @@ SHIZRectFromPoints(SHIZVector2 const points[], u16 const count)
         }
     }
     
-    f32 const width = max.x - min.x;
-    f32 const height = max.y - min.y;
+    float const width = max.x - min.x;
+    float const height = max.y - min.y;
     
     SHIZSize const size = SHIZSizeMake(width, height);
     
@@ -308,11 +304,11 @@ SHIZRectFromPoints(SHIZVector2 const points[], u16 const count)
 static inline
 SHIZVector2
 SHIZVector2CenterFromPoints(SHIZVector2 const points[],
-                            u16 const count)
+                            uint16_t const count)
 {
     SHIZVector2 sum = SHIZVector2Zero;
     
-    for (u8 i = 0; i < count; i++) {
+    for (uint8_t i = 0; i < count; i++) {
         SHIZVector2 const point = points[i];
         
         sum.x += point.x;
@@ -325,8 +321,8 @@ SHIZVector2CenterFromPoints(SHIZVector2 const points[],
 
 static inline
 SHIZRect const
-SHIZRectMakeEx(f32 const x, f32 const y,
-               f32 const width, f32 const height)
+SHIZRectMakeEx(float const x, float const y,
+               float const width, float const height)
 {
     return SHIZRectMake(SHIZVector2Make(x, y),
                         SHIZSizeMake(width, height));
@@ -334,10 +330,10 @@ SHIZRectMakeEx(f32 const x, f32 const y,
 
 static inline
 SHIZColor const
-SHIZColorMake(f32 const r,
-              f32 const g,
-              f32 const b,
-              f32 const alpha)
+SHIZColorMake(float const r,
+              float const g,
+              float const b,
+              float const alpha)
 {
     SHIZColor const color = {
         r, g, b, alpha
@@ -348,7 +344,7 @@ SHIZColorMake(f32 const r,
 
 static inline
 SHIZColor const
-SHIZColorFromHex(s32 const value)
+SHIZColorFromHex(int32_t const value)
 {
     SHIZColor const color = SHIZColorMake(((value >> 16) & 0xFF) / 255.0f,
                                           ((value >> 8) & 0xFF) / 255.0f,
@@ -359,7 +355,7 @@ SHIZColorFromHex(s32 const value)
 
 static inline
 SHIZColor const
-SHIZColorWithAlpa(SHIZColor const color, f32 const alpha)
+SHIZColorWithAlpa(SHIZColor const color, float const alpha)
 {
     SHIZColor result_color = color;
 
@@ -370,7 +366,7 @@ SHIZColorWithAlpa(SHIZColor const color, f32 const alpha)
 
 static inline
 SHIZColor const
-SHIZSpriteTintDefaultWithAlpa(f32 const alpha)
+SHIZSpriteTintDefaultWithAlpa(float const alpha)
 {
     return SHIZColorWithAlpa(SHIZSpriteNoTint, alpha);
 }
@@ -400,7 +396,7 @@ SHIZSpriteSizedIntrinsicallyWithScale(SHIZVector2 const scale)
 
 static inline
 SHIZSpriteFontAttributes const
-SHIZSpriteFontAttributesWithScaleAndWrap(f32 const scale,
+SHIZSpriteFontAttributesWithScaleAndWrap(float const scale,
                                          SHIZSpriteFontWrapMode const wrap)
 {
     SHIZSpriteFontAttributes attrs = SHIZSpriteFontAttributesDefault;
@@ -413,7 +409,7 @@ SHIZSpriteFontAttributesWithScaleAndWrap(f32 const scale,
 
 static inline
 SHIZSpriteFontAttributes const
-SHIZSpriteFontAttributesWithScale(f32 const scale)
+SHIZSpriteFontAttributesWithScale(float const scale)
 {
     SHIZSpriteFontWrapMode const wrap = SHIZSpriteFontAttributesDefault.wrap;
     

@@ -30,7 +30,7 @@ char const * const SHIZDebugEventNameFlushByTextureSwitch = "fls|tex";
 typedef struct SHIZDebugContext {
     SHIZSpriteFont font;
     SHIZDebugEvent events[SHIZDebugEventMax];
-    u16 event_count;
+    uint16_t event_count;
     bool is_enabled;
     bool is_expanded;
     bool is_events_enabled;
@@ -38,7 +38,7 @@ typedef struct SHIZDebugContext {
     bool draw_events;
     bool draw_axes;
     bool print_sprite_order;
-    u8 pad[7];
+    uint8_t pad[7];
 } SHIZDebugContext;
 
 static
@@ -179,7 +179,7 @@ z_debug__get_font()
     return _context.font;
 }
 
-u16
+uint16_t
 z_debug__get_event_count()
 {
     return _context.event_count;
@@ -238,7 +238,7 @@ z_debug__add_event_draw(char const * const cause,
 }
 
 SHIZDebugEvent
-z_debug__get_event(u16 const index)
+z_debug__get_event(uint16_t const index)
 {
     return _context.events[index];
 }

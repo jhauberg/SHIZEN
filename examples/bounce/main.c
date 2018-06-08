@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 
 #include <SHIZEN/shizen.h>
 
@@ -15,17 +16,17 @@ int main() {
         exit(EXIT_FAILURE);
     }
     
-    u8 const tick_frequency = 60;
+    uint8_t const tick_frequency = 60;
     
     SHIZSize const screen = z_get_display_size();
     
-    f32 const gravity = -9.81f;
-    f32 const platform_friction = 0.86f;
-    f32 const ball_radius = 16;
+    float const gravity = -9.81f;
+    float const platform_friction = 0.86f;
+    float const ball_radius = 16;
     
     SHIZVector2 const screen_center = z_get_display_point(SHIZAnchorCenter);
    
-    f32 const one_quarter_screen_height = (screen.height / 4);
+    float const one_quarter_screen_height = (screen.height / 4);
     
     SHIZSize const platform_size = SHIZSizeMake(140, 15);
     SHIZRect const platform =
@@ -39,7 +40,7 @@ int main() {
     
     SHIZAnimatable ball_squish_scale = SHIZAnimated(1);
     
-    f64 const ball_squish_duration = 0.2;
+    double const ball_squish_duration = 0.2;
     
     SHIZVector2 ball_velocity = SHIZVector2Zero;
     
@@ -63,11 +64,11 @@ int main() {
                 z_animate_vec2_add(&ball_position, ball_velocity);
                 z_animate_to(&ball_squish_scale, 1, ball_squish_duration);
                 
-                f32 const platform_top_y = platform.origin.y + platform_size.height;
-                f32 const ball_bottom_y = ball_position.value.y - (ball_radius * ball_squish_scale.result);
+                float const platform_top_y = platform.origin.y + platform_size.height;
+                float const ball_bottom_y = ball_position.value.y - (ball_radius * ball_squish_scale.result);
                 
                 if (ball_bottom_y < platform_top_y) {
-                    f32 squish_scale = 1;
+                    float squish_scale = 1;
                     
                     if (fabsf(ball_velocity.y) > ball_radius * ball_radius) {
                         squish_scale = ball_radius / fabsf(ball_velocity.y);
@@ -93,13 +94,13 @@ int main() {
             }
         }
         
-        f64 const interpolation = z_timing_end();
+        double const interpolation = z_timing_end();
         
         z_drawing_begin(SHIZColorBlack); {
             SHIZVector2 const position =
                 z_animate_vec2_blend(&ball_position, interpolation);
             
-            f32 const squish_scale =
+            float const squish_scale =
                 z_animate_blend(&ball_squish_scale, interpolation);
             
             z_draw_circle_scaled(position,

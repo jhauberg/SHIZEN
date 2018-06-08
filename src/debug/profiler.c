@@ -11,25 +11,25 @@
 
 #include "profiler.h"
 
-#include "../internal_type.h"
+#include "../internal.h"
 
 static
 void
 z_profiler__update_averages(void);
 
-static f64 const _frame_average_interval = 1.0; // in seconds
+static double const _frame_average_interval = 1.0; // in seconds
 
-static f64 _last_frame_time = 0;
-static f64 _last_average_time = 0;
+static double _last_frame_time = 0;
+static double _last_average_time = 0;
 
-static u16 _frame_samples = 0; // sample frames to calculate average
-static u16 _frame_sample_count = 0;
+static uint16_t _frame_samples = 0; // sample frames to calculate average
+static uint16_t _frame_sample_count = 0;
 
-static f64 _frame_time = 0;
-static f64 _frame_time_avg = 0;
+static double _frame_time = 0;
+static double _frame_time_avg = 0;
 
-static f64 _frame_time_samples = 0; // sample frames to calculate average
-static u16 _frame_time_sample_count = 0;
+static double _frame_time_samples = 0; // sample frames to calculate average
+static uint16_t _frame_time_sample_count = 0;
 
 static SHIZProfilerStats _stats;
 
@@ -62,7 +62,7 @@ z_profiler__begin()
 }
 
 void
-z_profiler__increment_draw_count(u8 const amount)
+z_profiler__increment_draw_count(uint8_t const amount)
 {
     if (_is_profiling) {
         _stats.draw_count += amount;
@@ -72,13 +72,13 @@ z_profiler__increment_draw_count(u8 const amount)
 void
 z_profiler__end()
 {
-    f64 const time = glfwGetTime();
-    f64 const time_since_last_frame = time - _last_frame_time;
+    double const time = glfwGetTime();
+    double const time_since_last_frame = time - _last_frame_time;
     
     _frame_time = time_since_last_frame;
     _last_frame_time = time;
     
-    _stats.frames_per_second = (u16)(1.0 / _frame_time);
+    _stats.frames_per_second = (uint16_t)(1.0 / _frame_time);
     
     if (_stats.frames_per_second < _stats.frames_per_second_min) {
         _stats.frames_per_second_min = _stats.frames_per_second;
@@ -94,7 +94,7 @@ z_profiler__end()
     _frame_time_samples += _frame_time;
     _frame_time_sample_count++;
     
-    f64 const time_since_last_average = time - _last_average_time;
+    double const time_since_last_average = time - _last_average_time;
     
     if (time_since_last_average >= _frame_average_interval) {
         _last_average_time = time;

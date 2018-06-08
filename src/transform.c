@@ -35,8 +35,8 @@ z_transform__project_ortho(mat4x4 world,
 void
 z_transform__translate_rotate_scale(mat4x4 model,
                                     SHIZVector3 const translation,
-                                    f32 const angle,
-                                    f32 const scale)
+                                    float const angle,
+                                    float const scale)
 {
     mat4x4 translated;
     mat4x4_translate(translated, translation.x, translation.y, translation.z);

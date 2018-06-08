@@ -2844,8 +2844,8 @@ static int vorbis_decode_packet_rest(vorb *f, int *len, Mode *m, int left_start,
    (void)left_end;
    Mapping *map;
    int i,j,k,n,n2;
-   int zero_channel[256];
-   int really_zero_channel[256];
+   int zero_channel[256] = { 0 };
+   int really_zero_channel[256] = { 0 };
 
 // WINDOWING
 

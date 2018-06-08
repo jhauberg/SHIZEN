@@ -37,21 +37,11 @@ z_gfx__process_errors(void);
 
 extern SHIZSprite _spr_white_1x1;
 
-static
-bool
-z_gfx__init_post(void);
+static bool z_gfx__init_post(void);
+static bool z_gfx__kill_post(void);
+static void z_gfx__render_post(void);
 
-static
-bool
-z_gfx__kill_post(void);
-
-static
-void
-z_gfx__render_post(void);
-
-static
-bool
-z_gfx__load_default_texture(void);
+static bool z_gfx__load_default_texture(void);
 
 #define VERTEX_COUNT_PER_FRAME 4
 
@@ -198,7 +188,7 @@ z_gfx__flush()
 void
 z_gfx__render(GLenum const mode,
               SHIZVertexPositionColor const * restrict const vertices,
-              u32 const count)
+              uint32_t const count)
 {
     z_gfx__render_ex(mode, vertices, count, SHIZVector3Zero, 0);
 }
@@ -206,9 +196,9 @@ z_gfx__render(GLenum const mode,
 void
 z_gfx__render_ex(GLenum const mode,
                  SHIZVertexPositionColor const * restrict const vertices,
-                 u32 const count,
+                 uint32_t const count,
                  SHIZVector3 const origin,
-                 f32 const angle)
+                 float const angle)
 {
     z_gfx__render_immediate(mode, vertices, count, origin, angle);
 }
@@ -216,7 +206,7 @@ z_gfx__render_ex(GLenum const mode,
 void
 z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict const vertices,
                      SHIZVector3 const origin,
-                     f32 const angle,
+                     float const angle,
                      GLuint const texture_id)
 {
     z_gfx__add_sprite(vertices, origin, angle, texture_id);
@@ -224,10 +214,10 @@ z_gfx__render_sprite(SHIZVertexPositionColorTexture const * restrict const verti
 
 bool
 z_gfx__create_texture(SHIZResourceImage * const resource,
-                      int const width,
-                      int const height,
-                      int const components,
-                      unsigned char * const data)
+                      int32_t const width,
+                      int32_t const height,
+                      int32_t const components,
+                      uint8_t * const data)
 {
     if (resource == NULL) {
         return false;
@@ -422,7 +412,7 @@ static
 bool
 z_gfx__load_default_texture()
 {
-    u8 const white_resource_id = z_res__load_data(SHIZResourceTypeImage,
+    uint8_t const white_resource_id = z_res__load_data(SHIZResourceTypeImage,
                                                   WHITE_1x1,
                                                   WHITE_1x1_SIZE);
     

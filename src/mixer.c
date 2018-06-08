@@ -9,12 +9,14 @@
 // under the terms of the MIT license. See LICENSE for details.
 //
 
-#include "mixer.h"
-#include "io.h"
+#include "mixer.h" // z_mixer_*
+#include "res.h" // SHIZResourceSound
+#include "io.h" // z_io_*
 
 #include <stdlib.h> // NULL
+#include <stdint.h> // uint8_t, int16_t, in32_t
 
-#include "internal_type.h"
+#include "internal.h" // ALCdevice, ALCcontext, ALenum, al*
 
 #ifdef SHIZ_DEBUG
 static
@@ -79,9 +81,9 @@ z_mixer__kill()
 }
 
 void
-z_mixer__play_sound(u8 const sound)
+z_mixer__play_sound(uint8_t const sound_resource_id)
 {
-    SHIZResourceSound const resource = z_res__sound(sound);
+    SHIZResourceSound const resource = z_res__sound(sound_resource_id);
     
     alSourcePlay(resource.source_id);
 #ifdef SHIZ_DEBUG
@@ -90,9 +92,9 @@ z_mixer__play_sound(u8 const sound)
 }
 
 void
-z_mixer__stop_sound(u8 const sound)
+z_mixer__stop_sound(uint8_t const sound_resource_id)
 {
-    SHIZResourceSound const resource = z_res__sound(sound);
+    SHIZResourceSound const resource = z_res__sound(sound_resource_id);
     
     alSourceStop(resource.source_id);
 #ifdef SHIZ_DEBUG
@@ -102,10 +104,10 @@ z_mixer__stop_sound(u8 const sound)
 
 bool
 z_mixer__create_sound(SHIZResourceSound * const resource,
-                      int const channels,
-                      int const sample_rate,
-                      short * const data,
-                      int size)
+                      int32_t const channels,
+                      int32_t const sample_rate,
+                      int16_t * const data,
+                      int32_t size)
 {
     if (resource == NULL) {
         return false;
