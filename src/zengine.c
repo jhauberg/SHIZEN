@@ -333,7 +333,7 @@ z_engine__intro(char const * const description)
     printf(" SHIZEN %d.%d.%d / %s (built %s, %s)\n",
            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
            mode, __DATE__, __TIME__);
-    printf(" Copyright (c) 2017-2018 Jacob Hauberg Hansen\n\n");
+    printf(" Copyright (c) 2016-2018 Jacob Hauberg Hansen\n\n");
 
     if (description != NULL) {
         printf("%s\n", description);
