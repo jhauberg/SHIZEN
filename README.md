@@ -50,7 +50,8 @@ But let's not get into that. It's all about the journey anyway, right?
 
 * [`whitgl`](https://github.com/whitingjp/whitgl) by Jonathan Whiting
 * [`Punity`](https://github.com/martincohen/Punity) by Martin Cohen
-* [`Allegro`](https://github.com/liballeg/allegro5) by Community/Shawn Hargreaves
+* [`Allegro`](https://github.com/liballeg/allegro5) by Shawn Hargreaves
+* [`raylib`](https://github.com/raysan5/raylib) by Ramon Santamaria
 
 ### Articles
 
@@ -72,4 +73,8 @@ This article has helped a lot. Though I've decided on other practices in some ca
 
 ["Fix Your Timestep!"](http://gafferongames.com/game-physics/fix-your-timestep/)
 
-Essential reading for implementing frame-rate independent simulation.
+Essential reading for implementing frame-rate independent simulation and animation.
+
+["Minimal OpenGL 3.3 Core Profile Demo"](http://nullprogram.com/blog/2015/06/06/)
+
+Good starting point for anyone wanting to build a new, modern, OpenGL program that is compatible with most systems.
