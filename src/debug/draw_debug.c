@@ -214,21 +214,6 @@ z_debug__draw_stats()
                            SHIZSpriteFontParametersMake(SHIZSpriteFontAlignmentTop|SHIZSpriteFontAlignmentRight,
                                                         layer,
                                                         SHIZSpriteNoTint));
-    
-    char version_buffer[64] = { 0 };
-    
-    sprintf(version_buffer, "SHIZEN %d.%d.%d",
-            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH);
-    
-    z_draw_text_ex(spritefont,
-                   version_buffer,
-                   SHIZVector2Make(bounds.width - margin / 2,
-                                   margin / 2),
-                   SHIZSpriteFontSizeToFit,
-                   attrs,
-                   SHIZSpriteFontAlignmentBottom|SHIZSpriteFontAlignmentRight,
-                   SHIZSpriteTintDefaultWithAlpa(0.15f),
-                   layer);
 }
 
 void
