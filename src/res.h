@@ -14,8 +14,6 @@
 #include <stdbool.h> // bool
 #include <stdint.h> // uint8_t, uint16_t
 
-#include "internal.h" // todo: preferaby get rid of this! only needed for GL/ALuint
-
 typedef enum SHIZResourceType {
     SHIZResourceTypeNotSupported,
     SHIZResourceTypeImage,
@@ -24,7 +22,7 @@ typedef enum SHIZResourceType {
 
 typedef struct SHIZResourceImage {
     char const * filename;
-    GLuint texture_id;
+    uint32_t texture_id;
     uint16_t width;
     uint16_t height;
     uint8_t resource_id;
@@ -32,8 +30,8 @@ typedef struct SHIZResourceImage {
 
 typedef struct SHIZResourceSound {
     char const * filename;
-    ALuint source_id;
-    ALuint buffer_id;
+    uint32_t source_id;
+    uint32_t buffer_id;
     uint8_t resource_id;
 } SHIZResourceSound;
 

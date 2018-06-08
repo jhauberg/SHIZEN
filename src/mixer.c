@@ -18,6 +18,9 @@
 
 #include "internal.h" // ALCdevice, ALCcontext, ALenum, al*
 
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+
 #ifdef SHIZ_DEBUG
 static
 void
