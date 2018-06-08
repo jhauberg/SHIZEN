@@ -313,6 +313,15 @@ static
 void
 z_engine__intro(char const * const description)
 {
+    char const * const watermark =
+    "\n"
+    "  __|  |  | _ _| __  /  __|   \\ |\n"
+    "\\__ \\  __ |   |     /   _|   .  |\n"
+    "____/ _| _| ___| ____| ___| _|\\_|\n"
+    "\n";
+    
+    printf(watermark);
+    
     char const * mode = "";
     
 #ifdef SHIZ_DEBUG
@@ -320,21 +329,15 @@ z_engine__intro(char const * const description)
 #else
     mode = "RELEASE";
 #endif
-
-    printf("\n");
-    printf("  __|  |  | _ _| __  /  __|   \\ |\n");
-    printf("\\__ \\  __ |   |     /   _|   .  |\n");
-    printf("____/ _| _| ___| ____| ___| _|\\_|\n\n");
-    printf(" SHIZEN %d.%d.%d / %s %s (built %s, %s)\n",
+    
+    printf(" SHIZEN %d.%d.%d / %s (built %s, %s)\n",
            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
-           SHIZEN_VERSION_NAME, mode, __DATE__, __TIME__);
-    printf(" Copyright (c) 2017 Jacob Hauberg Hansen\n\n");
+           mode, __DATE__, __TIME__);
+    printf(" Copyright (c) 2017-2018 Jacob Hauberg Hansen\n\n");
 
     if (description != NULL) {
         printf("%s\n", description);
     }
-
-    printf(" ----------------\n");
 }
 
 static

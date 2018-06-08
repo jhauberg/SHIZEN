@@ -12,10 +12,8 @@
 #pragma once
 
 #define SHIZEN_VERSION_MAJOR 0
-#define SHIZEN_VERSION_MINOR 21
-#define SHIZEN_VERSION_PATCH 1
-
-#define SHIZEN_VERSION_NAME "ALPHA"
+#define SHIZEN_VERSION_MINOR 22
+#define SHIZEN_VERSION_PATCH 0
 
 #include <ctype.h> // toupper
 

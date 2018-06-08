@@ -217,9 +217,8 @@ z_debug__draw_stats()
     
     char version_buffer[64] = { 0 };
     
-    sprintf(version_buffer, "SHIZEN %d.%d.%d / %s",
-            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH,
-            SHIZEN_VERSION_NAME);
+    sprintf(version_buffer, "SHIZEN %d.%d.%d",
+            SHIZEN_VERSION_MAJOR, SHIZEN_VERSION_MINOR, SHIZEN_VERSION_PATCH);
     
     z_draw_text_ex(spritefont,
                    version_buffer,
