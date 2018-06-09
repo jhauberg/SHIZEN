@@ -10,8 +10,6 @@
 #include "res.h"
 
 #ifdef SHIZ_DEBUG
- #include <stdio.h> // printf
-
  #include "debug/sprite_debug.h" // z_debug__get_sprite_count
 #endif
 
@@ -39,7 +37,9 @@ typedef struct SHIZSpriteList {
     uint16_t count;
 } SHIZSpriteList;
 
-static int32_t z_sprite__compare(void const * sprite, void const * other_sprite);
+static int32_t z_sprite__compare(void const * sprite,
+                                 void const * other_sprite);
+
 static void z_sprite__sort(void);
 
 static void z_sprite__set_position(SHIZSpriteObject * sprite,
@@ -142,14 +142,14 @@ z_sprite__anchor_rect(SHIZSize const size,
 }
 
 void
-z_sprite__reset()
+z_sprite__reset(void)
 {
     _sprite_list.count = 0;
     _sprite_list.total = 0;
 }
 
 void
-z_sprite__flush()
+z_sprite__flush(void)
 {
     if (_sprite_list.count == 0) {
         return;
@@ -195,7 +195,7 @@ z_sprite__compare(void const * const sprite,
 
 static
 void
-z_sprite__sort()
+z_sprite__sort(void)
 {
     // sort sprites based on their layer parameters,
     // but also optimized for reduced state switching
@@ -321,7 +321,7 @@ z_sprite__set_uv(SHIZSpriteObject * const sprite,
 #ifdef SHIZ_DEBUG
 
 uint32_t
-z_debug__get_sprite_count()
+z_debug__get_sprite_count(void)
 {
     return _sprite_list.total;
 }

@@ -1,6 +1,6 @@
-#include <SHIZEN/shizen.h>
+#include <SHIZEN/shizen.h> // z_*
 
-#include <stdio.h> // sprintf, printf
+#include <stdio.h> // fprintf, printf
 
 #include "graphics/gfx.h"
 
@@ -14,7 +14,7 @@
  #include "debug/recorder.h"
 #endif
 
-const SHIZWindowSettings SHIZWindowSettingsDefault = {
+SHIZWindowSettings const SHIZWindowSettingsDefault = {
     .title = "SHIZEN",
     .description = NULL,
     .fullscreen = false,
@@ -43,72 +43,38 @@ SHIZGraphicsContext _graphics_context = {
     .should_finish = false
 };
 
-static
-void
-z_engine__error_callback(int error, char const * description);
+static void z_engine__error_callback(int32_t error, char const * description);
 
-static
-void
-z_engine__window_close_callback(GLFWwindow *);
+static void z_engine__window_close_callback(GLFWwindow *);
+static void z_engine__window_focus_callback(GLFWwindow *, int32_t focused);
 
-static
-void
-z_engine__window_focus_callback(GLFWwindow *, int focused);
+static void z_engine__key_callback(GLFWwindow * window,
+                                   int32_t key,
+                                   int32_t scancode,
+                                   int32_t action,
+                                   int32_t mods);
 
-static
-void
-z_engine__key_callback(GLFWwindow * const window,
-                       int key, int scancode, int action, int mods);
+static void z_engine__framebuffer_size_callback(GLFWwindow *,
+                                                int32_t width,
+                                                int32_t height);
 
-static
-void
-z_engine__framebuffer_size_callback(GLFWwindow *,
-                                    int width, int height);
+static bool z_engine__create_window(bool fullscreen, char const * title);
+static void z_engine__toggle_windowed(GLFWwindow *);
 
-static
-bool
-z_engine__create_window(bool fullscreen,
-                        char const * title);
+static bool z_engine__is_fullscreen(void);
 
-static
-void
-z_engine__toggle_windowed(GLFWwindow *);
+static uint8_t z_engine__get_refresh_rate(void);
+static float z_engine__get_pixel_scale(void);
 
-static
-bool
-z_engine__is_fullscreen(void);
+static SHIZSize z_engine__get_window_size(void);
+static SHIZSize z_engine__get_framebuffer_size(void);
 
-static
-float
-z_engine__get_pixel_scale(void);
+static SHIZViewport z_engine__build_viewport(void);
 
-static
-SHIZSize
-z_engine__get_window_size(void);
+static bool z_engine__can_run(void);
 
-static
-SHIZSize
-z_engine__get_framebuffer_size(void);
-
-static
-SHIZViewport
-z_engine__build_viewport(void);
-
-static
-bool
-z_engine__can_run(void);
-
-static
-void
-z_engine__intro(char const * description);
-
-static
-void
-z_engine__intro_gl(void);
-
-static
-uint8_t
-z_engine__get_refresh_rate(void);
+static void z_engine__intro(char const * description);
+static void z_engine__intro_gl(void);
 
 static SHIZVector2 _preferred_window_position;
 
@@ -244,7 +210,7 @@ z_shutdown(void)
 }
 
 void
-z_engine__present_frame()
+z_engine__present_frame(void)
 {
     glfwSwapBuffers(_graphics_context.window);
    
@@ -258,19 +224,19 @@ z_engine__present_frame()
 }
 
 void
-z_request_finish()
+z_request_finish(void)
 {
     _graphics_context.should_finish = true;
 }
 
 bool
-z_should_finish()
+z_should_finish(void)
 {
     return _graphics_context.should_finish;
 }
 
 SHIZSize
-z_get_display_size()
+z_get_display_size(void)
 {
     return _graphics_context.native_size;
 }
@@ -298,7 +264,7 @@ z_get_display_point(SHIZVector2 const anchor)
 
 static
 SHIZViewport
-z_engine__build_viewport()
+z_engine__build_viewport(void)
 {
     SHIZViewport viewport = SHIZViewportDefault;
 
@@ -342,7 +308,7 @@ z_engine__intro(char const * const description)
 
 static
 void
-z_engine__intro_gl()
+z_engine__intro_gl(void)
 {
     printf(" OPENGL VERSION:  %s (GLSL %s)\n",
            glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -354,10 +320,10 @@ z_engine__intro_gl()
 
 static
 bool
-z_engine__can_run()
+z_engine__can_run(void)
 {
-    int major;
-    int minor;
+    int32_t major;
+    int32_t minor;
     
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
@@ -392,8 +358,8 @@ z_engine__create_window(bool const fullscreen,
         if (monitor) {
             GLFWvidmode const * const mode = glfwGetVideoMode(monitor);
             
-            int const display_width = mode->width;
-            int const display_height = mode->height;
+            int32_t const display_width = mode->width;
+            int32_t const display_height = mode->height;
             
             _graphics_context.window = glfwCreateWindow(display_width, display_height,
                                                         title, glfwGetPrimaryMonitor(), NULL);
@@ -404,8 +370,8 @@ z_engine__create_window(bool const fullscreen,
             _preferred_window_position.y = (display_height / 2) - (visible_size.height / 2);
         }
     } else {
-        _graphics_context.window = glfwCreateWindow((int)visible_size.width,
-                                                    (int)visible_size.height,
+        _graphics_context.window = glfwCreateWindow((int32_t)visible_size.width,
+                                                    (int32_t)visible_size.height,
                                                     title, NULL, NULL);
     }
     
@@ -432,10 +398,10 @@ z_engine__create_window(bool const fullscreen,
 
 static
 SHIZSize
-z_engine__get_window_size()
+z_engine__get_window_size(void)
 {
-    int window_width;
-    int window_height;
+    int32_t window_width;
+    int32_t window_height;
     
     glfwGetWindowSize(_graphics_context.window,
                       &window_width, &window_height);
@@ -445,10 +411,10 @@ z_engine__get_window_size()
 
 static
 SHIZSize
-z_engine__get_framebuffer_size()
+z_engine__get_framebuffer_size(void)
 {
-    int framebuffer_width;
-    int framebuffer_height;
+    int32_t framebuffer_width;
+    int32_t framebuffer_height;
     
     // determine pixel size of the framebuffer for the window
     // this size is not necesarilly equal to the size of the window, as some
@@ -461,7 +427,7 @@ z_engine__get_framebuffer_size()
 
 static
 float
-z_engine__get_pixel_scale()
+z_engine__get_pixel_scale(void)
 {
     SHIZSize const framebuffer = z_engine__get_framebuffer_size();
     SHIZSize const window = z_engine__get_window_size();
@@ -472,7 +438,7 @@ z_engine__get_pixel_scale()
 
 static
 uint8_t
-z_engine__get_refresh_rate()
+z_engine__get_refresh_rate(void)
 {
     GLFWmonitor * const monitor = glfwGetPrimaryMonitor();
     
@@ -489,7 +455,7 @@ z_engine__get_refresh_rate()
 
 static
 bool
-z_engine__is_fullscreen()
+z_engine__is_fullscreen(void)
 {
     if (_graphics_context.window != NULL) {
         return glfwGetWindowMonitor(_graphics_context.window) != NULL;
@@ -504,15 +470,15 @@ z_engine__toggle_windowed(GLFWwindow * const window)
 {
     bool const is_currently_fullscreen = z_engine__is_fullscreen();
 
-    int window_position_x = (int)_preferred_window_position.x;
-    int window_position_y = (int)_preferred_window_position.y;
+    int32_t window_position_x = (int32_t)_preferred_window_position.x;
+    int32_t window_position_y = (int32_t)_preferred_window_position.y;
     
     if (is_currently_fullscreen) {
         // go windowed
         glfwSetWindowMonitor(window, NULL,
                              window_position_x, window_position_y,
-                             (int)_graphics_context.display_size.width,
-                             (int)_graphics_context.display_size.height,
+                             (int32_t)_graphics_context.display_size.width,
+                             (int32_t)_graphics_context.display_size.height,
                              0);
     } else {
         // go fullscreen
@@ -540,10 +506,10 @@ z_engine__toggle_windowed(GLFWwindow * const window)
 static
 void
 z_engine__key_callback(GLFWwindow * const window,
-                       int const key,
-                       int const scancode,
-                       int const action,
-                       int const mods)
+                       int32_t const key,
+                       int32_t const scancode,
+                       int32_t const action,
+                       int32_t const mods)
 {
     (void)scancode;
     // todo: we should use input to handle this stuff; i.e. create specialized input key that trigger this stuff
@@ -584,8 +550,7 @@ z_engine__key_callback(GLFWwindow * const window,
 
 static
 void
-z_engine__error_callback(int const error,
-                         char const * const description)
+z_engine__error_callback(int32_t const error, char const * const description)
 {
     fprintf(stderr, "GLFW: %d %s", error, description);
 }
@@ -602,7 +567,7 @@ z_engine__window_close_callback(GLFWwindow * const window)
 static
 void
 z_engine__window_focus_callback(GLFWwindow * const window,
-                                int const focused)
+                                int32_t const focused)
 {
     (void)window;
 
@@ -612,8 +577,8 @@ z_engine__window_focus_callback(GLFWwindow * const window,
 static
 void
 z_engine__framebuffer_size_callback(GLFWwindow * const window,
-                                    int const width,
-                                    int const height)
+                                    int32_t const width,
+                                    int32_t const height)
 {
     (void)window;
     (void)width;
@@ -627,7 +592,8 @@ z_engine__framebuffer_size_callback(GLFWwindow * const window,
     
 #ifdef SHIZ_DEBUG
     if (z_recorder_is_recording()) {
-        printf("Switching window mode is not supported while recording; stopping recording\n");
+        printf("Switching window mode is not supported while recording; "
+               "stopping recording\n");
         
         z_recorder__stop();
     }

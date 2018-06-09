@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h> // bool
-#include <stdint.h> // uint8_t, int16_t, int32_t
+#include <stdint.h> // int16_t, int32_t
 
 #include "res.h" // SHIZResourceSound
 

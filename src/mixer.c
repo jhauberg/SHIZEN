@@ -13,9 +13,7 @@
 #include <OpenAL/alc.h> // alc*
 
 #ifdef SHIZ_DEBUG
-static
-void
-z_mixer__process_errors(void);
+static void z_mixer__process_errors(void);
 #endif
 
 static ALCdevice * _device;
@@ -55,7 +53,7 @@ z_mixer__init(void)
 }
 
 bool
-z_mixer__kill()
+z_mixer__kill(void)
 {
     if (_device == NULL) {
         return false;
@@ -156,7 +154,7 @@ z_sound_stop(uint8_t const sound_resource_id)
 #ifdef SHIZ_DEBUG
 static
 void
-z_mixer__process_errors()
+z_mixer__process_errors(void)
 {
     ALCenum error;
     

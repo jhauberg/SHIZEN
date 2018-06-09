@@ -22,7 +22,9 @@ extern SHIZGraphicsContext const _graphics_context;
 static void z_viewport__apply_boxing_if_necessary(void);
 
 static void z_viewport__determine_operating_resolution(void);
-static void z_viewport__determine_mode(SHIZViewportMode *, float * width, float * height);
+static void z_viewport__determine_mode(SHIZViewportMode *,
+                                       float * width,
+                                       float * height);
 
 // set to false to let viewport fit framebuffer (pixels will be stretched)
 #define SHIZViewportEnableBoxing true
@@ -31,13 +33,13 @@ static SHIZViewport _viewport;
 static SHIZSize _viewport_offset;
 
 SHIZViewport
-z_viewport__get()
+z_viewport__get(void)
 {
     return _viewport;
 }
 
 SHIZRect
-z_viewport__get_clip()
+z_viewport__get_clip(void)
 {
     float const x = _viewport_offset.width / 2;
     float const y = _viewport_offset.height / 2;
@@ -65,7 +67,7 @@ z_viewport__set(SHIZViewport const viewport)
 
 static
 void
-z_viewport__determine_operating_resolution()
+z_viewport__determine_operating_resolution(void)
 {
     if ((_viewport.resolution.width < _viewport.framebuffer.width ||
          _viewport.resolution.width > _viewport.framebuffer.width) ||
@@ -81,23 +83,25 @@ z_viewport__determine_operating_resolution()
 
 static
 void
-z_viewport__apply_boxing_if_necessary()
+z_viewport__apply_boxing_if_necessary(void)
 {
     _viewport_offset = SHIZSizeZero;
     
     if (SHIZViewportEnableBoxing) {
         SHIZViewportMode mode;
         
-        float adjusted_width;
-        float adjusted_height;
+        SHIZSize target = SHIZSizeZero;
         
-        z_viewport__determine_mode(&mode, &adjusted_width, &adjusted_height);
+        z_viewport__determine_mode(&mode, &target.width, &target.height);
+        
+        SHIZSize const framebuffer = _viewport.framebuffer;
         
         if (mode != SHIZViewportModeNormal) {
-            _viewport_offset = SHIZSizeMake(_viewport.framebuffer.width - adjusted_width,
-                                            _viewport.framebuffer.height - adjusted_height);
+            _viewport_offset = SHIZSizeMake(framebuffer.width - target.width,
+                                            framebuffer.height - target.height);
             
-            printf("Aspect ratio mismatch between the operating resolution and the framebuffer; enabling %s\n",
+            printf("Aspect ratio mismatch between the operating resolution and "
+                   "the framebuffer; enabling %s\n",
                    (mode == SHIZViewportModeLetterbox ?
                         "letterboxing" : "pillarboxing"));
         }
@@ -110,8 +114,10 @@ z_viewport__determine_mode(SHIZViewportMode * const mode,
                            float * const width,
                            float * const height)
 {
-    float const screen_aspect_ratio = _viewport.resolution.width / _viewport.resolution.height;
-    float const framebuffer_aspect_ratio = _viewport.framebuffer.width / _viewport.framebuffer.height;
+    float const screen_aspect_ratio =
+        _viewport.resolution.width / _viewport.resolution.height;
+    float const framebuffer_aspect_ratio =
+        _viewport.framebuffer.width / _viewport.framebuffer.height;
     
     float adjusted_width = _viewport.framebuffer.width;
     float adjusted_height = _viewport.framebuffer.height;

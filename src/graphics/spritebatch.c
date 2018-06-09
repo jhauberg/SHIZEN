@@ -10,7 +10,7 @@
 
 #define SPRITES_MAX 128 /* flush when reaching this limit */
 
-#define VERTEX_COUNT_PER_SPRITE (2 * 3) /* 2 triangles per batched quad = 6 vertices */
+#define VERTEX_COUNT_PER_SPRITE (2 * 3) /* 2 triangles per quad = 6 vertices */
 
 #define VERTEX_COUNT_PER_BATCH (SPRITES_MAX * VERTEX_COUNT_PER_SPRITE)
 
@@ -26,7 +26,7 @@ typedef struct SHIZSpriteBatch {
 static SHIZSpriteBatch _spritebatch;
 
 bool
-z_gfx__init_spritebatch()
+z_gfx__init_spritebatch(void)
 {
     char const * const vertex_shader =
     "#version 330 core\n"
@@ -69,8 +69,10 @@ z_gfx__init_spritebatch()
     "    }\n"
     "}";
 
-    GLuint const vs = z_gfx__compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint const fs = z_gfx__compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = z_gfx__compile_shader(GL_VERTEX_SHADER,
+                                            vertex_shader);
+    GLuint const fs = z_gfx__compile_shader(GL_FRAGMENT_SHADER,
+                                            fragment_shader);
     
     if (!vs && !fs) {
         return false;
@@ -109,7 +111,7 @@ z_gfx__init_spritebatch()
                                   GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach color component
-                                  (GLvoid*)(sizeof(SHIZVector3)));
+                                  (GLvoid *)(sizeof(SHIZVector3)));
             glEnableVertexAttribArray(1);
             
             glVertexAttribPointer(2 /* texture coord location */,
@@ -117,8 +119,8 @@ z_gfx__init_spritebatch()
                                   GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach texture coord component
-                                  (GLvoid*)(sizeof(SHIZVector3) +
-                                            sizeof(SHIZColor)));
+                                  (GLvoid *)(sizeof(SHIZVector3) +
+                                             sizeof(SHIZColor)));
             glEnableVertexAttribArray(2);
             
             glVertexAttribPointer(3 /* texture coord scale location */,
@@ -126,9 +128,9 @@ z_gfx__init_spritebatch()
                                   GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach texture coord min component
-                                  (GLvoid*)(sizeof(SHIZVector3) +
-                                            sizeof(SHIZColor) +
-                                            sizeof(SHIZVector2)));
+                                  (GLvoid *)(sizeof(SHIZVector3) +
+                                             sizeof(SHIZColor) +
+                                             sizeof(SHIZVector2)));
             glEnableVertexAttribArray(3);
             
             glVertexAttribPointer(4 /* texture coord scale location */,
@@ -136,10 +138,10 @@ z_gfx__init_spritebatch()
                                   GL_FLOAT, GL_FALSE,
                                   stride,
                                   // offset to reach texture coord max component
-                                  (GLvoid*)(sizeof(SHIZVector3) +
-                                            sizeof(SHIZColor) +
-                                            sizeof(SHIZVector2) +
-                                            sizeof(SHIZVector2)));
+                                  (GLvoid *)(sizeof(SHIZVector3) +
+                                             sizeof(SHIZColor) +
+                                             sizeof(SHIZVector2) +
+                                             sizeof(SHIZVector2)));
             glEnableVertexAttribArray(4);
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -150,7 +152,7 @@ z_gfx__init_spritebatch()
 }
 
 bool
-z_gfx__kill_spritebatch()
+z_gfx__kill_spritebatch(void)
 {
     glDeleteProgram(_spritebatch.render.program);
     glDeleteVertexArrays(1, &_spritebatch.render.vao);
@@ -165,7 +167,7 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
                   float const angle,
                   GLuint const texture_id)
 {
-    if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set yet */
+    if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set */
         _spritebatch.texture_id != texture_id) {
         if (z_gfx__spritebatch_flush()) {
             // texture switch requires flushing
@@ -210,7 +212,7 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
 }
 
 bool
-z_gfx__spritebatch_flush()
+z_gfx__spritebatch_flush(void)
 {
     if (_spritebatch.count == 0) {
         return false;
@@ -235,8 +237,11 @@ z_gfx__spritebatch_flush()
     glBindTexture(GL_TEXTURE_2D, _spritebatch.texture_id); {
         glBindVertexArray(_spritebatch.render.vao); {
             glBindBuffer(GL_ARRAY_BUFFER, _spritebatch.render.vbo); {
-                GLsizei const count = _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
-                GLsizeiptr const size = sizeof(SHIZVertexPositionColorTexture) * (uint32_t)count;
+                GLsizei const count =
+                    _spritebatch.count * VERTEX_COUNT_PER_SPRITE;
+                
+                GLsizeiptr const size =
+                    sizeof(SHIZVertexPositionColorTexture) * (uint32_t)count;
                 
                 glBufferSubData(GL_ARRAY_BUFFER,
                                 0,
@@ -262,7 +267,7 @@ z_gfx__spritebatch_flush()
 }
 
 void
-z_gfx__spritebatch_reset()
+z_gfx__spritebatch_reset(void)
 {
     _spritebatch.count = 0;
     _spritebatch.texture_id = 0;

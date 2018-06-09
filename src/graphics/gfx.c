@@ -81,7 +81,7 @@ z_gfx__init(SHIZViewport const viewport)
 }
 
 bool
-z_gfx__kill()
+z_gfx__kill(void)
 {
     if (!z_unload(_spr_white_1x1.resource_id)) {
         return false;
@@ -152,10 +152,11 @@ z_gfx__end()
     glBindFramebuffer(GL_FRAMEBUFFER, 0); {
         glViewport(x, y, width, height);
         
-        // note that we don't need to clear this framebuffer, as we're expecting to overwrite
-        // every pixel every frame anyway (with the opaque texture of the post framebuffer)
-        // however; if we wanted to apply color to the letter/pillar-boxed bars,
-        // we could do that here by clearing the color buffer
+        // note that we don't need to clear this framebuffer, as we're
+        // expecting to overwrite every pixel every frame anyway (with the
+        // opaque texture of the post framebuffer) however; if we wanted to
+        // apply color to the letter/pillar-boxed bars, we could do that here
+        // by clearing the color buffer
 
         z_gfx__render_post();
     }
@@ -268,8 +269,10 @@ z_gfx__init_post()
     "    fragment_color = sampled_color;\n"
     "}\n";
 
-    GLuint const vs = z_gfx__compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    GLuint const fs = z_gfx__compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    GLuint const vs = z_gfx__compile_shader(GL_VERTEX_SHADER,
+                                            vertex_shader);
+    GLuint const fs = z_gfx__compile_shader(GL_FRAGMENT_SHADER,
+                                            fragment_shader);
 
     if (!vs && !fs) {
         return false;
@@ -310,8 +313,14 @@ z_gfx__init_post()
         glGenRenderbuffers(1, &_post.renderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, _post.renderbuffer); {
             glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, w, h);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _post.renderbuffer);
-            glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _post.texture_id, 0);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                      GL_DEPTH_ATTACHMENT,
+                                      GL_RENDERBUFFER,
+                                      _post.renderbuffer);
+            glFramebufferTexture(GL_FRAMEBUFFER,
+                                 GL_COLOR_ATTACHMENT0,
+                                 _post.texture_id,
+                                 0);
         }
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
@@ -321,7 +330,8 @@ z_gfx__init_post()
 
         glDrawBuffers(1, draw_buffers);
 
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
+            GL_FRAMEBUFFER_COMPLETE) {
             return false;
         }
     }
@@ -353,7 +363,7 @@ z_gfx__init_post()
                                   2 /* number of color components per vertex */,
                                   GL_FLOAT, GL_FALSE,
                                   sizeof(SHIZVertexPositionTexture),
-                                  (GLvoid*)(sizeof(SHIZVector3)) /* offset to reach color component */);
+                                  (GLvoid *)(sizeof(SHIZVector3)) /* offset to reach color component */);
             glEnableVertexAttribArray(1);
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);

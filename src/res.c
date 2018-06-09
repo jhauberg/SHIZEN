@@ -283,7 +283,7 @@ z_res__unload(uint8_t const resource_id)
 }
 
 bool
-z_res__unload_all()
+z_res__unload_all(void)
 {
     bool something_failed = false;
     

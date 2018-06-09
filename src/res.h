@@ -39,7 +39,9 @@ extern SHIZResourceSound const SHIZResourceSoundEmpty;
 extern uint8_t const SHIZResourceInvalid;
 
 uint8_t z_res__load(char const * filename);
-uint8_t z_res__load_data(SHIZResourceType, uint8_t const * buffer, uint32_t length);
+uint8_t z_res__load_data(SHIZResourceType,
+                         uint8_t const * buffer,
+                         uint32_t length);
 
 bool z_res__unload(uint8_t resource_id);
 bool z_res__unload_all(void);
