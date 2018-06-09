@@ -1,6 +1,6 @@
-#include "recorder.h"
+#include "recorder.h" // z_recorder_*
 
-#include <stdlib.h> // NULL
+#include <stdlib.h> // malloc, free, NULL
 #include <stdio.h> // fwrite, popen, pclose, printf, sprintf, fprintf
 
 #include "../internal.h"

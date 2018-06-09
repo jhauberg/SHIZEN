@@ -1,10 +1,8 @@
 #include "profiler.h"
 
-#include "../internal.h"
+#include "../internal.h" // glfwGetTime
 
-static
-void
-z_profiler__update_averages(void);
+static void z_profiler__update_averages(void);
 
 static double const _frame_average_interval = 1.0; // in seconds
 

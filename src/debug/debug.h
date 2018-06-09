@@ -7,6 +7,8 @@
 #include "sprite_debug.h"
 #include "draw_debug.h"
 
+#include <stdint.h> // uint8_t, uint32_t
+
 bool z_debug__init(void);
 bool z_debug__kill(void);
 

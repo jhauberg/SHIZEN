@@ -1,30 +1,19 @@
-#ifndef recorder_h
-#define recorder_h
+#pragma once
 
-#include <SHIZEN/ztype.h>
+#include <SHIZEN/ztype.h> // SHIZSize
 
-#include <stdbool.h>
+#include <stdint.h> // uint8_t
+#include <stdbool.h> // bool
 
-bool
-z_recorder__init(void);
+bool z_recorder__init(void);
+bool z_recorder__kill(void);
 
-bool
-z_recorder__kill(void);
+void z_recorder__setup(SHIZSize resolution,
+                       uint8_t hz);
 
-void
-z_recorder__setup(SHIZSize resolution,
-                  uint8_t hz);
+void z_recorder__capture(void);
 
-void
-z_recorder__capture(void);
+bool z_recorder__start(void);
+bool z_recorder__stop(void);
 
-bool
-z_recorder__start(void);
-
-bool
-z_recorder__stop(void);
-
-bool
-z_recorder_is_recording(void);
-
-#endif /* recorder_h */
+bool z_recorder_is_recording(void);

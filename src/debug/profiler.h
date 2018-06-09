@@ -1,9 +1,9 @@
-#ifndef profiler_h
-#define profiler_h
+#pragma once
 
-#include <SHIZEN/ztype.h>
+//#include <SHIZEN/ztype.h>
 
-#include <stdbool.h>
+#include <stdint.h> // uint8_t, uint16_t
+#include <stdbool.h> // bool
 
 typedef struct SHIZProfilerStats {
     double frame_time;
@@ -15,28 +15,15 @@ typedef struct SHIZProfilerStats {
     uint16_t draw_count;
 } SHIZProfilerStats;
 
-bool
-z_profiler__init(void);
+bool z_profiler__init(void);
+bool z_profiler__kill(void);
 
-bool
-z_profiler__kill(void);
+void z_profiler__begin(void);
+void z_profiler__end(void);
 
-void
-z_profiler__begin(void);
+void z_profiler__increment_draw_count(uint8_t amount);
 
-void
-z_profiler__end(void);
+void z_profiler__set_is_profiling(bool enabled);
+bool z_profiler__is_profiling(void);
 
-void
-z_profiler__increment_draw_count(uint8_t amount);
-
-void
-z_profiler__set_is_profiling(bool enabled);
-
-bool
-z_profiler__is_profiling(void);
-
-SHIZProfilerStats
-z_profiler__get_stats(void);
-
-#endif /* profiler_h */
+SHIZProfilerStats z_profiler__get_stats(void);
