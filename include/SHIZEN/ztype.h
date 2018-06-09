@@ -1,16 +1,4 @@
-////
-//    __|  |  | _ _| __  /  __|   \ |
-//  \__ \  __ |   |     /   _|   .  |
-//  ____/ _| _| ___| ____| ___| _|\_|
-//
-// Copyright (c) 2016 Jacob Hauberg Hansen
-//
-// This library is free software; you can redistribute and modify it
-// under the terms of the MIT license. See LICENSE for details.
-//
-
-#ifndef ztype_h
-#define ztype_h
+#pragma once
 
 #include <stdbool.h>
 
@@ -430,5 +418,3 @@ SHIZAnchorInverse(SHIZVector2 const anchor)
     return SHIZVector2Make(anchor.x * -1,
                            anchor.y * -1);
 }
-
-#endif // ztype_h
