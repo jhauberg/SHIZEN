@@ -14,8 +14,6 @@
  #include "debug/recorder.h"
 #endif
 
-extern SHIZGraphicsContext _graphics_context;
-
 const SHIZWindowSettings SHIZWindowSettingsDefault = {
     .title = "SHIZEN",
     .description = NULL,
@@ -26,6 +24,23 @@ const SHIZWindowSettings SHIZWindowSettingsDefault = {
         .height = 240
     },
     .pixel_size = 1
+};
+
+SHIZGraphicsContext _graphics_context = {
+    .window = NULL,
+    .native_size = {
+        .width = 0,
+        .height = 0
+    },
+    .display_size = {
+        .width = 0,
+        .height = 0
+    },
+    .swap_interval = 0,
+    .pixel_size = 1,
+    .is_initialized = false,
+    .is_focused = false,
+    .should_finish = false
 };
 
 static

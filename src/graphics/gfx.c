@@ -24,8 +24,6 @@ void
 z_gfx__process_errors(void);
 #endif
 
-extern SHIZSprite _spr_white_1x1;
-
 static bool z_gfx__init_post(void);
 static bool z_gfx__kill_post(void);
 static void z_gfx__render_post(void);
@@ -40,6 +38,8 @@ typedef struct SHIZGFXPost {
     GLuint framebuffer;
     GLuint renderbuffer;
 } SHIZGFXPost;
+
+SHIZSprite _spr_white_1x1;
 
 static SHIZGFXPost _post;
 
