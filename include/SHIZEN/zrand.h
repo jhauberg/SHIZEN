@@ -11,8 +11,7 @@ void z_rand_seed_now(void);
 uint32_t z_rand_get_seed(void);
 
 uint32_t z_rand(void);
-int32_t z_rand_range(int32_t const min,
-                     int32_t const max);
+int32_t z_rand_range(int32_t min, int32_t max);
 
 float z_randf(void);
 float z_randf_range(float const min, float const max);

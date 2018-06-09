@@ -81,8 +81,8 @@ z_load_sprite_from(uint8_t const resource_id)
         return SHIZSpriteEmpty;
     }
     
-    SHIZRect const source = SHIZRectMake(SHIZVector2Zero,
-                                         SHIZSizeMake(image.width, image.height));
+    SHIZSize const size = SHIZSizeMake(image.width, image.height);
+    SHIZRect const source = SHIZRectMake(SHIZVector2Zero, size);
     
     return z_load_sprite_from_src(resource_id, source);
 }
@@ -148,22 +148,23 @@ z_load_sprite_from_index(SHIZSpriteSheet const spritesheet,
     uint16_t const row = (uint16_t)(index / spritesheet.columns);
     uint16_t const column = index % spritesheet.columns;
     
-    SHIZVector2 const source_origin = SHIZVector2Make(spritesheet.resource.source.origin.x +
-                                                      spritesheet.sprite_padding.width,
-                                                      spritesheet.resource.source.origin.y +
-                                                      spritesheet.sprite_padding.height);
+    SHIZSprite const sprite = spritesheet.resource;
     
-    SHIZVector2 const origin = SHIZVector2Make(source_origin.x +
-                                               (column * spritesheet.sprite_size.width),
-                                               source_origin.y +
-                                               (row * spritesheet.sprite_size.height));
+    SHIZSize const size = spritesheet.sprite_size;
+    SHIZSize const padding = spritesheet.sprite_padding;
     
-    SHIZSize const size = SHIZSizeMake(spritesheet.sprite_size.width -
-                                       (spritesheet.sprite_padding.width * 2),
-                                       spritesheet.sprite_size.height -
-                                       (spritesheet.sprite_padding.height * 2));
+    SHIZVector2 const source_origin =
+        SHIZVector2Make(sprite.source.origin.x + padding.width,
+                        sprite.source.origin.y + padding.height);
     
-    SHIZRect const sprite_frame = SHIZRectMake(origin, size);
+    SHIZVector2 const origin =
+        SHIZVector2Make(source_origin.x + (column * size.width),
+                        source_origin.y + (row * size.height));
+    
+    SHIZSize const dst_size = SHIZSizeMake(size.width - (padding.width * 2),
+                                           size.height - (padding.height * 2));
+    
+    SHIZRect const sprite_frame = SHIZRectMake(origin, dst_size);
     
     return z_load_sprite_from_src(spritesheet.resource.resource_id,
                                   sprite_frame);
@@ -187,12 +188,15 @@ z_load_sprite_from_point(SHIZSpriteSheet const spritesheet,
     uint16_t column = 0;
     uint16_t row = 0;
     
-    if (x <= spritesheet.resource.source.size.width) {
-        column = (uint16_t)((x / spritesheet.resource.source.size.width) * spritesheet.columns);
+    float const w = spritesheet.resource.source.size.width;
+    float const h = spritesheet.resource.source.size.height;
+    
+    if (x <= w) {
+        column = (uint16_t)((x / w) * spritesheet.columns);
     }
     
-    if (y <= spritesheet.resource.source.size.height) {
-        row = (uint16_t)((y / spritesheet.resource.source.size.height) * spritesheet.rows);
+    if (y <= h) {
+        row = (uint16_t)((y / h) * spritesheet.rows);
     }
 
     return z_load_sprite_from_cell(spritesheet, column, row);
@@ -212,7 +216,8 @@ z_load_spritefont_ex(char const * const filename,
                      SHIZSize const character_size,
                      SHIZSpriteFontTable const table)
 {
-    SHIZSpriteFont const spritefont = z_load_spritefont(filename, character_size);
+    SHIZSpriteFont const spritefont = z_load_spritefont(filename,
+                                                        character_size);
     
     return z_load_spritefont_from_ex(spritefont.sprite,
                                      spritefont.character,

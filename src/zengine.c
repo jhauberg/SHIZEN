@@ -131,9 +131,11 @@ z_startup(SHIZWindowSettings const settings)
         printf("SHIZEN does not support a pixel-size of 0; defaulting to 1\n");
     }
     
+    SHIZSize const native = _graphics_context.native_size;
+    
     _graphics_context.display_size =
-        SHIZSizeMake(_graphics_context.native_size.width * _graphics_context.pixel_size,
-                     _graphics_context.native_size.height * _graphics_context.pixel_size);
+        SHIZSizeMake(native.width * _graphics_context.pixel_size,
+                     native.height * _graphics_context.pixel_size);
     
     glfwSetErrorCallback(z_engine__error_callback);
     
@@ -200,7 +202,7 @@ z_startup(SHIZWindowSettings const settings)
 }
 
 bool
-z_shutdown()
+z_shutdown(void)
 {
     if (!_graphics_context.is_initialized) {
         return false;

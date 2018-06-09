@@ -132,7 +132,7 @@ z_spritefont__measure_text(SHIZSpriteFont const font,
     bool current_line_has_leading_whitespace = false;
     bool next_line_has_leading_whitespace = false;
 
-    const char * text_ptr = text;
+    char const * text_ptr = text;
 
     if (!text_ptr) {
         return measurement;
@@ -140,7 +140,8 @@ z_spritefont__measure_text(SHIZSpriteFont const font,
 
     while (*text_ptr) {
         char character = *text_ptr;
-        unsigned int character_size = 0;
+        
+        uint32_t character_size = 0;
 
         utf8_decode(text_ptr, &character_size);
 

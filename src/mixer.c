@@ -5,12 +5,12 @@
 
 #include <stdlib.h> // NULL
 #include <stdio.h> // fprintf
-#include <stdint.h> // uint8_t, int16_t, in32_t
+#include <stdint.h> // uint8_t, int16_t, int32_t
 
 #include "internal.h" // ALCdevice, ALCcontext, ALenum, al*
 
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+#include <OpenAL/al.h> // al*
+#include <OpenAL/alc.h> // alc*
 
 #ifdef SHIZ_DEBUG
 static
@@ -22,7 +22,7 @@ static ALCdevice * _device;
 static ALCcontext * _context;
 
 bool
-z_mixer__init()
+z_mixer__init(void)
 {
     _device = alcOpenDevice(NULL);
     

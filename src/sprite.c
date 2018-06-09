@@ -39,7 +39,7 @@ typedef struct SHIZSpriteList {
     uint16_t count;
 } SHIZSpriteList;
 
-static int z_sprite__compare(void const * sprite, void const * other_sprite);
+static int32_t z_sprite__compare(void const * sprite, void const * other_sprite);
 static void z_sprite__sort(void);
 
 static void z_sprite__set_position(SHIZSpriteObject * sprite,
@@ -172,7 +172,7 @@ z_sprite__flush()
 }
 
 static
-int
+int32_t
 z_sprite__compare(void const * const sprite,
                   void const * const other_sprite)
 {

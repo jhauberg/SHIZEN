@@ -1,6 +1,6 @@
 #include <SHIZEN/ztype.h>
 
-#include <stdbool.h> // bool
+#include <stdbool.h> // false
 #include <stdlib.h> // NULL
 
 #include "internal.h" // SHIZVector3

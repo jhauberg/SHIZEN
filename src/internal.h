@@ -10,7 +10,7 @@
 #include <ctype.h> // toupper
 
 // use gl3w to load opengl headers
-#include <gl3w/GL/gl3w.h>
+#include <gl3w/GL/gl3w.h> // *
 // which means GLFW should not do that
 #define GLFW_INCLUDE_NONE
 
