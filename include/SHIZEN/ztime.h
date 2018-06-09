@@ -23,6 +23,7 @@ double z_time_passed(void);
 double z_time_get_scale(void);
 void z_time_set_scale(double scale);
 
+double z_time_get_lag(void);
 double z_time_get_tick_rate(void);
 
 /**

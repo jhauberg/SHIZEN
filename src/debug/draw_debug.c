@@ -76,7 +76,7 @@ z_debug__build_stats()
                 is_vsync_enabled ? " \2V\1" : "",
                 sprite_count_tint_specifier, sprite_count, SHIZSpriteMax,
                 frame_stats.draw_count,
-                z_time__get_lag() * 1000,
+                z_time_get_lag() * 1000,
                 z_time_get_tick_rate() * 1000,
                 z_time_get_scale());
     } else {

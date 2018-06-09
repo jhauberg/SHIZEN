@@ -126,10 +126,6 @@ SHIZVector3Make(float const x, float const y, float const z)
 
 void z_engine__present_frame(void);
 
-#ifdef SHIZ_DEBUG
-double z_time__get_lag(void);
-#endif
-
 static inline
 void
 z_str_to_upper(char * string)

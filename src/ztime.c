@@ -116,6 +116,12 @@ z_time_set_scale(double const scale)
 }
 
 double
+z_time_get_lag()
+{
+    return _timeline_state.time_lag;
+}
+
+double
 z_time_get_tick_rate()
 {
     return _timeline.time_step;
@@ -299,11 +305,3 @@ z_animate_vec2_blend(SHIZAnimatableVector2 * const animatable,
     
     return SHIZVector2Make(x, y);
 }
-
-#ifdef SHIZ_DEBUG
-double
-z_time__get_lag()
-{
-    return _timeline_state.time_lag;
-}
-#endif
