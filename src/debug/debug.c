@@ -16,7 +16,6 @@
 #include "debug.h"
 
 #include "../res.h"
-#include "../io.h"
 
 #include "../spritefont.8x8.h"
 

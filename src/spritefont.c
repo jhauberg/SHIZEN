@@ -16,7 +16,7 @@
 #include <math.h> // floorf
 
 static
-unsigned int
+uint32_t
 utf8_decode(char const * str, uint32_t * i)
 {
     unsigned char const * s = (unsigned char const *)str;

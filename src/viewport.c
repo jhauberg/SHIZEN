@@ -11,10 +11,10 @@
 
 #include "viewport.h" // SHIZViewport, z_viewport_*
 
+#include <stdio.h> // printf
 #include <math.h> // roundf
 
 #include "internal.h" // SHIZGraphicsContext
-#include "io.h" // z_io_*
 
 SHIZViewport const SHIZViewportDefault = {
     .framebuffer = {
@@ -82,11 +82,11 @@ z_viewport__determine_operating_resolution()
          _viewport.resolution.width > _viewport.framebuffer.width) ||
         (_viewport.resolution.height < _viewport.framebuffer.height ||
          _viewport.resolution.height > _viewport.framebuffer.height)) {
-            z_io__warning_context("GFX", "Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx (%s)",
-                                  _viewport.resolution.width, _viewport.resolution.height,
-                                  _viewport.framebuffer.width, _viewport.framebuffer.height,
-                                  _viewport.scale,
-                                  _graphics_context.is_fullscreen ? "fullscreen" : "windowed");
+            printf("Operating resolution is %.0fx%.0f @ %.0fx%.0f@%.0fx (%s)\n",
+                   _viewport.resolution.width, _viewport.resolution.height,
+                   _viewport.framebuffer.width, _viewport.framebuffer.height,
+                   _viewport.scale,
+                   _graphics_context.is_fullscreen ? "fullscreen" : "windowed");
         }
 }
 
@@ -108,8 +108,9 @@ z_viewport__apply_boxing_if_necessary()
             _viewport_offset = SHIZSizeMake(_viewport.framebuffer.width - adjusted_width,
                                             _viewport.framebuffer.height - adjusted_height);
             
-            z_io__warning_context("GFX", "Aspect ratio mismatch between the operating resolution and the framebuffer; enabling %s",
-                                  (mode == SHIZViewportModeLetterbox ? "letterboxing" : "pillarboxing"));
+            printf("Aspect ratio mismatch between the operating resolution and the framebuffer; enabling %s\n",
+                   (mode == SHIZViewportModeLetterbox ?
+                        "letterboxing" : "pillarboxing"));
         }
     }
 }

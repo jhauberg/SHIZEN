@@ -14,12 +14,9 @@
 #include <SHIZEN/ztype.h> //
 
 #include <stdlib.h> // NULL
+#include <stdio.h> // printf
 #include <math.h> // ldexpf, M_PI
 #include <time.h> // time()
-
-#ifdef SHIZ_DEBUG
- #include "io.h"
-#endif
 
 #include <pcg/pcg_basic.h>
 
@@ -33,7 +30,7 @@ z_rand_seed(uint32_t seed)
     current_seed = seed;
     
 #ifdef SHIZ_DEBUG
-    z_io__debug("Seeding: %d", current_seed);
+    printf("Seeding: %d\n", current_seed);
 #endif
 }
 

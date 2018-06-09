@@ -12,6 +12,7 @@
 #include "res.h" // SHIZResource*, z_res_*
 
 #include <stdlib.h> // NULL
+#include <stdio.h> // fprintf, printf
 #include <stdbool.h> // bool
 #include <stdint.h> // uint8_t, uint16_t, int32_t
 #include <string.h> // strcmp, strrchr
@@ -19,11 +20,27 @@
 #include "graphics/gfx.h"
 #include "mixer.h"
 
-#include "io.h"
+#include <stb/stb_vorbis.h> // stb_vorbis_*
+
+#if defined(__clang__)
+ #pragma clang diagnostic push
+ #pragma clang diagnostic ignored "-Wunused-function"
+ #pragma clang diagnostic ignored "-Wsign-conversion"
+ #pragma clang diagnostic ignored "-Wconversion"
+ #pragma clang diagnostic ignored "-Wpadded"
+#endif
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+
+#include <stb/stb_image.h> // stbi_*
+
+#if defined(__clang__)
+ #pragma clang diagnostic pop
+#endif
 
 #ifdef SHIZ_DEBUG
  #include "debug/debug.h"
- #include <stdio.h> // printf
 #endif
 
 SHIZResourceImage const SHIZResourceImageEmpty = {
@@ -55,6 +72,15 @@ uint8_t const SHIZResourceInvalid = 0;
  #define SHIZResourceIdMax SHIZResourceSoundIdMax
 #endif
 
+typedef bool (* z_res__image_handler)(int32_t width, int32_t height, int32_t components, uint8_t * data);
+typedef bool (* z_res__sound_handler)(int32_t channels, int32_t sample_rate, int16_t * data, int32_t size);
+
+static bool z_res__load_image(char const * filename, z_res__image_handler);
+static bool z_res__load_image_data(uint8_t const * buffer, uint32_t length, z_res__image_handler);
+static bool z_res__load_sound(char const * filename, z_res__sound_handler);
+
+static bool z_res__handle_image(uint8_t * data, int32_t width, int32_t height, int32_t components, z_res__image_handler);
+
 static bool z_res__image_loaded_callback(int32_t width, int32_t height, int32_t components, uint8_t * data);
 static bool z_res__sound_loaded_callback(int32_t channels, int32_t sample_rate, int16_t * data, int32_t size);
 
@@ -67,6 +93,9 @@ static int16_t const z_res__index_from_id(uint8_t resource_id, SHIZResourceType)
 
 static uint8_t z_res__next_id(SHIZResourceType, uint8_t * index);
 
+/**
+ * Return a pointer that is offset to the assumed file extension.
+ */
 static char const * z_res__filename_ext(char const * filename);
 
 static SHIZResourceImage * _current_image_resource; // temporary pointer to the image being loaded
@@ -138,8 +167,8 @@ z_res__load(char const * const filename)
     SHIZResourceType const type = z_res__type(filename);
     
     if (type == SHIZResourceTypeNotSupported) {
-        z_io__error("resource not loaded ('%s'); unsupported type (%s)",
-                    filename, z_res__filename_ext(filename));
+        fprintf(stderr, "resource not loaded ('%s'); unsupported type (%s)",
+                filename, z_res__filename_ext(filename));
         
         return SHIZResourceInvalid;
     }
@@ -155,7 +184,7 @@ z_res__load(char const * const filename)
             _current_image_resource->resource_id = expected_id;
             _current_image_resource->filename = filename;
             
-            if (z_io__load_image(filename, z_res__image_loaded_callback)) {
+            if (z_res__load_image(filename, z_res__image_loaded_callback)) {
                 resource_id = expected_id;
             }
             
@@ -165,7 +194,7 @@ z_res__load(char const * const filename)
             _current_sound_resource->resource_id = expected_id;
             _current_sound_resource->filename = filename;
             
-            if (z_io__load_sound(filename, z_res__sound_loaded_callback)) {
+            if (z_res__load_sound(filename, z_res__sound_loaded_callback)) {
                 resource_id = expected_id;
             }
             
@@ -182,7 +211,7 @@ z_res__load_data(SHIZResourceType const type,
                  uint32_t const length)
 {
     if (type == SHIZResourceTypeNotSupported) {
-        z_io__error("resource not loaded; unsupported type");
+        fprintf(stderr, "resource not loaded; unsupported type");
         
         return SHIZResourceInvalid;
     }
@@ -196,7 +225,7 @@ z_res__load_data(SHIZResourceType const type,
         if (type == SHIZResourceTypeImage) {
             _current_image_resource = &_images[expected_index];
             
-            if (z_io__load_image_data(buffer, length, z_res__image_loaded_callback)) {
+            if (z_res__load_image_data(buffer, length, z_res__image_loaded_callback)) {
                 _current_image_resource->resource_id = expected_id;
                 _current_image_resource->filename = NULL;
                 
@@ -230,14 +259,14 @@ z_res__unload(uint8_t const resource_id)
     int16_t const index = z_res__index_from_id(resource_id, type);
     
     if (index < 0) {
-        z_io__error("could not unload resource (%d); index out of bounds (%d)",
-                    resource_id, index);
+        fprintf(stderr, "could not unload resource (%d); index out of bounds (%d)",
+                resource_id, index);
     } else {
         if (type == SHIZResourceTypeImage) {
             unloaded = z_gfx__destroy_texture(&_images[index]);
             
             if (!unloaded) {
-                z_io__error("could not unload image (%d)", resource_id);
+                fprintf(stderr, "could not unload image (%d)", resource_id);
             }
             
             _images[index].width = 0;
@@ -249,15 +278,15 @@ z_res__unload(uint8_t const resource_id)
             unloaded = z_mixer__destroy_sound(&_sounds[index]);
             
             if (!unloaded) {
-                z_io__error("could not unload sound (%d)", resource_id);
+                fprintf(stderr, "could not unload sound (%d)", resource_id);
             }
             
             _sounds[index].resource_id = SHIZResourceInvalid;
             _sounds[index].filename = NULL;
             _sounds[index].source_id = 0;
         } else {
-            z_io__error("could not unload resource (%d); resource not found",
-                        resource_id);
+            fprintf(stderr, "could not unload resource (%d); resource not found",
+                    resource_id);
         }
     }
     
@@ -389,9 +418,9 @@ z_res__next_id(SHIZResourceType const type,
     }
     
     if (type == SHIZResourceTypeImage) {
-        z_io__error("image limit reached (%d)", SHIZResourceImageMax);
+        fprintf(stderr, "image limit reached (%d)", SHIZResourceImageMax);
     } else if (type == SHIZResourceTypeSound) {
-        z_io__error("sound limit reached (%d)", SHIZResourceSoundMax);
+        fprintf(stderr, "sound limit reached (%d)", SHIZResourceSoundMax);
     }
     
     return SHIZResourceInvalid;
@@ -447,13 +476,117 @@ static
 char const *
 z_res__filename_ext(char const * const filename)
 {
+    // find the last occurrence of a dot and assume that what comes after
+    // is a file extension
     char const * const extension_index = strrchr(filename, '.');
     
     if (!extension_index || extension_index == filename) {
         return NULL;
     }
     
-    return extension_index + 1; // extension without the '.'
+    return extension_index + 1; // skipping the dot
+}
+
+static
+bool
+z_res__load_image(char const * const filename,
+                  z_res__image_handler const handler)
+{
+    int32_t width, height;
+    int32_t components;
+    
+    // stbi defaults to reading the first pixel at the top-left of the image,
+    // however, opengl expects the first pixel to be at the bottom-left of
+    // the image, so we need to flip it
+    stbi_set_flip_vertically_on_load(true);
+    
+    uint8_t * const image =
+    stbi_load(filename, &width, &height, &components,
+              STBI_rgb_alpha);
+    
+    if (!image) {
+        fprintf(stderr, "failed to load image: '%s'", filename);
+        
+        return false;
+    }
+    
+    return z_res__handle_image(image, width, height, components, handler);
+}
+
+static
+bool
+z_res__load_image_data(uint8_t const * const buffer,
+                       uint32_t const length,
+                       z_res__image_handler const handler)
+{
+    int32_t width, height;
+    int32_t components;
+    
+    stbi_set_flip_vertically_on_load(true);
+    
+    unsigned char * const image =
+    stbi_load_from_memory(buffer, (int32_t)length, &width, &height, &components,
+                          STBI_rgb_alpha);
+    
+    if (!image) {
+        fprintf(stderr, "failed to load image (from memory)");
+        
+        return false;
+    }
+    
+    return z_res__handle_image(image, width, height, components, handler);
+}
+
+static
+bool
+z_res__load_sound(char const * const filename,
+                  z_res__sound_handler const handler)
+{
+    int32_t channels;
+    int32_t sample_rate;
+    
+    int16_t * data = NULL;
+    
+    int size = stb_vorbis_decode_filename(filename, &channels, &sample_rate, &data);
+    
+    if (size == -1 || size == -2) {
+        if (data != NULL) {
+            free(data);
+        }
+        
+        return false;
+    }
+    
+    int32_t length = size * channels * (int32_t)sizeof(uint16_t);
+    
+    if (handler) {
+        return (*handler)(channels, sample_rate, data, length);
+    }
+    
+    free(data);
+    
+    return true;
+}
+
+static
+bool
+z_res__handle_image(uint8_t * const data,
+                   int32_t const width,
+                   int32_t const height,
+                   int32_t const components,
+                   z_res__image_handler const handler)
+{
+    if (handler) {
+        if (!(*handler)(width, height, components, data)) {
+            stbi_image_free(data);
+            
+            return false;
+        }
+    }
+    
+    stbi_image_free(data);
+    
+    return true;
 }
 
 #ifdef SHIZ_DEBUG
@@ -468,7 +601,7 @@ z_debug__load_font(uint8_t const * const buffer,
     
     _current_image_resource = &_font_resource;
     
-    if (z_io__load_image_data(buffer, length, z_res__image_loaded_callback)) {
+    if (z_res__load_image_data(buffer, length, z_res__image_loaded_callback)) {
         // offset by 1 to ensure the id won't be occupied by any other resource
         _font_resource.resource_id = SHIZResourceIdMax + 1;
     }

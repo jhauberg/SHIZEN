@@ -19,7 +19,6 @@
 #include "internal.h"
 #include "viewport.h"
 #include "res.h"
-#include "io.h"
 
 #ifdef SHIZ_DEBUG
  #include "debug/debug.h"
@@ -125,7 +124,7 @@ z_startup(SHIZWindowSettings const settings)
     if (settings.pixel_size > 0) {
         _graphics_context.pixel_size = settings.pixel_size;
     } else {
-        z_io__warning("SHIZEN does not support a pixel-size of 0; defaulting to 1");
+        printf("SHIZEN does not support a pixel-size of 0; defaulting to 1\n");
     }
     
     _graphics_context.display_size =
@@ -135,8 +134,7 @@ z_startup(SHIZWindowSettings const settings)
     glfwSetErrorCallback(z_engine__error_callback);
     
     if (!glfwInit()) {
-        z_io__error_context("GLFW", "(%s) failed to initialize",
-                            glfwGetVersionString());
+        fprintf(stderr, "(%s) failed to initialize", glfwGetVersionString());
 
         return false;
     } else {
@@ -144,14 +142,13 @@ z_startup(SHIZWindowSettings const settings)
     }
 
     if (!z_engine__create_window(settings.fullscreen, settings.title)) {
-        z_io__error_context("GLFW", "(%s) failed to create window",
-                            glfwGetVersionString());
+        fprintf(stderr, "(%s) failed to create window", glfwGetVersionString());
 
         return false;
     }
 
     if (gl3wInit()) {
-        z_io__error_context("gl3w", "failed to initialize");
+        fprintf(stderr, "gl3w: failed to initialize");
         
         return false;
     }
@@ -159,7 +156,7 @@ z_startup(SHIZWindowSettings const settings)
     z_engine__intro_gl();
     
     if (!z_engine__can_run()) {
-        z_io__error("SHIZEN is not supported on this system");
+        fprintf(stderr, "SHIZEN is not supported on this system");
 
         return false;
     }
@@ -178,7 +175,7 @@ z_startup(SHIZWindowSettings const settings)
     
 #ifdef SHIZ_DEBUG
     if (!z_debug__init()) {
-        z_io__error("SHIZEN could not initialize a debugging state");
+        fprintf(stderr, "SHIZEN could not initialize a debugging state");
         
         return false;
     }
@@ -187,7 +184,7 @@ z_startup(SHIZWindowSettings const settings)
         z_recorder__setup(_graphics_context.display_size,
                           z_engine__get_refresh_rate());
     } else {
-        z_io__error("SHIZEN could not initialize recorder");
+        fprintf(stderr, "SHIZEN could not initialize recorder");
         
         return false;
     }
@@ -586,7 +583,7 @@ void
 z_engine__error_callback(int const error,
                          char const * const description)
 {
-    z_io__error_context("GLFW", "%d %s", error, description);
+    fprintf(stderr, "GLFW: %d %s", error, description);
 }
 
 static
@@ -626,8 +623,8 @@ z_engine__framebuffer_size_callback(GLFWwindow * const window,
     
 #ifdef SHIZ_DEBUG
     if (z_recorder_is_recording()) {
-        z_io__warning_context("RECORDER",
-                              "Switching window mode is not supported while recording; stopping recording");
+        printf("Switching window mode is not supported while recording; stopping recording\n");
+        
         z_recorder__stop();
     }
     

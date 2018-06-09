@@ -1,13 +1,11 @@
-////
-//    __|  |  | _ _| __  /  __|   \ |
-//  \__ \  __ |   |     /   _|   .  |
-//  ____/ _| _| ___| ____| ___| _|\_|
+// A resource system for loading and unloading sounds and images.
 //
-// Copyright (c) 2016 Jacob Hauberg Hansen
+// Images, once loaded, are immediately uploaded to the GPU in an OpenGL
+// texture buffer, and are kept there until unloaded.
 //
-// This library is free software; you can redistribute and modify it
-// under the terms of the MIT license. See LICENSE for details.
+// Similarly, sounds are kept in memory, in an OpenAL buffer, until unloaded.
 //
+// All resources are accessed, used and manipulated through id's.
 
 #pragma once
 

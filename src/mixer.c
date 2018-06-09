@@ -11,9 +11,9 @@
 
 #include "mixer.h" // z_mixer_*
 #include "res.h" // SHIZResourceSound
-#include "io.h" // z_io_*
 
 #include <stdlib.h> // NULL
+#include <stdio.h> // fprintf
 #include <stdint.h> // uint8_t, int16_t, in32_t
 
 #include "internal.h" // ALCdevice, ALCcontext, ALenum, al*
@@ -170,7 +170,7 @@ z_mixer__process_errors()
     ALCenum error;
     
     while ((error = alGetError()) != AL_NO_ERROR) {
-        z_io__error_context("OPENAL", "%d", error);
+        fprintf(stderr, "OpenAL: %d", error);
     }
 }
 #endif

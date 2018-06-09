@@ -10,9 +10,10 @@
 //
 
 #include "shader.h" // z_gfx_*
-#include "io.h" // z_io_*
 
 #include "../internal.h" // GLuint, GLenum, GLchar, gl*
+
+#include <stdio.h> // fprintf
 
 GLuint
 z_gfx__compile_shader(GLenum const type,
@@ -32,7 +33,7 @@ z_gfx__compile_shader(GLenum const type,
         
         glGetShaderInfoLog(shader, sizeof(log), NULL, log);
         
-        z_io__error_context("GLSL", "compile error: %s", (char *)log);
+        fprintf(stderr, "compile error: %s", (char *)log);
         
         return 0;
     }
@@ -60,7 +61,7 @@ z_gfx__link_program(GLuint const vs,
         
         glGetProgramInfoLog(program, sizeof(log), NULL, log);
         
-        z_io__error_context("GLSL", "link error: %s", (char *)log);
+        fprintf(stderr, "link error: %s", (char *)log);
         
         return 0;
     }

@@ -12,12 +12,11 @@
 #include "recorder.h"
 
 #include <stdlib.h> // NULL
-#include <stdio.h> // fwrite, popen, pclose
+#include <stdio.h> // fwrite, popen, pclose, printf, sprintf, fprintf
 
 #include "../internal.h"
 
 #include "../viewport.h"
-#include "../io.h"
 
 typedef struct SHIZRecorder {
     FILE * output;
@@ -139,7 +138,7 @@ z_recorder__capture()
                                           _recorder.output);
     
     if (captured_frames != capture_frames) {
-        z_io__warning_context("RECORDER", "Could not capture frame");
+        fprintf(stderr, "Could not capture frame");
     }
 }
 
@@ -155,12 +154,12 @@ z_recorder__start()
     _is_recording = _recorder.output != NULL;
     
     if (!_is_recording) {
-        z_io__error_context("RECORDER", "Unable to start recording; output file inaccessible");
+        fprintf(stderr, "Unable to start recording; output file inaccessible");
         
         return false;
     } else {
 #ifdef SHIZ_DEBUG
-        z_io__debug("Starting recording... (%s)", _recorder.command);
+        printf("Starting recording... (%s)\n", _recorder.command);
 #endif
     }
     
@@ -179,12 +178,12 @@ z_recorder__stop()
     _is_recording = false;
     
     if (status == -1) {
-        z_io__error_context("RECORDER", "Unable to end recording; output may be corrupted");
+        fprintf(stderr, "Unable to end recording; output may be corrupted");
         
         return false;
     } else {
 #ifdef SHIZ_DEBUG
-        z_io__debug("Stopped recording");
+        printf("Stopped recording\n");
 #endif
     }
     

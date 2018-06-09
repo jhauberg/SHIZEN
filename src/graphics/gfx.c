@@ -13,7 +13,6 @@
 
 #include "../transform.h"
 #include "../res.h"
-#include "../io.h"
 #include "../white.1x1.h"
 
 #include "shader.h"
@@ -25,7 +24,8 @@
  #include "../debug/profiler.h"
 #endif
 
-#include <stdbool.h>
+#include <stdio.h> // fprintf
+#include <stdbool.h> // bool
 
 #include <SHIZEN/zloader.h>
 
@@ -60,32 +60,32 @@ z_gfx__init(SHIZViewport const viewport)
     z_viewport__set(viewport);
 
     if (!z_gfx__init_immediate()) {
-        z_io__error_context("GFX", "Could not initialize immediate renderer");
+        fprintf(stderr, "Could not initialize immediate renderer");
         
         return false;
     }
 
     if (!z_gfx__init_spritebatch()) {
-        z_io__error_context("GFX", "Could not initialize spritebatch renderer");
+        fprintf(stderr, "Could not initialize spritebatch renderer");
         
         return false;
     }
 
     if (!z_gfx__init_post()) {
-        z_io__error_context("GFX", "Could not initialize post renderer");
+        fprintf(stderr, "Could not initialize post renderer");
         
         return false;
     }
     
     if (!z_gfx__load_default_texture()) {
-        z_io__error_context("GFX", "Could not load default texture");
+        fprintf(stderr, "Could not load default texture");
         
         return false;
     }
     
 #ifdef SHIZ_DEBUG
     if (!z_profiler__init()) {
-        z_io__error("Could not initialize profiler");
+        fprintf(stderr, "Could not initialize profiler");
     }
 #endif
 
@@ -413,8 +413,8 @@ bool
 z_gfx__load_default_texture()
 {
     uint8_t const white_resource_id = z_res__load_data(SHIZResourceTypeImage,
-                                                  WHITE_1x1,
-                                                  WHITE_1x1_SIZE);
+                                                       WHITE_1x1,
+                                                       WHITE_1x1_SIZE);
     
     if (white_resource_id == SHIZResourceInvalid) {
         return false;
@@ -433,7 +433,7 @@ z_gfx__process_errors()
     GLenum error;
     
     while ((error = glGetError()) != GL_NO_ERROR) {
-        z_io__error_context("OPENGL", "%d", error);
+        fprintf(stderr, "OpenGL: %d", error);
     }
 }
 #endif
