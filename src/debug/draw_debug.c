@@ -14,21 +14,17 @@
 #include "../viewport.h"
 #include "../res.h"
 
-static
-void
-z_debug__draw_gizmo(SHIZVector2 location,
-                    SHIZVector2 anchor,
-                    float angle,
-                    SHIZLayer layer);
+static void z_debug__draw_gizmo(SHIZVector2 location,
+                                SHIZVector2 anchor,
+                                float angle,
+                                SHIZLayer layer);
 
-static
-void
-z_debug__draw_rect_bounds_ex(SHIZRect rect,
-                             SHIZColor color,
-                             SHIZVector2 anchor,
-                             float angle,
-                             SHIZLayer layer,
-                             bool draw_gizmo);
+static void z_debug__draw_rect_bounds_ex(SHIZRect rect,
+                                         SHIZColor color,
+                                         SHIZVector2 anchor,
+                                         float angle,
+                                         SHIZLayer layer,
+                                         bool draw_gizmo);
 
 extern SHIZGraphicsContext const _graphics_context;
 
@@ -88,69 +84,6 @@ z_debug__build_stats()
                 "\2%d fps%s\1",
                 frame_stats.frames_per_second,
                 is_vsync_enabled ? " (V)" : "");
-    }
-}
-
-void
-z_debug__draw_events()
-{
-    float const line_margin = 8;
-    float const lane_margin = 4;
-    float const lane_size = 8;
-    
-    uint16_t draw_events = 0;
-    
-    SHIZLayer const layer = SHIZLayerTop;
-    
-    SHIZSize const bounds = _graphics_context.native_size;
-    
-    for (uint16_t i = 0; i < z_debug__get_event_count(); i++) {
-        SHIZDebugEvent const event = z_debug__get_event(i);
-        
-        float const lane_offset =
-            lane_margin + (lane_size * event.lane) + (lane_margin * event.lane);
-        
-        SHIZVector2 const from = SHIZVector2Make(event.origin.x,
-                                                 bounds.height - lane_offset);
-        SHIZVector2 const to = SHIZVector2Make(event.origin.x,
-                                               event.origin.y);
-        
-        SHIZColor tint = SHIZSpriteNoTint;
-        
-        char event_buffer[32] = { 0 };
-        
-        if (event.lane == SHIZDebugEventLaneDraws) {
-            tint = SHIZColorYellow;
-            
-            draw_events += 1;
-            
-            sprintf(event_buffer, "%u:%s", draw_events, event.name);
-        } else if (event.lane == SHIZDebugEventLaneResources) {
-            sprintf(event_buffer, "%s", event.name);
-        }
-        
-        z_str_to_upper(event_buffer);
-        
-        z_draw_line_ex(SHIZVector2Make(from.x,
-                                       from.y - line_margin - lane_margin),
-                       to, tint, layer);
-        
-        SHIZSize const event_text_size =
-            z_draw_text_ex(z_debug__get_font(),
-                           event_buffer,
-                           from,
-                           SHIZSpriteFontSizeToFit,
-                           SHIZSpriteFontAttributesWithScale(1),
-                           SHIZSpriteFontAlignmentCenter|SHIZSpriteFontAlignmentTop,
-                           tint,
-                           layer);
-        
-        z_draw_rect_ex(SHIZRectMake(from, event_text_size),
-                       SHIZColorBlack,
-                       SHIZDrawModeFill,
-                       SHIZAnchorTop,
-                       SHIZSpriteNoAngle,
-                       SHIZLayeredBelow(layer));
     }
 }
 
@@ -427,10 +360,6 @@ z_debug__draw_rect_bounds_ex(SHIZRect const rect,
                              SHIZLayer const layer,
                              bool const draw_gizmo)
 {
-    bool const previously_tracking_events = z_debug__is_events_enabled();
-    
-    z_debug__set_events_enabled(false);
-    
     z_profiler__set_is_profiling(false);
     
     // enable outside bounds to avoid the frame overlapping sprite/primitive
@@ -465,7 +394,6 @@ z_debug__draw_rect_bounds_ex(SHIZRect const rect,
     z_profiler__set_is_profiling(true);
     
     z_debug__set_drawing_shapes(previously_drawing_shapes);
-    z_debug__set_events_enabled(previously_tracking_events);
 }
 
 #endif

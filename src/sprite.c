@@ -10,8 +10,9 @@
 #include "res.h"
 
 #ifdef SHIZ_DEBUG
- #include "debug/debug.h"
  #include <stdio.h> // printf
+
+ #include "debug/sprite_debug.h" // z_debug__get_sprite_count
 #endif
 
 #define SHIZSpriteVertexCount 6
@@ -154,30 +155,11 @@ z_sprite__flush()
         return;
     }
     
-#ifdef SHIZ_DEBUG
-    bool const should_print_order = z_debug__is_printing_sprite_order();
-    
-    if (should_print_order) {
-        printf("-------- Z  LAYER ----- TEXTURE --------\n");
-    }
-#endif
-
     z_sprite__sort();
     
     for (uint16_t i = 0; i < _sprite_list.count; i++) {
         SHIZSpriteObject const sprite = _sprite_list.sprites[i];
         SHIZSpriteKey const * const sprite_key = (SHIZSpriteKey *)&sprite.key;
-
-#ifdef SHIZ_DEBUG
-        if (should_print_order) {
-            printf("%.8f  [%03d,%05d] @%d (%s)\n",
-                   sprite.origin.z,
-                   sprite_key->layer.layer,
-                   sprite_key->layer.depth,
-                   sprite_key->texture_id,
-                   sprite_key->is_transparent ? "transparent" : "opaque");
-        }
-#endif
 
         // finally push vertex data to the renderer
         z_gfx__render_sprite(sprite.vertices,

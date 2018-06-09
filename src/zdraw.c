@@ -67,10 +67,6 @@ z_drawing_begin(SHIZColor const background)
     z_sprite__reset();
 
     z_gfx__begin(background);
-
-#ifdef SHIZ_DEBUG
-    z_debug__reset_events();
-#endif
 }
 
 void
@@ -82,12 +78,10 @@ z_drawing_end()
 #ifdef SHIZ_DEBUG
     if (z_debug__is_enabled()) {
         bool const previously_drawing_shapes = z_debug__is_drawing_shapes();
-        bool const previously_enabled_events = z_debug__is_events_enabled();
 
-        // disable events and shape drawing triggers so we can draw
-        // debug stuff without it affecting the profiler stats
+        // disable shape drawing so we can draw debug stuff
+        // without affecting the profiler stats
         z_debug__set_drawing_shapes(false);
-        z_debug__set_events_enabled(false);
         
         z_profiler__set_is_profiling(false);
 
@@ -95,17 +89,12 @@ z_drawing_end()
         z_debug__draw_stats();
 
         z_debug__draw_viewport();
-        
-        if (z_debug__is_drawing_events()) {
-            z_debug__draw_events();
-        }
 
         z_draw__flush();
 
         z_profiler__set_is_profiling(true);
         
         z_debug__set_drawing_shapes(previously_drawing_shapes);
-        z_debug__set_events_enabled(previously_enabled_events);
     }
 #endif
 
@@ -600,9 +589,6 @@ z_draw_sprite_ex(SHIZSprite const sprite,
             z_debug__draw_sprite_bounds(origin, sprite_size, SHIZColorRed,
                                         anchor, angle, layer);
         }
-
-        z_debug__add_event_resource(z_res__image(sprite.resource_id).filename,
-                                    SHIZVector3Make(origin.x, origin.y, 0));
     }
 #endif
 
@@ -725,9 +711,6 @@ z_draw_text_ex(SHIZSpriteFont const font,
                                            layer);
             }
         }
-        
-        z_debug__add_event_resource(z_res__image(font.sprite.resource_id).filename,
-                                    SHIZVector3Make(origin.x, origin.y, 0));
     }
 #endif
     

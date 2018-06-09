@@ -5,8 +5,7 @@
 #include "transform.h"
 
 #ifdef SHIZ_DEBUG
- #include "../debug/debug.h"
- #include "../debug/profiler.h"
+ #include "../debug/profiler.h" // z_profiler_*
 #endif
 
 static void z_gfx__immediate_state(bool enable);
@@ -117,14 +116,6 @@ z_gfx__render_immediate(GLenum const mode,
     glUseProgram(0);
     
     z_gfx__immediate_state(false);
-    
-#ifdef SHIZ_DEBUG
-    if (origin.x == 0 && origin.y == 0 && origin.z == 0 && count > 0) {
-        z_debug__add_event_draw(SHIZDebugEventNamePrimitive, vertices[0].position);
-    } else {
-        z_debug__add_event_draw(SHIZDebugEventNamePrimitive, origin);
-    }
-#endif
 }
 
 bool

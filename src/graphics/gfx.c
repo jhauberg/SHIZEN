@@ -9,8 +9,7 @@
 #include "immediate.h"
 
 #ifdef SHIZ_DEBUG
- #include "../debug/debug.h"
- #include "../debug/profiler.h"
+ #include "../debug/profiler.h" // z_profiler_*
 #endif
 
 #include <stdio.h> // fprintf

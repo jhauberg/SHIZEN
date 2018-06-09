@@ -5,8 +5,7 @@
 #include "transform.h"
 
 #ifdef SHIZ_DEBUG
- #include "../debug/debug.h"
- #include "../debug/profiler.h"
+ #include "../debug/profiler.h" // z_profiler_*
 #endif
 
 #define SPRITES_MAX 128 /* flush when reaching this limit */
@@ -169,9 +168,7 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
     if (_spritebatch.texture_id != 0 && /* dont flush if texture is not set yet */
         _spritebatch.texture_id != texture_id) {
         if (z_gfx__spritebatch_flush()) {
-#ifdef SHIZ_DEBUG
-            z_debug__add_event_draw(SHIZDebugEventNameFlushByTextureSwitch, origin);
-#endif
+            // texture switch requires flushing
         }
     }
     
@@ -179,9 +176,7 @@ z_gfx__add_sprite(SHIZVertexPositionColorTexture const * restrict const vertices
     
     if (_spritebatch.count + 1 > SPRITES_MAX) {
         if (z_gfx__spritebatch_flush()) {
-#ifdef SHIZ_DEBUG
-            z_debug__add_event_draw(SHIZDebugEventNameFlushByCapacity, origin);
-#endif
+            // hitting capacity requires flushing
         }
     }
     
@@ -220,13 +215,6 @@ z_gfx__spritebatch_flush()
     if (_spritebatch.count == 0) {
         return false;
     }
-    
-#ifdef SHIZ_DEBUG
-    // note that this will use the center of the sprite, which may not correlate to the anchor
-    // that this sprite was drawn with
-    z_debug__add_event_draw(SHIZDebugEventNameFlush,
-                            z_debug__get_last_sprite_origin());
-#endif
     
     mat4x4 model;
     mat4x4_identity(model);
@@ -300,27 +288,3 @@ z_gfx__spritebatch_state(bool const enable)
         glDisable(GL_BLEND);
     }
 }
-
-#ifdef SHIZ_DEBUG
-
-SHIZVector3
-z_debug__get_last_sprite_origin()
-{
-    if (_spritebatch.count > 0) {
-        uint32_t const offset = (_spritebatch.count - 1) * VERTEX_COUNT_PER_SPRITE;
-        
-        SHIZVector3 const bl = _spritebatch.vertices[offset + 2].position;
-        SHIZVector3 const tr = _spritebatch.vertices[offset + 4].position;
-        
-        SHIZVector3 const mid_point =
-            SHIZVector3Make((bl.x + tr.x) / 2,
-                            (bl.y + tr.y) / 2,
-                            (bl.z + tr.z) / 2);
-        
-        return mid_point;
-    }
-    
-    return SHIZVector3Zero;
-}
-
-#endif
