@@ -1,3 +1,5 @@
+#include <SHIZEN/zsound.h> // z_sound_*
+
 #include "mixer.h" // z_mixer_*
 #include "res.h" // SHIZResourceSound
 
@@ -72,28 +74,6 @@ z_mixer__kill()
     return true;
 }
 
-void
-z_mixer__play_sound(uint8_t const sound_resource_id)
-{
-    SHIZResourceSound const resource = z_res__sound(sound_resource_id);
-    
-    alSourcePlay(resource.source_id);
-#ifdef SHIZ_DEBUG
-    z_mixer__process_errors();
-#endif
-}
-
-void
-z_mixer__stop_sound(uint8_t const sound_resource_id)
-{
-    SHIZResourceSound const resource = z_res__sound(sound_resource_id);
-    
-    alSourceStop(resource.source_id);
-#ifdef SHIZ_DEBUG
-    z_mixer__process_errors();
-#endif
-}
-
 bool
 z_mixer__create_sound(SHIZResourceSound * const resource,
                       int32_t const channels,
@@ -149,6 +129,28 @@ z_mixer__destroy_sound(SHIZResourceSound const * const resource)
     z_mixer__process_errors();
 #endif
     return true;
+}
+
+void
+z_sound_play(uint8_t const sound_resource_id)
+{
+    SHIZResourceSound const resource = z_res__sound(sound_resource_id);
+    
+    alSourcePlay(resource.source_id);
+#ifdef SHIZ_DEBUG
+    z_mixer__process_errors();
+#endif
+}
+
+void
+z_sound_stop(uint8_t const sound_resource_id)
+{
+    SHIZResourceSound const resource = z_res__sound(sound_resource_id);
+    
+    alSourceStop(resource.source_id);
+#ifdef SHIZ_DEBUG
+    z_mixer__process_errors();
+#endif
 }
 
 #ifdef SHIZ_DEBUG

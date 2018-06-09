@@ -8,8 +8,8 @@
 bool z_mixer__init(void);
 bool z_mixer__kill(void);
 
-void z_mixer__play_sound(uint8_t sound_resource_id);
-void z_mixer__stop_sound(uint8_t sound_resource_id);
+//void z_mixer__play_sound(uint8_t sound_resource_id);
+//void z_mixer__stop_sound(uint8_t sound_resource_id);
 
 bool z_mixer__create_sound(SHIZResourceSound * resource,
                            int32_t channels,
